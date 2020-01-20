@@ -36,10 +36,10 @@ jacocoTestReport {
 			'**/**IT**.**' // exclude integration tests files
 	]
 
-	classDirectories = fileTree(
+	getClassDirectories().setFrom(fileTree(
 			dir: "$buildDir/classes/",
 			excludes: excludes
-	)
+	))
 
 //	sourceSets sourceSets.main
 	executionData allTests // include integration tests in jacoco reports
