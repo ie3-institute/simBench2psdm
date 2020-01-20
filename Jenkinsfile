@@ -80,6 +80,9 @@ def log(String level, String message) {
     println(p(level) + message)
 }
 
+// disable scan
+if(isBranchIndexingCause())
+    return
 
 /////////////////////////
 // master branch script
@@ -649,4 +652,18 @@ def resolveBranchName(String featureBranchPRMinusNo, String orgName, String repo
 
     return branch
 
+}
+
+def isBranchIndexingCause() {
+    def isBranchIndexing = false
+    if (!currentBuild.rawBuild) {
+        return true
+    }
+
+    currentBuild.rawBuild.getCauses().each { cause ->
+        if (cause instanceof jenkins.branch.BranchIndexingCause) {
+            isBranchIndexing = true
+        }
+    }
+    return isBranchIndexing
 }
