@@ -72,9 +72,6 @@ dependencies {
 
 	/* Handling compressed archives */
 	compile "org.apache.commons:commons-compress:+"
-
-	compile "com.sksamuel.scapegoat:scalac-scapegoat-plugin_${scalaVersion}:1.3.+" // scala scapegoat
-	scalaCompilerPlugin "com.sksamuel.scapegoat:scalac-scapegoat-plugin_${scalaVersion}:1.3.+" // scala scapegoat
 }
 
 wrapper {
