@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~ Copyright (c) 2019. TU Dortmund University,
+  ~ Institute of Energy Systems, Energy Efficiency and Energy Economics,
+  ~ Research group Distribution grid planning and operation
+  -->
+
+<Configuration>
+    <Appenders>
+        <Console name="Console" target="SYSTEM_OUT">
+            <PatternLayout pattern="%d{HH:mm:ss.SSS} %-5level - %msg%n"/>
+        </Console>
+
+        <RollingRandomAccessFile name="RF" fileName="logs/simbench/simbench.log"
+                                 filePattern="logs/simbench/archive/simbench-%d{yyyyMMdd-HHmmss}.log">
+            <PatternLayout pattern="%d{HH:mm:ss.SSS} [%t] %-5level %logger{36} - %msg%n"/>
+            <Policies>
+                <OnStartupTriggeringPolicy minSize="2 MB"/>
+            </Policies>
+            <DefaultRolloverStrategy>
+                <Delete basePath="logs/simbench/archive" maxDepth="1">
+                    <IfAccumulatedFileCount exceeds="10"/>
+                </Delete>
+            </DefaultRolloverStrategy>
+        </RollingRandomAccessFile>
+    </Appenders>
+    <Loggers>
+        <asyncRoot level="debug">
+            <AppenderRef ref="Console" level="info"/>
+            <AppenderRef ref="RF" level="debug"/>
+        </asyncRoot>
+    </Loggers>
+</Configuration>

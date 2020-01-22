@@ -36,9 +36,12 @@ apply from: scriptsLocation + 'jacoco.gradle' // jacoco java code coverage
 repositories {
 	jcenter() //searches in bintray's repository 'jCenter', which contains Maven Central
 	maven { url 'https://www.jitpack.io' } // allows github repos as dependencies
+	maven { url 'https://oss.sonatype.org/content/repositories/snapshots' }
 }
 
 dependencies {
+	compile 'com.github.ie3-institute:PowerSystemUtils:+' // util functions
+
 	// logging
 	compile "org.slf4j:slf4j-api:${slf4jVersion}"  // slf4j wrapper
 	compile 'com.lmax:disruptor:3.4.2' // async logging
