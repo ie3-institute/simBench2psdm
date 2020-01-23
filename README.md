@@ -1,4 +1,5 @@
 # simbench4ie3
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/c339035212004716bab94c774da476aa)](https://app.codacy.com/gh/ie3-institute/simbench4ie3?utm_source=github.com&utm_medium=referral&utm_content=ie3-institute/simbench4ie3&utm_campaign=Badge_Grade_Dashboard)
 [![simbench logo](https://simbench.de/wp-content/uploads/2019/01/logo.png  "SimBench Logo")](https://www.simbench.net)
 
 
