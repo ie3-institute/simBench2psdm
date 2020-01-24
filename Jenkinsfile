@@ -20,6 +20,7 @@ projects = ['simbench4ie3']
 orgNames = ['ie3-institute']
 urls = ['git@github.com:' + orgNames.get(0)]
 
+def sonarqubeProjectKey = "edu.ie3:simbench4ie3"
 
 //// git webhook trigger token
 //// http://JENKINS_URL/generic-webhook-trigger/invoke?token=<webhookTriggerToken>
@@ -250,7 +251,7 @@ if (env.BRANCH_NAME == "master") {
 
                     stage('SonarQube analysis') {
                         withSonarQubeEnv() { // Will pick the global server connection from jenkins for sonarqube
-                            gradle("-p ${projects.get(0)} sonarqube -Dsonar.branch.name=master ")
+                            gradle("-p ${projects.get(0)} sonarqube -Dsonar.branch.name=master  -Dsonar.projectKey=$sonarqubeProjectKey")
                         }
                     }
 
