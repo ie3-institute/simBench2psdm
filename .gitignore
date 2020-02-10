@@ -142,3 +142,9 @@ gradle-app.setting
 
 # Cache of project
 .gradletasknamecache
+
+# Downloader test folder
+testData/download
+!testData/download/1-LV-rural1--0-no_sw.zip
+!testData/download/targetFolderExistsAndIsFile
+!testData/download/targetFolderExistsAndIsFile.zip
