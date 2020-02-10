@@ -32,7 +32,8 @@ trait SimbenchHelper extends LazyLogging {
                        parsedArgs.configLocation.getOrElse(""))
 
     val configFromLocationPath =
-      ConfigFactory.parseString(s"config=${parsedArgs.configLocation.get}")
+      ConfigFactory.parseString(
+        s"config=${parsedArgs.configLocation.getOrElse(throw new SimbenchConfigException("Cannot get config location from configuration!"))}")
 
     // note: this overrides the default config values provided in the config file!
     // THE ORDER OF THE CALLS MATTERS -> the later the call, the more "fallback" -> first config is always the primary one!

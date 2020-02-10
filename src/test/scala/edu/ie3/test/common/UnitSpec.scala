@@ -7,4 +7,4 @@ trait UnitSpec
     extends WordSpecLike
     with Matchers
     with LazyLogging
-    with PrivateMethodTester {}
+    with PrivateMethodTester

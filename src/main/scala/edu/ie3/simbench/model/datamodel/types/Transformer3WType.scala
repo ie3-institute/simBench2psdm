@@ -1,7 +1,7 @@
 package edu.ie3.simbench.model.datamodel.types
 
-import edu.ie3.simbench.model.datamodel.enums.BranchElementPort
 import edu.ie3.simbench.model.datamodel.SimbenchModel
+import edu.ie3.simbench.model.datamodel.enums.BranchElementPort
 
 /**
   * Modeling a type of a two winding transformer
