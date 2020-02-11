@@ -55,7 +55,7 @@ case object ResProfileType {
     */
   @throws[SimbenchDataModelException]
   def apply(typeString: String): ResProfileType =
-    typeString.toLowerCase.toLowerCase
+    typeString.toLowerCase
       .replaceAll("[_-]+", "") match {
       case "bm1"        => BM1
       case "bm2"        => BM2

@@ -22,4 +22,4 @@ case class Load(id: String,
                 sR: BigDecimal,
                 subnet: String,
                 voltLvl: Int)
-    extends EntityModel
+    extends ShuntModel

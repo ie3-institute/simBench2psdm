@@ -85,7 +85,7 @@ object LoadProfileType {
     */
   @throws[SimbenchDataModelException]
   def apply(typeString: String): LoadProfileType =
-    typeString.toLowerCase.toLowerCase
+    typeString.toLowerCase
       .replaceAll("[_-]+|(qload)+|(pload)+", "") match {
       case "blh"        => BLH
       case "g0a"        => G0A

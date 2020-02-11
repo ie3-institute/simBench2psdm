@@ -338,7 +338,7 @@ object PowerPlantProfileType {
     */
   @throws[SimbenchDataModelException]
   def apply(typeString: String): PowerPlantProfileType =
-    typeString.toLowerCase.toLowerCase
+    typeString.toLowerCase
       .replaceAll("[_-]+|(pp)+", "") match {
       case "1"    => PowerPlantProfile1
       case "10"   => PowerPlantProfile10
