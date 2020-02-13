@@ -4,16 +4,14 @@ import java.io.File
 import java.nio.file.{Files, Paths}
 import java.util.regex.Pattern
 
-import edu.ie3.simbench.exception.io.DownloaderException
+import edu.ie3.simbench.exception.io.{DownloaderException, IoException}
 import edu.ie3.test.common.UnitSpec
 import edu.ie3.util.io.FileHelper
 
-import scala.concurrent.ExecutionContext
-import scala.util.{Failure, Success}
 import scala.jdk.StreamConverters._
 import scala.language.postfixOps
 
-class DownloaderSpec extends UnitSpec with IoBaseData {
+class DownloaderSpec extends UnitSpec with IoUtils {
   val downloader: Downloader = Downloader(
     "testData/download/",
     "http://141.51.193.167/simbench/gui/usecase/download")
@@ -40,7 +38,7 @@ class DownloaderSpec extends UnitSpec with IoBaseData {
   "The unzipping" should {
     "throw an exception, if the questioned zip archive is not apparent" in {
       val path = Paths.get("totally/random/non/exsisting/file.zip")
-      val thrown = intercept[DownloaderException] {
+      val thrown = intercept[IoException] {
         Downloader.unzip(downloader, path)
       }
 
@@ -49,7 +47,7 @@ class DownloaderSpec extends UnitSpec with IoBaseData {
 
     "throw an exception, if the unzip routine is pointed to a directory" in {
       val path = Paths.get("inputData/download")
-      val thrown = intercept[DownloaderException] {
+      val thrown = intercept[IoException] {
         Downloader.unzip(downloader, path)
       }
 
@@ -61,7 +59,7 @@ class DownloaderSpec extends UnitSpec with IoBaseData {
       val filePath = Files.createFile(
         Paths.get(pwd, s"${downloader.downloadFolder}/test.txt"))
 
-      intercept[DownloaderException] {
+      intercept[IoException] {
         Downloader.unzip(downloader, filePath)
       }
       /* Message cannot be tested, as the path is dependent of the location of the code. */

@@ -14,7 +14,7 @@ import scala.concurrent.Future
 
 case class Downloader(downloadFolder: String, baseUrl: String)
 
-case object Downloader extends IoBaseData with LazyLogging {
+case object Downloader extends IoUtils with LazyLogging {
 
   /**
     * Download the data set for the specified simbenchCode. The code has to be a valid code! It is
@@ -46,19 +46,7 @@ case object Downloader extends IoBaseData with LazyLogging {
             zipArchive: Path,
             flattenDirectories: Boolean = false): Path = {
     /* Pre-unzip safety checks */
-    if (!Files.exists(zipArchive)) {
-      throw DownloaderException(
-        s"The file $zipArchive cannot be unzipped, as it does not exist.")
-    }
-    if (Files.isDirectory(zipArchive)) {
-      throw DownloaderException(
-        s"The file $zipArchive cannot be unzipped, as it is a directory.")
-    }
-    if (!zipArchive.toAbsolutePath.toString.endsWith(".zip")) {
-      throw DownloaderException(
-        s"The file $zipArchive cannot be unzipped, as it is of wrong file " +
-          s"type. Only .zip is supported (case sensitive).")
-    }
+    IoUtils.checkFileExists(zipArchive, ".zip")
 
     /* Create and check the target folder */
     val archiveName = fileNameRegex("zip")
