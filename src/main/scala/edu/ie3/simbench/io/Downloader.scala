@@ -41,6 +41,14 @@ case object Downloader extends IoUtils with LazyLogging {
     downloadPath
   }
 
+  /**
+    * Unzips a given zip archive and returns the path to the folder, where the decompressed files are stored
+    *
+    * @param downloader Downloader to use
+    * @param zipArchive Path to archive file
+    * @param flattenDirectories true, if the directory tree in the archive should be flattened
+    * @return [[Path]] to the folder, where the decompressed files are stored
+    */
   @throws(classOf[DownloaderException])
   def unzip(downloader: Downloader,
             zipArchive: Path,
