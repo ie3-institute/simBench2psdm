@@ -1,5 +1,6 @@
 package edu.ie3.simbench.model.datamodel
 
+import edu.ie3.simbench.model.datamodel.SimbenchModel.SimbenchCompanionObject
 import edu.ie3.simbench.model.datamodel.enums.CalculationType
 
 /**
@@ -12,7 +13,7 @@ sealed trait ExternalNet extends ShuntModel {
   val qExt: BigDecimal
 }
 
-object ExternalNet {
+object ExternalNet extends SimbenchCompanionObject[ExternalNet] {
 
   /**
     * A simple external net only providing power and some voltage regulation facilities
@@ -89,4 +90,24 @@ object ExternalNet {
       extends ExternalNet {
     override val calculationType: CalculationType = CalculationType.WardExtended
   }
+
+  /**
+    * Get an Array of table fields denoting the mapping to the model's attributes
+    *
+    * @return Array of table headings
+    */
+  override def getFields: Array[String] =
+    Array("id",
+          "node",
+          "calc_type",
+          "dspf",
+          "pExtNet",
+          "qExtNet",
+          "pWardShunt",
+          "qWardShunt",
+          "rXWard",
+          "xXWard",
+          "vmXWard",
+          "subnet",
+          "voltLvl")
 }

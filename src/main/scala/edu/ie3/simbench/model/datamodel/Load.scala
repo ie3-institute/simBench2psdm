@@ -1,5 +1,6 @@
 package edu.ie3.simbench.model.datamodel
 
+import edu.ie3.simbench.model.datamodel.SimbenchModel.SimbenchCompanionObject
 import edu.ie3.simbench.model.datamodel.profiles.LoadProfileType
 
 /**
@@ -23,3 +24,14 @@ case class Load(id: String,
                 subnet: String,
                 voltLvl: Int)
     extends ShuntModel
+
+case object Load extends SimbenchCompanionObject[Load] {
+
+  /**
+    * Get an Array of table fields denoting the mapping to the model's attributes
+    *
+    * @return Array of table headings
+    */
+  override def getFields: Array[String] =
+    Array("id", "node", "profile", "pLoad", "qLoad", "sR", "subnet", "voltLvl")
+}

@@ -1,5 +1,6 @@
 package edu.ie3.simbench.model.datamodel
 
+import edu.ie3.simbench.model.datamodel.SimbenchModel.SimbenchCompanionObject
 import edu.ie3.simbench.model.datamodel.enums.{CalculationType, ResType}
 import edu.ie3.simbench.model.datamodel.profiles.ResProfile
 
@@ -28,3 +29,12 @@ case class RES(id: String,
                subnet: String,
                voltLvl: Int)
     extends ShuntModel
+
+case object RES extends SimbenchCompanionObject[RES] {
+  /**
+    * Get an Array of table fields denoting the mapping to the model's attributes
+    *
+    * @return Array of table headings
+    */
+  override def getFields: Array[String] = Array("id", "node", "type", "profile", "calc_type", "pRES", "qRES", "sR", "subnet", "voltLvl")
+}

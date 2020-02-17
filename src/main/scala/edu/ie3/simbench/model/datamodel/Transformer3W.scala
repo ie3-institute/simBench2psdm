@@ -1,5 +1,6 @@
 package edu.ie3.simbench.model.datamodel
 
+import edu.ie3.simbench.model.datamodel.SimbenchModel.SimbenchCompanionObject
 import edu.ie3.simbench.model.datamodel.enums.BranchElementPort
 import edu.ie3.simbench.model.datamodel.types.Transformer3WType
 
@@ -36,3 +37,12 @@ case class Transformer3W(id: String,
                          subnet: String,
                          voltLvl: Int)
     extends EntityModel
+
+case object Transformer3W extends SimbenchCompanionObject[Transformer3W] {
+  /**
+    * Get an Array of table fields denoting the mapping to the model's attributes
+    *
+    * @return Array of table headings
+    */
+  override def getFields: Array[String] = Array.empty[String]
+}

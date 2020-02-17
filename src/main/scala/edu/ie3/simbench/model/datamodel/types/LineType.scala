@@ -1,11 +1,12 @@
 package edu.ie3.simbench.model.datamodel.types
 
 import edu.ie3.simbench.model.datamodel.SimbenchModel
+import edu.ie3.simbench.model.datamodel.SimbenchModel.SimbenchCompanionObject
 import edu.ie3.simbench.model.datamodel.enums.LineStyle
 
 sealed trait LineType extends SimbenchModel
 
-object LineType {
+object LineType extends SimbenchCompanionObject[LineType] {
 
   /**
     * Describing the attributes of a piece of AC line
@@ -48,4 +49,12 @@ object LineType {
                         qMinB: BigDecimal,
                         qMaxB: BigDecimal)
       extends LineType
+
+  /**
+    * Get an Array of table fields denoting the mapping to the model's attributes
+    *
+    * @return Array of table headings
+    */
+  override def getFields: Array[String] =
+    Array("id", "r", "x", "b", "iMax", "type")
 }
