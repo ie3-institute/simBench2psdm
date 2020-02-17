@@ -2,7 +2,6 @@ package edu.ie3.simbench.io
 
 import java.io.File
 import java.nio.file.{Files, Paths}
-import java.util.regex.Pattern
 
 import edu.ie3.simbench.exception.io.{DownloaderException, IoException}
 import edu.ie3.test.common.UnitSpec
@@ -15,11 +14,6 @@ class DownloaderSpec extends UnitSpec with IoUtils {
   val downloader: Downloader = Downloader(
     "testData/download/",
     "http://141.51.193.167/simbench/gui/usecase/download")
-
-  private val currentDirDotPattern: Pattern = Pattern.compile("[/\\\\]\\.")
-  val pwd: String = currentDirDotPattern
-    .matcher(Paths.get(".").toAbsolutePath.toString)
-    .replaceAll("")
 
   "The download" should {
     "provide a file in the correct location" in {
