@@ -36,7 +36,8 @@ final case class CsvReader(filePath: String,
         .getOrElse(throw IoException("The file does not contain any line."))
       val fieldMapping = mapFields(headLine, desiredFields)
 
-      (for (line <- bufferedSource.getLines().drop(1)) yield {
+      /* The buffered source continues with the second line, as the headline has already been read */
+      (for (line <- bufferedSource.getLines()) yield {
         readLine(line, fieldMapping)
       }).toVector
     } finally {

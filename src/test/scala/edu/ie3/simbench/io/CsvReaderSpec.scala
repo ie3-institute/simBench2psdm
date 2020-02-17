@@ -7,6 +7,14 @@ class CsvReaderSpec extends UnitSpec {
   "The csv reader" should {
     val classLoader = this.getClass.getClassLoader
     val validCsvFilePath = classLoader.getResource("io/csv/Load.csv").getPath
+    val validFields = Array("id",
+                            "node",
+                            "profile",
+                            "pLoad",
+                            "qLoad",
+                            "sR",
+                            "subnet",
+                            "voltLvl")
     val invalidFilePath =
       classLoader.getResource("io/csv/invalidFile.png").getPath
     val separator = ";"
@@ -138,6 +146,36 @@ class CsvReaderSpec extends UnitSpec {
 
       thrown.getMessage.contains(
         "does not contain the correct amount of fields (apparent = 7, needed = 8)") shouldBe true
+    }
+
+    "read the valid file correctly" in {
+      val csvReader = CsvReader(validCsvFilePath, separator)
+      val result = csvReader.read(validFields)
+
+      val expected = Vector(
+        Map(
+          "id" -> "LV1.101 Load 1",
+          "node" -> "LV1.101 Bus 10",
+          "profile" -> "L2-A",
+          "pLoad" -> "0.006",
+          "qLoad" -> "0.002371",
+          "sR" -> "0.00645161",
+          "subnet" -> "LV1.101",
+          "voltLvl" -> "7"
+        ),
+        Map(
+          "id" -> "LV1.101 Load 2",
+          "node" -> "LV1.101 Bus 8",
+          "profile" -> "H0-C",
+          "pLoad" -> "0.003",
+          "qLoad" -> "0.001186",
+          "sR" -> "0.00322581",
+          "subnet" -> "LV1.101",
+          "voltLvl" -> "7"
+        )
+      )
+
+      result shouldBe expected
     }
   }
 }
