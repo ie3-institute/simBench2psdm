@@ -33,10 +33,22 @@ case class Transformer2W(id: String,
     extends EntityModel
 
 case object Transformer2W extends SimbenchCompanionObject[Transformer2W] {
+
   /**
     * Get an Array of table fields denoting the mapping to the model's attributes
     *
     * @return Array of table headings
     */
-  override def getFields: Array[String] = Array("id", "nodeHV", "nodeLV", "type", "tappos", "autoTap", "autoTapSide", "loadingMax", "substation", "subnet", "voltLvl")
+  override def getFields: Array[String] =
+    Array("id",
+          "nodeHV",
+          "nodeLV",
+          "type",
+          "tappos",
+          "autoTap",
+          "autoTapSide",
+          "loadingMax",
+          "substation",
+          "subnet",
+          "voltLvl")
 }

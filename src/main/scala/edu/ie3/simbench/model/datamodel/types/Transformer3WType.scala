@@ -78,7 +78,9 @@ case class Transformer3WType(id: String,
                              tapMaxLV: Int)
     extends SimbenchModel
 
-case object Transformer3WType extends SimbenchCompanionObject[Transformer3WType] {
+case object Transformer3WType
+    extends SimbenchCompanionObject[Transformer3WType] {
+
   /**
     * Get an Array of table fields denoting the mapping to the model's attributes
     *

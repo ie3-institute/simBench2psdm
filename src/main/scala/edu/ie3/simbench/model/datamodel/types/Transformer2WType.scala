@@ -42,11 +42,29 @@ case class Transformer2WType(id: String,
                              tapMax: Int)
     extends SimbenchModel
 
-case object Transformer2WType extends SimbenchCompanionObject[Transformer2WType] {
+case object Transformer2WType
+    extends SimbenchCompanionObject[Transformer2WType] {
+
   /**
     * Get an Array of table fields denoting the mapping to the model's attributes
     *
     * @return Array of table headings
     */
-  override def getFields: Array[String] = Array("id", "sR", "vmHV", "vmLV", "va0", "vmImp", "pCu", "pFe", "iNoLoad", "tapable", "tapside", "dVm", "dVa","tapNeutr", "tapMin", "tapMax")
+  override def getFields: Array[String] =
+    Array("id",
+          "sR",
+          "vmHV",
+          "vmLV",
+          "va0",
+          "vmImp",
+          "pCu",
+          "pFe",
+          "iNoLoad",
+          "tapable",
+          "tapside",
+          "dVm",
+          "dVa",
+          "tapNeutr",
+          "tapMin",
+          "tapMax")
 }

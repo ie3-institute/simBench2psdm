@@ -56,7 +56,8 @@ class IoUtilsSpec extends UnitSpec {
       IoUtils.fullyQualifiedPathRegex.matches("C:\\foo\\bar\\file.ext") shouldBe true
       IoUtils.fullyQualifiedPathRegex.matches("C:\\\\foo\\bar\\file.ext") shouldBe true
       IoUtils.fullyQualifiedPathRegex.matches("C:\\a@b.com\\foo\\bar\\file.ext") shouldBe true
-      IoUtils.fullyQualifiedPathRegex.matches("C:\\\\a@b.com\\foo\\bar\\file.ext") shouldBe true
+      IoUtils.fullyQualifiedPathRegex.matches(
+        "C:\\\\a@b.com\\foo\\bar\\file.ext") shouldBe true
       IoUtils.fullyQualifiedPathRegex.matches("/bla/file.ext") shouldBe true
       IoUtils.fullyQualifiedPathRegex.matches("/foo/bar/bla/file.ext") shouldBe true
       IoUtils.fullyQualifiedPathRegex.matches("/a@b.com/foo/bar/bla/file.ext") shouldBe true

@@ -39,6 +39,7 @@ case class Transformer3W(id: String,
     extends EntityModel
 
 case object Transformer3W extends SimbenchCompanionObject[Transformer3W] {
+
   /**
     * Get an Array of table fields denoting the mapping to the model's attributes
     *

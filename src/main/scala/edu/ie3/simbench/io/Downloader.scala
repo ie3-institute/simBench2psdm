@@ -10,8 +10,6 @@ import com.typesafe.scalalogging.LazyLogging
 import edu.ie3.simbench.exception.io.DownloaderException
 import org.apache.commons.compress.archivers.zip.ZipFile
 
-import scala.concurrent.Future
-
 case class Downloader(downloadFolder: String, baseUrl: String)
 
 case object Downloader extends IoUtils with LazyLogging {

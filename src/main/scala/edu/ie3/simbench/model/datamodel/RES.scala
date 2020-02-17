@@ -31,10 +31,21 @@ case class RES(id: String,
     extends ShuntModel
 
 case object RES extends SimbenchCompanionObject[RES] {
+
   /**
     * Get an Array of table fields denoting the mapping to the model's attributes
     *
     * @return Array of table headings
     */
-  override def getFields: Array[String] = Array("id", "node", "type", "profile", "calc_type", "pRES", "qRES", "sR", "subnet", "voltLvl")
+  override def getFields: Array[String] =
+    Array("id",
+          "node",
+          "type",
+          "profile",
+          "calc_type",
+          "pRES",
+          "qRES",
+          "sR",
+          "subnet",
+          "voltLvl")
 }
