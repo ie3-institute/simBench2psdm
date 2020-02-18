@@ -33,7 +33,7 @@ case class Node(id: String,
     extends EntityModel
 
 case object Node extends EntityCompanionObject[Node] {
-  val NODE_TYPE = "nodeType"
+  val NODE_TYPE = "type"
   val VMR = "vmR"
   val VM_SETP = "vmSetp"
   val VA_SETP = "vaSetp"

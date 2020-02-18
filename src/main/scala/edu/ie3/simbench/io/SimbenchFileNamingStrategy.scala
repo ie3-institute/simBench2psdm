@@ -5,11 +5,14 @@ import edu.ie3.simbench.model.datamodel.ExternalNet.{Simple, Ward, WardExtended}
 import edu.ie3.simbench.model.datamodel.Line.{ACLine, DCLine}
 import edu.ie3.simbench.model.datamodel.types.LineType.{ACLineType, DCLineType}
 import edu.ie3.simbench.model.datamodel.types.{
+  LineType,
   Transformer2WType,
   Transformer3WType
 }
 import edu.ie3.simbench.model.datamodel.{
   Coordinate,
+  ExternalNet,
+  Line,
   Load,
   Node,
   RES,
@@ -28,11 +31,14 @@ case object SimbenchFileNamingStrategy {
   private def modelFileMapping: Map[Class[_ <: SimbenchModel], String] =
     Map[Class[_ <: SimbenchModel], String](
       classOf[Coordinate] -> "Coordinates",
+      classOf[ExternalNet] -> "ExternalNet",
       classOf[Simple] -> "ExternalNet",
       classOf[Ward] -> "ExternalNet",
       classOf[WardExtended] -> "ExternalNet",
+      classOf[Line[_]] -> "Line",
       classOf[ACLine] -> "Line",
       classOf[DCLine] -> "Line",
+      classOf[LineType] -> "LineType",
       classOf[ACLineType] -> "LineType",
       classOf[DCLineType] -> "LineType",
       classOf[Load] -> "Load",

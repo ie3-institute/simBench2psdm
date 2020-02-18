@@ -58,10 +58,7 @@ final case class SimbenchReader(folderPath: Path,
     (classOf[Load], Load.getFields),
     (classOf[Node], Node.getFields),
     (classOf[RES], RES.getFields),
-    (classOf[Transformer2W], Transformer2W.getFields),
-    (classOf[Transformer2WType], Transformer2WType.getFields),
-    (classOf[Transformer3W], Transformer3W.getFields),
-    (classOf[Transformer3WType], Transformer3WType.getFields)
+    (classOf[Transformer2W], Transformer2W.getFields)
   )
 
   /**
@@ -97,7 +94,7 @@ final case class SimbenchReader(folderPath: Path,
       SimbenchFileNamingStrategy.getFileName(modelClass) match {
         case Failure(exception) =>
           throw IoException(
-            s"Cannot read the data set, as the file name for $modelClass can not cannot be determined",
+            s"Cannot read the data set, as the file name for $modelClass can not be determined",
             exception)
         case Success(filename) =>
           val csvReader =

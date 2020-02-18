@@ -3,7 +3,21 @@ package edu.ie3.simbench.io
 import java.nio.file.Paths
 
 import edu.ie3.simbench.exception.io.IoException
-import edu.ie3.simbench.model.datamodel.{Coordinate, SimbenchModel}
+import edu.ie3.simbench.model.datamodel.types.{
+  LineType,
+  Transformer2WType,
+  Transformer3WType
+}
+import edu.ie3.simbench.model.datamodel.{
+  Coordinate,
+  ExternalNet,
+  Load,
+  Node,
+  RES,
+  SimbenchModel,
+  Transformer2W,
+  Transformer3W
+}
 import edu.ie3.test.common.UnitSpec
 
 import scala.concurrent.{ExecutionContext, ExecutionContextExecutor, Future}
@@ -81,6 +95,44 @@ class SimbenchReaderSpec extends UnitSpec {
       }
     }
 
-    // TODO: Test SimbenchReader#getFieldToValueMaps
+    "get the field to value maps correctly" in {
+      val fieldToValuesMethod = PrivateMethod[Map[Class[_ <: SimbenchModel],
+                                                  Vector[Map[String, String]]]](
+        Symbol("getFieldToValueMaps"))
+      val fieldToValuesMap = reader invokePrivate fieldToValuesMethod()
+
+      fieldToValuesMap.keySet.size shouldBe 7
+
+      fieldToValuesMap
+        .getOrElse(classOf[Coordinate],
+                   fail(s"No entry available for class ${classOf[Coordinate]}"))
+        .length shouldBe 3
+      fieldToValuesMap
+        .getOrElse(
+          classOf[ExternalNet],
+          fail(s"No entry available for class ${classOf[ExternalNet]}"))
+        .length shouldBe 1
+      fieldToValuesMap
+        .getOrElse(classOf[LineType],
+                   fail(s"No entry available for class ${classOf[LineType]}"))
+        .length shouldBe 21
+      fieldToValuesMap
+        .getOrElse(classOf[Load],
+                   fail(s"No entry available for class ${classOf[Load]}"))
+        .length shouldBe 1
+      fieldToValuesMap
+        .getOrElse(classOf[Node],
+                   fail(s"No entry available for class ${classOf[Node]}"))
+        .length shouldBe 3
+      fieldToValuesMap
+        .getOrElse(classOf[RES],
+                   fail(s"No entry available for class ${classOf[RES]}"))
+        .length shouldBe 1
+      fieldToValuesMap
+        .getOrElse(
+          classOf[Transformer2W],
+          fail(s"No entry available for class ${classOf[Transformer2W]}"))
+        .length shouldBe 1
+    }
   }
 }
