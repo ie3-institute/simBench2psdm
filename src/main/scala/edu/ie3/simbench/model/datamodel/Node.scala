@@ -1,5 +1,6 @@
 package edu.ie3.simbench.model.datamodel
 
+import edu.ie3.simbench.exception.io.SimbenchDataModelException
 import edu.ie3.simbench.model.RawModelData
 import edu.ie3.simbench.model.datamodel.SimbenchModel.SimbenchCompanionObject
 import edu.ie3.simbench.model.datamodel.enums.NodeType
@@ -21,13 +22,13 @@ import edu.ie3.simbench.model.datamodel.enums.NodeType
   */
 case class Node(id: String,
                 nodeType: NodeType,
-                vmSetp: BigDecimal,
+                vmSetp: Option[BigDecimal] = None,
                 vaSetp: Option[BigDecimal] = None,
                 vmR: BigDecimal,
                 vmMin: BigDecimal,
                 vmMax: BigDecimal,
-                substation: Substation,
-                coordinate: Coordinate,
+                substation: Option[Substation] = None,
+                coordinate: Option[Coordinate] = None,
                 subnet: String,
                 voltLvl: Int)
     extends EntityModel
@@ -60,10 +61,64 @@ case object Node extends SimbenchCompanionObject[Node] {
           COORDINATE)
 
   /**
+    * Factory method to build a batch of models from a mapping from field id to value
+    *
+    * @param rawData      Mapping from field id to value
+    * @param coordinates  Mapping from coordinate id to coordinate itself
+    * @param substations  Mapping from substation id to substation itself
+    * @return A [[Vector]] of models
+    */
+  def buildModels(rawData: Vector[RawModelData],
+                  coordinates: Map[String, Coordinate],
+                  substations: Map[String, Substation]): Vector[Node] = {
+    for (entry <- rawData) yield {
+      val coordinate = coordinates.get(entry.get(Node.COORDINATE))
+      val substation = substations.get(entry.get(Node.SUBSTATION))
+      buildModel(entry, coordinate, substation)
+    }
+  }
+
+  /**
+    * Factory method to build one model from a mapping from field id to value
+    *
+    * @param rawData    mapping from field id to value
+    * @param coordinate Option to a coordinate to use
+    * @param substation Option to a substation to use
+    * @return A [[Node]] model
+    */
+  def buildModel(rawData: RawModelData,
+                 coordinate: Option[Coordinate],
+                 substation: Option[Substation]): Node = {
+    val id = rawData.get(SimbenchModel.ID)
+    val nodeType = NodeType(rawData.get(NODE_TYPE))
+    val vmSetp = rawData.getBigDecimalOption(VM_SETP)
+    val vaSetp = rawData.getBigDecimalOption(VA_SETP)
+    val vmR = BigDecimal(rawData.get(VMR))
+    val vmMin = BigDecimal(rawData.get(V_M_MIN))
+    val vmMax = BigDecimal(rawData.get(V_M_MAX))
+    val subnet = rawData.get(EntityModel.SUBNET)
+    val voltLvl = rawData.get(EntityModel.VOLT_LVL).toInt
+
+    Node(id,
+         nodeType,
+         vmSetp,
+         vaSetp,
+         vmR,
+         vmMin,
+         vmMax,
+         substation,
+         coordinate,
+         subnet,
+         voltLvl)
+  }
+
+  /**
     * Factory method to build one model from a mapping from field id to value
     *
     * @param rawData mapping from field id to value
     * @return A model
     */
-  override def buildModel(rawData: RawModelData): Node = ???
+  override def buildModel(rawData: RawModelData): Node =
+    throw SimbenchDataModelException(
+      s"No basic implementation of model creation available for ${this.getClass.getSimpleName}")
 }

@@ -93,6 +93,15 @@ final case class SimbenchReader(folderPath: Path,
         throw IoException(
           "Cannot build substations, as no raw data has been received.")))
 
+    /* Creating the actual models */
+    val nodes = Node.buildModels(
+      rawDatas.getOrElse(
+        classOf[Node],
+        throw IoException(
+          "Cannot build nodes, as no raw data has been received.")),
+      coordinates,
+      substations)
+
     /* Create empty grid model */
     val gridModel = GridModel.apply()
 

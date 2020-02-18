@@ -1,5 +1,6 @@
 package edu.ie3.simbench.model.datamodel
 
+import edu.ie3.simbench.exception.io.SimbenchDataModelException
 import edu.ie3.simbench.model.RawModelData
 
 /**
