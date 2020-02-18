@@ -6,11 +6,7 @@ import edu.ie3.simbench.exception.io.IoException
 import edu.ie3.simbench.model.datamodel.{Coordinate, SimbenchModel}
 import edu.ie3.test.common.UnitSpec
 
-import scala.concurrent.{
-  ExecutionContext,
-  ExecutionContextExecutor,
-  Future
-}
+import scala.concurrent.{ExecutionContext, ExecutionContextExecutor, Future}
 import scala.util.{Failure, Success}
 
 class SimbenchReaderSpec extends UnitSpec {
