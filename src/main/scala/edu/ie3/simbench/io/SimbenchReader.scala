@@ -3,11 +3,7 @@ package edu.ie3.simbench.io
 import java.nio.file.Path
 
 import edu.ie3.simbench.exception.io.IoException
-import edu.ie3.simbench.model.datamodel.types.{
-  LineType,
-  Transformer2WType,
-  Transformer3WType
-}
+import edu.ie3.simbench.model.datamodel.types.LineType
 import edu.ie3.simbench.model.datamodel.{
   Coordinate,
   ExternalNet,
@@ -16,8 +12,7 @@ import edu.ie3.simbench.model.datamodel.{
   Node,
   RES,
   SimbenchModel,
-  Transformer2W,
-  Transformer3W
+  Transformer2W
 }
 
 import scala.concurrent.duration.Duration
@@ -73,6 +68,13 @@ final case class SimbenchReader(folderPath: Path,
      * Await is okay here */
     val rawData = getFieldToValueMaps
 
+    /* Extracting all types */
+    val lineTypes = getLineTypes(
+      rawData.getOrElse(
+        classOf[LineType],
+        throw IoException(
+          "Cannot build line types, as no raw data has been received.")))
+
     /* Create empty grid model */
     val gridModel = GridModel.apply()
 
@@ -123,4 +125,17 @@ final case class SimbenchReader(folderPath: Path,
       }), Duration("10 s"))
       .toMap
   }
+
+  /**
+    * Generate a mapping from line type id to the line type itself
+    *
+    * @param fieldToValueMaps Vector of field to value maps
+    * @return A mapping from line type id to line type itself
+    */
+  private def getLineTypes(
+      fieldToValueMaps: Vector[Map[String, String]]): Map[String, LineType] =
+    LineType
+      .buildModels(fieldToValueMaps)
+      .map(lineType => lineType.id -> lineType)
+      .toMap
 }

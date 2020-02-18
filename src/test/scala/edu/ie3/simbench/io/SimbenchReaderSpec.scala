@@ -3,11 +3,7 @@ package edu.ie3.simbench.io
 import java.nio.file.Paths
 
 import edu.ie3.simbench.exception.io.IoException
-import edu.ie3.simbench.model.datamodel.types.{
-  LineType,
-  Transformer2WType,
-  Transformer3WType
-}
+import edu.ie3.simbench.model.datamodel.types.LineType
 import edu.ie3.simbench.model.datamodel.{
   Coordinate,
   ExternalNet,
@@ -16,7 +12,6 @@ import edu.ie3.simbench.model.datamodel.{
   RES,
   SimbenchModel,
   Transformer2W,
-  Transformer3W
 }
 import edu.ie3.test.common.UnitSpec
 
@@ -53,7 +48,7 @@ class SimbenchReaderSpec extends UnitSpec {
             "The future terminated successfully, although it was expected to fail")
         case Failure(exception: IoException) =>
           exception.getMessage shouldBe "Cannot read the data set, as the file " +
-            "name for class edu.ie3.simbench.io.SimbenchReaderSpec$SimbenchMock$1 can not cannot be determined"
+            "name for class edu.ie3.simbench.io.SimbenchReaderSpec$SimbenchMock$1 can not be determined"
         case Failure(wrongException) =>
           fail("The future failed with the wrong Exception", wrongException)
       }

@@ -48,4 +48,12 @@ case object RES extends SimbenchCompanionObject[RES] {
           "sR",
           "subnet",
           "voltLvl")
+
+  /**
+    * Factory method to build one model from a mapping from field id to value
+    *
+    * @param fieldToValueMap mapping from field id to value
+    * @return A model
+    */
+  override def buildModel(fieldToValueMap: Map[String, String]): RES = ???
 }

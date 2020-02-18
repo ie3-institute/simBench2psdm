@@ -35,6 +35,25 @@ object SimbenchModel {
     def getFields: Array[String]
 
     /**
+      * Factory method to build a batch of models from a mapping from field id to value
+      *
+      * @param fieldToValueMaps  mapping from field id to value
+      * @return A [[Vector]] of models
+      */
+    def buildModels(fieldToValueMaps: Vector[Map[String, String]]): Vector[C] =
+      for (map <- fieldToValueMaps) yield {
+        buildModel(map)
+      }
+
+    /**
+      * Factory method to build one model from a mapping from field id to value
+      *
+      * @param fieldToValueMap  mapping from field id to value
+      * @return A model
+      */
+    def buildModel(fieldToValueMap: Map[String, String]): C
+
+    /**
       * Check, if all needed fields are covered by the provided field values
       *
       * @param fieldValues provided field values

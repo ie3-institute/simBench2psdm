@@ -87,4 +87,13 @@ case object Transformer3WType
     * @return Array of table headings
     */
   override def getFields: Array[String] = Array.empty[String]
+
+  /**
+    * Factory method to build one model from a mapping from field id to value
+    *
+    * @param fieldToValueMap mapping from field id to value
+    * @return A model
+    */
+  override def buildModel(
+      fieldToValueMap: Map[String, String]): Transformer3WType = ???
 }

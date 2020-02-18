@@ -1,5 +1,6 @@
 package edu.ie3.simbench.model.datamodel
 
+import edu.ie3.simbench.model.datamodel.SimbenchModel.SimbenchCompanionObject
 import edu.ie3.simbench.model.datamodel.types.LineType
 import edu.ie3.simbench.model.datamodel.types.LineType.{ACLineType, DCLineType}
 
@@ -11,7 +12,7 @@ sealed trait Line[T <: LineType] extends EntityModel {
   val loadingMax: BigDecimal
 }
 
-object Line {
+object Line extends SimbenchCompanionObject[Line[_ <: LineType]] {
 
   /**
     * AC line model
@@ -56,4 +57,20 @@ object Line {
                     subnet: String,
                     voltLvl: Int)
       extends Line[DCLineType]
+
+  /**
+    * Get an Array of table fields denoting the mapping to the model's attributes
+    *
+    * @return Array of table headings
+    */
+  override def getFields: Array[String] = ???
+
+  /**
+    * Factory method to build one model from a mapping from field id to value
+    *
+    * @param fieldToValueMap mapping from field id to value
+    * @return A model
+    */
+  override def buildModel(
+      fieldToValueMap: Map[String, String]): Line[_ <: LineType] = ???
 }
