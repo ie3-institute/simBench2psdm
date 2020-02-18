@@ -1,5 +1,6 @@
 package edu.ie3.simbench.model.datamodel
 
+import edu.ie3.simbench.model.RawModelData
 import edu.ie3.simbench.model.datamodel.SimbenchModel.SimbenchCompanionObject
 import edu.ie3.simbench.model.datamodel.profiles.LoadProfileType
 
@@ -38,8 +39,8 @@ case object Load extends SimbenchCompanionObject[Load] {
   /**
     * Factory method to build one model from a mapping from field id to value
     *
-    * @param fieldToValueMap mapping from field id to value
+    * @param rawData mapping from field id to value
     * @return A model
     */
-  override def buildModel(fieldToValueMap: Map[String, String]): Load = ???
+  override def buildModel(rawData: RawModelData): Load = ???
 }

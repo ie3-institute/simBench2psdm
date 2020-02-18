@@ -1,5 +1,6 @@
 package edu.ie3.simbench.model.datamodel.types
 
+import edu.ie3.simbench.model.RawModelData
 import edu.ie3.simbench.model.datamodel.SimbenchModel
 import edu.ie3.simbench.model.datamodel.SimbenchModel.SimbenchCompanionObject
 import edu.ie3.simbench.model.datamodel.enums.BranchElementPort
@@ -44,6 +45,21 @@ case class Transformer2WType(id: String,
 
 case object Transformer2WType
     extends SimbenchCompanionObject[Transformer2WType] {
+  val S_RATED = "sR"
+  val V_M_HV = "vmHV"
+  val V_M_LV = "vmLV"
+  val V_A_0 = "va0"
+  val V_M_IMP = "vmImp"
+  val P_CU = "pCu"
+  val P_FE = "pFe"
+  val I_NO_LOAD = "iNoLoad"
+  val TAPPABLE = "tapable"
+  val TAP_SIDE = "tapside"
+  val D_V_M = "dVm"
+  val D_V_A = "dVa"
+  val TAP_NEUTR = "tapNeutr"
+  val TAP_MIN = "tapMin"
+  val TAP_MAX = "tapMax"
 
   /**
     * Get an Array of table fields denoting the mapping to the model's attributes
@@ -51,29 +67,62 @@ case object Transformer2WType
     * @return Array of table headings
     */
   override def getFields: Array[String] =
-    Array("id",
-          "sR",
-          "vmHV",
-          "vmLV",
-          "va0",
-          "vmImp",
-          "pCu",
-          "pFe",
-          "iNoLoad",
-          "tapable",
-          "tapside",
-          "dVm",
-          "dVa",
-          "tapNeutr",
-          "tapMin",
-          "tapMax")
+    Array(SimbenchModel.ID,
+          S_RATED,
+          V_M_HV,
+          V_M_LV,
+          V_A_0,
+          V_M_IMP,
+          P_CU,
+          P_FE,
+          I_NO_LOAD,
+          TAPPABLE,
+          TAP_SIDE,
+          D_V_M,
+          D_V_A,
+          TAP_NEUTR,
+          TAP_MIN,
+          TAP_MAX)
 
   /**
     * Factory method to build one model from a mapping from field id to value
     *
-    * @param fieldToValueMap mapping from field id to value
+    * @param rawData mapping from field id to value
     * @return A model
     */
-  override def buildModel(
-      fieldToValueMap: Map[String, String]): Transformer2WType = ???
+  override def buildModel(rawData: RawModelData): Transformer2WType = {
+    val id = rawData.get(SimbenchModel.ID)
+    val sRated = BigDecimal(rawData.get(S_RATED))
+    val vMHv = BigDecimal(rawData.get(V_M_HV))
+    val vMLv = BigDecimal(rawData.get(V_M_LV))
+    val vA0 = BigDecimal(rawData.get(V_A_0))
+    val vMImp = BigDecimal(rawData.get(V_M_IMP))
+    val pCu = BigDecimal(rawData.get(P_CU))
+    val pFe = BigDecimal(rawData.get(P_FE))
+    val iNoLoad = BigDecimal(rawData.get(I_NO_LOAD))
+    val tappable = rawData.get(TAPPABLE) == "true"
+    val tapSide = BranchElementPort(rawData.get(TAP_SIDE))
+    val dVm = BigDecimal(rawData.get(D_V_M))
+    val dVa = BigDecimal(rawData.get(D_V_A))
+    val tapNeutr = rawData.get(TAP_NEUTR).toInt
+    val tapMin = rawData.get(TAP_MIN).toInt
+    val tapMax = rawData.get(TAP_MAX).toInt
+
+    Transformer2WType(id,
+                      sRated,
+                      vMHv,
+                      vMLv,
+                      vA0,
+                      vMImp,
+                      pCu,
+                      pFe,
+                      iNoLoad,
+                      tappable,
+                      tapSide,
+                      dVm,
+                      dVa,
+                      tapNeutr,
+                      tapMin,
+                      tapMax)
+  }
 }

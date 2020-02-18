@@ -1,5 +1,6 @@
 package edu.ie3.simbench.model.datamodel.types
 
+import edu.ie3.simbench.model.RawModelData
 import edu.ie3.simbench.model.datamodel.SimbenchModel
 import edu.ie3.simbench.model.datamodel.SimbenchModel.SimbenchCompanionObject
 import edu.ie3.simbench.model.datamodel.enums.LineStyle
@@ -67,25 +68,19 @@ object LineType extends SimbenchCompanionObject[LineType] {
   /**
     * Factory method to build one model from a mapping from field id to value
     *
-    * @param fieldToValueMap mapping from field id to value
+    * @param rawData mapping from field id to value
     * @return A model
     */
-  override def buildModel(fieldToValueMap: Map[String, String]): LineType = {
-    val id = extractId(fieldToValueMap)
-    val r = BigDecimal(
-      fieldToValueMap.getOrElse(R, throw getFieldNotFoundException(R)))
-    val x = BigDecimal(
-      fieldToValueMap.getOrElse(X, throw getFieldNotFoundException(X)))
-    val b = BigDecimal(
-      fieldToValueMap.getOrElse(B, throw getFieldNotFoundException(B)))
-    val iMax = BigDecimal(
-      fieldToValueMap.getOrElse(I_MAX, throw getFieldNotFoundException(I_MAX)))
-    val lineStyle = LineStyle(
-      fieldToValueMap.getOrElse(LINE_TYPE,
-                                throw getFieldNotFoundException(LINE_TYPE)))
+  override def buildModel(rawData: RawModelData): LineType = {
+    val id = rawData.get(SimbenchModel.ID)
+    val r = BigDecimal(rawData.get(R))
+    val x = BigDecimal(rawData.get(X))
+    val b = BigDecimal(rawData.get(B))
+    val iMax = BigDecimal(rawData.get(I_MAX))
+    val lineStyle = LineStyle(rawData.get(LINE_TYPE))
 
     /* TODO: Normally, here a distinction between AC and DC line has to be made. But until now I did not find a line
-        type file containing the needed scheme for DC lines... */
+          type file containing the needed scheme for DC lines... */
 
     ACLineType(id, r, x, b, iMax, lineStyle)
   }

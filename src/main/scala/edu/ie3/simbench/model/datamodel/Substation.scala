@@ -1,6 +1,7 @@
 package edu.ie3.simbench.model.datamodel
 
-import edu.ie3.simbench.model.datamodel.EntityModel.EntityCompanionObject
+import edu.ie3.simbench.model.RawModelData
+import edu.ie3.simbench.model.datamodel.SimbenchModel.SimbenchCompanionObject
 
 /**
   * Model to group different assets in one substation
@@ -12,7 +13,7 @@ import edu.ie3.simbench.model.datamodel.EntityModel.EntityCompanionObject
 case class Substation(id: String, subnet: String, voltLvl: Int)
     extends EntityModel
 
-case object Substation extends EntityCompanionObject[Substation] {
+case object Substation extends SimbenchCompanionObject[Substation] {
 
   /**
     * Get an Array of table fields denoting the mapping to the model's attributes
@@ -23,29 +24,10 @@ case object Substation extends EntityCompanionObject[Substation] {
     Array(SimbenchModel.ID, EntityModel.SUBNET, EntityModel.VOLT_LVL)
 
   /**
-    * Factory method to build a certain model class from a map of desired fields to content
-    *
-    * @param fieldValues Mapping of desired fields to their content
-    * @param gridModel   Total grid model as of current status
-    * @return An instance of the model class
-    */
-  def apply(fieldValues: Map[String, String],
-            gridModel: GridModel): Substation = {
-    checkFields(fieldValues)
-
-    val id = extractId(fieldValues)
-    val subnet = extractSubnet(fieldValues)
-    val voltLvl = extractVoltLvl(fieldValues)
-
-    new Substation(id, subnet, voltLvl)
-  }
-
-  /**
     * Factory method to build one model from a mapping from field id to value
     *
-    * @param fieldToValueMap mapping from field id to value
+    * @param rawData mapping from field id to value
     * @return A model
     */
-  override def buildModel(fieldToValueMap: Map[String, String]): Substation =
-    ???
+  override def buildModel(rawData: RawModelData): Substation = ???
 }

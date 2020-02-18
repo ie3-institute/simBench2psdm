@@ -3,6 +3,7 @@ package edu.ie3.simbench.io
 import java.nio.file.Path
 
 import edu.ie3.simbench.exception.io.IoException
+import edu.ie3.simbench.model.RawModelData
 import edu.ie3.simbench.model.datamodel.types.LineType
 import edu.ie3.simbench.model.datamodel.{
   Coordinate,
@@ -88,9 +89,9 @@ final case class SimbenchReader(folderPath: Path,
     * @param desiredFields  The desired fields to get from file
     * @return               A Vector of maps with fields to values
     */
-  private def read(modelClass: Class[_ <: SimbenchModel],
-                   desiredFields: Array[String])
-    : Future[(Class[_ <: SimbenchModel], Vector[Map[String, String]])] =
+  private def read[T <: SimbenchModel](
+      modelClass: Class[T],
+      desiredFields: Array[String]): Future[(Class[T], Vector[RawModelData])] =
     Future {
       /* Determine the matching file name */
       SimbenchFileNamingStrategy.getFileName(modelClass) match {
@@ -100,7 +101,8 @@ final case class SimbenchReader(folderPath: Path,
             exception)
         case Success(filename) =>
           val csvReader =
-            CsvReader(IoUtils.composeFullyQualifiedPath(checkedFolderPath,
+            CsvReader(modelClass,
+                      IoUtils.composeFullyQualifiedPath(checkedFolderPath,
                                                         filename,
                                                         checkedFileExtension),
                       separator,
@@ -118,7 +120,7 @@ final case class SimbenchReader(folderPath: Path,
     * @return A map of model class to a vector of maps from field to value
     */
   private def getFieldToValueMaps
-    : Map[Class[_ <: SimbenchModel], Vector[Map[String, String]]] = {
+    : Map[Class[_ <: SimbenchModel], Vector[RawModelData]] = {
     Await
       .result(Future.sequence(for ((clazz, fields) <- classesToRead) yield {
         read(clazz, fields)
@@ -129,13 +131,13 @@ final case class SimbenchReader(folderPath: Path,
   /**
     * Generate a mapping from line type id to the line type itself
     *
-    * @param fieldToValueMaps Vector of field to value maps
+    * @param rawData Vector of field to value maps
     * @return A mapping from line type id to line type itself
     */
   private def getLineTypes(
-      fieldToValueMaps: Vector[Map[String, String]]): Map[String, LineType] =
+      rawData: Vector[RawModelData]): Map[String, LineType] =
     LineType
-      .buildModels(fieldToValueMaps)
+      .buildModels(rawData)
       .map(lineType => lineType.id -> lineType)
       .toMap
 }

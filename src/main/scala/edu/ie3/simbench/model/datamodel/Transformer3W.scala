@@ -1,5 +1,6 @@
 package edu.ie3.simbench.model.datamodel
 
+import edu.ie3.simbench.model.RawModelData
 import edu.ie3.simbench.model.datamodel.SimbenchModel.SimbenchCompanionObject
 import edu.ie3.simbench.model.datamodel.enums.BranchElementPort
 import edu.ie3.simbench.model.datamodel.types.Transformer3WType
@@ -50,9 +51,8 @@ case object Transformer3W extends SimbenchCompanionObject[Transformer3W] {
   /**
     * Factory method to build one model from a mapping from field id to value
     *
-    * @param fieldToValueMap mapping from field id to value
+    * @param rawData mapping from field id to value
     * @return A model
     */
-  override def buildModel(fieldToValueMap: Map[String, String]): Transformer3W =
-    ???
+  override def buildModel(rawData: RawModelData): Transformer3W = ???
 }

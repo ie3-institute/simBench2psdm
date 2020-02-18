@@ -3,6 +3,7 @@ package edu.ie3.simbench.io
 import java.nio.file.Paths
 
 import edu.ie3.simbench.exception.io.IoException
+import edu.ie3.simbench.model.RawModelData
 import edu.ie3.simbench.model.datamodel.types.LineType
 import edu.ie3.simbench.model.datamodel.{
   Coordinate,
@@ -11,7 +12,7 @@ import edu.ie3.simbench.model.datamodel.{
   Node,
   RES,
   SimbenchModel,
-  Transformer2W,
+  Transformer2W
 }
 import edu.ie3.test.common.UnitSpec
 
@@ -56,27 +57,30 @@ class SimbenchReaderSpec extends UnitSpec {
 
     "read the coordinates correctly" in {
       val expected = classOf[Coordinate] -> Vector(
-        Map(
-          "id" -> "coord_0",
-          "x" -> "11.411",
-          "y" -> "53.6407",
-          "subnet" -> "LV1.101",
-          "voltLvl" -> "7"
-        ),
-        Map(
-          "id" -> "coord_3",
-          "x" -> "11.4097",
-          "y" -> "53.6413",
-          "subnet" -> "LV1.101",
-          "voltLvl" -> "7"
-        ),
-        Map(
-          "id" -> "coord_14",
-          "x" -> "11.4097",
-          "y" -> "53.6413",
-          "subnet" -> "MV1.101_LV1.101_Feeder1",
-          "voltLvl" -> "5"
-        )
+        RawModelData(classOf[Coordinate],
+                     Map(
+                       "id" -> "coord_0",
+                       "x" -> "11.411",
+                       "y" -> "53.6407",
+                       "subnet" -> "LV1.101",
+                       "voltLvl" -> "7"
+                     )),
+        RawModelData(classOf[Coordinate],
+                     Map(
+                       "id" -> "coord_3",
+                       "x" -> "11.4097",
+                       "y" -> "53.6413",
+                       "subnet" -> "LV1.101",
+                       "voltLvl" -> "7"
+                     )),
+        RawModelData(classOf[Coordinate],
+                     Map(
+                       "id" -> "coord_14",
+                       "x" -> "11.4097",
+                       "y" -> "53.6413",
+                       "subnet" -> "MV1.101_LV1.101_Feeder1",
+                       "voltLvl" -> "5"
+                     ))
       )
 
       reader invokePrivate readModelClassMethod(

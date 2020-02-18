@@ -1,6 +1,8 @@
 package edu.ie3.simbench.io
 
 import edu.ie3.simbench.exception.io.IoException
+import edu.ie3.simbench.model.RawModelData
+import edu.ie3.simbench.model.datamodel.Load
 import edu.ie3.test.common.UnitSpec
 
 class CsvReaderSpec extends UnitSpec {
@@ -20,7 +22,7 @@ class CsvReaderSpec extends UnitSpec {
     val separator = ";"
 
     "be instantiated correctly with valid file path" in {
-      val csvReader = CsvReader(validCsvFilePath, separator)
+      val csvReader = CsvReader(classOf[Load], validCsvFilePath, separator)
       csvReader.filePath shouldBe validCsvFilePath
       csvReader.separator shouldBe separator
       csvReader.fileEnding shouldBe ".csv"
@@ -28,11 +30,12 @@ class CsvReaderSpec extends UnitSpec {
     }
 
     "throw an IoException when instantiated with an invalid file path" in {
-      val thrown = intercept[IoException](CsvReader(invalidFilePath, separator))
+      val thrown = intercept[IoException](
+        CsvReader(classOf[Load], invalidFilePath, separator))
       thrown.getMessage.endsWith("Only .csv is supported (case sensitive).") shouldBe true
     }
 
-    val csvReader = CsvReader(validCsvFilePath, separator)
+    val csvReader = CsvReader(classOf[Load], validCsvFilePath, separator)
     val mapFieldsMethod = PrivateMethod[Map[String, Int]](Symbol("mapFields"))
 
     "correctly map the desired fields of a valid headline" in {
@@ -149,29 +152,35 @@ class CsvReaderSpec extends UnitSpec {
     }
 
     "read the valid file correctly" in {
-      val csvReader = CsvReader(validCsvFilePath, separator)
+      val csvReader = CsvReader(classOf[Load], validCsvFilePath, separator)
       val result = csvReader.read(validFields)
 
       val expected = Vector(
-        Map(
-          "id" -> "LV1.101 Load 1",
-          "node" -> "LV1.101 Bus 10",
-          "profile" -> "L2-A",
-          "pLoad" -> "0.006",
-          "qLoad" -> "0.002371",
-          "sR" -> "0.00645161",
-          "subnet" -> "LV1.101",
-          "voltLvl" -> "7"
+        RawModelData(
+          classOf[Load],
+          Map(
+            "id" -> "LV1.101 Load 1",
+            "node" -> "LV1.101 Bus 10",
+            "profile" -> "L2-A",
+            "pLoad" -> "0.006",
+            "qLoad" -> "0.002371",
+            "sR" -> "0.00645161",
+            "subnet" -> "LV1.101",
+            "voltLvl" -> "7"
+          )
         ),
-        Map(
-          "id" -> "LV1.101 Load 2",
-          "node" -> "LV1.101 Bus 8",
-          "profile" -> "H0-C",
-          "pLoad" -> "0.003",
-          "qLoad" -> "0.001186",
-          "sR" -> "0.00322581",
-          "subnet" -> "LV1.101",
-          "voltLvl" -> "7"
+        RawModelData(
+          classOf[Load],
+          Map(
+            "id" -> "LV1.101 Load 2",
+            "node" -> "LV1.101 Bus 8",
+            "profile" -> "H0-C",
+            "pLoad" -> "0.003",
+            "qLoad" -> "0.001186",
+            "sR" -> "0.00322581",
+            "subnet" -> "LV1.101",
+            "voltLvl" -> "7"
+          )
         )
       )
 

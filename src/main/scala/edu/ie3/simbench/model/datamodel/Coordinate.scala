@@ -1,6 +1,7 @@
 package edu.ie3.simbench.model.datamodel
 
-import edu.ie3.simbench.model.datamodel.EntityModel.EntityCompanionObject
+import edu.ie3.simbench.model.RawModelData
+import edu.ie3.simbench.model.datamodel.SimbenchModel.SimbenchCompanionObject
 
 /**
   * Coordinate to describe a geographical location in the WGS84 reference system
@@ -18,7 +19,7 @@ case class Coordinate(id: String,
                       voltLvl: Int)
     extends EntityModel
 
-case object Coordinate extends EntityCompanionObject[Coordinate] {
+case object Coordinate extends SimbenchCompanionObject[Coordinate] {
   val X = "x"
   val Y = "y"
 
@@ -30,26 +31,11 @@ case object Coordinate extends EntityCompanionObject[Coordinate] {
   override def getFields: Array[String] =
     Array(SimbenchModel.ID, EntityModel.SUBNET, EntityModel.VOLT_LVL, X, Y)
 
-  def apply(fieldValues: Map[String, String]): Coordinate = {
-    checkFields(fieldValues)
-
-    val id = extractId(fieldValues)
-    val subnet = extractId(fieldValues)
-    val voltLvl = extractVoltLvl(fieldValues)
-    val x =
-      fieldValues.getOrElse(X, throw getFieldNotFoundException(X)).toDouble
-    val y =
-      fieldValues.getOrElse(Y, throw getFieldNotFoundException(Y)).toDouble
-
-    new Coordinate(id, x, y, subnet, voltLvl)
-  }
-
   /**
     * Factory method to build one model from a mapping from field id to value
     *
-    * @param fieldToValueMap mapping from field id to value
+    * @param rawData mapping from field id to value
     * @return A model
     */
-  override def buildModel(fieldToValueMap: Map[String, String]): Coordinate =
-    ???
+  override def buildModel(rawData: RawModelData): Coordinate = ???
 }

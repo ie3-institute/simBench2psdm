@@ -1,31 +1,34 @@
 package edu.ie3.simbench.io
 
 import edu.ie3.simbench.exception.io.IoException
+import edu.ie3.simbench.model.RawModelData
 
 import scala.io.BufferedSource
 
 /**
   * Generic csv reader to de-serialise a csv file to a vector of maps from desired field names to their content
   *
+  * @param modelClass   Model class to read from this file
   * @param filePath     Path to the csv file to read
   * @param separator    Separator to use for splitting fields
   * @param fileEnding   Desired file ending
   * @param fileEncoding Desired file encoding
   */
-final case class CsvReader(filePath: String,
-                           separator: String,
-                           fileEnding: String = ".csv",
-                           fileEncoding: String = "UTF-8") {
+final case class CsvReader[T](modelClass: Class[T],
+                              filePath: String,
+                              separator: String,
+                              fileEnding: String = ".csv",
+                              fileEncoding: String = "UTF-8") {
   /* Check, if the object exists, is a file and has the correct file ending */
   IoUtils.checkFileExists(filePath, fileEnding)
 
   /**
-    * Read the content of the file and generate a vector with maps from desired fields to content of the field
+    * Read the content of the file and generate a vector of it
     *
     * @param desiredFields  Array with strings of desired field names
-    * @return               A vector with maps from desired fields to content
+    * @return               A vector with raw model data
     */
-  def read(desiredFields: Array[String]): Vector[Map[String, String]] = {
+  def read(desiredFields: Array[String]): Vector[RawModelData] = {
     val bufferedSource: BufferedSource =
       io.Source.fromFile(filePath, fileEncoding)
     try {
@@ -38,7 +41,7 @@ final case class CsvReader(filePath: String,
 
       /* The buffered source continues with the second line, as the headline has already been read */
       (for (line <- bufferedSource.getLines()) yield {
-        readLine(line, fieldMapping)
+        RawModelData(modelClass, readLine(line, fieldMapping))
       }).toVector
     } finally {
       bufferedSource.close()
