@@ -4,7 +4,7 @@ import java.nio.file.Path
 
 import edu.ie3.simbench.exception.io.IoException
 import edu.ie3.simbench.model.RawModelData
-import edu.ie3.simbench.model.datamodel.types.LineType
+import edu.ie3.simbench.model.datamodel.types.{LineType, Transformer2WType}
 import edu.ie3.simbench.model.datamodel.{
   Coordinate,
   ExternalNet,
@@ -67,14 +67,19 @@ final case class SimbenchReader(folderPath: Path,
      *
      * Block is discouraged, but the following assembly of classes cannot be parallelized as well, therefore the
      * Await is okay here */
-    val rawData = getFieldToValueMaps
+    val rawDatas = getFieldToValueMaps
 
     /* Extracting all types */
     val lineTypes = getLineTypes(
-      rawData.getOrElse(
+      rawDatas.getOrElse(
         classOf[LineType],
         throw IoException(
           "Cannot build line types, as no raw data has been received.")))
+    val transformer2WTypes = getTransformer2WTypes(
+      rawDatas.getOrElse(
+        classOf[Transformer2WType],
+        throw IoException(
+          "Cannot build transformer types, as no raw data has been received.")))
 
     /* Create empty grid model */
     val gridModel = GridModel.apply()
@@ -139,5 +144,18 @@ final case class SimbenchReader(folderPath: Path,
     LineType
       .buildModels(rawData)
       .map(lineType => lineType.id -> lineType)
+      .toMap
+
+  /**
+    * Generate a mapping from transformer type id to the transformer type itself
+    *
+    * @param rawData Vector of field to value maps
+    * @return A mapping from transformer type id to transformer type itself
+    */
+  private def getTransformer2WTypes(
+      rawData: Vector[RawModelData]): Map[String, Transformer2WType] =
+    Transformer2WType
+      .buildModels(rawData)
+      .map(transformerType => transformerType.id -> transformerType)
       .toMap
 }

@@ -100,7 +100,7 @@ case object Transformer2WType
     val pCu = BigDecimal(rawData.get(P_CU))
     val pFe = BigDecimal(rawData.get(P_FE))
     val iNoLoad = BigDecimal(rawData.get(I_NO_LOAD))
-    val tappable = rawData.get(TAPPABLE) == "true"
+    val tappable = rawData.get(TAPPABLE) == "1"
     val tapSide = BranchElementPort(rawData.get(TAP_SIDE))
     val dVm = BigDecimal(rawData.get(D_V_M))
     val dVa = BigDecimal(rawData.get(D_V_A))

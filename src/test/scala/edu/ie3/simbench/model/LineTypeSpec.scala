@@ -37,7 +37,7 @@ class LineTypeSpec extends UnitSpec {
       actual shouldBe expected
     }
 
-    "build a correct list of line types" in {
+    "build a correct vector of line types" in {
       val actual = LineType.buildModels(rawData)
       val expected = Vector(
         ACLineType("1x630_RM/50",
