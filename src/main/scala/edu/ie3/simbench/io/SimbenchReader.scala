@@ -13,6 +13,7 @@ import edu.ie3.simbench.model.datamodel.{
   Node,
   RES,
   SimbenchModel,
+  Substation,
   Transformer2W
 }
 
@@ -80,6 +81,17 @@ final case class SimbenchReader(folderPath: Path,
         classOf[Transformer2WType],
         throw IoException(
           "Cannot build transformer types, as no raw data has been received.")))
+
+    val coordinates = getCoordinates(
+      rawDatas.getOrElse(
+        classOf[Coordinate],
+        throw IoException(
+          "Cannot build coordinates, as no raw data has been received.")))
+    val substations = getSubstations(
+      rawDatas.getOrElse(
+        classOf[Node],
+        throw IoException(
+          "Cannot build substations, as no raw data has been received.")))
 
     /* Create empty grid model */
     val gridModel = GridModel.apply()
@@ -157,5 +169,31 @@ final case class SimbenchReader(folderPath: Path,
     Transformer2WType
       .buildModels(rawData)
       .map(transformerType => transformerType.id -> transformerType)
+      .toMap
+
+  /**
+    * Generate a mapping from coordinate id to the coordinate itself
+    *
+    * @param rawData Vector of field to value maps
+    * @return A mapping from coordinate id to coordinate itself
+    */
+  private def getCoordinates(
+      rawData: Vector[RawModelData]): Map[String, Coordinate] =
+    Coordinate
+      .buildModels(rawData)
+      .map(coordinate => coordinate.id -> coordinate)
+      .toMap
+
+  /**
+    * Generate a mapping from substation id to the substation
+    *
+    * @param rawData Vector of field to value maps
+    * @return A mapping from substation id to substation itself
+    */
+  private def getSubstations(
+      rawData: Vector[RawModelData]): Map[String, Substation] =
+    Substation
+      .buildModels(rawData)
+      .map(coordinate => coordinate.id -> coordinate)
       .toMap
 }

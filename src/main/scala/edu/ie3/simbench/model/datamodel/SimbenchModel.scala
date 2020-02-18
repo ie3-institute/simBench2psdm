@@ -39,8 +39,8 @@ object SimbenchModel {
       * @return A [[Vector]] of models
       */
     def buildModels(rawData: Vector[RawModelData]): Vector[C] =
-      for (map <- rawData) yield {
-        buildModel(map)
+      for (entry <- rawData) yield {
+        buildModel(entry)
       }
 
     /**
