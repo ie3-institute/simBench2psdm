@@ -8,7 +8,8 @@ import edu.ie3.test.common.UnitSpec
 class CsvReaderSpec extends UnitSpec {
   "The csv reader" should {
     val classLoader = this.getClass.getClassLoader
-    val validCsvFilePath = classLoader.getResource("io/csv/Load.csv").getPath
+    val validCsvFilePath = IoUtils.trimFirstSeparatorInWindowsPath(
+      classLoader.getResource("io/csv/Load.csv").getPath)
     val validFields = Array("id",
                             "node",
                             "profile",
@@ -18,7 +19,8 @@ class CsvReaderSpec extends UnitSpec {
                             "subnet",
                             "voltLvl")
     val invalidFilePath =
-      classLoader.getResource("io/csv/invalidFile.png").getPath
+      IoUtils.trimFirstSeparatorInWindowsPath(
+        classLoader.getResource("io/csv/invalidFile.png").getPath)
     val separator = ";"
 
     "be instantiated correctly with valid file path" in {

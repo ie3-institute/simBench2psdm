@@ -23,8 +23,10 @@ class SimbenchReaderSpec extends UnitSpec {
   implicit val ec: ExecutionContextExecutor = ExecutionContext.global
 
   val classLoader: ClassLoader = this.getClass.getClassLoader
-  val reader: SimbenchReader = SimbenchReader(
-    Paths.get(classLoader.getResource("io/csv/simpleDataset").getPath))
+  /* Replace leading file separator, if it is a Windows-Folderpath (/C: etc.) */
+  val checkedFolderPath: String = IoUtils.trimFirstSeparatorInWindowsPath(
+    classLoader.getResource("io/csv/simpleDataset").getPath)
+  val reader: SimbenchReader = SimbenchReader(Paths.get(checkedFolderPath))
   val readModelClassMethod: PrivateMethod[
     Future[(Class[_ <: SimbenchModel], Vector[Map[String, String]])]] =
     PrivateMethod[Future[(Class[_ <: SimbenchModel],

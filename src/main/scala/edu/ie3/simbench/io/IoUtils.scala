@@ -104,12 +104,24 @@ trait IoUtils {
     ("^(?:\\w\\:" + fileSeparatorRegex + "+|" + fileSeparatorRegex + ")(?:[\\w@\\.-]+" + fileSeparatorRegex + ")*(?:\\w+)$").r
 
   /**
+    * Removes a leading file separator at a fully qualified windows file path (e.g. "/C:" to "C:")
+    */
+  val trimFirstSeparatorInWindowsPath: String => String = (path: String) =>
+    ("^" + fileSeparatorRegex + "(?=\\w+:)").r.replaceAllIn(path, "")
+
+  /**
+    * Removes a file separator at the very end of the path string
+    */
+  val trimLastSeparator: String => String = (path: String) =>
+    (fileNameRegex + "$").r.replaceAllIn(path, "")
+
+  /**
     * Removes the last file separator, harmonizes all remaining file separators and checks the conformity of the string
     * with a valid folder path pattern
     */
   val prepareFolderPath: String => String = (folderPath: String) => {
     val checkedFolderPath = harmonizeFileSeparator(
-      (fileSeparatorRegex + "$").r.replaceAllIn(folderPath, ""))
+      trimFirstSeparatorInWindowsPath(trimLastSeparator(folderPath)))
     if (!folderPathWithoutLastSeparator.matches(checkedFolderPath))
       throw IoException(
         s"Cannot determine correct fully qualified folder path from $folderPath")
