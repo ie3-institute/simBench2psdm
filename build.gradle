@@ -64,7 +64,7 @@ dependencies {
 
 	// NEW scala libs //
 	// CORE Scala //
-	compile "org.scala-lang:scala-library:${scalaVersion}"
+	compile "org.scala-lang:scala-library:${scalaVersion}+"
 
 	// TEST Scala //
 	testCompile "org.scalatest:scalatest_${scalaVersion}:3.0.8"
