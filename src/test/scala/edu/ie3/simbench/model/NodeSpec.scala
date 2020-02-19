@@ -1,6 +1,6 @@
 package edu.ie3.simbench.model
 
-import edu.ie3.simbench.exception.io.{IoException, SimbenchDataModelException}
+import edu.ie3.simbench.exception.io.SimbenchDataModelException
 import edu.ie3.simbench.model.datamodel.{Coordinate, Node, Substation}
 import edu.ie3.simbench.model.datamodel.enums.NodeType
 import edu.ie3.test.common.UnitSpec
@@ -95,6 +95,7 @@ class NodeSpec extends UnitSpec {
         intercept[SimbenchDataModelException](Node.buildModel(rawData(0)))
       thrown.getMessage shouldBe "No basic implementation of model creation available for Node$"
     }
+
     "throw an exception, when the basic batch model creation method is called" in {
       val thrown =
         intercept[SimbenchDataModelException](Node.buildModels(rawData))

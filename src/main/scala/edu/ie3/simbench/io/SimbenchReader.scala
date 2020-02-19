@@ -9,6 +9,7 @@ import edu.ie3.simbench.model.datamodel.{
   Coordinate,
   ExternalNet,
   GridModel,
+  Line,
   Load,
   Node,
   RES,
@@ -94,13 +95,23 @@ final case class SimbenchReader(folderPath: Path,
           "Cannot build substations, as no raw data has been received.")))
 
     /* Creating the actual models */
-    val nodes = Node.buildModels(
+    val nodes = Node
+      .buildModels(
+        rawDatas.getOrElse(
+          classOf[Node],
+          throw IoException(
+            "Cannot build nodes, as no raw data has been received.")),
+        coordinates,
+        substations)
+      .map(node => node.id -> node)
+      .toMap
+    val lines = Line.buildModels(
       rawDatas.getOrElse(
-        classOf[Node],
+        classOf[Line[_]],
         throw IoException(
-          "Cannot build nodes, as no raw data has been received.")),
-      coordinates,
-      substations)
+          "Cannot build lines, as no raw data has been received.")),
+      nodes,
+      lineTypes)
 
     /* Create empty grid model */
     val gridModel = GridModel.apply()
