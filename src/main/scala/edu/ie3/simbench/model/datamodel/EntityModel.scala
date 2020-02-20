@@ -43,6 +43,19 @@ case object EntityModel {
   }
 
   /**
+    * Extract a node with the given id from a map of node id to node
+    *
+    * @param nodeId   Id of the node to get
+    * @param nodes    Map of node id to node
+    * @return         A tuple of two nodes
+    */
+  def getNode(nodeId: String, nodes: Map[String, Node]): Node = {
+    nodes.getOrElse(
+      nodeId,
+      throw SimbenchDataModelException(s"Cannot find node $nodeId."))
+  }
+
+  /**
     * Extract two nodes with the given ids from a map of node id to node
     *
     * @param nodeId0  Id of the first node to get
@@ -53,11 +66,6 @@ case object EntityModel {
   def getNodes(nodeId0: String,
                nodeId1: String,
                nodes: Map[String, Node]): (Node, Node) = {
-    (nodes.getOrElse(
-       nodeId0,
-       throw SimbenchDataModelException(s"Cannot find node $nodeId0.")),
-     nodes.getOrElse(
-       nodeId1,
-       throw SimbenchDataModelException(s"Cannot find node $nodeId1.")))
+    (getNode(nodeId0, nodes), getNode(nodeId1, nodes))
   }
 }

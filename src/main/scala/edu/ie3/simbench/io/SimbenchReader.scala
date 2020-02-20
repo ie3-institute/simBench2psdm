@@ -129,6 +129,12 @@ final case class SimbenchReader(folderPath: Path,
           "Cannot build switches, as no raw data has been received.")),
       nodes,
       substations)
+    val externalNets = ExternalNet.buildModels(
+      rawDatas.getOrElse(
+        classOf[ExternalNet],
+        throw IoException(
+          "Cannot build external nets, as no raw data has been received.")),
+      nodes)
 
     /* Create empty grid model */
     val gridModel = GridModel.apply()

@@ -1,5 +1,6 @@
 package edu.ie3.simbench.model.datamodel
 
+import edu.ie3.simbench.exception.io.SimbenchDataModelException
 import edu.ie3.simbench.model.RawModelData
 import edu.ie3.simbench.model.datamodel.SimbenchModel.SimbenchCompanionObject
 import edu.ie3.simbench.model.datamodel.enums.CalculationType
@@ -10,8 +11,8 @@ import edu.ie3.simbench.model.datamodel.enums.CalculationType
 sealed trait ExternalNet extends ShuntModel {
   val calculationType: CalculationType
   val dspf: BigDecimal
-  val pExt: BigDecimal
-  val qExt: BigDecimal
+  val pExt: Option[BigDecimal]
+  val qExt: Option[BigDecimal]
 }
 
 object ExternalNet extends SimbenchCompanionObject[ExternalNet] {
@@ -32,8 +33,8 @@ object ExternalNet extends SimbenchCompanionObject[ExternalNet] {
                     node: Node,
                     calculationType: CalculationType,
                     dspf: BigDecimal,
-                    pExt: BigDecimal,
-                    qExt: BigDecimal,
+                    pExt: Option[BigDecimal],
+                    qExt: Option[BigDecimal],
                     subnet: String,
                     voltLvl: Int)
       extends ExternalNet
@@ -54,8 +55,8 @@ object ExternalNet extends SimbenchCompanionObject[ExternalNet] {
   case class Ward(id: String,
                   node: Node,
                   dspf: BigDecimal,
-                  pExt: BigDecimal,
-                  qExt: BigDecimal,
+                  pExt: Option[BigDecimal],
+                  qExt: Option[BigDecimal],
                   pWard: BigDecimal,
                   qWard: BigDecimal,
                   subnet: String,
@@ -81,8 +82,8 @@ object ExternalNet extends SimbenchCompanionObject[ExternalNet] {
   case class WardExtended(id: String,
                           node: Node,
                           dspf: BigDecimal,
-                          pExt: BigDecimal,
-                          qExt: BigDecimal,
+                          pExt: Option[BigDecimal],
+                          qExt: Option[BigDecimal],
                           rWardExtended: BigDecimal,
                           xWardExtended: BigDecimal,
                           vmWardExtended: BigDecimal,
@@ -92,25 +93,38 @@ object ExternalNet extends SimbenchCompanionObject[ExternalNet] {
     override val calculationType: CalculationType = CalculationType.WardExtended
   }
 
+  val NODE = "node"
+  val CALC_TYPE = "calc_type"
+  val DSPF = "dspf"
+  val P_EXT_NET = "pExtNet"
+  val Q_EXT_NET = "qExtNet"
+  val P_WARD_SHUNT = "pWardShunt"
+  val Q_WARD_SHUNT = "qWardShunt"
+  val R_X_WARD = "rXWard"
+  val X_X_WARD = "xXWard"
+  val V_M_X_WARD = "vmXWard"
+
   /**
     * Get an Array of table fields denoting the mapping to the model's attributes
     *
     * @return Array of table headings
     */
   override def getFields: Array[String] =
-    Array("id",
-          "node",
-          "calc_type",
-          "dspf",
-          "pExtNet",
-          "qExtNet",
-          "pWardShunt",
-          "qWardShunt",
-          "rXWard",
-          "xXWard",
-          "vmXWard",
-          "subnet",
-          "voltLvl")
+    Array(
+      SimbenchModel.ID,
+      NODE,
+      CALC_TYPE,
+      DSPF,
+      P_EXT_NET,
+      Q_EXT_NET,
+      P_WARD_SHUNT,
+      Q_WARD_SHUNT,
+      R_X_WARD,
+      X_X_WARD,
+      V_M_X_WARD,
+      EntityModel.SUBNET,
+      EntityModel.VOLT_LVL
+    )
 
   /**
     * Factory method to build one model from a mapping from field id to value
@@ -118,5 +132,58 @@ object ExternalNet extends SimbenchCompanionObject[ExternalNet] {
     * @param rawData mapping from field id to value
     * @return A model
     */
-  override def buildModel(rawData: RawModelData): ExternalNet = ???
+  override def buildModel(rawData: RawModelData): ExternalNet =
+    throw SimbenchDataModelException(
+      s"No basic implementation of model creation available for ${this.getClass.getSimpleName}")
+
+  /**
+    * Factory method to build a batch of models from a mapping from field id to value
+    *
+    * @param rawData  mapping from field id to value
+    * @param nodes    Mapping of node ids to actual nodes
+    * @return A [[Vector]] of models
+    */
+  def buildModels(rawData: Vector[RawModelData],
+                  nodes: Map[String, Node]): Vector[ExternalNet] =
+    for (entry <- rawData) yield {
+      val node = EntityModel.getNode(entry.get(NODE), nodes)
+      buildModel(entry, node)
+    }
+
+  /**
+    * Factory method to build one model from a mapping from field id to value
+    *
+    * @param rawData  mapping from field id to value
+    * @param node     Node at which the external net is connected
+    * @return A model
+    */
+  def buildModel(rawData: RawModelData, node: Node): ExternalNet = {
+    val (id, subnet, voltLvl) = EntityModel.getBaseInformation(rawData)
+    val calculationType = CalculationType(rawData.get(CALC_TYPE))
+    val dspf = BigDecimal(rawData.get(DSPF))
+    val pExt = rawData.getBigDecimalOption(P_EXT_NET)
+    val qExt = rawData.getBigDecimalOption(Q_EXT_NET)
+    calculationType match {
+      case CalculationType.PQ | CalculationType.PVm | CalculationType.VaVm =>
+        Simple(id, node, calculationType, dspf, pExt, qExt, subnet, voltLvl)
+      case CalculationType.Ward =>
+        val pWard = BigDecimal(rawData.get(P_WARD_SHUNT))
+        val qWard = BigDecimal(rawData.get(Q_WARD_SHUNT))
+        Ward(id, node, dspf, pExt, qExt, pWard, qWard, subnet, voltLvl)
+      case CalculationType.WardExtended =>
+        val rWard = BigDecimal(rawData.get(R_X_WARD))
+        val xWard = BigDecimal(rawData.get(X_X_WARD))
+        val vWard = BigDecimal(rawData.get(V_M_X_WARD))
+        WardExtended(id,
+                     node,
+                     dspf,
+                     pExt,
+                     qExt,
+                     rWard,
+                     xWard,
+                     vWard,
+                     subnet,
+                     voltLvl)
+    }
+  }
 }
