@@ -94,7 +94,9 @@ object Line extends SimbenchCompanionObject[Line[_ <: LineType]] {
   /**
     * Factory method to build a batch of models from a mapping from field id to value
     *
-    * @param rawData mapping from field id to value
+    * @param rawData    mapping from field id to value
+    * @param nodes      Nodes to use for mapping
+    * @param lineTypes  Line types to use for mapping
     * @return A [[Vector]] of models
     */
   def buildModels(

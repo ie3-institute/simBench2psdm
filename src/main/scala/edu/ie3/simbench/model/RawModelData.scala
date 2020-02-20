@@ -18,6 +18,15 @@ final case class RawModelData(modelClass: Class[_],
         s"Cannot build $modelClass, as field $field is missing"))
 
   /**
+    * Get the field and compare it to common String representations of Boolean
+    *
+    * @param field Id of the field to get
+    * @return true or false
+    */
+  def getBoolean(field: String): Boolean =
+    (get(field) == "1" || get(field).toLowerCase == "true")
+
+  /**
     * Get an option to the entry and convert it to BigDecimal if possible
     *
     * @param field  Field to extract
