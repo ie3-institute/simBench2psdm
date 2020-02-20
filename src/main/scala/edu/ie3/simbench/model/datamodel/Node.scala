@@ -89,15 +89,13 @@ case object Node extends SimbenchCompanionObject[Node] {
   def buildModel(rawData: RawModelData,
                  coordinate: Option[Coordinate],
                  substation: Option[Substation]): Node = {
-    val id = rawData.get(SimbenchModel.ID)
+    val (id, subnet, voltLvl) = EntityModel.getBaseInformation(rawData)
     val nodeType = NodeType(rawData.get(NODE_TYPE))
     val vmSetp = rawData.getBigDecimalOption(VM_SETP)
     val vaSetp = rawData.getBigDecimalOption(VA_SETP)
     val vmR = BigDecimal(rawData.get(VMR))
     val vmMin = BigDecimal(rawData.get(V_M_MIN))
     val vmMax = BigDecimal(rawData.get(V_M_MAX))
-    val subnet = rawData.get(EntityModel.SUBNET)
-    val voltLvl = rawData.get(EntityModel.VOLT_LVL).toInt
 
     Node(id,
          nodeType,

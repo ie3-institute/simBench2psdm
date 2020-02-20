@@ -104,14 +104,8 @@ object Line extends SimbenchCompanionObject[Line[_ <: LineType]] {
       nodes: Map[String, Node],
       lineTypes: Map[String, LineType]): Vector[Line[_ <: LineType]] =
     for (entry <- rawData) yield {
-      val nodeA = nodes.getOrElse(
-        entry.get(NODE_A),
-        throw SimbenchDataModelException(
-          s"Cannot build ${this.getClass.getSimpleName}, as suitable reference to $NODE_A cannot be found."))
-      val nodeB = nodes.getOrElse(
-        entry.get(NODE_B),
-        throw SimbenchDataModelException(
-          s"Cannot build ${this.getClass.getSimpleName}, as suitable reference to $NODE_B cannot be found."))
+      val (nodeA, nodeB) =
+        EntityModel.getNodes(entry.get(NODE_A), entry.get(NODE_B), nodes)
       val lineType = lineTypes.getOrElse(
         entry.get(LINE_TYPE),
         throw SimbenchDataModelException(
@@ -134,9 +128,7 @@ object Line extends SimbenchCompanionObject[Line[_ <: LineType]] {
                  nodeA: Node,
                  nodeB: Node,
                  lineType: LineType): Line[_ <: LineType] = {
-    val id = rawData.get(SimbenchModel.ID)
-    val subnet = rawData.get(EntityModel.SUBNET)
-    val voltLvl = rawData.get(EntityModel.VOLT_LVL).toInt
+    val (id, subnet, voltLvl) = EntityModel.getBaseInformation(rawData)
     val length = BigDecimal(rawData.get(LENGTH))
     val loadingMax = BigDecimal(rawData.get(LOADING_MAX))
 

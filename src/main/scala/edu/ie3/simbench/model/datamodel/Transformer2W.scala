@@ -87,16 +87,8 @@ case object Transformer2W extends SimbenchCompanionObject[Transformer2W] {
                   transformerTypes: Map[String, Transformer2WType],
                   substations: Map[String, Substation]): Vector[Transformer2W] =
     for (entry <- rawData) yield {
-      val nodeHv = nodes.getOrElse(
-        entry.get(NODE_HV),
-        throw SimbenchDataModelException(
-          s"Cannot build ${this.getClass.getSimpleName}, as suitable reference to $NODE_HV cannot be found.")
-      )
-      val nodeLv = nodes.getOrElse(
-        entry.get(NODE_LV),
-        throw SimbenchDataModelException(
-          s"Cannot build ${this.getClass.getSimpleName}, as suitable reference to $NODE_LV cannot be found.")
-      )
+      val (nodeHv, nodeLv) =
+        EntityModel.getNodes(entry.get(NODE_HV), entry.get(NODE_LV), nodes)
       val transformerType = transformerTypes.getOrElse(
         entry.get(TYPE),
         throw SimbenchDataModelException(
@@ -120,7 +112,7 @@ case object Transformer2W extends SimbenchCompanionObject[Transformer2W] {
                  nodeLv: Node,
                  transformerType: Transformer2WType,
                  substation: Option[Substation]): Transformer2W = {
-    val id = rawData.get(SimbenchModel.ID)
+    val (id, subnet, voltLvl) = EntityModel.getBaseInformation(rawData)
     val tappos = rawData.get(TAPPOS).toInt
     val autoTap = rawData.getBoolean(AUTOTAP)
     val autoTapSide = rawData.get(AUTOTAP_SIDE).toLowerCase() match {
@@ -129,8 +121,6 @@ case object Transformer2W extends SimbenchCompanionObject[Transformer2W] {
       case _    => None
     }
     val loadingMax = BigDecimal(rawData.get(LOADING_MAX))
-    val subnet = rawData.get(EntityModel.SUBNET)
-    val voltLvl = rawData.get(EntityModel.VOLT_LVL).toInt
 
     Transformer2W(id,
                   nodeHv,

@@ -15,6 +15,7 @@ import edu.ie3.simbench.model.datamodel.{
   RES,
   SimbenchModel,
   Substation,
+  Switch,
   Transformer2W
 }
 
@@ -112,6 +113,22 @@ final case class SimbenchReader(folderPath: Path,
           "Cannot build lines, as no raw data has been received.")),
       nodes,
       lineTypes)
+    val transformers2w = Transformer2W.buildModels(
+      rawDatas.getOrElse(
+        classOf[Transformer2W],
+        throw IoException(
+          "Cannot build two-winding transformers, as no raw data has been received.")),
+      nodes,
+      transformer2WTypes,
+      substations
+    )
+    val switches = Switch.buildModels(
+      rawDatas.getOrElse(
+        classOf[Switch],
+        throw IoException(
+          "Cannot build switches, as no raw data has been received.")),
+      nodes,
+      substations)
 
     /* Create empty grid model */
     val gridModel = GridModel.apply()

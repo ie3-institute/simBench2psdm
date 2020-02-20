@@ -46,8 +46,7 @@ case object Substation extends SimbenchCompanionObject[Substation] {
     */
   override def buildModel(rawData: RawModelData): Substation = {
     val id = rawData.get(Node.SUBSTATION)
-    val subnet = rawData.get(EntityModel.SUBNET)
-    val voltLvl = rawData.get(EntityModel.VOLT_LVL).toInt
+    val (_, subnet, voltLvl) = EntityModel.getBaseInformation(rawData)
 
     Substation(id, subnet, voltLvl)
   }
