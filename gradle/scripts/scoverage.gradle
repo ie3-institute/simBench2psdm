@@ -1,0 +1,4 @@
+scoverage {
+	scoverageVersion = '1.4.1'
+	scoverageScalaVersion = '2.13.1'
+}

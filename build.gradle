@@ -10,6 +10,7 @@ plugins{
 	id "de.undercouch.download" version "3.4.3" // downloads plugin
 	id 'jacoco' // java code coverage plugin
 	id "org.sonarqube" version "2.7.1" // sonarqube
+	id 'org.scoverage' version '4.0.1' // Code coverage plugin for scala
 }
 
 ext {
@@ -32,6 +33,7 @@ apply from: scriptsLocation + 'tests.gradle' // tasks for tests
 apply from: scriptsLocation + 'checkJavaVersion.gradle'
 apply from: scriptsLocation + 'tscfg.gradle' // config tasks
 apply from: scriptsLocation + 'jacoco.gradle' // jacoco java code coverage
+apply from: scriptsLocation + 'scoverage.gradle'
 
 repositories {
 	jcenter() //searches in bintray's repository 'jCenter', which contains Maven Central
@@ -64,11 +66,13 @@ dependencies {
 
 	// NEW scala libs //
 	// CORE Scala //
-	compile "org.scala-lang:scala-library:${scalaVersion}"
+	compile "org.scala-lang:scala-library:${scalaVersion}+"
 
 	// TEST Scala //
 	testCompile "org.scalatest:scalatest_${scalaVersion}:3.0.8"
 	testRuntime "org.pegdown:pegdown:1.6.0" // HTML report for scalatest
+	scoverage "org.scoverage:scalac-scoverage-plugin_${scalaVersion}:1.4.1"
+	scoverage "org.scoverage:scalac-scoverage-runtime_${scalaVersion}:1.4.1"
 
 	// config //
 	implementation 'com.typesafe:config:+'
