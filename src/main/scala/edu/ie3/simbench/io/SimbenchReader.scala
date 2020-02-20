@@ -11,6 +11,7 @@ import edu.ie3.simbench.model.datamodel.{
   GridModel,
   Line,
   Load,
+  Measurement,
   Node,
   RES,
   SimbenchModel,
@@ -141,6 +142,15 @@ final case class SimbenchReader(folderPath: Path,
         throw IoException(
           "Cannot build external nets, as no raw data has been received.")),
       nodes)
+    val measurements = Measurement.buildModels(
+      rawDatas.getOrElse(
+        classOf[Measurement],
+        throw IoException(
+          "Cannot build measurements, as no raw data has been received.")),
+      nodes,
+      lines.map(line => line.id -> line).toMap,
+      transformers2w.map(transformer => transformer.id -> transformer).toMap
+    )
 
     /* Create empty grid model */
     val gridModel = GridModel.apply()
