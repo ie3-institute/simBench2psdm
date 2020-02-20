@@ -135,6 +135,12 @@ final case class SimbenchReader(folderPath: Path,
         throw IoException(
           "Cannot build external nets, as no raw data has been received.")),
       nodes)
+    val loads = Load.buildModels(
+      rawDatas.getOrElse(
+        classOf[Load],
+        throw IoException(
+          "Cannot build external nets, as no raw data has been received.")),
+      nodes)
 
     /* Create empty grid model */
     val gridModel = GridModel.apply()
@@ -183,6 +189,7 @@ final case class SimbenchReader(folderPath: Path,
     : Map[Class[_ <: SimbenchModel], Vector[RawModelData]] = {
     Await
       .result(Future.sequence(for ((clazz, fields) <- classesToRead) yield {
+
         read(clazz, fields)
       }), Duration("10 s"))
       .toMap
