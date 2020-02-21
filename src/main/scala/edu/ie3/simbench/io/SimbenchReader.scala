@@ -2,6 +2,7 @@ package edu.ie3.simbench.io
 
 import java.nio.file.Path
 
+import com.typesafe.scalalogging.LazyLogging
 import edu.ie3.simbench.exception.io.{IoException, SimbenchDataModelException}
 import edu.ie3.simbench.model.RawModelData
 import edu.ie3.simbench.model.datamodel.types.{LineType, Transformer2WType}
@@ -18,6 +19,7 @@ import edu.ie3.simbench.model.datamodel.{
   Shunt,
   SimbenchModel,
   Storage,
+  StudyCase,
   Substation,
   Switch,
   Transformer2W,
@@ -44,7 +46,8 @@ import scala.util.{Failure, Success}
 final case class SimbenchReader(folderPath: Path,
                                 separator: String = ";",
                                 fileExtension: String = "csv",
-                                fileEncoding: String = "UTF-8") {
+                                fileEncoding: String = "UTF-8")
+    extends LazyLogging {
 
   val checkedFolderPath: String =
     IoUtils.prepareFolderPath(folderPath.toAbsolutePath.toString)
@@ -76,6 +79,15 @@ final case class SimbenchReader(folderPath: Path,
      * Block is discouraged, but the following assembly of classes cannot be parallelized as well, therefore the
      * Await is okay here */
     val rawDatas = getFieldToValueMaps
+
+    /* Creating study cases */
+    val studyCases = rawDatas.get(classOf[StudyCase]) match {
+      case Some(rawData) => StudyCase.buildModels(rawData)
+      case None =>
+        logger.info(
+          s"No information available for ${classOf[StudyCase].getSimpleName}")
+        Vector.empty
+    }
 
     /* Extracting all types */
     val lineTypes = getLineTypes(
