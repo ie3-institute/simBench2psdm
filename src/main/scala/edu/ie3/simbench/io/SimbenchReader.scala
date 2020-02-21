@@ -13,6 +13,7 @@ import edu.ie3.simbench.model.datamodel.{
   Load,
   Measurement,
   Node,
+  PowerPlant,
   RES,
   SimbenchModel,
   Substation,
@@ -151,6 +152,12 @@ final case class SimbenchReader(folderPath: Path,
       lines.map(line => line.id -> line).toMap,
       transformers2w.map(transformer => transformer.id -> transformer).toMap
     )
+    val powerPlats = PowerPlant.buildModels(
+      rawDatas.getOrElse(
+        classOf[PowerPlant],
+        throw IoException(
+          "Cannot build power plants, as no raw data has been received.")),
+        nodes)
 
     /* Create empty grid model */
     val gridModel = GridModel.apply()
