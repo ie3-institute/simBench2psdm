@@ -2,7 +2,7 @@ package edu.ie3.simbench.io
 
 import java.nio.file.Path
 
-import edu.ie3.simbench.exception.io.IoException
+import edu.ie3.simbench.exception.io.{IoException, SimbenchDataModelException}
 import edu.ie3.simbench.model.RawModelData
 import edu.ie3.simbench.model.datamodel.types.{LineType, Transformer2WType}
 import edu.ie3.simbench.model.datamodel.{
@@ -15,10 +15,13 @@ import edu.ie3.simbench.model.datamodel.{
   Node,
   PowerPlant,
   RES,
+  Shunt,
   SimbenchModel,
+  Storage,
   Substation,
   Switch,
-  Transformer2W
+  Transformer2W,
+  Transformer3W
 }
 
 import scala.concurrent.duration.Duration
@@ -152,12 +155,31 @@ final case class SimbenchReader(folderPath: Path,
       lines.map(line => line.id -> line).toMap,
       transformers2w.map(transformer => transformer.id -> transformer).toMap
     )
-    val powerPlats = PowerPlant.buildModels(
+    val powerPlants = PowerPlant.buildModels(
       rawDatas.getOrElse(
         classOf[PowerPlant],
         throw IoException(
           "Cannot build power plants, as no raw data has been received.")),
-        nodes)
+      nodes)
+
+    val shunts = rawDatas.get(classOf[Shunt]) match {
+      case Some(_) =>
+        throw SimbenchDataModelException(
+          s"Found data set for ${classOf[Shunt]}, but no factory method defined")
+      case None => Vector.empty
+    }
+    val storages = rawDatas.get(classOf[Storage]) match {
+      case Some(_) =>
+        throw SimbenchDataModelException(
+          s"Found data set for ${classOf[Storage]}, but no factory method defined")
+      case None => Vector.empty
+    }
+    val transformers3w = rawDatas.get(classOf[Transformer3W]) match {
+      case Some(_) =>
+        throw SimbenchDataModelException(
+          s"Found data set for ${classOf[Transformer3W]}, but no factory method defined")
+      case None => Vector.empty
+    }
 
     /* Create empty grid model */
     val gridModel = GridModel.apply()
