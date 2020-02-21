@@ -3,6 +3,11 @@ package edu.ie3.simbench.io
 import edu.ie3.simbench.exception.io.SimbenchFileNamingException
 import edu.ie3.simbench.model.datamodel.ExternalNet.{Simple, Ward, WardExtended}
 import edu.ie3.simbench.model.datamodel.Line.{ACLine, DCLine}
+import edu.ie3.simbench.model.datamodel.profiles.{
+  LoadProfile,
+  PowerPlantProfile,
+  ResProfile
+}
 import edu.ie3.simbench.model.datamodel.types.LineType.{ACLineType, DCLineType}
 import edu.ie3.simbench.model.datamodel.types.{
   LineType,
@@ -28,8 +33,8 @@ import scala.util.{Failure, Success, Try}
   * Describes a sophisticated mapping between classes and equivalent SimBench files
   */
 case object SimbenchFileNamingStrategy {
-  private def modelFileMapping: Map[Class[_ <: SimbenchModel], String] =
-    Map[Class[_ <: SimbenchModel], String](
+  private def fileMapping: Map[Class[_], String] =
+    Map(
       classOf[Coordinate] -> "Coordinates",
       classOf[ExternalNet] -> "ExternalNet",
       classOf[Simple] -> "ExternalNet",
@@ -48,9 +53,12 @@ case object SimbenchFileNamingStrategy {
       classOf[Transformer2W] -> "Transformer",
       classOf[Transformer2WType] -> "TransformerType",
       classOf[Transformer3W] -> "Transformer3W",
-      classOf[Transformer3WType] -> "Transformer3WType"
+      classOf[Transformer3WType] -> "Transformer3WType",
+      classOf[LoadProfile] -> "LoadProfile",
+      classOf[ResProfile] -> "RESProfile",
+      classOf[PowerPlantProfile] -> "PowerPlantProfile"
     )
-  // TODO: Add naming strategy for profiles + NodePFResult
+  // TODO: Add naming strategy for NodePFResult
 
   /**
     * Determine the file name based on the provided class
@@ -59,16 +67,12 @@ case object SimbenchFileNamingStrategy {
     * @return [[scala.util.Success]], if the file name can be determine, [[scala.util.Failure]], if not
     */
   def getFileName(clazz: Class[_]): Try[String] = {
-    if (classOf[SimbenchModel].isAssignableFrom(clazz)) {
-      modelFileMapping.get(clazz.asSubclass(classOf[SimbenchModel])) match {
-        case Some(filename) => Success(filename)
-        case None =>
-          Failure(new SimbenchFileNamingException(
+    fileMapping.get(clazz) match {
+      case Some(filename) => Success(filename)
+      case None =>
+        Failure(
+          new SimbenchFileNamingException(
             s"Cannot determine the filename for class ${clazz.getSimpleName}"))
-      }
-    } else
-      Failure(
-        new SimbenchFileNamingException(
-          s"Cannot determine the filename for class ${clazz.getSimpleName}"))
+    }
   }
 }
