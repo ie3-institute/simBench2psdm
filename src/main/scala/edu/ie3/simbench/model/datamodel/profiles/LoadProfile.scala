@@ -328,5 +328,6 @@ case object LoadProfile extends SimbenchCompanionObject[LoadProfile] {
     * @param rawData mapping from field id to value
     * @return A [[Vector]] of models
     */
-  override def buildModels(rawData: Vector[RawModelData]): Vector[LoadProfile] = ???
+  override def buildModels(rawData: Vector[RawModelData]): Vector[LoadProfile] =
+    ???
 }
