@@ -1,7 +1,9 @@
 package edu.ie3.simbench.model.datamodel
 
+import edu.ie3.simbench.model.datamodel.types.LineType
+
 case class GridModel(externalNets: Vector[ExternalNet],
-                     lines: Vector[Line[_]],
+                     lines: Vector[Line[_ <: LineType]],
                      loads: Vector[Load],
                      measurements: Vector[Measurement],
                      nodes: Vector[Node],

@@ -78,11 +78,11 @@ final case class SimbenchReader(folderPath: Path,
      *
      * Block is discouraged, but the following assembly of classes cannot be parallelized as well, therefore the
      * Await is okay here */
-    val rawDatas = getFieldToValueMaps
+    val modelClassToRawData = getFieldToValueMaps
 
     /* Creating study cases */
-    val studyCases = rawDatas.get(classOf[StudyCase]) match {
-      case Some(rawData) => StudyCase.buildModels(rawData)
+    val studyCases = modelClassToRawData.get(classOf[StudyCase]) match {
+      case Some(rawDatas) => StudyCase.buildModels(rawDatas)
       case None =>
         logger.info(
           s"No information available for ${classOf[StudyCase].getSimpleName}")
@@ -90,113 +90,145 @@ final case class SimbenchReader(folderPath: Path,
     }
 
     /* Extracting all types */
-    val lineTypes = getLineTypes(
-      rawDatas.getOrElse(
-        classOf[LineType],
+    val lineTypes = modelClassToRawData.get(classOf[LineType]) match {
+      case Some(rawDatas) => getLineTypes(rawDatas)
+      case None =>
         throw IoException(
-          "Cannot build line types, as no raw data has been received.")))
-    val transformer2WTypes = getTransformer2WTypes(
-      rawDatas.getOrElse(
-        classOf[Transformer2WType],
+          "Cannot build line types, as no raw data has been received.")
+    }
+    val transformer2WTypes = modelClassToRawData.get(classOf[Transformer2WType]) match {
+      case Some(rawDatas) => getTransformer2WTypes(rawDatas)
+      case None =>
         throw IoException(
-          "Cannot build transformer types, as no raw data has been received.")))
-
-    val coordinates = getCoordinates(
-      rawDatas.getOrElse(
-        classOf[Coordinate],
-        throw IoException(
-          "Cannot build coordinates, as no raw data has been received.")))
-    val substations = getSubstations(
-      rawDatas.getOrElse(
-        classOf[Node],
-        throw IoException(
-          "Cannot build substations, as no raw data has been received.")))
+          "Cannot build transformer types, as no raw data has been received.")
+    }
+    val coordinates = modelClassToRawData.get(classOf[Coordinate]) match {
+      case Some(rawDatas) => getCoordinates(rawDatas)
+      case None =>
+        logger.info(
+          s"No information available for ${classOf[Coordinate].getSimpleName}")
+        Map.empty[String, Coordinate]
+    }
+    val substations = modelClassToRawData.get(classOf[Substation]) match {
+      case Some(rawDatas) => getSubstations(rawDatas)
+      case None =>
+        logger.info(
+          s"No information available for ${classOf[Substation].getSimpleName}")
+        Map.empty[String, Substation]
+    }
 
     /* Creating the actual models */
-    val nodes = Node
-      .buildModels(
-        rawDatas.getOrElse(
-          classOf[Node],
-          throw IoException(
-            "Cannot build nodes, as no raw data has been received.")),
-        coordinates,
-        substations)
-      .map(node => node.id -> node)
-      .toMap
-    val lines = Line.buildModels(
-      rawDatas.getOrElse(
-        classOf[Line[_]],
+    val nodes = modelClassToRawData.get(classOf[Node]) match {
+      case Some(rawDatas) =>
+        Node
+          .buildModels(rawDatas, coordinates, substations)
+          .map(node => node.id -> node)
+          .toMap
+      case None =>
         throw IoException(
-          "Cannot build lines, as no raw data has been received.")),
-      nodes,
-      lineTypes)
-    val transformers2w = Transformer2W.buildModels(
-      rawDatas.getOrElse(
-        classOf[Transformer2W],
+          "Cannot build nodes, as no raw data has been received.")
+    }
+    val lines = modelClassToRawData.get(classOf[Line[_]]) match {
+      case Some(rawDatas) => Line.buildModels(rawDatas, nodes, lineTypes)
+      case None =>
         throw IoException(
-          "Cannot build two-winding transformers, as no raw data has been received.")),
-      nodes,
-      transformer2WTypes,
-      substations
-    )
-    val switches = Switch.buildModels(
-      rawDatas.getOrElse(
-        classOf[Switch],
+          "Cannot build lines, as no raw data has been received.")
+    }
+    val transformers2w = modelClassToRawData.get(classOf[Transformer2W]) match {
+      case Some(rawDatas) =>
+        Transformer2W.buildModels(rawDatas,
+                                  nodes,
+                                  transformer2WTypes,
+                                  substations)
+      case None =>
         throw IoException(
-          "Cannot build switches, as no raw data has been received.")),
-      nodes,
-      substations)
-    val externalNets = ExternalNet.buildModels(
-      rawDatas.getOrElse(
-        classOf[ExternalNet],
+          "Cannot build two-winding transformers, as no raw data has been received.")
+    }
+    val switches = modelClassToRawData.get(classOf[Switch]) match {
+      case Some(rawDatas) => Switch.buildModels(rawDatas, nodes, substations)
+      case None =>
+        logger.info(
+          s"No information available for ${classOf[Switch].getSimpleName}")
+        Vector.empty[Switch]
+    }
+    val externalNets = modelClassToRawData.get(classOf[ExternalNet]) match {
+      case Some(rawDatas) => ExternalNet.buildModels(rawDatas, nodes)
+      case None =>
         throw IoException(
-          "Cannot build external nets, as no raw data has been received.")),
-      nodes)
-    val loads = Load.buildModels(
-      rawDatas.getOrElse(
-        classOf[Load],
+          "Cannot build external nets, as no raw data has been received.")
+    }
+    val loads = modelClassToRawData.get(classOf[Load]) match {
+      case Some(rawDatas) => Load.buildModels(rawDatas, nodes)
+      case None =>
         throw IoException(
-          "Cannot build external nets, as no raw data has been received.")),
-      nodes)
-    val measurements = Measurement.buildModels(
-      rawDatas.getOrElse(
-        classOf[Measurement],
-        throw IoException(
-          "Cannot build measurements, as no raw data has been received.")),
-      nodes,
-      lines.map(line => line.id -> line).toMap,
-      transformers2w.map(transformer => transformer.id -> transformer).toMap
-    )
-    val powerPlants = PowerPlant.buildModels(
-      rawDatas.getOrElse(
-        classOf[PowerPlant],
-        throw IoException(
-          "Cannot build power plants, as no raw data has been received.")),
-      nodes)
+          "Cannot build external nets, as no raw data has been received.")
+    }
+    val res = modelClassToRawData.get(classOf[RES]) match {
+      case Some(rawDatas) => RES.buildModels(rawDatas, nodes)
+      case None =>
+        logger.info(
+          s"No information available for ${classOf[RES].getSimpleName}")
+        Vector.empty[RES]
+    }
+    val measurements = modelClassToRawData.get(classOf[Measurement]) match {
+      case Some(rawDatas) =>
+        Measurement.buildModels(
+          rawDatas,
+          nodes,
+          lines.map(line => line.id -> line).toMap,
+          transformers2w
+            .map(transformer => transformer.id -> transformer)
+            .toMap)
+      case None =>
+        logger.info(
+          s"No information available for ${classOf[Switch].getSimpleName}")
+        Vector.empty[Measurement]
+    }
+    val powerPlants = modelClassToRawData.get(classOf[PowerPlant]) match {
+      case Some(rawDatas) => PowerPlant.buildModels(rawDatas, nodes)
+      case None =>
+        logger.info(
+          s"No information available for ${classOf[PowerPlant].getSimpleName}")
+        Vector.empty[PowerPlant]
+    }
 
-    val shunts = rawDatas.get(classOf[Shunt]) match {
+    /* Currently not known table scheme */
+    val shunts = modelClassToRawData.get(classOf[Shunt]) match {
       case Some(_) =>
         throw SimbenchDataModelException(
           s"Found data set for ${classOf[Shunt]}, but no factory method defined")
-      case None => Vector.empty
+      case None => Vector.empty[Shunt]
     }
-    val storages = rawDatas.get(classOf[Storage]) match {
+    val storages = modelClassToRawData.get(classOf[Storage]) match {
       case Some(_) =>
         throw SimbenchDataModelException(
           s"Found data set for ${classOf[Storage]}, but no factory method defined")
-      case None => Vector.empty
+      case None => Vector.empty[Storage]
     }
-    val transformers3w = rawDatas.get(classOf[Transformer3W]) match {
+    val transformers3w = modelClassToRawData.get(classOf[Transformer3W]) match {
       case Some(_) =>
         throw SimbenchDataModelException(
           s"Found data set for ${classOf[Transformer3W]}, but no factory method defined")
-      case None => Vector.empty
+      case None => Vector.empty[Transformer3W]
     }
 
-    /* Create empty grid model */
-    val gridModel = GridModel.apply()
-
-    gridModel
+    /* Create grid model */
+    GridModel(
+      externalNets,
+      lines,
+      loads,
+      measurements,
+      nodes.values.toVector,
+      powerPlants,
+      res,
+      shunts,
+      storages,
+      studyCases,
+      substations.values.toVector,
+      switches,
+      transformers2w,
+      transformers3w
+    )
   }
 
   /**
