@@ -55,6 +55,7 @@ case object Node extends SimbenchCompanionObject[Node] {
           NODE_TYPE,
           VM_SETP,
           VA_SETP,
+          VMR,
           V_M_MIN,
           V_M_MAX,
           SUBSTATION,

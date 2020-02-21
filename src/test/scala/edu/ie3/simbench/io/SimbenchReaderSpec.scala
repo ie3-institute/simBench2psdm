@@ -4,22 +4,24 @@ import java.nio.file.Paths
 
 import edu.ie3.simbench.exception.io.IoException
 import edu.ie3.simbench.model.RawModelData
-import edu.ie3.simbench.model.datamodel.types.LineType
+import edu.ie3.simbench.model.datamodel.types.{LineType, Transformer2WType}
 import edu.ie3.simbench.model.datamodel.{
   Coordinate,
   ExternalNet,
+  Line,
   Load,
   Node,
   RES,
   SimbenchModel,
+  StudyCase,
   Transformer2W
 }
-import edu.ie3.test.common.UnitSpec
+import edu.ie3.test.common.{SimbenchReaderTestData, UnitSpec}
 
 import scala.concurrent.{ExecutionContext, ExecutionContextExecutor, Future}
 import scala.util.{Failure, Success}
 
-class SimbenchReaderSpec extends UnitSpec {
+class SimbenchReaderSpec extends UnitSpec with SimbenchReaderTestData {
   implicit val ec: ExecutionContextExecutor = ExecutionContext.global
 
   val classLoader: ClassLoader = this.getClass.getClassLoader
@@ -102,8 +104,12 @@ class SimbenchReaderSpec extends UnitSpec {
         Symbol("getFieldToValueMaps"))
       val fieldToValuesMap = reader invokePrivate fieldToValuesMethod()
 
-      fieldToValuesMap.keySet.size shouldBe 7
+      fieldToValuesMap.keySet.size shouldBe 10
 
+      fieldToValuesMap
+        .getOrElse(classOf[StudyCase],
+                   fail(s"No entry available for class ${classOf[StudyCase]}"))
+        .length shouldBe 6
       fieldToValuesMap
         .getOrElse(classOf[Coordinate],
                    fail(s"No entry available for class ${classOf[Coordinate]}"))
@@ -118,6 +124,11 @@ class SimbenchReaderSpec extends UnitSpec {
                    fail(s"No entry available for class ${classOf[LineType]}"))
         .length shouldBe 21
       fieldToValuesMap
+        .getOrElse(
+          classOf[Line[_ <: LineType]],
+          fail(s"No entry available for class ${classOf[Line[_ <: LineType]]}"))
+        .length shouldBe 1
+      fieldToValuesMap
         .getOrElse(classOf[Load],
                    fail(s"No entry available for class ${classOf[Load]}"))
         .length shouldBe 1
@@ -131,9 +142,19 @@ class SimbenchReaderSpec extends UnitSpec {
         .length shouldBe 1
       fieldToValuesMap
         .getOrElse(
+          classOf[Transformer2WType],
+          fail(s"No entry available for class ${classOf[Transformer2WType]}"))
+        .length shouldBe 12
+      fieldToValuesMap
+        .getOrElse(
           classOf[Transformer2W],
           fail(s"No entry available for class ${classOf[Transformer2W]}"))
         .length shouldBe 1
+    }
+
+    "read the complete data set correctly" in {
+      val actual = reader.read()
+      actual shouldBe expectedGridModel
     }
   }
 }

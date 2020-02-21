@@ -39,11 +39,11 @@ class SimbenchNamingStrategySpec extends UnitSpec {
       (classOf[Load], "Load"),
       (classOf[Node], "Node"),
       (classOf[RES], "RES"),
-      (classOf[StudyCase], "StudyCase"),
+      (classOf[StudyCase], "StudyCases"),
       (classOf[Transformer2W], "Transformer"),
-      (classOf[Transformer2WType], "Transformer"),
+      (classOf[Transformer2WType], "TransformerType"),
       (classOf[Transformer3W], "Transformer3W"),
-      (classOf[Transformer3WType], "Transformer3W")
+      (classOf[Transformer3WType], "Transformer3WType")
     )
     // TODO: Test naming strategy for profiles + NodePFResult when implemented
 

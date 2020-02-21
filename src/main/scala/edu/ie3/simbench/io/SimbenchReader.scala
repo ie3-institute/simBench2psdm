@@ -59,12 +59,15 @@ final case class SimbenchReader(folderPath: Path,
 
   /* Define the classes to read */
   private val classesToRead = Vector(
+    (classOf[StudyCase], StudyCase.getFields),
     (classOf[Coordinate], Coordinate.getFields),
     (classOf[ExternalNet], ExternalNet.getFields),
     (classOf[LineType], LineType.getFields),
+    (classOf[Line[_ <: LineType]], Line.getFields),
     (classOf[Load], Load.getFields),
     (classOf[Node], Node.getFields),
     (classOf[RES], RES.getFields),
+    (classOf[Transformer2WType], Transformer2WType.getFields),
     (classOf[Transformer2W], Transformer2W.getFields)
   )
 
@@ -84,7 +87,7 @@ final case class SimbenchReader(folderPath: Path,
     val studyCases = modelClassToRawData.get(classOf[StudyCase]) match {
       case Some(rawDatas) => StudyCase.buildModels(rawDatas)
       case None =>
-        logger.info(
+        logger.debug(
           s"No information available for ${classOf[StudyCase].getSimpleName}")
         Vector.empty
     }
@@ -96,23 +99,24 @@ final case class SimbenchReader(folderPath: Path,
         throw IoException(
           "Cannot build line types, as no raw data has been received.")
     }
-    val transformer2WTypes = modelClassToRawData.get(classOf[Transformer2WType]) match {
-      case Some(rawDatas) => getTransformer2WTypes(rawDatas)
-      case None =>
-        throw IoException(
-          "Cannot build transformer types, as no raw data has been received.")
-    }
+    val transformer2WTypes =
+      modelClassToRawData.get(classOf[Transformer2WType]) match {
+        case Some(rawDatas) => getTransformer2WTypes(rawDatas)
+        case None =>
+          throw IoException(
+            "Cannot build transformer types, as no raw data has been received.")
+      }
     val coordinates = modelClassToRawData.get(classOf[Coordinate]) match {
       case Some(rawDatas) => getCoordinates(rawDatas)
       case None =>
-        logger.info(
+        logger.debug(
           s"No information available for ${classOf[Coordinate].getSimpleName}")
         Map.empty[String, Coordinate]
     }
     val substations = modelClassToRawData.get(classOf[Substation]) match {
       case Some(rawDatas) => getSubstations(rawDatas)
       case None =>
-        logger.info(
+        logger.debug(
           s"No information available for ${classOf[Substation].getSimpleName}")
         Map.empty[String, Substation]
     }
@@ -147,7 +151,7 @@ final case class SimbenchReader(folderPath: Path,
     val switches = modelClassToRawData.get(classOf[Switch]) match {
       case Some(rawDatas) => Switch.buildModels(rawDatas, nodes, substations)
       case None =>
-        logger.info(
+        logger.debug(
           s"No information available for ${classOf[Switch].getSimpleName}")
         Vector.empty[Switch]
     }
@@ -166,7 +170,7 @@ final case class SimbenchReader(folderPath: Path,
     val res = modelClassToRawData.get(classOf[RES]) match {
       case Some(rawDatas) => RES.buildModels(rawDatas, nodes)
       case None =>
-        logger.info(
+        logger.debug(
           s"No information available for ${classOf[RES].getSimpleName}")
         Vector.empty[RES]
     }
@@ -180,14 +184,14 @@ final case class SimbenchReader(folderPath: Path,
             .map(transformer => transformer.id -> transformer)
             .toMap)
       case None =>
-        logger.info(
-          s"No information available for ${classOf[Switch].getSimpleName}")
+        logger.debug(
+          s"No information available for ${classOf[Measurement].getSimpleName}")
         Vector.empty[Measurement]
     }
     val powerPlants = modelClassToRawData.get(classOf[PowerPlant]) match {
       case Some(rawDatas) => PowerPlant.buildModels(rawDatas, nodes)
       case None =>
-        logger.info(
+        logger.debug(
           s"No information available for ${classOf[PowerPlant].getSimpleName}")
         Vector.empty[PowerPlant]
     }
