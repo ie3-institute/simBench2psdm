@@ -2,11 +2,10 @@ package edu.ie3.simbench.model.datamodel.profiles
 
 import java.time.ZonedDateTime
 
-import edu.ie3.simbench.exception.io.SimbenchDataModelException
 import edu.ie3.simbench.io.HeadLineField
 import edu.ie3.simbench.io.HeadLineField.{MandatoryField, OptionalField}
 import edu.ie3.simbench.model.RawModelData
-import edu.ie3.simbench.model.datamodel.SimbenchModel.SimbenchCompanionObject
+import edu.ie3.simbench.model.datamodel.profiles.ProfileModel.ProfileCompanionObject
 import edu.ie3.util.TimeTools
 
 /**
@@ -19,10 +18,10 @@ import edu.ie3.util.TimeTools
 case class LoadProfile(id: String,
                        profileType: LoadProfileType,
                        profile: Map[ZonedDateTime, (BigDecimal, BigDecimal)])
-    extends ProfileModel[LoadProfileType]
+    extends ProfileModel[LoadProfileType, (BigDecimal, BigDecimal)]
 
-case object LoadProfile extends SimbenchCompanionObject[LoadProfile] {
-  val TIME = "time"
+case object LoadProfile
+    extends ProfileCompanionObject[LoadProfile, (BigDecimal, BigDecimal)] {
   val BL_H_Q = "BL-H_qload"
   val BL_H_P = "BL-H_pload"
   val G0_A_Q = "G0-A_qload"
@@ -172,7 +171,7 @@ case object LoadProfile extends SimbenchCompanionObject[LoadProfile] {
     * @return Array of table headings
     */
   override def getFields: Array[HeadLineField] = Array(
-    MandatoryField(TIME),
+    MandatoryField(ProfileModel.TIME),
     OptionalField(BL_H_Q),
     OptionalField(BL_H_P),
     OptionalField(G0_A_Q),
@@ -318,16 +317,6 @@ case object LoadProfile extends SimbenchCompanionObject[LoadProfile] {
   )
 
   /**
-    * Factory method to build one model from a mapping from field id to value
-    *
-    * @param rawData mapping from field id to value
-    * @return A model
-    */
-  override def buildModel(rawData: RawModelData): LoadProfile =
-    throw SimbenchDataModelException(
-      s"No basic implementation of model creation available for ${this.getClass.getSimpleName}")
-
-  /**
     * Factory method to build a batch of models from a mapping from field id to value
     *
     * @param rawData mapping from field id to value
@@ -335,18 +324,13 @@ case object LoadProfile extends SimbenchCompanionObject[LoadProfile] {
     */
   override def buildModels(rawData: Vector[RawModelData]): Vector[LoadProfile] = {
     /* Determine the ids of the available load profiles by filtering the head line fields */
-    val availableTypes = determineAvailableProfileTypes(rawData
-      .find(_ => true)
-      .getOrElse(throw SimbenchDataModelException(
-        "Raw data has no content. Unable to determine available profile types."))
-      .fieldToValues)
-    val profileTypeStrings = availableTypes
-      .map(field => field._2)
-      .distinct
+    val profileTypeStrings =
+      super.determineAvailableProfileIds(rawData,
+                                         Some(LoadProfileType.stripSuffix))
 
     /* Go through each line of the raw data table and extract the time stamp */
     (for (rawTableLine <- rawData) yield {
-      val time = TimeTools.toZonedDateTime(rawTableLine.get(TIME))
+      val time = TimeTools.toZonedDateTime(rawTableLine.get(ProfileModel.TIME))
 
       /* Get the active and reactive power for each available load profile */
       for (typeString <- profileTypeStrings) yield {
@@ -370,16 +354,4 @@ case object LoadProfile extends SimbenchCompanionObject[LoadProfile] {
       })
       .toVector /* Finally build the Vector(LoadProfile) */
   }
-
-  /**
-    * Determine the available profile types from the given raw data
-    *
-    * @param values The map of field id to string content
-    * @return       A [[Vector]] of available (LoadProfileTypes, field id)
-    */
-  def determineAvailableProfileTypes(
-      values: Map[String, String]): Vector[(LoadProfileType, String)] =
-    (for (entry <- values.filterNot(entry => entry._1 == TIME)) yield {
-      (LoadProfileType(entry._1), LoadProfileType.stripSuffix(entry._1))
-    }).toVector.distinct
 }

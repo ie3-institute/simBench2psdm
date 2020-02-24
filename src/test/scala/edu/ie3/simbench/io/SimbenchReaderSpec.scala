@@ -4,6 +4,10 @@ import java.nio.file.Paths
 
 import edu.ie3.simbench.exception.io.IoException
 import edu.ie3.simbench.model.RawModelData
+import edu.ie3.simbench.model.datamodel.profiles.{
+  LoadProfile,
+  PowerPlantProfile
+}
 import edu.ie3.simbench.model.datamodel.types.{LineType, Transformer2WType}
 import edu.ie3.simbench.model.datamodel.{
   Coordinate,
@@ -104,7 +108,19 @@ class SimbenchReaderSpec extends UnitSpec with SimbenchReaderTestData {
         Symbol("getFieldToValueMaps"))
       val fieldToValuesMap = reader invokePrivate fieldToValuesMethod()
 
-      fieldToValuesMap.keySet.size shouldBe 10
+      fieldToValuesMap.keySet.size shouldBe 12
+
+      /* profiles */
+      fieldToValuesMap
+        .getOrElse(
+          classOf[LoadProfile],
+          fail(s"No entry available for class ${classOf[LoadProfile]}"))
+        .length shouldBe 2 /* Here, each time step is an entry */
+      fieldToValuesMap
+        .getOrElse(
+          classOf[PowerPlantProfile],
+          fail(s"No entry available for class ${classOf[PowerPlantProfile]}"))
+        .length shouldBe 2 /* Here, each time step is an entry */
 
       fieldToValuesMap
         .getOrElse(classOf[StudyCase],

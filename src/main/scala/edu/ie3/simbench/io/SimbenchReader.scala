@@ -7,6 +7,7 @@ import edu.ie3.simbench.exception.io.{IoException, SimbenchDataModelException}
 import edu.ie3.simbench.model.RawModelData
 import edu.ie3.simbench.model.datamodel.profiles.{
   LoadProfile,
+  PowerPlantProfile,
   ProfileModel,
   ProfileType
 }
@@ -64,7 +65,8 @@ final case class SimbenchReader(folderPath: Path,
 
   /* Define the classes to read */
   private val profileClassesToRead = Vector(
-    (classOf[LoadProfile], LoadProfile.getFields)
+    (classOf[LoadProfile], LoadProfile.getFields),
+    (classOf[PowerPlantProfile], PowerPlantProfile.getFields)
   )
 
   private val modelClassesToRead = Vector(
@@ -85,8 +87,9 @@ final case class SimbenchReader(folderPath: Path,
     *
     * @return A map of profile class to [[Vector]] of actual profile models
     */
-  def readProfiles(): Map[Class[_ <: ProfileModel[_ <: ProfileType]],
-                          Vector[ProfileModel[_ <: ProfileType]]] = {
+  def readProfiles(): Map[Class[_ <: ProfileModel[_ <: ProfileType, _]],
+                          Vector[ProfileModel[_ <: ProfileType, _]]] = {
+    /* TODO: Do this only one time */
     val profileClassToRawData = getFieldToValueMaps
 
     val loadProfiles = LoadProfile.buildModels(
@@ -95,8 +98,18 @@ final case class SimbenchReader(folderPath: Path,
         throw IoException(
           "Cannot build load profiles, as no raw data has been received.")))
 
+    val powerPlantProfiles =
+      profileClassToRawData.get(classOf[PowerPlantProfile]) match {
+        case Some(rawDatas) => PowerPlantProfile.buildModels(rawDatas)
+        case None =>
+          logger.debug(
+            s"No information available for ${classOf[PowerPlantProfile].getSimpleName}")
+          Vector.empty
+      }
+
     Map(
-      classOf[LoadProfile] -> loadProfiles
+      classOf[LoadProfile] -> loadProfiles,
+      classOf[PowerPlantProfile] -> powerPlantProfiles
     )
   }
 
@@ -110,6 +123,7 @@ final case class SimbenchReader(folderPath: Path,
      *
      * Block is discouraged, but the following assembly of classes cannot be parallelized as well, therefore the
      * Await is okay here */
+    /* TODO: Do this only one time */
     val modelClassToRawData = getFieldToValueMaps
 
     /* Creating study cases */

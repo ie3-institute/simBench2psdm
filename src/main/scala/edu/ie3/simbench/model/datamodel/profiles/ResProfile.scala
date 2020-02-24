@@ -13,4 +13,4 @@ import java.time.ZonedDateTime
 case class ResProfile(id: String,
                       profileType: ResProfileType,
                       profile: Map[ZonedDateTime, (BigDecimal, BigDecimal)])
-    extends ProfileModel[ResProfileType]
+    extends ProfileModel[ResProfileType, (BigDecimal, BigDecimal)]

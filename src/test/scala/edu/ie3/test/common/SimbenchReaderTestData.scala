@@ -36,6 +36,10 @@ import edu.ie3.simbench.model.datamodel.profiles.LoadProfileType.{
 import edu.ie3.simbench.model.datamodel.profiles.{
   LoadProfile,
   LoadProfileType,
+  PowerPlantProfile,
+  PowerPlantProfileType,
+  ProfileModel,
+  ProfileType,
   ResProfileType
 }
 import edu.ie3.simbench.model.datamodel.types.LineType.ACLineType
@@ -327,7 +331,29 @@ trait SimbenchReaderTestData {
     )
   )
 
-  val expectedProfiles: Map[Class[LoadProfile], Vector[LoadProfile]] = Map(
-    classOf[LoadProfile] -> expectedLoadProfiles
+  val expectedPowerPlantProfiles: Vector[PowerPlantProfile] = Vector(
+    PowerPlantProfile(
+      "PowerPlantProfile16",
+      PowerPlantProfileType.PowerPlantProfile16,
+      Map(
+        TimeTools.toZonedDateTime("01.01.2016 00:00") -> BigDecimal(0.7),
+        TimeTools.toZonedDateTime("01.01.2016 00:15") -> BigDecimal(0.7),
+      )
+    ),
+    PowerPlantProfile(
+      "PowerPlantProfile17",
+      PowerPlantProfileType.PowerPlantProfile17,
+      Map(
+        TimeTools.toZonedDateTime("01.01.2016 00:00") -> BigDecimal(0.7),
+        TimeTools.toZonedDateTime("01.01.2016 00:15") -> BigDecimal(0.7),
+      )
+    )
   )
+
+  val expectedProfiles: Map[Class[_ <: ProfileModel[_ <: ProfileType, _]],
+                            Vector[_ <: ProfileModel[_ <: ProfileType, _]]] =
+    Map(
+      classOf[LoadProfile] -> expectedLoadProfiles,
+      classOf[PowerPlantProfile] -> expectedPowerPlantProfiles
+    )
 }

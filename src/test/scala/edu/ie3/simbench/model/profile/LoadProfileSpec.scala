@@ -111,7 +111,7 @@ class LoadProfileSpec extends UnitSpec {
       val thrown =
         intercept[SimbenchDataModelException](
           LoadProfile.buildModel(rawData(0)))
-      thrown.getMessage shouldBe "No basic implementation of model creation available for LoadProfile$"
+      thrown.getMessage shouldBe "No basic implementation of model creation available for profiles"
     }
 
     "build a correct vector of models" in {
