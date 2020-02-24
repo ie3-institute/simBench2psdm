@@ -18,7 +18,6 @@ import edu.ie3.simbench.model.datamodel.{
   Load,
   Node,
   RES,
-  SimbenchModel,
   StudyCase,
   Transformer2W,
   Transformer3W

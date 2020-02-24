@@ -263,24 +263,7 @@ trait SimbenchReaderTestData {
     )
   )
 
-  val expectedGridModel: GridModel = GridModel(
-    externalNets,
-    lines,
-    loads,
-    Vector.empty[Measurement],
-    nodes,
-    Vector.empty[PowerPlant],
-    res,
-    Vector.empty[Shunt],
-    Vector.empty[Storage],
-    studyCases,
-    Vector.empty[Substation],
-    Vector.empty[Switch],
-    transformers,
-    Vector.empty[Transformer3W]
-  )
-
-  val expectedLoadProfiles: Vector[LoadProfile] = Vector(
+  val loadProfiles: Vector[LoadProfile] = Vector(
     LoadProfile(
       "H0A",
       H0A,
@@ -333,7 +316,7 @@ trait SimbenchReaderTestData {
     )
   )
 
-  val expectedPowerPlantProfiles: Vector[PowerPlantProfile] = Vector(
+  val powerPlantProfiles: Vector[PowerPlantProfile] = Vector(
     PowerPlantProfile(
       "PowerPlantProfile16",
       PowerPlantProfileType.PowerPlantProfile16,
@@ -352,7 +335,7 @@ trait SimbenchReaderTestData {
     )
   )
 
-  val expectedResProfiles: Vector[ResProfile] = Vector(
+  val resProfiles: Vector[ResProfile] = Vector(
     ResProfile(
       "PV6",
       ResProfileType.PV6,
@@ -372,12 +355,24 @@ trait SimbenchReaderTestData {
     )
   )
 
-  val expectedProfiles: Map[Class[_ <: ProfileModel[_ <: ProfileType, _]],
-                            Vector[_ <: ProfileModel[_ <: ProfileType, _]]] =
-    Map(
-      classOf[LoadProfile] -> expectedLoadProfiles,
-      classOf[PowerPlantProfile] -> expectedPowerPlantProfiles,
-      classOf[ResProfile] -> expectedResProfiles,
-      classOf[StorageProfile] -> Vector.empty[StorageProfile]
-    )
+  val expectedGridModel: GridModel = GridModel(
+    externalNets,
+    lines,
+    loads,
+    loadProfiles,
+    Vector.empty[Measurement],
+    nodes,
+    Vector.empty[PowerPlant],
+    powerPlantProfiles,
+    res,
+    resProfiles,
+    Vector.empty[Shunt],
+    Vector.empty[Storage],
+    Vector.empty[StorageProfile],
+    studyCases,
+    Vector.empty[Substation],
+    Vector.empty[Switch],
+    transformers,
+    Vector.empty[Transformer3W]
+  )
 }

@@ -13,6 +13,7 @@ import edu.ie3.simbench.model.datamodel.types.{LineType, Transformer2WType}
 import edu.ie3.simbench.model.datamodel.{
   Coordinate,
   ExternalNet,
+  GridModel,
   Line,
   Load,
   Node,
@@ -22,6 +23,7 @@ import edu.ie3.simbench.model.datamodel.{
   Transformer2W
 }
 import edu.ie3.test.common.{SimbenchReaderTestData, UnitSpec}
+import org.scalatest.Inside._
 
 import scala.concurrent.{ExecutionContext, ExecutionContextExecutor, Future}
 import scala.util.{Failure, Success}
@@ -175,14 +177,46 @@ class SimbenchReaderSpec extends UnitSpec with SimbenchReaderTestData {
 
     "read the complete grid data set correctly" in {
       val actual = reader.readGrid()
-      actual shouldBe expectedGridModel
-    }
-
-    "read the complete profile data set correctly" in {
-      val actual = reader.readProfiles()
-      /* Comparing sets to get rid of the order */
-      actual.map(entry => entry._1 -> entry._2.toSet) shouldBe expectedProfiles
-        .map(entry => entry._1 -> entry._2.toSet)
+      inside(actual) {
+        case GridModel(externalNets,
+                       lines,
+                       loads,
+                       loadProfiles,
+                       measurements,
+                       nodes,
+                       powerPlants,
+                       powerPlantProfiles,
+                       res,
+                       resProfiles,
+                       shunts,
+                       storages,
+                       storageProfiles,
+                       studyCases,
+                       substations,
+                       switches,
+                       transofmers2w,
+                       transformers3w) =>
+          externalNets shouldBe expectedGridModel.externalNets
+          lines shouldBe expectedGridModel.lines
+          loads shouldBe expectedGridModel.loads
+          loadProfiles.toSet shouldBe expectedGridModel.loadProfiles.toSet
+          measurements shouldBe expectedGridModel.measurements
+          nodes shouldBe expectedGridModel.nodes
+          powerPlants shouldBe expectedGridModel.powerPlants
+          powerPlantProfiles.toSet shouldBe expectedGridModel.powerPlantProfiles.toSet
+          res shouldBe expectedGridModel.res
+          resProfiles.toSet shouldBe expectedGridModel.resProfiles.toSet
+          shunts shouldBe expectedGridModel.shunts
+          storages shouldBe expectedGridModel.shunts
+          storageProfiles.toSet shouldBe expectedGridModel.storageProfiles.toSet
+          studyCases shouldBe expectedGridModel.studyCases
+          substations shouldBe expectedGridModel.substations
+          switches shouldBe expectedGridModel.switches
+          transofmers2w shouldBe expectedGridModel.transformers2w
+          transformers3w shouldBe expectedGridModel.transformers3w
+        case wrongEntity =>
+          fail(s"Somehow a wrong class got instantiated... $wrongEntity")
+      }
     }
   }
 }

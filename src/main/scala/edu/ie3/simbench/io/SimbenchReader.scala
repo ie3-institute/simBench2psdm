@@ -8,8 +8,6 @@ import edu.ie3.simbench.model.RawModelData
 import edu.ie3.simbench.model.datamodel.profiles.{
   LoadProfile,
   PowerPlantProfile,
-  ProfileModel,
-  ProfileType,
   ResProfile,
   StorageProfile
 }
@@ -66,13 +64,10 @@ final case class SimbenchReader(folderPath: Path,
   implicit val ec: ExecutionContextExecutor = ExecutionContext.global
 
   /* Define the classes to read */
-  private val profileClassesToRead = Vector(
+  private val classesToRead = Vector(
     (classOf[LoadProfile], LoadProfile.getFields),
     (classOf[PowerPlantProfile], PowerPlantProfile.getFields),
     (classOf[ResProfile], ResProfile.getFields),
-  )
-
-  private val modelClassesToRead = Vector(
     (classOf[StudyCase], StudyCase.getFields),
     (classOf[Coordinate], Coordinate.getFields),
     (classOf[ExternalNet], ExternalNet.getFields),
@@ -86,56 +81,6 @@ final case class SimbenchReader(folderPath: Path,
   )
 
   /**
-    * Reading all profiles from file
-    *
-    * @return A map of profile class to [[Vector]] of actual profile models
-    */
-  def readProfiles(): Map[Class[_ <: ProfileModel[_ <: ProfileType, _]],
-                          Vector[ProfileModel[_ <: ProfileType, _]]] = {
-    /* TODO: Do this only one time */
-    val profileClassToRawData = getFieldToValueMaps
-
-    val loadProfiles = LoadProfile.buildModels(
-      profileClassToRawData.getOrElse(
-        classOf[LoadProfile],
-        throw IoException(
-          "Cannot build load profiles, as no raw data has been received.")))
-
-    val powerPlantProfiles =
-      profileClassToRawData.get(classOf[PowerPlantProfile]) match {
-        case Some(rawDatas) => PowerPlantProfile.buildModels(rawDatas)
-        case None =>
-          logger.debug(
-            s"No information available for ${classOf[PowerPlantProfile].getSimpleName}")
-          Vector.empty
-      }
-
-    val resProfiles =
-      profileClassToRawData.get(classOf[ResProfile]) match {
-        case Some(rawDatas) => ResProfile.buildModels(rawDatas)
-        case None =>
-          logger.debug(
-            s"No information available for ${classOf[ResProfile].getSimpleName}")
-          Vector.empty
-      }
-
-    val storageProfiles =
-      profileClassToRawData.get(classOf[StorageProfile]) match {
-        case Some(_) =>
-          throw SimbenchDataModelException(
-            s"Found data set for ${classOf[StorageProfile]}, but no factory method defined")
-        case None => Vector.empty[StorageProfile]
-      }
-
-    Map(
-      classOf[LoadProfile] -> loadProfiles,
-      classOf[PowerPlantProfile] -> powerPlantProfiles,
-      classOf[ResProfile] -> resProfiles,
-      classOf[StorageProfile] -> storageProfiles
-    )
-  }
-
-  /**
     * Read all models and compose them
     *
     * @return A [[GridModel]] containing all read information
@@ -147,6 +92,39 @@ final case class SimbenchReader(folderPath: Path,
      * Await is okay here */
     /* TODO: Do this only one time */
     val modelClassToRawData = getFieldToValueMaps
+
+    /* Extracting all profiles */
+    val loadProfiles = LoadProfile.buildModels(
+      modelClassToRawData.getOrElse(
+        classOf[LoadProfile],
+        throw IoException(
+          "Cannot build load profiles, as no raw data has been received.")))
+
+    val powerPlantProfiles =
+      modelClassToRawData.get(classOf[PowerPlantProfile]) match {
+        case Some(rawDatas) => PowerPlantProfile.buildModels(rawDatas)
+        case None =>
+          logger.debug(
+            s"No information available for ${classOf[PowerPlantProfile].getSimpleName}")
+          Vector.empty
+      }
+
+    val resProfiles =
+      modelClassToRawData.get(classOf[ResProfile]) match {
+        case Some(rawDatas) => ResProfile.buildModels(rawDatas)
+        case None =>
+          logger.debug(
+            s"No information available for ${classOf[ResProfile].getSimpleName}")
+          Vector.empty
+      }
+
+    val storageProfiles =
+      modelClassToRawData.get(classOf[StorageProfile]) match {
+        case Some(_) =>
+          throw SimbenchDataModelException(
+            s"Found data set for ${classOf[StorageProfile]}, but no factory method defined")
+        case None => Vector.empty[StorageProfile]
+      }
 
     /* Creating study cases */
     val studyCases = modelClassToRawData.get(classOf[StudyCase]) match {
@@ -286,12 +264,16 @@ final case class SimbenchReader(folderPath: Path,
       externalNets,
       lines,
       loads,
+      loadProfiles,
       measurements,
       nodes.values.toVector,
       powerPlants,
+      powerPlantProfiles,
       res,
+      resProfiles,
       shunts,
       storages,
+      storageProfiles,
       studyCases,
       substations.values.toVector,
       switches,
@@ -339,14 +321,13 @@ final case class SimbenchReader(folderPath: Path,
     */
   private def getFieldToValueMaps: Map[Class[_], Vector[RawModelData]] = {
     Await
-      .result(
-        Future.sequence(
-          for ((clazz, fields) <- profileClassesToRead ++ modelClassesToRead)
-            yield {
+      .result(Future.sequence(
+                for ((clazz, fields) <- classesToRead)
+                  yield {
 
-              read(clazz, fields)
-            }),
-        Duration("10 s"))
+                    read(clazz, fields)
+                  }),
+              Duration("10 s"))
       .toMap
   }
 
