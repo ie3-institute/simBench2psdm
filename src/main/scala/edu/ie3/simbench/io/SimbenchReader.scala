@@ -90,7 +90,6 @@ final case class SimbenchReader(folderPath: Path,
      *
      * Block is discouraged, but the following assembly of classes cannot be parallelized as well, therefore the
      * Await is okay here */
-    /* TODO: Do this only one time */
     val modelClassToRawData = getFieldToValueMaps
 
     /* Extracting all profiles */

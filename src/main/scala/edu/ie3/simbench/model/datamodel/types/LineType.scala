@@ -82,9 +82,8 @@ object LineType extends SimbenchCompanionObject[LineType] {
     val iMax = BigDecimal(rawData.get(I_MAX))
     val lineStyle = LineStyle(rawData.get(LINE_TYPE))
 
-    /* TODO: Normally, here a distinction between AC and DC line has to be made. But until now I did not find a line
-          type file containing the needed scheme for DC lines... */
-
+    /* Normally, here a distinction between AC and DC line has to be made. But until now I did not find a line type file
+     * containing the needed scheme for DC lines... */
     ACLineType(id, r, x, b, iMax, lineStyle)
   }
 }
