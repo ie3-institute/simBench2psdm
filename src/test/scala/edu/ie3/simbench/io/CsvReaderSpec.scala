@@ -1,6 +1,7 @@
 package edu.ie3.simbench.io
 
 import edu.ie3.simbench.exception.io.IoException
+import edu.ie3.simbench.io.HeadLineField.{MandatoryField, OptionalField}
 import edu.ie3.simbench.model.RawModelData
 import edu.ie3.simbench.model.datamodel.Load
 import edu.ie3.test.common.UnitSpec
@@ -40,7 +41,7 @@ class CsvReaderSpec extends UnitSpec {
     val csvReader = CsvReader(classOf[Load], validCsvFilePath, separator)
     val mapFieldsMethod = PrivateMethod[Map[String, Int]](Symbol("mapFields"))
 
-    "correctly map the desired fields of a valid headline" in {
+    "correctly map the desired field ids of a valid headline" in {
       val headline = "id;node;profile;pLoad;qLoad;sR;subnet;voltLvl"
       val desiredFields = Array("id",
                                 "node",
@@ -64,7 +65,7 @@ class CsvReaderSpec extends UnitSpec {
                            "voltLvl" -> 7)
     }
 
-    "correctly map the desired fields of a valid headline with more than the desired fields" in {
+    "correctly map the desired field ids of a valid headline with more than the desired fields" in {
       val headline =
         "id;node;profile;pLoad;qLoad;voltage;sR;subnet;voltLvl;height"
       val desiredFields = Array("id",
@@ -89,7 +90,7 @@ class CsvReaderSpec extends UnitSpec {
                            "voltLvl" -> 8)
     }
 
-    "throw an exception, if one desired field is missing in an invalid headline" in {
+    "throw an exception, if one mandatory field is missing in an invalid headline" in {
       val headline = "id;node;profile;pLoad;qLoad;sR;voltLvl"
       val desiredFields = Array("id",
                                 "node",
@@ -103,7 +104,29 @@ class CsvReaderSpec extends UnitSpec {
       val thrown = intercept[IoException](
         csvReader invokePrivate mapFieldsMethod(headline, desiredFields))
 
-      thrown.getMessage.endsWith("does not contain the desired field subnet") shouldBe true
+      thrown.getMessage.endsWith("does not contain the mandatory field subnet") shouldBe true
+    }
+
+    "tolerate, that an optional field is not apparent" in {
+      val headline = "id;node;profile;pLoad;qLoad;sR;voltLvl"
+      val desiredFields: Array[HeadLineField] = Array(MandatoryField("id"),
+        MandatoryField("node"),
+        MandatoryField("profile"),
+        MandatoryField("pLoad"),
+        MandatoryField("qLoad"),
+        MandatoryField("sR"),
+        OptionalField("subnet"),
+        MandatoryField("voltLvl"))
+
+      val mapping = csvReader invokePrivate mapFieldsMethod(headline, desiredFields)
+
+      mapping shouldBe Map("id" -> 0,
+                           "node" -> 1,
+                           "profile" -> 2,
+                           "pLoad" -> 3,
+                           "qLoad" -> 4,
+                           "sR" -> 5,
+                           "voltLvl" -> 6)
     }
 
     val readLineMethod = PrivateMethod[Map[String, String]](Symbol("readLine"))

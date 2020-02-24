@@ -1,6 +1,8 @@
 package edu.ie3.simbench.io
 
+import com.typesafe.scalalogging.LazyLogging
 import edu.ie3.simbench.exception.io.IoException
+import edu.ie3.simbench.io.HeadLineField.{MandatoryField, OptionalField}
 import edu.ie3.simbench.model.RawModelData
 
 import scala.io.BufferedSource
@@ -18,7 +20,8 @@ final case class CsvReader[T](modelClass: Class[T],
                               filePath: String,
                               separator: String,
                               fileEnding: String = ".csv",
-                              fileEncoding: String = "UTF-8") {
+                              fileEncoding: String = "UTF-8")
+    extends LazyLogging {
   /* Check, if the object exists, is a file and has the correct file ending */
   IoUtils.checkFileExists(filePath, fileEnding)
 
@@ -49,29 +52,57 @@ final case class CsvReader[T](modelClass: Class[T],
   }
 
   /**
-    * Build the column mapping from the desired fields to their column position in the file. If one desired field is not
-    * apparent, an exception is thrown. If more fields are apparent in the file, the rest is simply discarded.
+    * Build the column mapping from the mandatory fields to their column position in the file. All field ids are treated
+    * as ids of mandatory fields. If more fields are apparent in the file, the rest is simply discarded.
+    *
+    * @param headLine           Head line of the file
+    * @param mandatoryFieldIds  Ids of mandatory fields
+    * @return                   A map from desired field to column position in the file
+    */
+  private def mapFields(
+                         headLine: String,
+                         mandatoryFieldIds: Array[String]): Map[String, Int] = {
+    val desiredFields = mandatoryFieldIds.map(id => MandatoryField(id))
+    mapFields(headLine, desiredFields)
+  }
+
+  /**
+    * Build the column mapping from the desired fields to their column position in the file. If one mandatory field is
+    * not apparent, an exception is thrown. If more fields are apparent in the file, the rest is simply discarded.
     *
     * @param headLine       Head line of the file
     * @param desiredFields  Desired fields to be contained in the file
     * @return               A map from desired field to column position in the file
     */
-  private def mapFields(headLine: String,
-                        desiredFields: Array[String]): Map[String, Int] = {
+  private def mapFields(
+      headLine: String,
+      desiredFields: Array[_ <: HeadLineField]): Map[String, Int] = {
     /* Split for the single apparent fields in the file and map it to their indices */
     val headLineFields = headLine.split(separator).map(_.trim).zipWithIndex
 
-    /* Map all single desired fields to their column position in the file. If one desired field is not apparent, throw
-     * an exception. */
+    /* Map all single desired fields to their column position in the file. Filter out optional fields, that cannot be
+     * found (cf. filterNot statement). Then only mandatory fields or found optional fields may be apparent. Therefore,
+     * the values can be extracted and if that is not possible, an exception is thrown. */
     desiredFields
       .map(
-        desiredField =>
-          (desiredField,
-           headLineFields
-             .find(apparentField => apparentField._1 == desiredField)
-             .getOrElse(throw IoException(
-               s"The headline of the file $filePath does not contain the desired field $desiredField"))
-             ._2))
+        field =>
+          field ->
+            headLineFields
+              .find(apparentField => apparentField._1 == field.id))
+      .filterNot({
+        case (_: OptionalField, option: Option[(String, Int)]) => option.isEmpty
+        case _                                                 => false
+      })
+      .map(entry => {
+        val fieldId = entry._1.id
+        val colIdx = entry._2 match {
+          case Some(value) => value._2
+          case None =>
+            throw IoException(
+              s"The headline of the file $filePath does not contain the mandatory field $fieldId")
+        }
+        fieldId -> colIdx
+      })
       .toMap
   }
 
