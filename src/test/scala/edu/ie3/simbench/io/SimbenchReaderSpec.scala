@@ -152,9 +152,16 @@ class SimbenchReaderSpec extends UnitSpec with SimbenchReaderTestData {
         .length shouldBe 1
     }
 
-    "read the complete data set correctly" in {
+    "read the complete grid data set correctly" in {
       val actual = reader.readGrid()
       actual shouldBe expectedGridModel
+    }
+
+    "read the complete profile data set correctly" in {
+      val actual = reader.readProfiles()
+      /* Comparing sets to get rid of the order */
+      actual.map(entry => entry._1 -> entry._2.toSet) shouldBe expectedProfiles
+        .map(entry => entry._1 -> entry._2.toSet)
     }
   }
 }

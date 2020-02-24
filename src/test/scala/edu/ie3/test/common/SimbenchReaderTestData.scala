@@ -26,14 +26,27 @@ import edu.ie3.simbench.model.datamodel.enums.{
   NodeType,
   ResType
 }
+import edu.ie3.simbench.model.datamodel.profiles.LoadProfileType.{
+  H0A,
+  H0B,
+  H0C,
+  L1A,
+  L2A
+}
 import edu.ie3.simbench.model.datamodel.profiles.{
+  LoadProfile,
   LoadProfileType,
   ResProfileType
 }
 import edu.ie3.simbench.model.datamodel.types.LineType.ACLineType
 import edu.ie3.simbench.model.datamodel.types.Transformer2WType
+import edu.ie3.util.TimeTools
 
 trait SimbenchReaderTestData {
+  TimeTools.initialize(TimeTools.DEFAULT_ZONE_ID,
+                       TimeTools.DEFAULT_LOCALE,
+                       "dd.MM.yyyy HH:mm")
+
   val studyCases = Vector(
     StudyCase(
       "hL",
@@ -259,5 +272,62 @@ trait SimbenchReaderTestData {
     Vector.empty[Switch],
     transformers,
     Vector.empty[Transformer3W]
+  )
+
+  val expectedLoadProfiles: Vector[LoadProfile] = Vector(
+    LoadProfile(
+      "H0A",
+      H0A,
+      Map(
+        TimeTools.toZonedDateTime("01.01.2016 00:00") -> (BigDecimal(
+          "0.276685"), BigDecimal("-0.067519")),
+        TimeTools.toZonedDateTime("01.01.2016 00:15") -> (BigDecimal(
+          "0.066011"), BigDecimal("0.060412"))
+      )
+    ),
+    LoadProfile(
+      "H0B",
+      H0B,
+      Map(
+        TimeTools.toZonedDateTime("01.01.2016 00:00") -> (BigDecimal(
+          "0.065826"), BigDecimal("-0.014175")),
+        TimeTools.toZonedDateTime("01.01.2016 00:15") -> (BigDecimal(
+          "0.190476"), BigDecimal("0.212622"))
+      )
+    ),
+    LoadProfile(
+      "H0C",
+      H0C,
+      Map(
+        TimeTools.toZonedDateTime("01.01.2016 00:00") -> (BigDecimal(
+          "0.237082"), BigDecimal("0.242253")),
+        TimeTools.toZonedDateTime("01.01.2016 00:15") -> (BigDecimal(
+          "0.066869"), BigDecimal("0.007691"))
+      )
+    ),
+    LoadProfile(
+      "L1A",
+      L1A,
+      Map(
+        TimeTools.toZonedDateTime("01.01.2016 00:00") -> (BigDecimal(
+          "0.144231"), BigDecimal("0.125501")),
+        TimeTools.toZonedDateTime("01.01.2016 00:15") -> (BigDecimal(
+          "0.416628"), BigDecimal("0.587453"))
+      )
+    ),
+    LoadProfile(
+      "L2A",
+      L2A,
+      Map(
+        TimeTools.toZonedDateTime("01.01.2016 00:00") -> (BigDecimal(
+          "0.321053"), BigDecimal("0.326352")),
+        TimeTools.toZonedDateTime("01.01.2016 00:15") -> (BigDecimal(
+          "0.317544"), BigDecimal("0.346238"))
+      )
+    )
+  )
+
+  val expectedProfiles: Map[Class[LoadProfile], Vector[LoadProfile]] = Map(
+    classOf[LoadProfile] -> expectedLoadProfiles
   )
 }

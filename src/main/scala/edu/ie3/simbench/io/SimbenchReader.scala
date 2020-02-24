@@ -5,6 +5,11 @@ import java.nio.file.Path
 import com.typesafe.scalalogging.LazyLogging
 import edu.ie3.simbench.exception.io.{IoException, SimbenchDataModelException}
 import edu.ie3.simbench.model.RawModelData
+import edu.ie3.simbench.model.datamodel.profiles.{
+  LoadProfile,
+  ProfileModel,
+  ProfileType
+}
 import edu.ie3.simbench.model.datamodel.types.{LineType, Transformer2WType}
 import edu.ie3.simbench.model.datamodel.{
   Coordinate,
@@ -58,6 +63,10 @@ final case class SimbenchReader(folderPath: Path,
   implicit val ec: ExecutionContextExecutor = ExecutionContext.global
 
   /* Define the classes to read */
+  private val profileClassesToRead = Vector(
+    (classOf[LoadProfile], LoadProfile.getFields)
+  )
+
   private val modelClassesToRead = Vector(
     (classOf[StudyCase], StudyCase.getFields),
     (classOf[Coordinate], Coordinate.getFields),
@@ -70,6 +79,26 @@ final case class SimbenchReader(folderPath: Path,
     (classOf[Transformer2WType], Transformer2WType.getFields),
     (classOf[Transformer2W], Transformer2W.getFields)
   )
+
+  /**
+    * Reading all profiles from file
+    *
+    * @return A map of profile class to [[Vector]] of actual profile models
+    */
+  def readProfiles(): Map[Class[_ <: ProfileModel[_ <: ProfileType]],
+                          Vector[ProfileModel[_ <: ProfileType]]] = {
+    val profileClassToRawData = getFieldToValueMaps
+
+    val loadProfiles = LoadProfile.buildModels(
+      profileClassToRawData.getOrElse(
+        classOf[LoadProfile],
+        throw IoException(
+          "Cannot build load profiles, as no raw data has been received.")))
+
+    Map(
+      classOf[LoadProfile] -> loadProfiles
+    )
+  }
 
   /**
     * Read all models and compose them
@@ -272,14 +301,15 @@ final case class SimbenchReader(folderPath: Path,
     *
     * @return A map of model class to a vector of maps from field to value
     */
-  private def getFieldToValueMaps
-    : Map[Class[_ <: SimbenchModel], Vector[RawModelData]] = {
+  private def getFieldToValueMaps: Map[Class[_], Vector[RawModelData]] = {
     Await
       .result(
-        Future.sequence(for ((clazz, fields) <- modelClassesToRead) yield {
+        Future.sequence(
+          for ((clazz, fields) <- profileClassesToRead ++ modelClassesToRead)
+            yield {
 
-          read(clazz, fields)
-        }),
+              read(clazz, fields)
+            }),
         Duration("10 s"))
       .toMap
   }
