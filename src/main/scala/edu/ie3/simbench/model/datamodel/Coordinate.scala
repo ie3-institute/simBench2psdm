@@ -1,5 +1,7 @@
 package edu.ie3.simbench.model.datamodel
 
+import edu.ie3.simbench.io.HeadLineField
+import edu.ie3.simbench.io.HeadLineField.MandatoryField
 import edu.ie3.simbench.model.RawModelData
 import edu.ie3.simbench.model.datamodel.SimbenchModel.SimbenchCompanionObject
 
@@ -28,8 +30,8 @@ case object Coordinate extends SimbenchCompanionObject[Coordinate] {
     *
     * @return Array of table headings
     */
-  override def getFields: Array[String] =
-    Array(SimbenchModel.ID, EntityModel.SUBNET, EntityModel.VOLT_LVL, X, Y)
+  override def getFields: Array[HeadLineField] =
+    Array(SimbenchModel.ID, EntityModel.SUBNET, EntityModel.VOLT_LVL, X, Y).map(id => MandatoryField(id))
 
   /**
     * Factory method to build one model from a mapping from field id to value

@@ -31,7 +31,7 @@ final case class CsvReader[T](modelClass: Class[T],
     * @param desiredFields  Array with strings of desired field names
     * @return               A vector with raw model data
     */
-  def read(desiredFields: Array[String]): Vector[RawModelData] = {
+  def read(desiredFields: Array[HeadLineField]): Vector[RawModelData] = {
     val bufferedSource: BufferedSource =
       io.Source.fromFile(filePath, fileEncoding)
     try {
@@ -49,21 +49,6 @@ final case class CsvReader[T](modelClass: Class[T],
     } finally {
       bufferedSource.close()
     }
-  }
-
-  /**
-    * Build the column mapping from the mandatory fields to their column position in the file. All field ids are treated
-    * as ids of mandatory fields. If more fields are apparent in the file, the rest is simply discarded.
-    *
-    * @param headLine           Head line of the file
-    * @param mandatoryFieldIds  Ids of mandatory fields
-    * @return                   A map from desired field to column position in the file
-    */
-  private def mapFields(
-                         headLine: String,
-                         mandatoryFieldIds: Array[String]): Map[String, Int] = {
-    val desiredFields = mandatoryFieldIds.map(id => MandatoryField(id))
-    mapFields(headLine, desiredFields)
   }
 
   /**

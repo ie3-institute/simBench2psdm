@@ -1,6 +1,8 @@
 package edu.ie3.simbench.model.datamodel
 
 import edu.ie3.simbench.exception.io.SimbenchDataModelException
+import edu.ie3.simbench.io.HeadLineField
+import edu.ie3.simbench.io.HeadLineField.MandatoryField
 import edu.ie3.simbench.model.RawModelData
 import edu.ie3.simbench.model.datamodel.SimbenchModel.SimbenchCompanionObject
 import edu.ie3.simbench.model.datamodel.enums.BranchElementPort
@@ -50,7 +52,7 @@ case object Transformer2W extends SimbenchCompanionObject[Transformer2W] {
     *
     * @return Array of table headings
     */
-  override def getFields: Array[String] =
+  override def getFields: Array[HeadLineField] =
     Array(SimbenchModel.ID,
           NODE_HV,
           NODE_LV,
@@ -61,7 +63,7 @@ case object Transformer2W extends SimbenchCompanionObject[Transformer2W] {
           LOADING_MAX,
           SUBSTATION,
           EntityModel.SUBNET,
-          EntityModel.VOLT_LVL)
+          EntityModel.VOLT_LVL).map(id => MandatoryField(id))
 
   /**
     * Factory method to build one model from a mapping from field id to value

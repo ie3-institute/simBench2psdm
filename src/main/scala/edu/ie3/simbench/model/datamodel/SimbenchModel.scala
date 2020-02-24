@@ -1,5 +1,6 @@
 package edu.ie3.simbench.model.datamodel
 
+import edu.ie3.simbench.io.HeadLineField
 import edu.ie3.simbench.model.RawModelData
 
 /**
@@ -30,7 +31,7 @@ object SimbenchModel {
       *
       * @return Array of table headings
       */
-    def getFields: Array[String]
+    def getFields: Array[HeadLineField]
 
     /**
       * Factory method to build a batch of models from a mapping from field id to value

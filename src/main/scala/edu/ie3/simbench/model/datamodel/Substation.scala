@@ -1,5 +1,7 @@
 package edu.ie3.simbench.model.datamodel
 
+import edu.ie3.simbench.io.HeadLineField
+import edu.ie3.simbench.io.HeadLineField.MandatoryField
 import edu.ie3.simbench.model.RawModelData
 import edu.ie3.simbench.model.datamodel.SimbenchModel.SimbenchCompanionObject
 
@@ -20,8 +22,8 @@ case object Substation extends SimbenchCompanionObject[Substation] {
     *
     * @return Array of table headings
     */
-  override def getFields: Array[String] =
-    Array(Node.SUBSTATION, EntityModel.SUBNET, EntityModel.VOLT_LVL)
+  override def getFields: Array[HeadLineField] =
+    Array(Node.SUBSTATION, EntityModel.SUBNET, EntityModel.VOLT_LVL).map(id => MandatoryField(id))
 
   /**
     * Factory method to build a batch of models from a mapping from field id to value. It is allowed, that a node is not

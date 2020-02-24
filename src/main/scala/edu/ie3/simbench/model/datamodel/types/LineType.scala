@@ -1,5 +1,7 @@
 package edu.ie3.simbench.model.datamodel.types
 
+import edu.ie3.simbench.io.HeadLineField
+import edu.ie3.simbench.io.HeadLineField.MandatoryField
 import edu.ie3.simbench.model.RawModelData
 import edu.ie3.simbench.model.datamodel.SimbenchModel
 import edu.ie3.simbench.model.datamodel.SimbenchModel.SimbenchCompanionObject
@@ -62,8 +64,8 @@ object LineType extends SimbenchCompanionObject[LineType] {
     *
     * @return Array of table headings
     */
-  override def getFields: Array[String] =
-    Array(SimbenchModel.ID, R, X, B, I_MAX, LINE_TYPE)
+  override def getFields: Array[HeadLineField] =
+    Array(SimbenchModel.ID, R, X, B, I_MAX, LINE_TYPE).map(id => MandatoryField(id))
 
   /**
     * Factory method to build one model from a mapping from field id to value

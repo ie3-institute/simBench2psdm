@@ -1,5 +1,6 @@
 package edu.ie3.simbench.model.datamodel
 
+import edu.ie3.simbench.io.HeadLineField
 import edu.ie3.simbench.model.RawModelData
 import edu.ie3.simbench.model.datamodel.SimbenchModel.SimbenchCompanionObject
 import edu.ie3.simbench.model.datamodel.enums.BranchElementPort
@@ -46,7 +47,7 @@ case object Transformer3W extends SimbenchCompanionObject[Transformer3W] {
     *
     * @return Array of table headings
     */
-  override def getFields: Array[String] = Array.empty[String]
+  override def getFields: Array[HeadLineField] = Array.empty[HeadLineField]
 
   /**
     * Factory method to build one model from a mapping from field id to value

@@ -1,6 +1,8 @@
 package edu.ie3.simbench.model.datamodel
 
 import edu.ie3.simbench.exception.io.SimbenchDataModelException
+import edu.ie3.simbench.io.HeadLineField
+import edu.ie3.simbench.io.HeadLineField.MandatoryField
 import edu.ie3.simbench.model.RawModelData
 import edu.ie3.simbench.model.datamodel.SimbenchModel.SimbenchCompanionObject
 import edu.ie3.simbench.model.datamodel.enums.NodeType
@@ -48,7 +50,7 @@ case object Node extends SimbenchCompanionObject[Node] {
     *
     * @return Array of table headings
     */
-  override def getFields: Array[String] =
+  override def getFields: Array[HeadLineField] =
     Array(SimbenchModel.ID,
           EntityModel.VOLT_LVL,
           EntityModel.SUBNET,
@@ -59,7 +61,7 @@ case object Node extends SimbenchCompanionObject[Node] {
           V_M_MIN,
           V_M_MAX,
           SUBSTATION,
-          COORDINATE)
+          COORDINATE).map(id => MandatoryField(id))
 
   /**
     * Factory method to build a batch of models from a mapping from field id to value

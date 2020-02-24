@@ -47,7 +47,7 @@ class SimbenchReaderSpec extends UnitSpec with SimbenchReaderTestData {
 
       reader invokePrivate readModelClassMethod(
         classOf[SimbenchMock],
-        Array.empty[String]) onComplete {
+        Array.empty[HeadLineField]) onComplete {
         case Success(_) =>
           fail(
             "The future terminated successfully, although it was expected to fail")

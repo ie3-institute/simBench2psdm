@@ -1,5 +1,7 @@
 package edu.ie3.simbench.model.datamodel.types
 
+import edu.ie3.simbench.io.HeadLineField
+import edu.ie3.simbench.io.HeadLineField.MandatoryField
 import edu.ie3.simbench.model.RawModelData
 import edu.ie3.simbench.model.datamodel.SimbenchModel
 import edu.ie3.simbench.model.datamodel.SimbenchModel.SimbenchCompanionObject
@@ -66,7 +68,7 @@ case object Transformer2WType
     *
     * @return Array of table headings
     */
-  override def getFields: Array[String] =
+  override def getFields: Array[HeadLineField] =
     Array(SimbenchModel.ID,
           S_RATED,
           V_M_HV,
@@ -82,7 +84,7 @@ case object Transformer2WType
           D_V_A,
           TAP_NEUTR,
           TAP_MIN,
-          TAP_MAX)
+          TAP_MAX).map(id => MandatoryField(id))
 
   /**
     * Factory method to build one model from a mapping from field id to value

@@ -5,6 +5,7 @@ import java.nio.file.Path
 import com.typesafe.scalalogging.LazyLogging
 import edu.ie3.simbench.exception.io.{IoException, SimbenchDataModelException}
 import edu.ie3.simbench.model.RawModelData
+import edu.ie3.simbench.model.datamodel.profiles.LoadProfile
 import edu.ie3.simbench.model.datamodel.types.{LineType, Transformer2WType}
 import edu.ie3.simbench.model.datamodel.{
   Coordinate,
@@ -58,7 +59,7 @@ final case class SimbenchReader(folderPath: Path,
   implicit val ec: ExecutionContextExecutor = ExecutionContext.global
 
   /* Define the classes to read */
-  private val classesToRead = Vector(
+  private val modelClassesToRead = Vector(
     (classOf[StudyCase], StudyCase.getFields),
     (classOf[Coordinate], Coordinate.getFields),
     (classOf[ExternalNet], ExternalNet.getFields),
@@ -74,7 +75,7 @@ final case class SimbenchReader(folderPath: Path,
   /**
     * Read all models and compose them
     *
-    * @return //TODO: Specify
+    * @return A [[GridModel]] containing all read information
     */
   def read(): GridModel = {
     /* Reading the field to value maps for each of the specified classes
@@ -244,7 +245,7 @@ final case class SimbenchReader(folderPath: Path,
     */
   private def read[T <: SimbenchModel](
       modelClass: Class[T],
-      desiredFields: Array[String]): Future[(Class[T], Vector[RawModelData])] =
+      desiredFields: Array[HeadLineField]): Future[(Class[T], Vector[RawModelData])] =
     Future {
       /* Determine the matching file name */
       SimbenchFileNamingStrategy.getFileName(modelClass) match {
@@ -275,7 +276,7 @@ final case class SimbenchReader(folderPath: Path,
   private def getFieldToValueMaps
     : Map[Class[_ <: SimbenchModel], Vector[RawModelData]] = {
     Await
-      .result(Future.sequence(for ((clazz, fields) <- classesToRead) yield {
+      .result(Future.sequence(for ((clazz, fields) <- modelClassesToRead) yield {
 
         read(clazz, fields)
       }), Duration("10 s"))
