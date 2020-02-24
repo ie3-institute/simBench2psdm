@@ -2,7 +2,7 @@ package edu.ie3.simbench.model.datamodel.profiles
 
 import edu.ie3.simbench.exception.io.SimbenchDataModelException
 
-sealed trait ResProfileType
+sealed trait ResProfileType extends ProfileType
 
 case object ResProfileType {
   case object BM1 extends ResProfileType

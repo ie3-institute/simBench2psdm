@@ -243,9 +243,9 @@ final case class SimbenchReader(folderPath: Path,
     * @param desiredFields  The desired fields to get from file
     * @return               A Vector of maps with fields to values
     */
-  private def read[T <: SimbenchModel](
-      modelClass: Class[T],
-      desiredFields: Array[HeadLineField]): Future[(Class[T], Vector[RawModelData])] =
+  private def read[T <: SimbenchModel](modelClass: Class[T],
+                                       desiredFields: Array[HeadLineField])
+    : Future[(Class[T], Vector[RawModelData])] =
     Future {
       /* Determine the matching file name */
       SimbenchFileNamingStrategy.getFileName(modelClass) match {
@@ -276,10 +276,12 @@ final case class SimbenchReader(folderPath: Path,
   private def getFieldToValueMaps
     : Map[Class[_ <: SimbenchModel], Vector[RawModelData]] = {
     Await
-      .result(Future.sequence(for ((clazz, fields) <- modelClassesToRead) yield {
+      .result(
+        Future.sequence(for ((clazz, fields) <- modelClassesToRead) yield {
 
-        read(clazz, fields)
-      }), Duration("10 s"))
+          read(clazz, fields)
+        }),
+        Duration("10 s"))
       .toMap
   }
 

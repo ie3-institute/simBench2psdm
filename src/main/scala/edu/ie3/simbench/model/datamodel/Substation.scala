@@ -23,7 +23,8 @@ case object Substation extends SimbenchCompanionObject[Substation] {
     * @return Array of table headings
     */
   override def getFields: Array[HeadLineField] =
-    Array(Node.SUBSTATION, EntityModel.SUBNET, EntityModel.VOLT_LVL).map(id => MandatoryField(id))
+    Array(Node.SUBSTATION, EntityModel.SUBNET, EntityModel.VOLT_LVL).map(id =>
+      MandatoryField(id))
 
   /**
     * Factory method to build a batch of models from a mapping from field id to value. It is allowed, that a node is not

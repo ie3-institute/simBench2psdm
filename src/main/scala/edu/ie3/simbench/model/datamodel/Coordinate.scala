@@ -31,7 +31,8 @@ case object Coordinate extends SimbenchCompanionObject[Coordinate] {
     * @return Array of table headings
     */
   override def getFields: Array[HeadLineField] =
-    Array(SimbenchModel.ID, EntityModel.SUBNET, EntityModel.VOLT_LVL, X, Y).map(id => MandatoryField(id))
+    Array(SimbenchModel.ID, EntityModel.SUBNET, EntityModel.VOLT_LVL, X, Y)
+      .map(id => MandatoryField(id))
 
   /**
     * Factory method to build one model from a mapping from field id to value

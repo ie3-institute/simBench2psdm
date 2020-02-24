@@ -40,7 +40,8 @@ case object StudyCase extends SimbenchCompanionObject[StudyCase] {
     * @return Array of table headings
     */
   override def getFields: Array[HeadLineField] =
-    Array(ID, P_LOAD, Q_LOAD, P_WIND, P_PV, P_RES, VM_SLACK).map(id => MandatoryField(id))
+    Array(ID, P_LOAD, Q_LOAD, P_WIND, P_PV, P_RES, VM_SLACK).map(id =>
+      MandatoryField(id))
 
   /**
     * Factory method to build one model from a mapping from field id to value

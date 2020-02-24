@@ -5,7 +5,7 @@ import edu.ie3.simbench.exception.io.SimbenchDataModelException
 /**
   * Enumeration of available power plant profiles
   */
-sealed trait PowerPlantProfileType
+sealed trait PowerPlantProfileType extends ProfileType
 
 object PowerPlantProfileType {
   case object PowerPlantProfile1 extends PowerPlantProfileType

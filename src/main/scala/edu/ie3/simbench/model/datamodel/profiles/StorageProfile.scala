@@ -3,9 +3,12 @@ import java.time.LocalDateTime
 
 /**
   * Profile to be applied to storages
-  * @param profileType The type if profile
-  * @param profile The actual profile
+  *
+  * @param id           Identifier of the profile
+  * @param profileType  The type if profile
+  * @param profile      The actual profile
   */
-case class StorageProfile(profileType: StorageProfile,
+case class StorageProfile(id: String,
+                          profileType: StorageProfileType,
                           profile: Map[LocalDateTime, (BigDecimal, BigDecimal)])
-    extends ProfileModel[StorageProfile]
+    extends ProfileModel[StorageProfileType]

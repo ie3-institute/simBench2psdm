@@ -291,4 +291,52 @@ Class Transformer3WType {
 SimbenchModel <|-- Transformer3WType
 Transformer3W --* Transformer3WType
 
+Interface ProfileType {
+}
+
+Enum LoadProfileType {
+    + apply(String): LoadProfileType
+}
+ProfileType <|-- LoadProfileType
+
+Enum PowerPlantProfileType {
+    + apply(String): PowerPlantProfileType
+}
+ProfileType <|-- PowerPlantProfileType
+
+Enum ResProfileType {
+    + apply(String): ResProfileType
+}
+ProfileType <|-- ResProfileType
+
+Interface StorageProfileType {
+}
+ProfileType <|-- StorageProfileType
+
+Interface ProfileModel <T extends ProfileType> {
+    + profileType: T
+    + profile: Map<ZonedDateTime, Tuple2<BigDecimal, BigDecimal>>
+}
+SimbenchModel <|-- ProfileModel
+
+Class LoadProfile {
+}
+ProfileModel <|-- LoadProfile
+LoadProfileType *-- LoadProfile
+
+Class PowerPlantProfile {
+}
+ProfileModel <|-- PowerPlantProfile
+PowerPlantProfileType *-- PowerPlantProfile
+
+Class ResProfile {
+}
+ProfileModel <|-- ResProfile
+ResProfileType *-- ResProfile
+
+Class StorageProfile {
+}
+ProfileModel <|-- StorageProfile
+StorageProfileType *-- StorageProfile
+
 @enduml

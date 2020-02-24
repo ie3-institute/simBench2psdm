@@ -5,7 +5,7 @@ import edu.ie3.simbench.exception.io.SimbenchDataModelException
 /**
   * Different load profile types available in SimBench
   */
-sealed trait LoadProfileType
+sealed trait LoadProfileType extends ProfileType
 
 object LoadProfileType {
   case object BLH extends LoadProfileType
