@@ -9,7 +9,8 @@ import edu.ie3.simbench.model.datamodel.profiles.{
   LoadProfile,
   PowerPlantProfile,
   ProfileModel,
-  ProfileType
+  ProfileType,
+  ResProfile
 }
 import edu.ie3.simbench.model.datamodel.types.{LineType, Transformer2WType}
 import edu.ie3.simbench.model.datamodel.{
@@ -66,7 +67,8 @@ final case class SimbenchReader(folderPath: Path,
   /* Define the classes to read */
   private val profileClassesToRead = Vector(
     (classOf[LoadProfile], LoadProfile.getFields),
-    (classOf[PowerPlantProfile], PowerPlantProfile.getFields)
+    (classOf[PowerPlantProfile], PowerPlantProfile.getFields),
+    (classOf[ResProfile], ResProfile.getFields)
   )
 
   private val modelClassesToRead = Vector(
@@ -107,9 +109,19 @@ final case class SimbenchReader(folderPath: Path,
           Vector.empty
       }
 
+    val resProfiles =
+      profileClassToRawData.get(classOf[ResProfile]) match {
+        case Some(rawDatas) => ResProfile.buildModels(rawDatas)
+        case None =>
+          logger.debug(
+            s"No information available for ${classOf[ResProfile].getSimpleName}")
+          Vector.empty
+      }
+
     Map(
       classOf[LoadProfile] -> loadProfiles,
-      classOf[PowerPlantProfile] -> powerPlantProfiles
+      classOf[PowerPlantProfile] -> powerPlantProfiles,
+      classOf[ResProfile] -> resProfiles
     )
   }
 

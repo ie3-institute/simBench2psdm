@@ -40,6 +40,7 @@ import edu.ie3.simbench.model.datamodel.profiles.{
   PowerPlantProfileType,
   ProfileModel,
   ProfileType,
+  ResProfile,
   ResProfileType
 }
 import edu.ie3.simbench.model.datamodel.types.LineType.ACLineType
@@ -350,10 +351,31 @@ trait SimbenchReaderTestData {
     )
   )
 
+  val expectedResProfiles: Vector[ResProfile] = Vector(
+    ResProfile(
+      "PV6",
+      ResProfileType.PV6,
+      Map(
+        TimeTools.toZonedDateTime("02.01.2016 10:15") -> BigDecimal("0.078013"),
+        TimeTools.toZonedDateTime("02.01.2016 10:30") -> BigDecimal("0.0770834")
+      )
+    ),
+    ResProfile(
+      "PV8",
+      ResProfileType.PV8,
+      Map(
+        TimeTools.toZonedDateTime("02.01.2016 10:15") -> BigDecimal(
+          "0.0550869"),
+        TimeTools.toZonedDateTime("02.01.2016 10:30") -> BigDecimal("0.055754")
+      )
+    )
+  )
+
   val expectedProfiles: Map[Class[_ <: ProfileModel[_ <: ProfileType, _]],
                             Vector[_ <: ProfileModel[_ <: ProfileType, _]]] =
     Map(
       classOf[LoadProfile] -> expectedLoadProfiles,
-      classOf[PowerPlantProfile] -> expectedPowerPlantProfiles
+      classOf[PowerPlantProfile] -> expectedPowerPlantProfiles,
+      classOf[ResProfile] -> expectedResProfiles
     )
 }

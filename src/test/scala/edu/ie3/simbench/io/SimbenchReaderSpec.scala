@@ -6,7 +6,8 @@ import edu.ie3.simbench.exception.io.IoException
 import edu.ie3.simbench.model.RawModelData
 import edu.ie3.simbench.model.datamodel.profiles.{
   LoadProfile,
-  PowerPlantProfile
+  PowerPlantProfile,
+  ResProfile
 }
 import edu.ie3.simbench.model.datamodel.types.{LineType, Transformer2WType}
 import edu.ie3.simbench.model.datamodel.{
@@ -108,7 +109,7 @@ class SimbenchReaderSpec extends UnitSpec with SimbenchReaderTestData {
         Symbol("getFieldToValueMaps"))
       val fieldToValuesMap = reader invokePrivate fieldToValuesMethod()
 
-      fieldToValuesMap.keySet.size shouldBe 12
+      fieldToValuesMap.keySet.size shouldBe 13
 
       /* profiles */
       fieldToValuesMap
@@ -120,6 +121,10 @@ class SimbenchReaderSpec extends UnitSpec with SimbenchReaderTestData {
         .getOrElse(
           classOf[PowerPlantProfile],
           fail(s"No entry available for class ${classOf[PowerPlantProfile]}"))
+        .length shouldBe 2 /* Here, each time step is an entry */
+      fieldToValuesMap
+        .getOrElse(classOf[ResProfile],
+                   fail(s"No entry available for class ${classOf[ResProfile]}"))
         .length shouldBe 2 /* Here, each time step is an entry */
 
       fieldToValuesMap
