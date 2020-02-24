@@ -153,7 +153,7 @@ class SimbenchReaderSpec extends UnitSpec with SimbenchReaderTestData {
     }
 
     "read the complete data set correctly" in {
-      val actual = reader.read()
+      val actual = reader.readGrid()
       actual shouldBe expectedGridModel
     }
   }

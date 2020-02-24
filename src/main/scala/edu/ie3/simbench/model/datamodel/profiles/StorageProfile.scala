@@ -1,5 +1,5 @@
 package edu.ie3.simbench.model.datamodel.profiles
-import java.time.LocalDateTime
+import java.time.ZonedDateTime
 
 /**
   * Profile to be applied to storages
@@ -10,5 +10,5 @@ import java.time.LocalDateTime
   */
 case class StorageProfile(id: String,
                           profileType: StorageProfileType,
-                          profile: Map[LocalDateTime, (BigDecimal, BigDecimal)])
+                          profile: Map[ZonedDateTime, (BigDecimal, BigDecimal)])
     extends ProfileModel[StorageProfileType]

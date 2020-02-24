@@ -1,6 +1,6 @@
 package edu.ie3.simbench.model.datamodel.profiles
 
-import java.time.LocalDateTime
+import java.time.ZonedDateTime
 
 import edu.ie3.simbench.model.datamodel.SimbenchModel
 
@@ -19,5 +19,5 @@ trait ProfileModel[T <: ProfileType] extends SimbenchModel {
   /**
     * The actual profile
     */
-  val profile: Map[LocalDateTime, (BigDecimal, BigDecimal)]
+  val profile: Map[ZonedDateTime, (BigDecimal, BigDecimal)]
 }

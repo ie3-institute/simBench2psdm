@@ -20,6 +20,6 @@ object RunSimbench extends SimbenchHelper {
                                         simbenchConfig.io.csv.separator,
                                         simbenchConfig.io.csv.fileEnding,
                                         simbenchConfig.io.csv.fileEncoding)
-    val model = simbenchReader.read()
+    val model = simbenchReader.readGrid()
   }
 }

@@ -1,5 +1,6 @@
-package edu.ie3.simbench.model
+package edu.ie3.simbench.model.types
 
+import edu.ie3.simbench.model.RawModelData
 import edu.ie3.simbench.model.datamodel.enums.LineStyle
 import edu.ie3.simbench.model.datamodel.types.LineType
 import edu.ie3.simbench.model.datamodel.types.LineType.ACLineType

@@ -1,12 +1,13 @@
 package edu.ie3.simbench.model.datamodel.profiles
 
-import java.time.LocalDateTime
+import java.time.ZonedDateTime
 
 import edu.ie3.simbench.exception.io.SimbenchDataModelException
 import edu.ie3.simbench.io.HeadLineField
 import edu.ie3.simbench.io.HeadLineField.{MandatoryField, OptionalField}
 import edu.ie3.simbench.model.RawModelData
 import edu.ie3.simbench.model.datamodel.SimbenchModel.SimbenchCompanionObject
+import edu.ie3.util.TimeTools
 
 /**
   * A load profile consisting of an identifier and a mapping of the date to (p,q) pair
@@ -17,7 +18,7 @@ import edu.ie3.simbench.model.datamodel.SimbenchModel.SimbenchCompanionObject
   */
 case class LoadProfile(id: String,
                        profileType: LoadProfileType,
-                       profile: Map[LocalDateTime, (BigDecimal, BigDecimal)])
+                       profile: Map[ZonedDateTime, (BigDecimal, BigDecimal)])
     extends ProfileModel[LoadProfileType]
 
 case object LoadProfile extends SimbenchCompanionObject[LoadProfile] {
@@ -332,6 +333,53 @@ case object LoadProfile extends SimbenchCompanionObject[LoadProfile] {
     * @param rawData mapping from field id to value
     * @return A [[Vector]] of models
     */
-  override def buildModels(rawData: Vector[RawModelData]): Vector[LoadProfile] =
-    ???
+  override def buildModels(rawData: Vector[RawModelData]): Vector[LoadProfile] = {
+    /* Determine the ids of the available load profiles by filtering the head line fields */
+    val availableTypes = determineAvailableProfileTypes(rawData
+      .find(_ => true)
+      .getOrElse(throw SimbenchDataModelException(
+        "Raw data has no content. Unable to determine available profile types."))
+      .fieldToValues)
+    val profileTypeStrings = availableTypes
+      .map(field => field._2)
+      .distinct
+
+    /* Go through each line of the raw data table and extract the time stamp */
+    (for (rawTableLine <- rawData) yield {
+      val time = TimeTools.toZonedDateTime(rawTableLine.get(TIME))
+
+      /* Get the active and reactive power for each available load profile */
+      for (typeString <- profileTypeStrings) yield {
+        val profileType = LoadProfileType(typeString)
+        val p = BigDecimal(rawTableLine.get(typeString + "_pload"))
+        val q = BigDecimal(rawTableLine.get(typeString + "_qload"))
+        (profileType, time, p, q)
+      }
+    }).flatten /* Flatten everything to have Vector((profileType, time, p, q)) */
+      .groupBy(collectionEntry => collectionEntry._1) /* Build a Map(profileType -> (profileType, time, p, q)) */
+      .map(profileEntry => {
+        /* Extract the needed information to build a LoadProfile for each profile type */
+        val profileType = profileEntry._1
+        val profileValues =
+          profileEntry._2.map(entry => entry._2 -> (entry._3, entry._4)).toMap
+
+        LoadProfile(
+          "\\$$".r.replaceAllIn(profileType.getClass.getSimpleName, ""),
+          profileType,
+          profileValues)
+      })
+      .toVector /* Finally build the Vector(LoadProfile) */
+  }
+
+  /**
+    * Determine the available profile types from the given raw data
+    *
+    * @param values The map of field id to string content
+    * @return       A [[Vector]] of available (LoadProfileTypes, field id)
+    */
+  def determineAvailableProfileTypes(
+      values: Map[String, String]): Vector[(LoadProfileType, String)] =
+    (for (entry <- values.filterNot(entry => entry._1 == TIME)) yield {
+      (LoadProfileType(entry._1), LoadProfileType.stripSuffix(entry._1))
+    }).toVector.distinct
 }

@@ -5,7 +5,6 @@ import java.nio.file.Path
 import com.typesafe.scalalogging.LazyLogging
 import edu.ie3.simbench.exception.io.{IoException, SimbenchDataModelException}
 import edu.ie3.simbench.model.RawModelData
-import edu.ie3.simbench.model.datamodel.profiles.LoadProfile
 import edu.ie3.simbench.model.datamodel.types.{LineType, Transformer2WType}
 import edu.ie3.simbench.model.datamodel.{
   Coordinate,
@@ -77,7 +76,7 @@ final case class SimbenchReader(folderPath: Path,
     *
     * @return A [[GridModel]] containing all read information
     */
-  def read(): GridModel = {
+  def readGrid(): GridModel = {
     /* Reading the field to value maps for each of the specified classes
      *
      * Block is discouraged, but the following assembly of classes cannot be parallelized as well, therefore the

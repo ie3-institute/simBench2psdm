@@ -1,5 +1,6 @@
-package edu.ie3.simbench.model
+package edu.ie3.simbench.model.types
 
+import edu.ie3.simbench.model.RawModelData
 import edu.ie3.simbench.model.datamodel.enums.BranchElementPort
 import edu.ie3.simbench.model.datamodel.types.Transformer2WType
 import edu.ie3.test.common.UnitSpec

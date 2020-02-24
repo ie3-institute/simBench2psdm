@@ -1,6 +1,6 @@
 package edu.ie3.simbench.model.datamodel.profiles
 
-import java.time.LocalDateTime
+import java.time.ZonedDateTime
 
 /**
   * A power plant's profile consisting of an identifier and a mapping of the date to (p,q) pair
@@ -12,5 +12,5 @@ import java.time.LocalDateTime
 case class PowerPlantProfile(
     id: String,
     profileType: PowerPlantProfileType,
-    profile: Map[LocalDateTime, (BigDecimal, BigDecimal)])
+    profile: Map[ZonedDateTime, (BigDecimal, BigDecimal)])
     extends ProfileModel[PowerPlantProfileType]
