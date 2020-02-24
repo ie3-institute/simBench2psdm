@@ -10,7 +10,8 @@ import edu.ie3.simbench.model.datamodel.profiles.{
   PowerPlantProfile,
   ProfileModel,
   ProfileType,
-  ResProfile
+  ResProfile,
+  StorageProfile
 }
 import edu.ie3.simbench.model.datamodel.types.{LineType, Transformer2WType}
 import edu.ie3.simbench.model.datamodel.{
@@ -68,7 +69,7 @@ final case class SimbenchReader(folderPath: Path,
   private val profileClassesToRead = Vector(
     (classOf[LoadProfile], LoadProfile.getFields),
     (classOf[PowerPlantProfile], PowerPlantProfile.getFields),
-    (classOf[ResProfile], ResProfile.getFields)
+    (classOf[ResProfile], ResProfile.getFields),
   )
 
   private val modelClassesToRead = Vector(
@@ -118,10 +119,19 @@ final case class SimbenchReader(folderPath: Path,
           Vector.empty
       }
 
+    val storageProfiles =
+      profileClassToRawData.get(classOf[StorageProfile]) match {
+        case Some(_) =>
+          throw SimbenchDataModelException(
+            s"Found data set for ${classOf[StorageProfile]}, but no factory method defined")
+        case None => Vector.empty[StorageProfile]
+      }
+
     Map(
       classOf[LoadProfile] -> loadProfiles,
       classOf[PowerPlantProfile] -> powerPlantProfiles,
-      classOf[ResProfile] -> resProfiles
+      classOf[ResProfile] -> resProfiles,
+      classOf[StorageProfile] -> storageProfiles
     )
   }
 

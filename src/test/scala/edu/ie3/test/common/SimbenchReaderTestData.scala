@@ -41,7 +41,8 @@ import edu.ie3.simbench.model.datamodel.profiles.{
   ProfileModel,
   ProfileType,
   ResProfile,
-  ResProfileType
+  ResProfileType,
+  StorageProfile
 }
 import edu.ie3.simbench.model.datamodel.types.LineType.ACLineType
 import edu.ie3.simbench.model.datamodel.types.Transformer2WType
@@ -376,6 +377,7 @@ trait SimbenchReaderTestData {
     Map(
       classOf[LoadProfile] -> expectedLoadProfiles,
       classOf[PowerPlantProfile] -> expectedPowerPlantProfiles,
-      classOf[ResProfile] -> expectedResProfiles
+      classOf[ResProfile] -> expectedResProfiles,
+      classOf[StorageProfile] -> Vector.empty[StorageProfile]
     )
 }
