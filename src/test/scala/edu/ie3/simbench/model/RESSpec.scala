@@ -26,8 +26,8 @@ class RESSpec extends UnitSpec {
           "coord_14",
           BigDecimal("11.4097"),
           BigDecimal("53.6413"),
-          "MV1.101_LV1.101_Feeder1",
-          5
+          "LV1.101",
+          7
         )),
       "LV1.101",
       7
@@ -84,8 +84,8 @@ class RESSpec extends UnitSpec {
             "coord_14",
             BigDecimal("11.4097"),
             BigDecimal("53.6413"),
-            "MV1.101_LV1.101_Feeder1",
-            5
+            "LV1.101",
+            7
           )),
         "LV1.101",
         7
@@ -115,8 +115,8 @@ class RESSpec extends UnitSpec {
             "coord_14",
             BigDecimal("11.4097"),
             BigDecimal("53.6413"),
-            "MV1.101_LV1.101_Feeder1",
-            5
+            "LV1.101",
+            7
           )),
         "LV1.101",
         7

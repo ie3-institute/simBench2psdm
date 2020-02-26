@@ -4,7 +4,20 @@ import java.util.UUID
 
 import edu.ie3.models.OperationTime
 import edu.ie3.models.input.{NodeInput, OperatorInput}
-import edu.ie3.simbench.model.datamodel.Node
+import edu.ie3.simbench.model.datamodel.Node.NodeKey
+import edu.ie3.simbench.model.datamodel.enums.CalculationType
+import edu.ie3.simbench.model.datamodel.enums.CalculationType.{
+  VaVm,
+  Ward,
+  WardExtended
+}
+import edu.ie3.simbench.model.datamodel.{
+  EntityModel,
+  ExternalNet,
+  Node,
+  PowerPlant,
+  RES
+}
 import edu.ie3.util.quantities.PowerSystemUnits.PU
 import edu.ie3.util.quantities.PowerSystemUnits.KILOVOLT
 import tec.uom.se.quantity.Quantities
@@ -27,7 +40,7 @@ case object NodeConverter {
     * @return                 A [[NodeInput]]
     */
   def convert(input: Node,
-              slackNodeKeys: Vector[(String, String, Int)],
+              slackNodeKeys: Vector[NodeKey],
               subnetConverter: SubnetConverter,
               givenUuid: Option[UUID] = None): NodeInput = {
     val uuid = givenUuid match {
@@ -40,7 +53,7 @@ case object NodeConverter {
     }
     val vRated = Quantities.getQuantity(input.vmR, KILOVOLT)
     val isSlack =
-      slackNodeKeys.contains((input.id, input.subnet, input.voltLvl))
+      slackNodeKeys.contains(input.getKey)
     val geopPosition = CoordinateConverter.convert(input.coordinate)
     val voltLvl = VoltLvlConverter.convert(input.voltLvl)
     val subnet = subnetConverter.convert(input.subnet)
@@ -55,5 +68,53 @@ case object NodeConverter {
                   geopPosition,
                   voltLvl,
                   subnet)
+  }
+
+  /**
+    * Deriving the total list of slack node keys from all possible assets introducing slack simulation mode to a node
+    *
+    * @param externalNets [[Vector]] of [[ExternalNet]]s
+    * @param powerPlants  [[Vector]] of [[PowerPlant]]s
+    * @param res          [[Vector]] of [[RES]]s
+    * @return             [[Vector]] of distinct slack node keys (id, subnet, voltLvl)
+    */
+  def getSlackNodeKeys(externalNets: Vector[ExternalNet],
+                       powerPlants: Vector[PowerPlant],
+                       res: Vector[RES]): Vector[NodeKey] = {
+    val calcTypeFromExternalNet = (externalNet: ExternalNet) =>
+      externalNet.calculationType
+    val calcTypeFromPowerPlant = (powerPlant: PowerPlant) =>
+      powerPlant.calculationType
+    val calcTypeFromRes = (res: RES) => res.calculationType
+    val nodeFromExternalNet = (externalNet: ExternalNet) => externalNet.node
+    val nodeFromPowerPlant = (powerPlant: PowerPlant) => powerPlant.node
+    val nodeFromRes = (res: RES) => res.node
+
+    (extractSlackNodeKeys(externalNets,
+                          calcTypeFromExternalNet,
+                          nodeFromExternalNet) ++
+      extractSlackNodeKeys(powerPlants,
+                           calcTypeFromPowerPlant,
+                           nodeFromPowerPlant) ++
+      extractSlackNodeKeys(res, calcTypeFromRes, nodeFromRes)).distinct
+  }
+
+  /**
+    * Extracting the slack node keys from a [[Vector]] of models
+    *
+    * @param models           [[Vector]] of models
+    * @param getCalcTypeFunc  Partial function to extract calculation type from the model
+    * @param getNode          Partial function to extract the node from the model
+    * @tparam T               Type of the models
+    * @return                 A vector of slack node keys
+    */
+  private def extractSlackNodeKeys[T <: EntityModel](
+      models: Vector[T],
+      getCalcTypeFunc: T => CalculationType,
+      getNode: T => Node): Vector[NodeKey] = {
+    val slackCalculationModes = Vector(VaVm, Ward, WardExtended)
+    models
+      .filter(model => slackCalculationModes.contains(getCalcTypeFunc(model)))
+      .map(model => getNode(model).getKey)
   }
 }

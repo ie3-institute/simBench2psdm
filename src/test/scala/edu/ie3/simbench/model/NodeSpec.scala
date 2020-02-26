@@ -1,6 +1,7 @@
 package edu.ie3.simbench.model
 
 import edu.ie3.simbench.exception.io.SimbenchDataModelException
+import edu.ie3.simbench.model.datamodel.Node.NodeKey
 import edu.ie3.simbench.model.datamodel.{Coordinate, Node, Substation}
 import edu.ie3.simbench.model.datamodel.enums.NodeType
 import edu.ie3.test.common.UnitSpec
@@ -88,6 +89,14 @@ class NodeSpec extends UnitSpec {
       5
     )
   )
+
+  "The node class" should {
+    "generate the correct key" in {
+      expected(0).getKey shouldBe NodeKey("MV1.101 Bus 4",
+                                          "MV1.101_LV1.101_Feeder1",
+                                          5)
+    }
+  }
 
   "The Node object" should {
     "throw an exception, when the basic single model creation method is called" in {
