@@ -3,7 +3,6 @@ package edu.ie3.simbench.convert.types
 import java.util.UUID
 
 import com.typesafe.scalalogging.LazyLogging
-import edu.ie3.models.StandardUnits
 import edu.ie3.models.input.connector.`type`.LineTypeInput
 import edu.ie3.simbench.exception.io.SimbenchDataModelException
 import edu.ie3.simbench.model.datamodel.Line
@@ -49,21 +48,16 @@ case object LineTypeConverter extends LazyLogging {
     * Converts a given SimBench [[LineType]] into a ie³ [[LineTypeInput]]. The [[LineType.DCLineType]]s are currently
     * not supported by the ie³ data model. Therefore an [[IllegalArgumentException]] is thrown.
     *
-    * @param input      SimBench [[LineType]] to convert
-    * @param vRated     Externally provided rated voltage, as the SimBench [[LineType]] does not provide this information
-    * @param givenUuid  Optional UUID to use for the model generation
-    * @return           A ie³ [[LineTypeInput]]
+    * @param input    SimBench [[LineType]] to convert
+    * @param vRated   Externally provided rated voltage, as the SimBench [[LineType]] does not provide this information
+    * @param uuid     UUID to use for the model generation (default: Random UUID)
+    * @return         A ie³ [[LineTypeInput]]
     */
   def convert(input: LineType,
               vRated: ComparableQuantity[ElectricPotential],
-              givenUuid: Option[UUID] = None): LineTypeInput = {
+              uuid: UUID = UUID.randomUUID()): LineTypeInput = {
     input match {
       case LineType.ACLineType(id, r, x, b, iMax, _) =>
-        val uuid = givenUuid match {
-          case Some(value) => value
-          case None        => UUID.randomUUID()
-        }
-
         val rQty = Quantities.getQuantity(r, OHM_PER_KILOMETRE)
         val xQty = Quantities.getQuantity(x, OHM_PER_KILOMETRE)
         val gQty =

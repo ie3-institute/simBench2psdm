@@ -11,16 +11,10 @@ import edu.ie3.simbench.model.datamodel.enums.{LineStyle, NodeType}
 import edu.ie3.simbench.model.datamodel.types.LineType
 import edu.ie3.simbench.model.datamodel.types.LineType.{ACLineType, DCLineType}
 import edu.ie3.test.common.UnitSpec
-import edu.ie3.util.quantities.PowerSystemUnits.{
-  KILOVOLT,
-  OHM_PER_KILOMETRE,
-  SIEMENS_PER_KILOMETRE
-}
-import javax.measure.MetricPrefix
+import edu.ie3.util.quantities.PowerSystemUnits.KILOVOLT
 import javax.measure.quantity.ElectricPotential
 import tec.uom.se.ComparableQuantity
 import tec.uom.se.quantity.Quantities
-import tec.uom.se.unit.Units.AMPERE
 
 class LineTypeConverterSpec extends UnitSpec {
   val invalidLine: ACLine = ACLine(
@@ -289,7 +283,7 @@ class LineTypeConverterSpec extends UnitSpec {
       val actual =
         LineTypeConverter.convert(input,
                                   Quantities.getQuantity(0.4, KILOVOLT),
-                                  Some(uuid))
+                                  uuid)
       val expected = new LineTypeInput(
         uuid,
         "NAYY 4x150SE 0.6/1kV",
@@ -307,9 +301,8 @@ class LineTypeConverterSpec extends UnitSpec {
 
     "throw an exception on wrong input type" in {
       val thrown = intercept[IllegalArgumentException](
-        LineTypeConverter.convert(invalidInput,
-                                  Quantities.getQuantity(0.4, KILOVOLT),
-                                  Some(uuid)))
+        LineTypeConverter
+          .convert(invalidInput, Quantities.getQuantity(0.4, KILOVOLT), uuid))
       thrown.getMessage shouldBe "DC line types are currently not supported by ie³'s data model."
     }
   }
