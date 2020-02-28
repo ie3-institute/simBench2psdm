@@ -289,12 +289,22 @@ class LineTypeConverterSpec extends UnitSpec {
       actual.getUuid shouldBe uuid
       actual.getId shouldBe "NAYY 4x150SE 0.6/1kV"
       actual.getB shouldBe Quantities
-          .getQuantity(260.752, StandardUnits.ADMITTANCE_PER_LENGTH)
-      actual.getG shouldBe Quantities.getQuantity(0d, StandardUnits.ADMITTANCE_PER_LENGTH)
-      actual.getR shouldBe Quantities.getQuantity(0.2067, StandardUnits.IMPEDANCE_PER_LENGTH)
-      actual.getX shouldBe Quantities.getQuantity(0.0804248, StandardUnits.IMPEDANCE_PER_LENGTH)
-      actual.getiMax shouldBe Quantities.getQuantity(270d, StandardUnits.ELECTRIC_CURRENT_MAGNITUDE)
-      actual.getvRated shouldBe Quantities.getQuantity(0.4, StandardUnits.RATED_VOLTAGE_MAGNITUDE)
+        .getQuantity(260.752, StandardUnits.ADMITTANCE_PER_LENGTH)
+      actual.getG shouldBe Quantities.getQuantity(
+        0d,
+        StandardUnits.ADMITTANCE_PER_LENGTH)
+      actual.getR shouldBe Quantities.getQuantity(
+        0.2067,
+        StandardUnits.IMPEDANCE_PER_LENGTH)
+      actual.getX shouldBe Quantities.getQuantity(
+        0.0804248,
+        StandardUnits.IMPEDANCE_PER_LENGTH)
+      actual.getiMax shouldBe Quantities.getQuantity(
+        270d,
+        StandardUnits.ELECTRIC_CURRENT_MAGNITUDE)
+      actual.getvRated shouldBe Quantities.getQuantity(
+        0.4,
+        StandardUnits.RATED_VOLTAGE_MAGNITUDE)
     }
 
     "throw an exception on wrong input type" in {
