@@ -36,17 +36,13 @@ case object NodeConverter {
     * @param input            SimBench [[Node]] to convert
     * @param slackNodeKeys    Vector of keys, undoubtedly identifying slack nodes by (id, subnet, voltLvl)
     * @param subnetConverter  Subnet converter, that is initialized with the apparent SimBench subnets
-    * @param givenUuid        Optional UUID to use for the model generation
+    * @param uuid             UUID to use for the model generation (default: Random UUID)
     * @return                 A [[NodeInput]]
     */
   def convert(input: Node,
               slackNodeKeys: Vector[NodeKey],
               subnetConverter: SubnetConverter,
-              givenUuid: Option[UUID] = None): NodeInput = {
-    val uuid = givenUuid match {
-      case Some(value) => value
-      case None        => UUID.randomUUID()
-    }
+              uuid: UUID = UUID.randomUUID()): NodeInput = {
     val vTarget = input.vmSetp match {
       case Some(value) => Quantities.getQuantity(value, PU)
       case None        => Quantities.getQuantity(1d, PU)
