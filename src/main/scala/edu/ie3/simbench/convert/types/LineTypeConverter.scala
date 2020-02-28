@@ -4,6 +4,7 @@ import java.util.UUID
 
 import com.typesafe.scalalogging.LazyLogging
 import edu.ie3.models.input.connector.`type`.LineTypeInput
+import edu.ie3.simbench.exception.ConversionException
 import edu.ie3.simbench.exception.io.SimbenchDataModelException
 import edu.ie3.simbench.model.datamodel.Line
 import edu.ie3.simbench.model.datamodel.types.LineType
@@ -68,7 +69,7 @@ case object LineTypeConverter extends LazyLogging {
 
         new LineTypeInput(uuid, id, bQty, gQty, rQty, xQty, iMaxQty, vRated)
       case _: LineType.DCLineType =>
-        throw new IllegalArgumentException(
+        throw ConversionException(
           "DC line types are currently not supported by ie³'s data model.")
     }
   }
