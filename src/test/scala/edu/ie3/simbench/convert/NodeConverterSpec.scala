@@ -2,13 +2,6 @@ package edu.ie3.simbench.convert
 
 import java.util.UUID
 
-import com.vividsolutions.jts.geom.{
-  GeometryFactory,
-  Point,
-  Coordinate => JTSCoordinate
-}
-import edu.ie3.models.OperationTime
-import edu.ie3.models.input.{NodeInput, OperatorInput}
 import edu.ie3.simbench.model.datamodel.{
   Coordinate,
   ExternalNet,
@@ -23,106 +16,29 @@ import edu.ie3.simbench.model.datamodel.enums.{
   PowerPlantType,
   ResType
 }
-import edu.ie3.util.quantities.PowerSystemUnits.{KILOVOLT, PU}
-import edu.ie3.models.GermanVoltageLevel.MV
-import edu.ie3.simbench.model.datamodel.ExternalNet.{Simple, Ward, WardExtended}
+import edu.ie3.simbench.model.datamodel.ExternalNet.{Simple, WardExtended}
 import edu.ie3.simbench.model.datamodel.Node.NodeKey
 import edu.ie3.simbench.model.datamodel.profiles.{
   PowerPlantProfileType,
   ResProfileType
 }
-import edu.ie3.test.common.UnitSpec
-import tec.uom.se.quantity.Quantities
+import edu.ie3.test.common.{ConverterTestData, UnitSpec}
 
-class NodeConverterSpec extends UnitSpec {
-  val geometryFactory = new GeometryFactory()
-
+class NodeConverterSpec extends UnitSpec with ConverterTestData {
   val uuid: UUID = UUID.randomUUID()
 
   val subnetConverter: SubnetConverter = SubnetConverter(
     Vector("subnet_1", "subnet_2"))
-  val expectedCoordinate: Point =
-    geometryFactory.createPoint(new JTSCoordinate(7.412262, 51.492689))
 
-  val slackNode: Node = Node(
-    "slack_node_0",
-    NodeType.BusBar,
-    Some(BigDecimal("1.3")),
-    None,
-    BigDecimal("10.0"),
-    BigDecimal("0.95"),
-    BigDecimal("1.05"),
-    None,
-    Some(
-      Coordinate("random coordinate",
-                 BigDecimal("7.412262"),
-                 BigDecimal("51.492689"),
-                 "subnet_1",
-                 7)),
-    "subnet_1",
-    5
-  )
-  val slackNodeExpected = new NodeInput(
-    uuid,
-    OperationTime.notLimited(),
-    OperatorInput.NO_OPERATOR_ASSIGNED,
-    "slack_node_0",
-    Quantities.getQuantity(1.3, PU),
-    Quantities.getQuantity(10.0, KILOVOLT),
-    true,
-    expectedCoordinate,
-    MV,
-    1
-  )
-  val otherNode: Node = Node("node_0",
-                             NodeType.Node,
-                             None,
-                             None,
-                             BigDecimal("10.0"),
-                             BigDecimal("0.95"),
-                             BigDecimal("1.05"),
-                             None,
-                             None,
-                             "subnet_2",
-                             5)
-  val otherNodeExpected = new NodeInput(
-    uuid,
-    OperationTime.notLimited(),
-    OperatorInput.NO_OPERATOR_ASSIGNED,
-    "node_0",
-    Quantities.getQuantity(1.0, PU),
-    Quantities.getQuantity(10.0, KILOVOLT),
-    false,
-    expectedCoordinate,
-    MV,
-    2
-  )
+  val (slackNode, slackNodeExpected) = getNodePair("slack_node_0")
+  val (otherNode, otherNodeExpected) = getNodePair("node_0")
 
   val slackNodeKeys = Vector(NodeKey("slack_node_0", "subnet_1", 5))
 
   val externalNets = Vector(
     Simple(
       "MV1.101 grid at LV1.101",
-      Node(
-        "MV1.101 Bus 4",
-        NodeType.BusBar,
-        Some(BigDecimal("1.025")),
-        Some(BigDecimal("0.0")),
-        BigDecimal("20"),
-        BigDecimal("0.965"),
-        BigDecimal("1.055"),
-        Some(Substation("substation_1", "LV1.101", 7)),
-        Some(
-          Coordinate(
-            "coord_14",
-            BigDecimal("11.4097"),
-            BigDecimal("53.6413"),
-            "MV1.101_LV1.101_Feeder1",
-            5
-          )),
-        "MV1.101_LV1.101_Feeder1",
-        5
-      ),
+      getNodePair("MV1.101 Bus 4")._1,
       CalculationType.VaVm,
       BigDecimal("1"),
       None,
@@ -132,26 +48,7 @@ class NodeConverterSpec extends UnitSpec {
     ),
     WardExtended(
       "MV1.101 grid at LV1.101",
-      Node(
-        "MV1.101 Bus 5",
-        NodeType.BusBar,
-        Some(BigDecimal("1.025")),
-        Some(BigDecimal("0.0")),
-        BigDecimal("20"),
-        BigDecimal("0.965"),
-        BigDecimal("1.055"),
-        Some(Substation("substation_1", "LV1.101", 7)),
-        Some(
-          Coordinate(
-            "coord_14",
-            BigDecimal("11.4097"),
-            BigDecimal("53.6413"),
-            "MV1.101_LV1.101_Feeder1",
-            5
-          )),
-        "MV1.101_LV1.101_Feeder1",
-        5
-      ),
+      getNodePair("MV1.101 Bus 5")._1,
       BigDecimal("1"),
       None,
       None,
@@ -166,26 +63,7 @@ class NodeConverterSpec extends UnitSpec {
   val powerPlants = Vector(
     PowerPlant(
       "EHV Gen 75",
-      Node(
-        "MV1.101 Bus 4",
-        NodeType.BusBar,
-        Some(BigDecimal("1.025")),
-        Some(BigDecimal("0.0")),
-        BigDecimal("20"),
-        BigDecimal("0.965"),
-        BigDecimal("1.055"),
-        Some(Substation("substation_1", "LV1.101", 7)),
-        Some(
-          Coordinate(
-            "coord_14",
-            BigDecimal("11.4097"),
-            BigDecimal("53.6413"),
-            "MV1.101_LV1.101_Feeder1",
-            5
-          )),
-        "MV1.101_LV1.101_Feeder1",
-        5
-      ),
+      getNodePair("MV1.101 Bus 4")._1,
       PowerPlantType("hard coal"),
       PowerPlantProfileType("pp_75"),
       CalculationType.VaVm,
@@ -202,26 +80,7 @@ class NodeConverterSpec extends UnitSpec {
     ),
     PowerPlant(
       "EHV Gen 76",
-      Node(
-        "MV1.101 Bus 4",
-        NodeType.BusBar,
-        Some(BigDecimal("1.025")),
-        Some(BigDecimal("0.0")),
-        BigDecimal("20"),
-        BigDecimal("0.965"),
-        BigDecimal("1.055"),
-        Some(Substation("substation_1", "LV1.101", 7)),
-        Some(
-          Coordinate(
-            "coord_14",
-            BigDecimal("11.4097"),
-            BigDecimal("53.6413"),
-            "MV1.101_LV1.101_Feeder1",
-            5
-          )),
-        "MV1.101_LV1.101_Feeder1",
-        5
-      ),
+      getNodePair("MV1.101 Bus 4")._1,
       PowerPlantType("hard coal"),
       PowerPlantProfileType("pp_76"),
       CalculationType.PVm,
@@ -241,26 +100,7 @@ class NodeConverterSpec extends UnitSpec {
   val res = Vector(
     RES(
       "LV1.101 SGen 3",
-      Node(
-        "LV1.101 Bus 4",
-        NodeType.BusBar,
-        None,
-        None,
-        BigDecimal("0.4"),
-        BigDecimal("0.9"),
-        BigDecimal("1.1"),
-        None,
-        Some(
-          Coordinate(
-            "coord_14",
-            BigDecimal("11.4097"),
-            BigDecimal("53.6413"),
-            "LV1.101",
-            5
-          )),
-        "LV1.101",
-        7
-      ),
+      getNodePair("LV1.101 Bus 4")._1,
       ResType.PV,
       ResProfileType.PV5,
       CalculationType.PQ,
@@ -272,26 +112,7 @@ class NodeConverterSpec extends UnitSpec {
     ),
     RES(
       "LV1.101 SGen 4",
-      Node(
-        "LV1.101 Bus 4",
-        NodeType.BusBar,
-        None,
-        None,
-        BigDecimal("0.4"),
-        BigDecimal("0.9"),
-        BigDecimal("1.1"),
-        None,
-        Some(
-          Coordinate(
-            "coord_14",
-            BigDecimal("11.4097"),
-            BigDecimal("53.6413"),
-            "LV1.101",
-            7
-          )),
-        "LV1.101",
-        7
-      ),
+      getNodePair("LV1.101 Bus 4")._1,
       ResType.WindMv,
       ResProfileType.WP4,
       CalculationType.VaVm,
@@ -307,13 +128,28 @@ class NodeConverterSpec extends UnitSpec {
     "build a slack node with all possible information given correctly" in {
       val actual =
         NodeConverter.convert(slackNode, slackNodeKeys, subnetConverter, uuid)
-      actual shouldBe slackNodeExpected
+
+      actual.getId shouldBe slackNodeExpected.getId
+      actual.getOperationTime shouldBe slackNodeExpected.getOperationTime
+      actual.getOperator shouldBe slackNodeExpected.getOperator
+      actual.getGeoPosition shouldBe slackNodeExpected.getGeoPosition
+      actual.getvRated shouldBe slackNodeExpected.getvRated()
+      actual.getvTarget shouldBe slackNodeExpected.getvTarget()
+      actual.getSubnet shouldBe slackNodeExpected.getSubnet
+      actual.getVoltLvl shouldBe slackNodeExpected.getVoltLvl
     }
 
     "build a normal node with least possible information given correctly" in {
       val actual =
         NodeConverter.convert(otherNode, slackNodeKeys, subnetConverter, uuid)
-      actual shouldBe otherNodeExpected
+      actual.getId shouldBe otherNodeExpected.getId
+      actual.getOperationTime shouldBe otherNodeExpected.getOperationTime
+      actual.getOperator shouldBe otherNodeExpected.getOperator
+      actual.getGeoPosition shouldBe otherNodeExpected.getGeoPosition
+      actual.getvRated shouldBe otherNodeExpected.getvRated()
+      actual.getvTarget shouldBe otherNodeExpected.getvTarget()
+      actual.getSubnet shouldBe otherNodeExpected.getSubnet
+      actual.getVoltLvl shouldBe otherNodeExpected.getVoltLvl
     }
 
     val extractSlackNodeKeysMethod =

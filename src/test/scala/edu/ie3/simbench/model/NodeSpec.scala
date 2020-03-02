@@ -2,19 +2,12 @@ package edu.ie3.simbench.model
 
 import edu.ie3.simbench.exception.io.SimbenchDataModelException
 import edu.ie3.simbench.model.datamodel.Node.NodeKey
-import edu.ie3.simbench.model.datamodel.{Coordinate, Node, Substation}
-import edu.ie3.simbench.model.datamodel.enums.NodeType
-import edu.ie3.test.common.UnitSpec
+import edu.ie3.simbench.model.datamodel.{Node, Substation}
+import edu.ie3.test.common.{ConverterTestData, UnitSpec}
 
-class NodeSpec extends UnitSpec {
-  val coordinates = Map(
-    "coord_14" -> Coordinate(
-      "coord_14",
-      BigDecimal("11.4097"),
-      BigDecimal("53.6413"),
-      "MV1.101_LV1.101_Feeder1",
-      5
-    ))
+class NodeSpec extends UnitSpec with ConverterTestData {
+  val coordinateMapping = Map(
+    "coordinate_14" -> getCoordinatePair("coordinate_14")._1)
 
   val substations = Map(
     "substation_1" -> Substation("substation_1", "LV1.101", 7))
@@ -31,7 +24,7 @@ class NodeSpec extends UnitSpec {
         "vmMin" -> "0.965",
         "vmMax" -> "1.055",
         "substation" -> "substation_1",
-        "coordID" -> "coord_14",
+        "coordID" -> "coordinate_14",
         "subnet" -> "MV1.101_LV1.101_Feeder1",
         "voltLvl" -> "5"
       )
@@ -55,39 +48,9 @@ class NodeSpec extends UnitSpec {
   )
 
   val expected = Vector(
-    Node(
-      "MV1.101 Bus 4",
-      NodeType.BusBar,
-      Some(BigDecimal("1.025")),
-      Some(BigDecimal("0.0")),
-      BigDecimal("20"),
-      BigDecimal("0.965"),
-      BigDecimal("1.055"),
-      Some(Substation("substation_1", "LV1.101", 7)),
-      Some(
-        Coordinate(
-          "coord_14",
-          BigDecimal("11.4097"),
-          BigDecimal("53.6413"),
-          "MV1.101_LV1.101_Feeder1",
-          5
-        )),
-      "MV1.101_LV1.101_Feeder1",
-      5
-    ),
-    Node(
-      "MV1.101 Bus 4",
-      NodeType.BusBar,
-      None,
-      None,
-      BigDecimal("20"),
-      BigDecimal("0.965"),
-      BigDecimal("1.055"),
-      None,
-      None,
-      "MV1.101_LV1.101_Feeder1",
-      5
-    )
+    getNodePair("MV1.101 Bus 4")._1,
+    getNodePair("MV1.101 Bus 4")._1
+      .copy(vmSetp = None, vaSetp = None, substation = None, coordinate = None),
   )
 
   "The node class" should {
@@ -113,13 +76,13 @@ class NodeSpec extends UnitSpec {
 
     "build the correct single model" in {
       val actual = Node.buildModel(rawData(0),
-                                   coordinates.get("coord_14"),
+                                   coordinateMapping.get("coordinate_14"),
                                    substations.get("substation_1"))
       actual shouldBe expected(0)
     }
 
-    "build a correct vector of line types" in {
-      val actual = Node.buildModels(rawData, coordinates, substations)
+    "build a correct vector of nodes" in {
+      val actual = Node.buildModels(rawData, coordinateMapping, substations)
       actual shouldBe expected
     }
   }

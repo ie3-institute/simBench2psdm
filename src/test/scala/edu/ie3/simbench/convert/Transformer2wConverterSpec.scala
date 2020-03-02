@@ -2,187 +2,38 @@ package edu.ie3.simbench.convert
 
 import java.util.UUID
 
-import com.vividsolutions.jts.geom.{
-  GeometryFactory,
-  Point,
-  Coordinate => JTSCoordinate
-}
+import com.vividsolutions.jts.geom.{Point, Coordinate => JTSCoordinate}
 import edu.ie3.models.OperationTime
-import edu.ie3.models.GermanVoltageLevel.{LV, MV}
 import edu.ie3.models.input.{NodeInput, OperatorInput}
 import edu.ie3.models.input.connector.`type`.Transformer2WTypeInput
-import edu.ie3.simbench.model.datamodel.{
-  Coordinate,
-  Node,
-  Substation,
-  Transformer2W
-}
+import edu.ie3.simbench.model.datamodel.{Node, Transformer2W}
 import edu.ie3.simbench.model.datamodel.enums.BranchElementPort.HV
-import edu.ie3.simbench.model.datamodel.enums.NodeType.BusBar
 import edu.ie3.simbench.model.datamodel.types.Transformer2WType
-import edu.ie3.test.common.UnitSpec
-import tec.uom.se.quantity.Quantities
-import tec.uom.se.unit.MetricPrefix
-import tec.uom.se.unit.Units.{OHM, PERCENT, SIEMENS}
-import edu.ie3.util.quantities.PowerSystemUnits.{
-  DEGREE_GEOM,
-  KILOVOLT,
-  KILOVOLTAMPERE,
-  PU
-}
+import edu.ie3.test.common.{ConverterTestData, UnitSpec}
 
-class Transformer2wConverterSpec extends UnitSpec {
-  val inputType: Transformer2WType = Transformer2WType(
-    "test type",
-    BigDecimal("40"),
-    BigDecimal("110"),
-    BigDecimal("10"),
-    BigDecimal("150"),
-    BigDecimal("5"),
-    BigDecimal("6"),
-    BigDecimal("10"),
-    BigDecimal("1"),
-    tapable = true,
-    HV,
-    BigDecimal("0.025"),
-    BigDecimal("5"),
-    0,
-    -10,
-    10
-  )
-
-  val typeUuid: UUID = UUID.randomUUID()
-  val resultType: Transformer2WTypeInput = new Transformer2WTypeInput(
-    typeUuid,
-    "test type",
-    Quantities.getQuantity(45.375, MetricPrefix.MILLI(OHM)),
-    Quantities.getQuantity(15.1249319, OHM),
-    Quantities.getQuantity(40000d, KILOVOLTAMPERE),
-    Quantities.getQuantity(110d, KILOVOLT),
-    Quantities.getQuantity(10d, KILOVOLT),
-    Quantities.getQuantity(2480.5790, MetricPrefix.NANO(SIEMENS)),
-    Quantities
-      .getQuantity(32972.94113, MetricPrefix.NANO(SIEMENS))
-      .to(MetricPrefix.NANO(SIEMENS)),
-    Quantities.getQuantity(2.5, PERCENT),
-    Quantities.getQuantity(5d, DEGREE_GEOM),
-    false,
-    0,
-    10,
-    -10
-  )
+class Transformer2wConverterSpec extends UnitSpec with ConverterTestData {
+  val (inputType, resultType) = getTransformer2WType("test type")
 
   val types: Map[Transformer2WType, Transformer2WTypeInput] = Map(
     inputType -> resultType)
 
   val nodeAUuid: UUID = UUID.randomUUID()
   val nodeBUuid: UUID = UUID.randomUUID()
-  val geometryFactory: GeometryFactory = new GeometryFactory()
   val randomCoordinate: Point =
     geometryFactory.createPoint(new JTSCoordinate(7.412262, 51.492689))
-  val nodeAInput: Node = Node(
-    "MV1.101 Bus 4",
-    BusBar,
-    Some(BigDecimal("1.025")),
-    Some(BigDecimal("0.0")),
-    BigDecimal("20"),
-    BigDecimal("0.965"),
-    BigDecimal("1.055"),
-    None,
-    None,
-    "MV1.101_LV1.101_Feeder1",
-    5
-  )
-  val nodeA = new NodeInput(
-    nodeAUuid,
-    OperationTime.notLimited(),
-    OperatorInput.NO_OPERATOR_ASSIGNED,
-    "MV1.101 Bus 4",
-    Quantities.getQuantity(1.025, PU),
-    Quantities.getQuantity(20d, KILOVOLT),
-    true,
-    randomCoordinate,
-    MV,
-    1
-  )
+  val (nodeAInput, nodeA) = getNodePair("MV1.101 Bus 4")
+  val (nodeBInput, nodeB) = getNodePair("LV1.101 Bus 4")
 
-  val nodeBInput: Node = Node(
-    "LV1.101 Bus 4",
-    BusBar,
-    None,
-    None,
-    BigDecimal("0.4"),
-    BigDecimal("0.9"),
-    BigDecimal("1.1"),
-    None,
-    None,
-    "LV1.101",
-    7
-  )
-  val nodeB: NodeInput = new NodeInput(
-    nodeBUuid,
-    OperationTime.notLimited(),
-    OperatorInput.NO_OPERATOR_ASSIGNED,
-    "LV1.101 Bus 4",
-    Quantities.getQuantity(1.0, PU),
-    Quantities.getQuantity(0.4, KILOVOLT),
-    false,
-    randomCoordinate,
-    LV,
-    2
-  )
-
-  val nodes: Map[Node, NodeInput] = Map(
+  val nodeMapping: Map[Node, NodeInput] = Map(
     nodeAInput -> nodeA,
     nodeBInput -> nodeB
   )
 
   val input: Transformer2W = Transformer2W(
     "MV1.101-LV1.101-Trafo 1",
-    Node(
-      "MV1.101 Bus 4",
-      BusBar,
-      Some(BigDecimal("1.025")),
-      Some(BigDecimal("0.0")),
-      BigDecimal("20"),
-      BigDecimal("0.965"),
-      BigDecimal("1.055"),
-      None,
-      None,
-      "MV1.101_LV1.101_Feeder1",
-      5
-    ),
-    Node(
-      "LV1.101 Bus 4",
-      BusBar,
-      None,
-      None,
-      BigDecimal("0.4"),
-      BigDecimal("0.9"),
-      BigDecimal("1.1"),
-      None,
-      None,
-      "LV1.101",
-      7
-    ),
-    Transformer2WType(
-      "test type",
-      BigDecimal("40"),
-      BigDecimal("110"),
-      BigDecimal("10"),
-      BigDecimal("150"),
-      BigDecimal("5"),
-      BigDecimal("6"),
-      BigDecimal("10"),
-      BigDecimal("1"),
-      tapable = true,
-      HV,
-      BigDecimal("0.025"),
-      BigDecimal("5"),
-      0,
-      -10,
-      10
-    ),
+    getNodePair("MV1.101 Bus 4")._1,
+    getNodePair("LV1.101 Bus 4")._1,
+    inputType,
     10,
     autoTap = true,
     Some(HV),
@@ -209,7 +60,8 @@ class Transformer2wConverterSpec extends UnitSpec {
   }
 
   "convert a set of input models correctly" in {
-    val actual = Transformer2wConverter.convert(Vector(input), types, nodes)
+    val actual =
+      Transformer2wConverter.convert(Vector(input), types, nodeMapping)
 
     actual.length shouldBe 1
 

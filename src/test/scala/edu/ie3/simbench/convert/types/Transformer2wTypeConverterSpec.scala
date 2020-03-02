@@ -5,7 +5,7 @@ import java.util.UUID
 import edu.ie3.simbench.exception.ConversionException
 import edu.ie3.simbench.model.datamodel.enums.BranchElementPort.HV
 import edu.ie3.simbench.model.datamodel.types.Transformer2WType
-import edu.ie3.test.common.UnitSpec
+import edu.ie3.test.common.{ConverterTestData, UnitSpec}
 import edu.ie3.util.quantities.PowerSystemUnits.{
   DEGREE_GEOM,
   KILOVOLT,
@@ -15,28 +15,11 @@ import tec.uom.se.quantity.Quantities
 import tec.uom.se.unit.MetricPrefix
 import tec.uom.se.unit.Units.{OHM, PERCENT, SIEMENS}
 
-class Transformer2wTypeConverterSpec extends UnitSpec {
+class Transformer2wTypeConverterSpec extends UnitSpec with ConverterTestData {
   val testingTolerance = 1E-3
 
   val uuid: UUID = UUID.randomUUID()
-  val validInput: Transformer2WType = Transformer2WType(
-    "test type",
-    BigDecimal("40"),
-    BigDecimal("110"),
-    BigDecimal("10"),
-    BigDecimal("150"),
-    BigDecimal("5"),
-    BigDecimal("6"),
-    BigDecimal("10"),
-    BigDecimal("1"),
-    tapable = true,
-    HV,
-    BigDecimal("0.025"),
-    BigDecimal("5"),
-    0,
-    -10,
-    10
-  )
+  val validInput: Transformer2WType = getTransformer2WType("test type")._1
 
   "The two winding transformer converter" should {
     "convert a valid input correctly" in {

@@ -3,65 +3,24 @@ package edu.ie3.simbench.convert.types
 import java.util.UUID
 
 import edu.ie3.models.StandardUnits
-import edu.ie3.models.input.connector.`type`.LineTypeInput
 import edu.ie3.simbench.exception.ConversionException
 import edu.ie3.simbench.exception.io.SimbenchDataModelException
 import edu.ie3.simbench.model.datamodel.Line.ACLine
-import edu.ie3.simbench.model.datamodel.{Coordinate, Node}
-import edu.ie3.simbench.model.datamodel.enums.{LineStyle, NodeType}
+import edu.ie3.simbench.model.datamodel.enums.LineStyle
 import edu.ie3.simbench.model.datamodel.types.LineType
 import edu.ie3.simbench.model.datamodel.types.LineType.{ACLineType, DCLineType}
-import edu.ie3.test.common.UnitSpec
+import edu.ie3.test.common.{ConverterTestData, UnitSpec}
 import edu.ie3.util.quantities.PowerSystemUnits.KILOVOLT
 import javax.measure.quantity.ElectricPotential
 import tec.uom.se.ComparableQuantity
 import tec.uom.se.quantity.Quantities
 
-class LineTypeConverterSpec extends UnitSpec {
+class LineTypeConverterSpec extends UnitSpec with ConverterTestData {
   val invalidLine: ACLine = ACLine(
     "LV1.101 Line 10",
-    Node(
-      "LV1.101 Bus 4",
-      NodeType.BusBar,
-      None,
-      None,
-      BigDecimal("0.4"),
-      BigDecimal("0.9"),
-      BigDecimal("1.1"),
-      None,
-      Some(
-        Coordinate("coord_3",
-                   BigDecimal("11.4097"),
-                   BigDecimal("53.6413"),
-                   "LV1.101",
-                   7)),
-      "LV1.101",
-      7
-    ),
-    Node(
-      "LV1.101 Bus 1",
-      NodeType.BusBar,
-      None,
-      None,
-      BigDecimal("10.0"),
-      BigDecimal("0.9"),
-      BigDecimal("1.1"),
-      None,
-      Some(
-        Coordinate("coord_0",
-                   BigDecimal("11.411"),
-                   BigDecimal("53.6407"),
-                   "LV1.101",
-                   7)),
-      "LV1.101",
-      7
-    ),
-    ACLineType("NAYY 4x150SE 0.6/1kV",
-               BigDecimal("0.2067"),
-               BigDecimal("0.0804248"),
-               BigDecimal("260.752"),
-               BigDecimal("270"),
-               LineStyle.Cable),
+    getNodePair("LV1.101 Bus 4")._1,
+    getNodePair("LV1.101 Bus 1")._1.copy(vmR = BigDecimal("10")),
+    getLineTypePair("NAYY 4x150SE 0.6/1kV")._1.asInstanceOf[ACLineType],
     BigDecimal("0.132499"),
     BigDecimal("100"),
     "LV1.101",
@@ -71,48 +30,9 @@ class LineTypeConverterSpec extends UnitSpec {
   val lines = Vector(
     ACLine(
       "LV1.101 Line 10",
-      Node(
-        "LV1.101 Bus 4",
-        NodeType.BusBar,
-        None,
-        None,
-        BigDecimal("0.4"),
-        BigDecimal("0.9"),
-        BigDecimal("1.1"),
-        None,
-        Some(
-          Coordinate("coord_3",
-                     BigDecimal("11.4097"),
-                     BigDecimal("53.6413"),
-                     "LV1.101",
-                     7)),
-        "LV1.101",
-        7
-      ),
-      Node(
-        "LV1.101 Bus 1",
-        NodeType.BusBar,
-        None,
-        None,
-        BigDecimal("0.4"),
-        BigDecimal("0.9"),
-        BigDecimal("1.1"),
-        None,
-        Some(
-          Coordinate("coord_0",
-                     BigDecimal("11.411"),
-                     BigDecimal("53.6407"),
-                     "LV1.101",
-                     7)),
-        "LV1.101",
-        7
-      ),
-      ACLineType("NAYY 4x150SE 0.6/1kV",
-                 BigDecimal("0.2067"),
-                 BigDecimal("0.0804248"),
-                 BigDecimal("260.752"),
-                 BigDecimal("270"),
-                 LineStyle.Cable),
+      getNodePair("LV1.101 Bus 4")._1,
+      getNodePair("LV1.101 Bus 1")._1,
+      getLineTypePair("NAYY 4x150SE 0.6/1kV")._1.asInstanceOf[ACLineType],
       BigDecimal("0.132499"),
       BigDecimal("100"),
       "LV1.101",
@@ -120,48 +40,9 @@ class LineTypeConverterSpec extends UnitSpec {
     ),
     ACLine(
       "LV1.101 Line 11",
-      Node(
-        "LV1.101 Bus 4",
-        NodeType.BusBar,
-        None,
-        None,
-        BigDecimal("0.4"),
-        BigDecimal("0.9"),
-        BigDecimal("1.1"),
-        None,
-        Some(
-          Coordinate("coord_3",
-                     BigDecimal("11.4097"),
-                     BigDecimal("53.6413"),
-                     "LV1.101",
-                     7)),
-        "LV1.101",
-        7
-      ),
-      Node(
-        "LV1.101 Bus 1",
-        NodeType.BusBar,
-        None,
-        None,
-        BigDecimal("0.4"),
-        BigDecimal("0.9"),
-        BigDecimal("1.1"),
-        None,
-        Some(
-          Coordinate("coord_0",
-                     BigDecimal("11.411"),
-                     BigDecimal("53.6407"),
-                     "LV1.101",
-                     7)),
-        "LV1.101",
-        7
-      ),
-      ACLineType("NAYY 4x150SE 0.6/1kV",
-                 BigDecimal("0.2067"),
-                 BigDecimal("0.0804248"),
-                 BigDecimal("260.752"),
-                 BigDecimal("270"),
-                 LineStyle.Cable),
+      getNodePair("LV1.101 Bus 4")._1,
+      getNodePair("LV1.101 Bus 1")._1,
+      getLineTypePair("NAYY 4x150SE 0.6/1kV")._1.asInstanceOf[ACLineType],
       BigDecimal("0.132499"),
       BigDecimal("100"),
       "LV1.101",
@@ -169,48 +50,9 @@ class LineTypeConverterSpec extends UnitSpec {
     ),
     ACLine(
       "LV1.101 Line 10",
-      Node(
-        "LV1.101 Bus 1",
-        NodeType.BusBar,
-        None,
-        None,
-        BigDecimal("0.4"),
-        BigDecimal("0.9"),
-        BigDecimal("1.1"),
-        None,
-        Some(
-          Coordinate("coord_0",
-                     BigDecimal("11.411"),
-                     BigDecimal("53.6407"),
-                     "LV1.101",
-                     7)),
-        "LV1.101",
-        7
-      ),
-      Node(
-        "LV1.101 Bus 4",
-        NodeType.BusBar,
-        None,
-        None,
-        BigDecimal("0.4"),
-        BigDecimal("0.9"),
-        BigDecimal("1.1"),
-        None,
-        Some(
-          Coordinate("coord_3",
-                     BigDecimal("11.4097"),
-                     BigDecimal("53.6413"),
-                     "LV1.101",
-                     7)),
-        "LV1.101",
-        7
-      ),
-      ACLineType("24-AL1/4-ST1A 20.0",
-                 BigDecimal("1.2012"),
-                 BigDecimal("0.394"),
-                 BigDecimal("3.53429"),
-                 BigDecimal("140"),
-                 LineStyle.OverheadLine),
+      getNodePair("LV1.101 Bus 1")._1,
+      getNodePair("LV1.101 Bus 4")._1,
+      getLineTypePair("24-AL1/4-ST1A 20.0")._1.asInstanceOf[ACLineType],
       BigDecimal("0.132499"),
       BigDecimal("100"),
       "LV1.101",
@@ -220,21 +62,8 @@ class LineTypeConverterSpec extends UnitSpec {
 
   val uuid: UUID = UUID.randomUUID()
 
-  val input: ACLineType = ACLineType("NAYY 4x150SE 0.6/1kV",
-                                     BigDecimal("0.2067"),
-                                     BigDecimal("0.0804248"),
-                                     BigDecimal("260.752"),
-                                     BigDecimal("270"),
-                                     LineStyle.Cable)
-  val invalidInput: DCLineType = DCLineType("invalid type",
-                                            BigDecimal("0"),
-                                            BigDecimal("0"),
-                                            BigDecimal("0"),
-                                            BigDecimal("0"),
-                                            BigDecimal("0"),
-                                            BigDecimal("0"),
-                                            BigDecimal("0"),
-                                            BigDecimal("0"))
+  val invalidInput: DCLineType = getLineTypePair("dc line type")._1
+    .asInstanceOf[DCLineType]
 
   "The line type converter" should {
     val determineRatedVoltageMethod =
@@ -243,13 +72,8 @@ class LineTypeConverterSpec extends UnitSpec {
     "extract the rated voltage of one line correctly" in {
       val actual = LineTypeConverter invokePrivate determineRatedVoltageMethod(
         lines(0))
-      actual shouldBe (ACLineType(
-        "NAYY 4x150SE 0.6/1kV",
-        BigDecimal("0.2067"),
-        BigDecimal("0.0804248"),
-        BigDecimal("260.752"),
-        BigDecimal("270"),
-        LineStyle.Cable), Quantities.getQuantity(0.4, KILOVOLT))
+      actual shouldBe (getLineTypePair("NAYY 4x150SE 0.6/1kV")._1
+        .asInstanceOf[ACLineType], Quantities.getQuantity(0.4, KILOVOLT))
     }
 
     "throw an exception, if the rated voltage is ambiguous" in {
@@ -263,28 +87,20 @@ class LineTypeConverterSpec extends UnitSpec {
     "build line type to rated voltage mapping correctly" in {
       val actual = LineTypeConverter.getRatedVoltages(lines)
       val expected = Map(
-        ACLineType("NAYY 4x150SE 0.6/1kV",
-                   BigDecimal("0.2067"),
-                   BigDecimal("0.0804248"),
-                   BigDecimal("260.752"),
-                   BigDecimal("270"),
-                   LineStyle.Cable) -> Quantities.getQuantity(0.4, KILOVOLT),
-        ACLineType("24-AL1/4-ST1A 20.0",
-                   BigDecimal("1.2012"),
-                   BigDecimal("0.394"),
-                   BigDecimal("3.53429"),
-                   BigDecimal("140"),
-                   LineStyle.OverheadLine) -> Quantities.getQuantity(0.4,
-                                                                     KILOVOLT)
+        getLineTypePair("NAYY 4x150SE 0.6/1kV")._1
+          .asInstanceOf[ACLineType] -> Quantities.getQuantity(0.4, KILOVOLT),
+        getLineTypePair("24-AL1/4-ST1A 20.0")._1
+          .asInstanceOf[ACLineType] -> Quantities.getQuantity(0.4, KILOVOLT)
       )
-      actual shouldBe expected
+      actual.toSet shouldBe expected.toSet
     }
 
     "convert a valid input correctly" in {
       val actual =
-        LineTypeConverter.convert(input,
-                                  Quantities.getQuantity(0.4, KILOVOLT),
-                                  uuid)
+        LineTypeConverter.convert(
+          getLineTypePair("NAYY 4x150SE 0.6/1kV")._1.asInstanceOf[ACLineType],
+          Quantities.getQuantity(0.4, KILOVOLT),
+          uuid)
 
       actual.getUuid shouldBe uuid
       actual.getId shouldBe "NAYY 4x150SE 0.6/1kV"

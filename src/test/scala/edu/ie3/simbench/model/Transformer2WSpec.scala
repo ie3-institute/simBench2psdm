@@ -3,62 +3,19 @@ package edu.ie3.simbench.model
 import edu.ie3.simbench.exception.io.SimbenchDataModelException
 import edu.ie3.simbench.model.datamodel.enums.{BranchElementPort, NodeType}
 import edu.ie3.simbench.model.datamodel.types.Transformer2WType
-import edu.ie3.simbench.model.datamodel.{
-  Coordinate,
-  Node,
-  Substation,
-  Transformer2W
-}
-import edu.ie3.test.common.UnitSpec
+import edu.ie3.simbench.model.datamodel.{Node, Substation, Transformer2W}
+import edu.ie3.test.common.{ConverterTestData, UnitSpec}
 
-class Transformer2WSpec extends UnitSpec {
-  val nodes = Map(
-    "MV1.101 Bus 4" -> Node(
-      "MV1.101 Bus 4",
-      NodeType.BusBar,
-      Some(BigDecimal("1.025")),
-      Some(BigDecimal("0.0")),
-      BigDecimal("20"),
-      BigDecimal("0.965"),
-      BigDecimal("1.055"),
-      Some(Substation("substation_1", "LV1.101", 7)),
-      Some(
-        Coordinate(
-          "coord_14",
-          BigDecimal("11.4097"),
-          BigDecimal("53.6413"),
-          "MV1.101_LV1.101_Feeder1",
-          5
-        )),
-      "MV1.101_LV1.101_Feeder1",
-      5
-    ),
-    "LV1.101 Bus 4" -> Node(
-      "LV1.101 Bus 4",
-      NodeType.BusBar,
-      None,
-      None,
-      BigDecimal("0.4"),
-      BigDecimal("0.9"),
-      BigDecimal("1.1"),
-      None,
-      Some(
-        Coordinate(
-          "coord_14",
-          BigDecimal("11.4097"),
-          BigDecimal("53.6413"),
-          "MV1.101_LV1.101_Feeder1",
-          5
-        )),
-      "LV1.101",
-      7
-    )
+class Transformer2WSpec extends UnitSpec with ConverterTestData {
+  val nodeMapping: Map[String, Node] = Map(
+    "MV1.101 Bus 4" -> getNodePair("MV1.101 Bus 4")._1,
+    "LV1.101 Bus 4" -> getNodePair("LV1.101 Bus 4")._1
   )
 
   val substations = Map(
     "substation_1" -> Substation("substation_1", "LV1.101", 7))
 
-  val transformerTypes = Map(
+  val typeMapping = Map(
     "0.16 MVA 20/0.4 kV DOTE 160/20  SGB" -> Transformer2WType(
       "0.16 MVA 20/0.4 kV DOTE 160/20  SGB",
       BigDecimal("0.16"),
@@ -117,46 +74,8 @@ class Transformer2WSpec extends UnitSpec {
   val expected = Vector(
     Transformer2W(
       "MV1.101-LV1.101-Trafo 1",
-      Node(
-        "MV1.101 Bus 4",
-        NodeType.BusBar,
-        Some(BigDecimal("1.025")),
-        Some(BigDecimal("0.0")),
-        BigDecimal("20"),
-        BigDecimal("0.965"),
-        BigDecimal("1.055"),
-        Some(Substation("substation_1", "LV1.101", 7)),
-        Some(
-          Coordinate(
-            "coord_14",
-            BigDecimal("11.4097"),
-            BigDecimal("53.6413"),
-            "MV1.101_LV1.101_Feeder1",
-            5
-          )),
-        "MV1.101_LV1.101_Feeder1",
-        5
-      ),
-      Node(
-        "LV1.101 Bus 4",
-        NodeType.BusBar,
-        None,
-        None,
-        BigDecimal("0.4"),
-        BigDecimal("0.9"),
-        BigDecimal("1.1"),
-        None,
-        Some(
-          Coordinate(
-            "coord_14",
-            BigDecimal("11.4097"),
-            BigDecimal("53.6413"),
-            "MV1.101_LV1.101_Feeder1",
-            5
-          )),
-        "LV1.101",
-        7
-      ),
+      getNodePair("MV1.101 Bus 4")._1,
+      getNodePair("LV1.101 Bus 4")._1,
       Transformer2WType(
         "0.16 MVA 20/0.4 kV DOTE 160/20  SGB",
         BigDecimal("0.16"),
@@ -185,46 +104,8 @@ class Transformer2WSpec extends UnitSpec {
     ),
     Transformer2W(
       "MV1.101-LV1.101-Trafo 1",
-      Node(
-        "MV1.101 Bus 4",
-        NodeType.BusBar,
-        Some(BigDecimal("1.025")),
-        Some(BigDecimal("0.0")),
-        BigDecimal("20"),
-        BigDecimal("0.965"),
-        BigDecimal("1.055"),
-        Some(Substation("substation_1", "LV1.101", 7)),
-        Some(
-          Coordinate(
-            "coord_14",
-            BigDecimal("11.4097"),
-            BigDecimal("53.6413"),
-            "MV1.101_LV1.101_Feeder1",
-            5
-          )),
-        "MV1.101_LV1.101_Feeder1",
-        5
-      ),
-      Node(
-        "LV1.101 Bus 4",
-        NodeType.BusBar,
-        None,
-        None,
-        BigDecimal("0.4"),
-        BigDecimal("0.9"),
-        BigDecimal("1.1"),
-        None,
-        Some(
-          Coordinate(
-            "coord_14",
-            BigDecimal("11.4097"),
-            BigDecimal("53.6413"),
-            "MV1.101_LV1.101_Feeder1",
-            5
-          )),
-        "LV1.101",
-        7
-      ),
+      getNodePair("MV1.101 Bus 4")._1,
+      getNodePair("LV1.101 Bus 4")._1,
       Transformer2WType(
         "0.16 MVA 20/0.4 kV DOTE 160/20  SGB",
         BigDecimal("0.16"),
@@ -271,15 +152,15 @@ class Transformer2WSpec extends UnitSpec {
     "build the correct single model" in {
       val actual = Transformer2W.buildModel(
         rawData(0),
-        nodes.getOrElse("MV1.101 Bus 4",
-                        throw SimbenchDataModelException(
-                          "Ooops. This is not supposed to happen")),
-        nodes.getOrElse("LV1.101 Bus 4",
-                        throw SimbenchDataModelException(
-                          "Ooops. This is not supposed to happen")),
-        transformerTypes.getOrElse("0.16 MVA 20/0.4 kV DOTE 160/20  SGB",
-                                   throw SimbenchDataModelException(
-                                     "Ooops. This is not supposed to happen")),
+        nodeMapping.getOrElse("MV1.101 Bus 4",
+                              throw SimbenchDataModelException(
+                                "Ooops. This is not supposed to happen")),
+        nodeMapping.getOrElse("LV1.101 Bus 4",
+                              throw SimbenchDataModelException(
+                                "Ooops. This is not supposed to happen")),
+        typeMapping.getOrElse("0.16 MVA 20/0.4 kV DOTE 160/20  SGB",
+                              throw SimbenchDataModelException(
+                                "Ooops. This is not supposed to happen")),
         substations.get("substation_1")
       )
       actual shouldBe expected(0)
@@ -287,7 +168,10 @@ class Transformer2WSpec extends UnitSpec {
 
     "build a correct vector of models" in {
       val actual =
-        Transformer2W.buildModels(rawData, nodes, transformerTypes, substations)
+        Transformer2W.buildModels(rawData,
+                                  nodeMapping,
+                                  typeMapping,
+                                  substations)
       actual shouldBe expected
     }
   }

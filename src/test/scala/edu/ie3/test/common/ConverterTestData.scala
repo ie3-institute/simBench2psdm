@@ -1,0 +1,394 @@
+package edu.ie3.test.common
+
+import java.util.UUID
+
+import com.vividsolutions.jts.geom.{
+  GeometryFactory,
+  Point,
+  Coordinate => JTSCoordinate
+}
+import edu.ie3.models.{OperationTime, UniqueEntity}
+import edu.ie3.models.input.{NodeInput, OperatorInput}
+import edu.ie3.models.GermanVoltageLevel.{LV, MV}
+import edu.ie3.models.input.connector.`type`.{
+  LineTypeInput,
+  Transformer2WTypeInput
+}
+import edu.ie3.simbench.exception.TestingException
+import edu.ie3.simbench.model.datamodel.enums.{LineStyle, NodeType}
+import edu.ie3.simbench.model.datamodel.enums.NodeType.BusBar
+import edu.ie3.simbench.model.datamodel.types.LineType.{ACLineType, DCLineType}
+import edu.ie3.simbench.model.datamodel.{
+  Coordinate,
+  Node,
+  SimbenchModel,
+  Substation
+}
+import tec.uom.se.quantity.Quantities
+import edu.ie3.util.quantities.PowerSystemUnits.{
+  KILOVOLT,
+  PU,
+  KILOVOLTAMPERE,
+  DEGREE_GEOM
+}
+import edu.ie3.models.StandardUnits.{
+  ADMITTANCE_PER_LENGTH,
+  ELECTRIC_CURRENT_MAGNITUDE,
+  IMPEDANCE_PER_LENGTH,
+  RATED_VOLTAGE_MAGNITUDE
+}
+import edu.ie3.simbench.model.datamodel.enums.BranchElementPort.HV
+import edu.ie3.simbench.model.datamodel.types.{LineType, Transformer2WType}
+import tec.uom.se.unit.MetricPrefix
+import tec.uom.se.unit.Units.{OHM, SIEMENS, PERCENT}
+
+trait ConverterTestData {
+
+  /**
+    * Case class to denote a consistent pair of input and expected output of a conversion
+    *
+    * @param input  Input model
+    * @param result Resulting, converted model
+    * @tparam I     Type of input model
+    * @tparam R     Type of result class
+    */
+  final case class ConversionPair[I <: SimbenchModel, R <: UniqueEntity](
+      input: I,
+      result: R) {
+    def getPair: (I, R) = (input, result)
+  }
+
+  val geometryFactory = new GeometryFactory()
+  val coordinates = Map(
+    "random coordinate" -> (
+      Coordinate("random coordinate",
+                 BigDecimal("7.412262"),
+                 BigDecimal("51.492689"),
+                 "subnet_1",
+                 5),
+      geometryFactory.createPoint(new JTSCoordinate(7.412262, 51.492689))
+    ),
+    "coordinate_14" -> (
+      Coordinate("coordinate_14",
+                 BigDecimal("11.4097"),
+                 BigDecimal("53.6413"),
+                 "MV1.101_LV1.101_Feeder1",
+                 5),
+      geometryFactory.createPoint(new JTSCoordinate(11.4097, 53.6413))
+    ),
+    "coordinate_2" -> (Coordinate("coordinate_2",
+                                  BigDecimal("11.411"),
+                                  BigDecimal("53.6407"),
+                                  "LV1.101",
+                                  7),
+    geometryFactory.createPoint(new JTSCoordinate(11.411, 53.6407)))
+  )
+
+  def getCoordinatePair(key: String): (Coordinate, Point) =
+    coordinates
+      .getOrElse(
+        key,
+        throw TestingException(
+          s"Cannot find input / result pair for ${Coordinate.getClass.getSimpleName} $key."))
+
+  val nodes = Map(
+    "slack_node_0" -> ConversionPair(
+      Node(
+        "slack_node_0",
+        BusBar,
+        Some(BigDecimal("1.3")),
+        None,
+        BigDecimal("10.0"),
+        BigDecimal("0.95"),
+        BigDecimal("1.05"),
+        None,
+        Some(getCoordinatePair("random coordinate")._1),
+        "subnet_1",
+        5
+      ),
+      new NodeInput(
+        UUID.randomUUID(),
+        OperationTime.notLimited(),
+        OperatorInput.NO_OPERATOR_ASSIGNED,
+        "slack_node_0",
+        Quantities.getQuantity(1.3, PU),
+        Quantities.getQuantity(10.0, KILOVOLT),
+        true,
+        getCoordinatePair("random coordinate")._2,
+        MV,
+        1
+      )
+    ),
+    "node_0" -> ConversionPair(
+      Node("node_0",
+           NodeType.Node,
+           None,
+           None,
+           BigDecimal("10.0"),
+           BigDecimal("0.95"),
+           BigDecimal("1.05"),
+           None,
+           None,
+           "subnet_2",
+           5),
+      new NodeInput(
+        UUID.randomUUID(),
+        OperationTime.notLimited(),
+        OperatorInput.NO_OPERATOR_ASSIGNED,
+        "node_0",
+        Quantities.getQuantity(1.0, PU),
+        Quantities.getQuantity(10.0, KILOVOLT),
+        false,
+        getCoordinatePair("random coordinate")._2,
+        MV,
+        2
+      )
+    ),
+    "MV1.101 Bus 4" -> ConversionPair(
+      Node(
+        "MV1.101 Bus 4",
+        NodeType.BusBar,
+        Some(BigDecimal("1.025")),
+        Some(BigDecimal("0.0")),
+        BigDecimal("20"),
+        BigDecimal("0.965"),
+        BigDecimal("1.055"),
+        Some(Substation("substation_1", "LV1.101", 7)),
+        Some(getCoordinatePair("coordinate_14")._1),
+        "MV1.101_LV1.101_Feeder1",
+        5
+      ),
+      new NodeInput(
+        UUID.randomUUID(),
+        OperationTime.notLimited(),
+        OperatorInput.NO_OPERATOR_ASSIGNED,
+        "MV1.101 Bus 4",
+        Quantities.getQuantity(1.025, PU),
+        Quantities.getQuantity(20, KILOVOLT),
+        false,
+        getCoordinatePair("coordinate_14")._2,
+        MV,
+        1
+      )
+    ),
+    "MV1.101 Bus 5" -> ConversionPair(
+      Node(
+        "MV1.101 Bus 5",
+        NodeType.BusBar,
+        Some(BigDecimal("1.025")),
+        Some(BigDecimal("0.0")),
+        BigDecimal("20"),
+        BigDecimal("0.965"),
+        BigDecimal("1.055"),
+        Some(Substation("substation_1", "LV1.101", 7)),
+        Some(getCoordinatePair("coordinate_14")._1),
+        "MV1.101_LV1.101_Feeder1",
+        5
+      ),
+      new NodeInput(
+        UUID.randomUUID(),
+        OperationTime.notLimited(),
+        OperatorInput.NO_OPERATOR_ASSIGNED,
+        "MV1.101 Bus 5",
+        Quantities.getQuantity(1.025, PU),
+        Quantities.getQuantity(20d, KILOVOLT),
+        false,
+        getCoordinatePair("coordinate_14")._2,
+        MV,
+        5
+      )
+    ),
+    "LV1.101 Bus 4" -> ConversionPair(
+      Node(
+        "LV1.101 Bus 4",
+        NodeType.BusBar,
+        None,
+        None,
+        BigDecimal("0.4"),
+        BigDecimal("0.9"),
+        BigDecimal("1.1"),
+        None,
+        Some(getCoordinatePair("coordinate_14")._1),
+        "LV1.101",
+        7
+      ),
+      new NodeInput(
+        UUID.randomUUID(),
+        OperationTime.notLimited(),
+        OperatorInput.NO_OPERATOR_ASSIGNED,
+        "LV1.101 Bus 4",
+        Quantities.getQuantity(1d, PU),
+        Quantities.getQuantity(0.4, KILOVOLT),
+        false,
+        getCoordinatePair("coordinate_14")._2,
+        LV,
+        2
+      )
+    ),
+    "LV1.101 Bus 1" -> ConversionPair(
+      Node(
+        "LV1.101 Bus 1",
+        NodeType.BusBar,
+        None,
+        None,
+        BigDecimal("0.4"),
+        BigDecimal("0.9"),
+        BigDecimal("1.1"),
+        None,
+        Some(getCoordinatePair("coordinate_2")._1),
+        "LV1.101",
+        7
+      ),
+      new NodeInput(
+        UUID.randomUUID(),
+        OperationTime.notLimited(),
+        OperatorInput.NO_OPERATOR_ASSIGNED,
+        "LV1.101 Bus 1",
+        Quantities.getQuantity(1d, PU),
+        Quantities.getQuantity(0.4, KILOVOLT),
+        false,
+        getCoordinatePair("coordinate_2")._2,
+        LV,
+        2
+      )
+    )
+  )
+
+  def getNodePair(key: String): (Node, NodeInput) =
+    nodes
+      .getOrElse(
+        key,
+        throw TestingException(
+          s"Cannot find input / result pair for ${Node.getClass.getSimpleName} $key."))
+      .getPair
+
+  val lineTypes = Map(
+    "NAYY 4x150SE 0.6/1kV" -> ConversionPair(
+      ACLineType("NAYY 4x150SE 0.6/1kV",
+                 BigDecimal("0.2067"),
+                 BigDecimal("0.0804248"),
+                 BigDecimal("260.752"),
+                 BigDecimal("270"),
+                 LineStyle.Cable),
+      new LineTypeInput(
+        UUID.randomUUID(),
+        "NAYY 4x150SE 0.6/1kV",
+        Quantities
+          .getQuantity(260.752, ADMITTANCE_PER_LENGTH),
+        Quantities.getQuantity(0d, ADMITTANCE_PER_LENGTH),
+        Quantities.getQuantity(0.2067, IMPEDANCE_PER_LENGTH),
+        Quantities.getQuantity(0.0804248, IMPEDANCE_PER_LENGTH),
+        Quantities.getQuantity(270d, ELECTRIC_CURRENT_MAGNITUDE),
+        Quantities.getQuantity(0.4, RATED_VOLTAGE_MAGNITUDE)
+      )
+    ),
+    "24-AL1/4-ST1A 20.0" -> ConversionPair(
+      ACLineType("24-AL1/4-ST1A 20.0",
+                 BigDecimal("1.2012"),
+                 BigDecimal("0.394"),
+                 BigDecimal("3.53429"),
+                 BigDecimal("140"),
+                 LineStyle.OverheadLine),
+      new LineTypeInput(
+        UUID.randomUUID(),
+        "24-AL1/4-ST1A 20.0",
+        Quantities
+          .getQuantity(3.53429, ADMITTANCE_PER_LENGTH),
+        Quantities.getQuantity(0d, ADMITTANCE_PER_LENGTH),
+        Quantities.getQuantity(1.2012, IMPEDANCE_PER_LENGTH),
+        Quantities.getQuantity(0.394, IMPEDANCE_PER_LENGTH),
+        Quantities.getQuantity(140d, ELECTRIC_CURRENT_MAGNITUDE),
+        Quantities.getQuantity(0.4, RATED_VOLTAGE_MAGNITUDE)
+      )
+    ),
+    "1x630_RM/50" -> ConversionPair(
+      ACLineType("1x630_RM/50",
+                 BigDecimal("0.122"),
+                 BigDecimal("0.122522"),
+                 BigDecimal("58.7478"),
+                 BigDecimal("652"),
+                 LineStyle.Cable),
+      new LineTypeInput(
+        UUID.randomUUID(),
+        "1x630_RM/50",
+        Quantities
+          .getQuantity(58.7478, ADMITTANCE_PER_LENGTH),
+        Quantities.getQuantity(0d, ADMITTANCE_PER_LENGTH),
+        Quantities.getQuantity(0.122, IMPEDANCE_PER_LENGTH),
+        Quantities.getQuantity(0.122522, IMPEDANCE_PER_LENGTH),
+        Quantities.getQuantity(652d, ELECTRIC_CURRENT_MAGNITUDE),
+        Quantities.getQuantity(20d, RATED_VOLTAGE_MAGNITUDE)
+      )
+    ),
+    "dc line type" -> ConversionPair(
+      DCLineType("dc line type",
+                 BigDecimal("0"),
+                 BigDecimal("0"),
+                 BigDecimal("0"),
+                 BigDecimal("0"),
+                 BigDecimal("0"),
+                 BigDecimal("0"),
+                 BigDecimal("0"),
+                 BigDecimal("0")),
+      null
+    )
+  )
+
+  def getLineTypePair(key: String): (LineType, LineTypeInput) =
+    lineTypes
+      .getOrElse(
+        key,
+        throw TestingException(
+          s"Cannot find input / result pair for ${LineType.getClass.getSimpleName} $key."))
+      .getPair
+
+  val transformerTypes = Map(
+    "test type" -> ConversionPair(
+      Transformer2WType(
+        "test type",
+        BigDecimal("40"),
+        BigDecimal("110"),
+        BigDecimal("10"),
+        BigDecimal("150"),
+        BigDecimal("5"),
+        BigDecimal("6"),
+        BigDecimal("10"),
+        BigDecimal("1"),
+        tapable = true,
+        HV,
+        BigDecimal("0.025"),
+        BigDecimal("5"),
+        0,
+        -10,
+        10
+      ),
+      new Transformer2WTypeInput(
+        UUID.randomUUID(),
+        "test type",
+        Quantities.getQuantity(45.375, MetricPrefix.MILLI(OHM)),
+        Quantities.getQuantity(15.1249319, OHM),
+        Quantities.getQuantity(40000d, KILOVOLTAMPERE),
+        Quantities.getQuantity(110d, KILOVOLT),
+        Quantities.getQuantity(10d, KILOVOLT),
+        Quantities.getQuantity(2480.5790, MetricPrefix.NANO(SIEMENS)),
+        Quantities
+          .getQuantity(32972.94113, MetricPrefix.NANO(SIEMENS))
+          .to(MetricPrefix.NANO(SIEMENS)),
+        Quantities.getQuantity(2.5, PERCENT),
+        Quantities.getQuantity(5d, DEGREE_GEOM),
+        false,
+        0,
+        10,
+        -10
+      )
+    ))
+
+  def getTransformer2WType(
+      key: String): (Transformer2WType, Transformer2WTypeInput) =
+    transformerTypes
+      .getOrElse(
+        key,
+        throw TestingException(
+          s"Cannot find input / result pair for ${Transformer2WType.getClass.getSimpleName} $key."))
+      .getPair
+}
