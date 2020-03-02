@@ -33,14 +33,8 @@ case object LineConverter extends LazyLogging {
              case _: Line.ACLine => true
              case _: Line.DCLine => false
          })) yield {
-      val nodeA = nodes.getOrElse(
-        input.nodeA,
-        throw ConversionException(
-          s"Cannot find conversion result for node ${input.nodeA.id}"))
-      val nodeB = nodes.getOrElse(
-        input.nodeB,
-        throw ConversionException(
-          s"Cannot find conversion result for node ${input.nodeB.id}"))
+      val (nodeA, nodeB) =
+        NodeConverter.getNodes(input.nodeA, input.nodeB, nodes)
       val lineType = types.getOrElse(
         input.lineType,
         throw ConversionException(

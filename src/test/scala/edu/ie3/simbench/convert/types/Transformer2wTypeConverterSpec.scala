@@ -19,7 +19,7 @@ class Transformer2wTypeConverterSpec extends UnitSpec with ConverterTestData {
   val testingTolerance = 1E-3
 
   val uuid: UUID = UUID.randomUUID()
-  val validInput: Transformer2WType = getTransformer2WType("test type")._1
+  val validInput: Transformer2WType = getTransformer2WTypePair("test type")._1
 
   "The two winding transformer converter" should {
     "convert a valid input correctly" in {

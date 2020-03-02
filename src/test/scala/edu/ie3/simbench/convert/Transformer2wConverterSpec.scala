@@ -12,7 +12,7 @@ import edu.ie3.simbench.model.datamodel.types.Transformer2WType
 import edu.ie3.test.common.{ConverterTestData, UnitSpec}
 
 class Transformer2wConverterSpec extends UnitSpec with ConverterTestData {
-  val (inputType, resultType) = getTransformer2WType("test type")
+  val (inputType, resultType) = getTransformer2WTypePair("test type")
 
   val types: Map[Transformer2WType, Transformer2WTypeInput] = Map(
     inputType -> resultType)

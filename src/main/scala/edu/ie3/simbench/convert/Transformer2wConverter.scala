@@ -24,14 +24,8 @@ case object Transformer2wConverter {
               types: Map[Transformer2WType, Transformer2WTypeInput],
               nodes: Map[Node, NodeInput]): Vector[Transformer2WInput] =
     for (input <- inputs) yield {
-      val nodeA = nodes.getOrElse(
-        input.nodeHV,
-        throw ConversionException(
-          s"Cannot find conversion result for node ${input.nodeHV.id}"))
-      val nodeB = nodes.getOrElse(
-        input.nodeLV,
-        throw ConversionException(
-          s"Cannot find conversion result for node ${input.nodeLV.id}"))
+      val (nodeA, nodeB) =
+        NodeConverter.getNodes(input.nodeHV, input.nodeLV, nodes)
       val transformerType = types.getOrElse(
         input.transformerType,
         throw ConversionException(

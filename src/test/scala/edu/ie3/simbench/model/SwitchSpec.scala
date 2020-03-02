@@ -1,7 +1,6 @@
 package edu.ie3.simbench.model
 
 import edu.ie3.simbench.exception.io.SimbenchDataModelException
-import edu.ie3.simbench.model.datamodel.enums.SwitchType
 import edu.ie3.simbench.model.datamodel.{Substation, Switch}
 import edu.ie3.test.common.{ConverterTestData, UnitSpec}
 
@@ -44,26 +43,8 @@ class SwitchSpec extends UnitSpec with ConverterTestData {
   )
 
   val expected = Vector(
-    Switch(
-      "LV1.101 Switch 1",
-      getNodePair("LV1.101 Bus 1")._1,
-      getNodePair("LV1.101 Bus 4")._1,
-      SwitchType.LoadSwitch,
-      cond = true,
-      Some(Substation("substation_1", "LV1.101", 7)),
-      "LV1.101",
-      7
-    ),
-    Switch(
-      "LV1.101 Switch 1",
-      getNodePair("LV1.101 Bus 1")._1,
-      getNodePair("LV1.101 Bus 4")._1,
-      SwitchType.LoadSwitch,
-      cond = false,
-      None,
-      "LV1.101",
-      7
-    )
+    getSwitchPair("LV1.101 Switch 1")._1,
+    getSwitchPair("LV1.101 Switch 1")._1.copy(cond = false, substation = None)
   )
 
   "The switch object" should {

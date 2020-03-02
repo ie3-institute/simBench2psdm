@@ -15,21 +15,22 @@ import edu.ie3.models.input.connector.`type`.{
   Transformer2WTypeInput
 }
 import edu.ie3.simbench.exception.TestingException
-import edu.ie3.simbench.model.datamodel.enums.{LineStyle, NodeType}
+import edu.ie3.simbench.model.datamodel.enums.{LineStyle, NodeType, SwitchType}
 import edu.ie3.simbench.model.datamodel.enums.NodeType.BusBar
 import edu.ie3.simbench.model.datamodel.types.LineType.{ACLineType, DCLineType}
 import edu.ie3.simbench.model.datamodel.{
   Coordinate,
   Node,
   SimbenchModel,
-  Substation
+  Substation,
+  Switch
 }
 import tec.uom.se.quantity.Quantities
 import edu.ie3.util.quantities.PowerSystemUnits.{
+  DEGREE_GEOM,
   KILOVOLT,
-  PU,
   KILOVOLTAMPERE,
-  DEGREE_GEOM
+  PU
 }
 import edu.ie3.models.StandardUnits.{
   ADMITTANCE_PER_LENGTH,
@@ -37,10 +38,11 @@ import edu.ie3.models.StandardUnits.{
   IMPEDANCE_PER_LENGTH,
   RATED_VOLTAGE_MAGNITUDE
 }
+import edu.ie3.models.input.connector.SwitchInput
 import edu.ie3.simbench.model.datamodel.enums.BranchElementPort.HV
 import edu.ie3.simbench.model.datamodel.types.{LineType, Transformer2WType}
 import tec.uom.se.unit.MetricPrefix
-import tec.uom.se.unit.Units.{OHM, SIEMENS, PERCENT}
+import tec.uom.se.unit.Units.{OHM, PERCENT, SIEMENS}
 
 trait ConverterTestData {
 
@@ -383,12 +385,44 @@ trait ConverterTestData {
       )
     ))
 
-  def getTransformer2WType(
+  def getTransformer2WTypePair(
       key: String): (Transformer2WType, Transformer2WTypeInput) =
     transformerTypes
       .getOrElse(
         key,
         throw TestingException(
           s"Cannot find input / result pair for ${Transformer2WType.getClass.getSimpleName} $key."))
+      .getPair
+
+  val switches = Map(
+    "LV1.101 Switch 1" -> ConversionPair(
+      Switch(
+        "LV1.101 Switch 1",
+        getNodePair("LV1.101 Bus 1")._1,
+        getNodePair("LV1.101 Bus 4")._1,
+        SwitchType.LoadSwitch,
+        cond = true,
+        Some(Substation("substation_1", "LV1.101", 7)),
+        "LV1.101",
+        7
+      ),
+      new SwitchInput(
+        UUID.randomUUID(),
+        OperationTime.notLimited(),
+        OperatorInput.NO_OPERATOR_ASSIGNED,
+        "LV1.101 Switch 1",
+        getNodePair("LV1.101 Bus 1")._2,
+        getNodePair("LV1.101 Bus 4")._2,
+        true
+      )
+    )
+  )
+
+  def getSwitchPair(key: String): (Switch, SwitchInput) =
+    switches
+      .getOrElse(
+        key,
+        throw TestingException(
+          s"Cannot find input / result pair for ${Switch.getClass.getSimpleName} $key."))
       .getPair
 }

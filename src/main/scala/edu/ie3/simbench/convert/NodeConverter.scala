@@ -4,6 +4,7 @@ import java.util.UUID
 
 import edu.ie3.models.OperationTime
 import edu.ie3.models.input.{NodeInput, OperatorInput}
+import edu.ie3.simbench.exception.ConversionException
 import edu.ie3.simbench.model.datamodel.Node.NodeKey
 import edu.ie3.simbench.model.datamodel.enums.CalculationType
 import edu.ie3.simbench.model.datamodel.enums.CalculationType.{
@@ -112,5 +113,27 @@ case object NodeConverter {
     models
       .filter(model => slackCalculationModes.contains(getCalcTypeFunc(model)))
       .map(model => getNode(model).getKey)
+  }
+
+  /**
+    * Extract the converted nodes of from the map
+    *
+    * @param nodeAIn  Input model one to use as key
+    * @param nodeBIn  Input model two to use as key
+    * @param nodes    Mapping from SimBench [[Node]] to ie³'s [[NodeInput]]
+    * @return         A pair with the matching conversions
+    */
+  def getNodes(nodeAIn: Node,
+               nodeBIn: Node,
+               nodes: Map[Node, NodeInput]): (NodeInput, NodeInput) = {
+    val nodeA = nodes.getOrElse(
+      nodeAIn,
+      throw ConversionException(
+        s"Cannot find conversion result for node ${nodeAIn.id}"))
+    val nodeB = nodes.getOrElse(
+      nodeBIn,
+      throw ConversionException(
+        s"Cannot find conversion result for node ${nodeBIn.id}"))
+    (nodeA, nodeB)
   }
 }
