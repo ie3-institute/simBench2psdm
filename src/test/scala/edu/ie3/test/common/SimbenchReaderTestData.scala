@@ -1,23 +1,7 @@
 package edu.ie3.test.common
 
 import edu.ie3.simbench.model.datamodel.ExternalNet.Simple
-import edu.ie3.simbench.model.datamodel.{
-  Coordinate,
-  ExternalNet,
-  GridModel,
-  Load,
-  Measurement,
-  Node,
-  PowerPlant,
-  RES,
-  Shunt,
-  Storage,
-  StudyCase,
-  Substation,
-  Switch,
-  Transformer2W,
-  Transformer3W
-}
+import edu.ie3.simbench.model.datamodel._
 import edu.ie3.simbench.model.datamodel.Line.ACLine
 import edu.ie3.simbench.model.datamodel.enums.{
   BranchElementPort,
@@ -33,17 +17,7 @@ import edu.ie3.simbench.model.datamodel.profiles.LoadProfileType.{
   L1A,
   L2A
 }
-import edu.ie3.simbench.model.datamodel.profiles.{
-  LoadProfile,
-  LoadProfileType,
-  PowerPlantProfile,
-  PowerPlantProfileType,
-  ProfileModel,
-  ProfileType,
-  ResProfile,
-  ResProfileType,
-  StorageProfile
-}
+import edu.ie3.simbench.model.datamodel.profiles._
 import edu.ie3.simbench.model.datamodel.types.LineType.ACLineType
 import edu.ie3.simbench.model.datamodel.types.Transformer2WType
 import edu.ie3.util.TimeTools

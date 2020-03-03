@@ -13,15 +13,7 @@ import edu.ie3.simbench.model.datamodel.types.{
   Transformer2WType,
   Transformer3WType
 }
-import edu.ie3.simbench.model.datamodel.{
-  Coordinate,
-  Load,
-  Node,
-  RES,
-  StudyCase,
-  Transformer2W,
-  Transformer3W
-}
+import edu.ie3.simbench.model.datamodel._
 import edu.ie3.test.common.UnitSpec
 import org.scalatest.prop.TableDrivenPropertyChecks._
 import org.scalatest.Inside._

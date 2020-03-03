@@ -12,25 +12,7 @@ import edu.ie3.simbench.model.datamodel.profiles.{
   StorageProfile
 }
 import edu.ie3.simbench.model.datamodel.types.{LineType, Transformer2WType}
-import edu.ie3.simbench.model.datamodel.{
-  Coordinate,
-  ExternalNet,
-  GridModel,
-  Line,
-  Load,
-  Measurement,
-  Node,
-  PowerPlant,
-  RES,
-  Shunt,
-  SimbenchModel,
-  Storage,
-  StudyCase,
-  Substation,
-  Switch,
-  Transformer2W,
-  Transformer3W
-}
+import edu.ie3.simbench.model.datamodel._
 
 import scala.concurrent.duration.Duration
 import scala.concurrent.{
