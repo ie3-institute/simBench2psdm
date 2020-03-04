@@ -26,27 +26,3 @@ case class GridModel(externalNets: Vector[ExternalNet],
                      switches: Vector[Switch],
                      transformers2w: Vector[Transformer2W],
                      transformers3w: Vector[Transformer3W])
-
-case object GridModel {
-  def apply() =
-    new GridModel(
-      Vector.empty,
-      Vector.empty,
-      Vector.empty,
-      Vector.empty,
-      Vector.empty,
-      Vector.empty,
-      Vector.empty,
-      Vector.empty,
-      Vector.empty,
-      Vector.empty,
-      Vector.empty,
-      Vector.empty,
-      Vector.empty,
-      Vector.empty,
-      Vector.empty,
-      Vector.empty,
-      Vector.empty,
-      Vector.empty
-    )
-}
