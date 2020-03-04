@@ -2,6 +2,8 @@ package edu.ie3.simbench.model
 
 import edu.ie3.simbench.exception.io.IoException
 
+import scala.util.{Failure, Success, Try}
+
 final case class RawModelData(modelClass: Class[_],
                               fieldToValues: Map[String, String]) {
 
@@ -20,18 +22,17 @@ final case class RawModelData(modelClass: Class[_],
   /**
     * Getting Int entry from field
     *
-    * @param field  Field to extractraw
+    * @param field  Field to extract
     * @return       Actual information as Int
     */
   def getInt(field: String): Int = {
     val entry = get(field)
-    try {
-      entry.toInt
-    } catch {
-      case nfe: NumberFormatException =>
+    Try(entry.toInt) match {
+      case Success(value) => value
+      case Failure(exception) =>
         throw IoException(
           s"Cannot build Int from $field, as the underlying entry $entry cannot be converted to Int.",
-          nfe)
+          exception)
     }
   }
 
@@ -52,13 +53,12 @@ final case class RawModelData(modelClass: Class[_],
     */
   def getBigDecimal(field: String): BigDecimal = {
     val entry = get(field)
-    try {
-      BigDecimal(entry)
-    } catch {
-      case nfe: NumberFormatException =>
+    Try(BigDecimal(entry)) match {
+      case Success(value) => value
+      case Failure(exception) =>
         throw IoException(
           s"Cannot build BigDecimal from $field, as the underlying entry $entry cannot be converted to BigDecimal.",
-          nfe)
+          exception)
     }
   }
 
