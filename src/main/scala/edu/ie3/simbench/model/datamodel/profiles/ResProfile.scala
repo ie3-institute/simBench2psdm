@@ -134,7 +134,7 @@ case object ResProfile extends ProfileCompanionObject[ResProfile, BigDecimal] {
       /* Get the active and reactive power for each available load profile */
       for (typeString <- profileTypeStrings) yield {
         val profileType = ResProfileType(typeString)
-        val factor = BigDecimal(rawTableLine.get(typeString))
+        val factor = rawTableLine.getBigDecimal(typeString)
         (profileType, time, factor)
       }
     }).flatten /* Flatten everything to have Vector((profileType, time, factor)) */

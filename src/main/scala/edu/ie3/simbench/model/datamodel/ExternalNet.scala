@@ -162,20 +162,20 @@ object ExternalNet extends SimbenchCompanionObject[ExternalNet] {
   def buildModel(rawData: RawModelData, node: Node): ExternalNet = {
     val (id, subnet, voltLvl) = EntityModel.getBaseInformation(rawData)
     val calculationType = CalculationType(rawData.get(CALC_TYPE))
-    val dspf = BigDecimal(rawData.get(DSPF))
+    val dspf = rawData.getBigDecimal(DSPF)
     val pExt = rawData.getBigDecimalOption(P_EXT_NET)
     val qExt = rawData.getBigDecimalOption(Q_EXT_NET)
     calculationType match {
       case CalculationType.PQ | CalculationType.PVm | CalculationType.VaVm =>
         Simple(id, node, calculationType, dspf, pExt, qExt, subnet, voltLvl)
       case CalculationType.Ward =>
-        val pWard = BigDecimal(rawData.get(P_WARD_SHUNT))
-        val qWard = BigDecimal(rawData.get(Q_WARD_SHUNT))
+        val pWard = rawData.getBigDecimal(P_WARD_SHUNT)
+        val qWard = rawData.getBigDecimal(Q_WARD_SHUNT)
         Ward(id, node, dspf, pExt, qExt, pWard, qWard, subnet, voltLvl)
       case CalculationType.WardExtended =>
-        val rWard = BigDecimal(rawData.get(R_X_WARD))
-        val xWard = BigDecimal(rawData.get(X_X_WARD))
-        val vWard = BigDecimal(rawData.get(V_M_X_WARD))
+        val rWard = rawData.getBigDecimal(R_X_WARD)
+        val xWard = rawData.getBigDecimal(X_X_WARD)
+        val vWard = rawData.getBigDecimal(V_M_X_WARD)
         WardExtended(id,
                      node,
                      dspf,

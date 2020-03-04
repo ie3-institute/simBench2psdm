@@ -131,8 +131,8 @@ object Line extends SimbenchCompanionObject[Line[_ <: LineType]] {
                  nodeB: Node,
                  lineType: LineType): Line[_ <: LineType] = {
     val (id, subnet, voltLvl) = EntityModel.getBaseInformation(rawData)
-    val length = BigDecimal(rawData.get(LENGTH))
-    val loadingMax = BigDecimal(rawData.get(LOADING_MAX))
+    val length = rawData.getBigDecimal(LENGTH)
+    val loadingMax = rawData.getBigDecimal(LOADING_MAX)
 
     lineType match {
       case acLineType: ACLineType =>

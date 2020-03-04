@@ -51,12 +51,12 @@ case object StudyCase extends SimbenchCompanionObject[StudyCase] {
     */
   override def apply(rawData: RawModelData): StudyCase = {
     val id = rawData.get(ID)
-    val pLoad = BigDecimal(rawData.get(P_LOAD))
-    val qLoad = BigDecimal(rawData.get(Q_LOAD))
-    val pWind = BigDecimal(rawData.get(P_WIND))
-    val pPv = BigDecimal(rawData.get(P_PV))
-    val pRes = BigDecimal(rawData.get(P_RES))
-    val vMSlack = BigDecimal(rawData.get(VM_SLACK))
+    val pLoad = rawData.getBigDecimal(P_LOAD)
+    val qLoad = rawData.getBigDecimal(Q_LOAD)
+    val pWind = rawData.getBigDecimal(P_WIND)
+    val pPv = rawData.getBigDecimal(P_PV)
+    val pRes = rawData.getBigDecimal(P_RES)
+    val vMSlack = rawData.getBigDecimal(VM_SLACK)
 
     StudyCase(id, pLoad, qLoad, pWind, pPv, pRes, vMSlack)
   }

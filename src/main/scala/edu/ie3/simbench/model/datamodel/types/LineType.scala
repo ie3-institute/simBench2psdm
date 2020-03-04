@@ -76,10 +76,10 @@ object LineType extends SimbenchCompanionObject[LineType] {
     */
   override def apply(rawData: RawModelData): LineType = {
     val id = rawData.get(SimbenchModel.ID)
-    val r = BigDecimal(rawData.get(R))
-    val x = BigDecimal(rawData.get(X))
-    val b = BigDecimal(rawData.get(B))
-    val iMax = BigDecimal(rawData.get(I_MAX))
+    val r = rawData.getBigDecimal(R)
+    val x = rawData.getBigDecimal(X)
+    val b = rawData.getBigDecimal(B)
+    val iMax = rawData.getBigDecimal(I_MAX)
     val lineStyle = LineStyle(rawData.get(LINE_TYPE))
 
     /* Normally, here a distinction between AC and DC line has to be made. But until now I did not find a line type file

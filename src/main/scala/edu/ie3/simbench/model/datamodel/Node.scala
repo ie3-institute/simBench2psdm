@@ -96,9 +96,9 @@ case object Node extends SimbenchCompanionObject[Node] {
     val nodeType = NodeType(rawData.get(NODE_TYPE))
     val vmSetp = rawData.getBigDecimalOption(VM_SETP)
     val vaSetp = rawData.getBigDecimalOption(VA_SETP)
-    val vmR = BigDecimal(rawData.get(VMR))
-    val vmMin = BigDecimal(rawData.get(V_M_MIN))
-    val vmMax = BigDecimal(rawData.get(V_M_MAX))
+    val vmR = rawData.getBigDecimal(VMR)
+    val vmMin = rawData.getBigDecimal(V_M_MIN)
+    val vmMax = rawData.getBigDecimal(V_M_MAX)
 
     Node(id,
          nodeType,

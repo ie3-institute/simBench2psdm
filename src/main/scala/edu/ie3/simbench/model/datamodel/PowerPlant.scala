@@ -116,14 +116,14 @@ case object PowerPlant extends SimbenchCompanionObject[PowerPlant] {
     val plantType = PowerPlantType(rawData.get(PLANT_TYPE))
     val profileType = PowerPlantProfileType(rawData.get(PROFILE_TYPE))
     val calcType = CalculationType(rawData.get(CALC_TYPE))
-    val dspf = BigDecimal(rawData.get(DSPF))
-    val p = BigDecimal(rawData.get(P))
+    val dspf = rawData.getBigDecimal(DSPF)
+    val p = rawData.getBigDecimal(P)
     val q = rawData.getBigDecimalOption(Q)
-    val sRated = BigDecimal(rawData.get(S_RATED))
-    val pMin = BigDecimal(rawData.get(P_MIN))
-    val pMax = BigDecimal(rawData.get(P_MAX))
-    val qMin = BigDecimal(rawData.get(Q_MIN))
-    val qMax = BigDecimal(rawData.get(Q_MAX))
+    val sRated = rawData.getBigDecimal(S_RATED)
+    val pMin = rawData.getBigDecimal(P_MIN)
+    val pMax = rawData.getBigDecimal(P_MAX)
+    val qMin = rawData.getBigDecimal(Q_MIN)
+    val qMax = rawData.getBigDecimal(Q_MAX)
 
     PowerPlant(id,
                node,

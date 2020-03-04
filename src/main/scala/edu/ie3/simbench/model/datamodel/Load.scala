@@ -84,9 +84,9 @@ case object Load extends SimbenchCompanionObject[Load] {
   def buildModel(rawData: RawModelData, node: Node): Load = {
     val (id, subnet, voltLvl) = EntityModel.getBaseInformation(rawData)
     val profileType = LoadProfileType(rawData.get(PROFILE))
-    val p = BigDecimal(rawData.get(P_LOAD))
-    val q = BigDecimal(rawData.get(Q_LOAD))
-    val sRated = BigDecimal(rawData.get(S_RATED))
+    val p = rawData.getBigDecimal(P_LOAD)
+    val q = rawData.getBigDecimal(Q_LOAD)
+    val sRated = rawData.getBigDecimal(S_RATED)
     Load(id, node, profileType, p, q, sRated, subnet, voltLvl)
   }
 }

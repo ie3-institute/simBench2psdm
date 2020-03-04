@@ -96,9 +96,9 @@ case object RES extends SimbenchCompanionObject[RES] {
     val resType = ResType(rawData.get(TYPE))
     val profile = ResProfileType(rawData.get(PROFILE))
     val calcType = CalculationType(rawData.get(CALC_TYPE))
-    val p = BigDecimal(rawData.get(P))
-    val q = BigDecimal(rawData.get(Q))
-    val sRated = BigDecimal(rawData.get(S_RATED))
+    val p = rawData.getBigDecimal(P)
+    val q = rawData.getBigDecimal(Q)
+    val sRated = rawData.getBigDecimal(S_RATED)
 
     RES(id, node, resType, profile, calcType, p, q, sRated, subnet, voltLvl)
   }

@@ -42,8 +42,8 @@ case object Coordinate extends SimbenchCompanionObject[Coordinate] {
     */
   override def apply(rawData: RawModelData): Coordinate = {
     val (id, subnet, voltLvl) = EntityModel.getBaseInformation(rawData)
-    val x = BigDecimal(rawData.get(X))
-    val y = BigDecimal(rawData.get(Y))
+    val x = rawData.getBigDecimal(X)
+    val y = rawData.getBigDecimal(Y)
 
     Coordinate(id, x, y, subnet, voltLvl)
   }

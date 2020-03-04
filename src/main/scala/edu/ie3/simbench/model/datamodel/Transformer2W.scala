@@ -122,7 +122,7 @@ case object Transformer2W extends SimbenchCompanionObject[Transformer2W] {
       case "lv" => Some(BranchElementPort.LV)
       case _    => None
     }
-    val loadingMax = BigDecimal(rawData.get(LOADING_MAX))
+    val loadingMax = rawData.getBigDecimal(LOADING_MAX)
 
     Transformer2W(id,
                   nodeHv,
