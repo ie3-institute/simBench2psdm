@@ -18,6 +18,24 @@ final case class RawModelData(modelClass: Class[_],
         s"Cannot build $modelClass, as field $field is missing"))
 
   /**
+    * Getting Int entry from field
+    *
+    * @param field  Field to extractraw
+    * @return       Actual information as Int
+    */
+  def getInt(field: String): Int = {
+    val entry = get(field)
+    try {
+      entry.toInt
+    } catch {
+      case nfe: NumberFormatException =>
+        throw IoException(
+          s"Cannot build Int from $field, as the underlying entry $entry cannot be converted to Int.",
+          nfe)
+    }
+  }
+
+  /**
     * Get the field and compare it to common String representations of Boolean
     *
     * @param field Id of the field to get

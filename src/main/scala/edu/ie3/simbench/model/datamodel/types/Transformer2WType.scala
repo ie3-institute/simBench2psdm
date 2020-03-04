@@ -106,9 +106,9 @@ case object Transformer2WType
     val tapSide = BranchElementPort(rawData.get(TAP_SIDE))
     val dVm = rawData.getBigDecimal(D_V_M)
     val dVa = rawData.getBigDecimal(D_V_A)
-    val tapNeutr = rawData.get(TAP_NEUTR).toInt
-    val tapMin = rawData.get(TAP_MIN).toInt
-    val tapMax = rawData.get(TAP_MAX).toInt
+    val tapNeutr = rawData.getInt(TAP_NEUTR)
+    val tapMin = rawData.getInt(TAP_MIN)
+    val tapMax = rawData.getInt(TAP_MAX)
 
     Transformer2WType(id,
                       sRated,

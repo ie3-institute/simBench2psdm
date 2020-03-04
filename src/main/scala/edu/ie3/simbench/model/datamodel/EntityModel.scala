@@ -39,7 +39,7 @@ case object EntityModel {
     * @return A tuple of id, subnet and voltage level
     */
   def getBaseInformation(rawData: RawModelData): (String, String, Int) = {
-    (rawData.get(ID), rawData.get(SUBNET), rawData.get(VOLT_LVL).toInt)
+    (rawData.get(ID), rawData.get(SUBNET), rawData.getInt(VOLT_LVL))
   }
 
   /**

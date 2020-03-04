@@ -115,7 +115,7 @@ case object Transformer2W extends SimbenchCompanionObject[Transformer2W] {
                  transformerType: Transformer2WType,
                  substation: Option[Substation]): Transformer2W = {
     val (id, subnet, voltLvl) = EntityModel.getBaseInformation(rawData)
-    val tappos = rawData.get(TAPPOS).toInt
+    val tappos = rawData.getInt(TAPPOS)
     val autoTap = rawData.getBoolean(AUTOTAP)
     val autoTapSide = rawData.get(AUTOTAP_SIDE).toLowerCase() match {
       case "hv" => Some(BranchElementPort.HV)
