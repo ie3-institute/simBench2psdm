@@ -3,11 +3,6 @@ package edu.ie3.simbench.io
 import java.nio.file.{Files, Path, Paths}
 
 import edu.ie3.simbench.exception.io.IoException
-import edu.ie3.simbench.io.IoUtils.{
-  fileSeparatorRegex,
-  folderPathWithoutLastSeparator,
-  harmonizeFileSeparator
-}
 
 import scala.util.matching.Regex
 

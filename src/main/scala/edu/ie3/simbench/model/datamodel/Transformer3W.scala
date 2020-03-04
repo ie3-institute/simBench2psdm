@@ -55,5 +55,5 @@ case object Transformer3W extends SimbenchCompanionObject[Transformer3W] {
     * @param rawData mapping from field id to value
     * @return A model
     */
-  override def buildModel(rawData: RawModelData): Transformer3W = ???
+  override def apply(rawData: RawModelData): Transformer3W = ???
 }

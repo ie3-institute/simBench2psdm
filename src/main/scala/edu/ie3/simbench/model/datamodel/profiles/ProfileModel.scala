@@ -39,7 +39,7 @@ object ProfileModel {
       * @param rawData mapping from field id to value
       * @return A model
       */
-    override def buildModel(rawData: RawModelData): C =
+    override def apply(rawData: RawModelData): C =
       throw SimbenchDataModelException(
         s"No basic implementation of model creation available for profiles")
 

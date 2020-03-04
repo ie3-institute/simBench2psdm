@@ -37,7 +37,7 @@ case object Substation extends SimbenchCompanionObject[Substation] {
     val filteredRawData = rawData.filter(data =>
       data.get(Node.SUBSTATION) != "NULL" && data.get(Node.SUBSTATION).nonEmpty)
     for (entry <- filteredRawData) yield {
-      buildModel(entry)
+      apply(entry)
     }
   }
 
@@ -47,7 +47,7 @@ case object Substation extends SimbenchCompanionObject[Substation] {
     * @param rawData mapping from field id to value
     * @return A model
     */
-  override def buildModel(rawData: RawModelData): Substation = {
+  override def apply(rawData: RawModelData): Substation = {
     val id = rawData.get(Node.SUBSTATION)
     val (_, subnet, voltLvl) = EntityModel.getBaseInformation(rawData)
 

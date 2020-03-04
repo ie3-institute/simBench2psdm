@@ -96,5 +96,5 @@ case object Transformer3WType
     * @param rawData mapping from field id to value
     * @return A model
     */
-  override def buildModel(rawData: RawModelData): Transformer3WType = ???
+  override def apply(rawData: RawModelData): Transformer3WType = ???
 }

@@ -117,7 +117,7 @@ class LoadSpec extends UnitSpec {
   "The load object" should {
     "throw an exception, when the basic single model creation method is called" in {
       val thrown =
-        intercept[SimbenchDataModelException](Load.buildModel(rawData(0)))
+        intercept[SimbenchDataModelException](Load.apply(rawData(0)))
       thrown.getMessage shouldBe "No basic implementation of model creation available for Load$"
     }
 

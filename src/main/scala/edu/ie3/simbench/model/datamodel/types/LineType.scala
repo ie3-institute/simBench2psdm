@@ -74,7 +74,7 @@ object LineType extends SimbenchCompanionObject[LineType] {
     * @param rawData mapping from field id to value
     * @return A model
     */
-  override def buildModel(rawData: RawModelData): LineType = {
+  override def apply(rawData: RawModelData): LineType = {
     val id = rawData.get(SimbenchModel.ID)
     val r = BigDecimal(rawData.get(R))
     val x = BigDecimal(rawData.get(X))

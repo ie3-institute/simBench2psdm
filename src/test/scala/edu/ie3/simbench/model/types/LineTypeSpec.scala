@@ -28,7 +28,7 @@ class LineTypeSpec extends UnitSpec {
 
   "The LineType object" should {
     "build the correct single model" in {
-      val actual = LineType.buildModel(rawData(0))
+      val actual = LineType.apply(rawData(0))
       val expected = ACLineType("1x630_RM/50",
                                 BigDecimal("0.122"),
                                 BigDecimal("0.122522"),

@@ -86,7 +86,7 @@ case object PowerPlant extends SimbenchCompanionObject[PowerPlant] {
     * @param rawData mapping from field id to value
     * @return A model
     */
-  override def buildModel(rawData: RawModelData): PowerPlant =
+  override def apply(rawData: RawModelData): PowerPlant =
     throw SimbenchDataModelException(
       s"No basic implementation of model creation available for ${this.getClass.getSimpleName}")
 

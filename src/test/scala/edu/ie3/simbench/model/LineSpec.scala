@@ -195,7 +195,7 @@ class LineSpec extends UnitSpec {
   "The Line object" should {
     "throw an exception, when the basic single model creation method is called" in {
       val thrown =
-        intercept[SimbenchDataModelException](Line.buildModel(rawData(0)))
+        intercept[SimbenchDataModelException](Line.apply(rawData(0)))
       thrown.getMessage shouldBe "No basic implementation of model creation available for Line$"
     }
 

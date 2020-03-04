@@ -49,7 +49,7 @@ case object StudyCase extends SimbenchCompanionObject[StudyCase] {
     * @param rawData mapping from field id to value
     * @return A model
     */
-  override def buildModel(rawData: RawModelData): StudyCase = {
+  override def apply(rawData: RawModelData): StudyCase = {
     val id = rawData.get(ID)
     val pLoad = BigDecimal(rawData.get(P_LOAD))
     val qLoad = BigDecimal(rawData.get(Q_LOAD))

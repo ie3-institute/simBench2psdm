@@ -109,8 +109,7 @@ class LoadProfileSpec extends UnitSpec {
   "The load profile object" should {
     "throw an exception, when the basic single model creation method is called" in {
       val thrown =
-        intercept[SimbenchDataModelException](
-          LoadProfile.buildModel(rawData(0)))
+        intercept[SimbenchDataModelException](LoadProfile.apply(rawData(0)))
       thrown.getMessage shouldBe "No basic implementation of model creation available for profiles"
     }
 

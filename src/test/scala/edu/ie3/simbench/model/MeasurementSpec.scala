@@ -402,8 +402,7 @@ class MeasurementSpec extends UnitSpec {
   "The measurement object" should {
     "throw an exception, when the basic single model creation method is called" in {
       val thrown =
-        intercept[SimbenchDataModelException](
-          Measurement.buildModel(rawData(0)))
+        intercept[SimbenchDataModelException](Measurement.apply(rawData(0)))
       thrown.getMessage shouldBe "No basic implementation of model creation available for Measurement$"
     }
 

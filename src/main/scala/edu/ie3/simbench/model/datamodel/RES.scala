@@ -66,7 +66,7 @@ case object RES extends SimbenchCompanionObject[RES] {
     * @param rawData mapping from field id to value
     * @return A model
     */
-  override def buildModel(rawData: RawModelData): RES =
+  override def apply(rawData: RawModelData): RES =
     throw SimbenchDataModelException(
       s"No basic implementation of model creation available for ${this.getClass.getSimpleName}")
 

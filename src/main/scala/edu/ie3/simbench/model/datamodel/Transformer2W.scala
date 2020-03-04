@@ -71,7 +71,7 @@ case object Transformer2W extends SimbenchCompanionObject[Transformer2W] {
     * @param rawData mapping from field id to value
     * @return A model
     */
-  override def buildModel(rawData: RawModelData): Transformer2W =
+  override def apply(rawData: RawModelData): Transformer2W =
     throw SimbenchDataModelException(
       s"No basic implementation of model creation available for ${this.getClass.getSimpleName}")
 

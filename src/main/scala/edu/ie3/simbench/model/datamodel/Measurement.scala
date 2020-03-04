@@ -87,7 +87,7 @@ object Measurement extends SimbenchCompanionObject[Measurement] {
     * @param rawData mapping from field id to value
     * @return A model
     */
-  override def buildModel(rawData: RawModelData): Measurement =
+  override def apply(rawData: RawModelData): Measurement =
     throw SimbenchDataModelException(
       s"No basic implementation of model creation available for ${this.getClass.getSimpleName}")
 

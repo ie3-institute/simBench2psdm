@@ -119,7 +119,7 @@ case object Node extends SimbenchCompanionObject[Node] {
     * @param rawData mapping from field id to value
     * @return A model
     */
-  override def buildModel(rawData: RawModelData): Node =
+  override def apply(rawData: RawModelData): Node =
     throw SimbenchDataModelException(
       s"No basic implementation of model creation available for ${this.getClass.getSimpleName}")
 }

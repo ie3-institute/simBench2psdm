@@ -40,7 +40,7 @@ case object Coordinate extends SimbenchCompanionObject[Coordinate] {
     * @param rawData mapping from field id to value
     * @return A model
     */
-  override def buildModel(rawData: RawModelData): Coordinate = {
+  override def apply(rawData: RawModelData): Coordinate = {
     val (id, subnet, voltLvl) = EntityModel.getBaseInformation(rawData)
     val x = BigDecimal(rawData.get(X))
     val y = BigDecimal(rawData.get(Y))

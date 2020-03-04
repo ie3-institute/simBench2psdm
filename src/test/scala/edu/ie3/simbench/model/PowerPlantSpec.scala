@@ -160,7 +160,7 @@ class PowerPlantSpec extends UnitSpec {
   "The power plant object" should {
     "throw an exception, when the basic single model creation method is called" in {
       val thrown =
-        intercept[SimbenchDataModelException](PowerPlant.buildModel(rawData(0)))
+        intercept[SimbenchDataModelException](PowerPlant.apply(rawData(0)))
       thrown.getMessage shouldBe "No basic implementation of model creation available for PowerPlant$"
     }
 

@@ -41,7 +41,7 @@ object SimbenchModel {
       */
     def buildModels(rawData: Vector[RawModelData]): Vector[C] =
       for (entry <- rawData) yield {
-        buildModel(entry)
+        apply(entry)
       }
 
     /**
@@ -50,6 +50,6 @@ object SimbenchModel {
       * @param rawData  mapping from field id to value
       * @return A model
       */
-    def buildModel(rawData: RawModelData): C
+    def apply(rawData: RawModelData): C
   }
 }

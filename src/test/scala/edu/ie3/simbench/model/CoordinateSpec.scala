@@ -40,7 +40,7 @@ class CoordinateSpec extends UnitSpec {
 
   "The Coordinate object" should {
     "build the correct single model" in {
-      val actual = Coordinate.buildModel(rawData(0))
+      val actual = Coordinate.apply(rawData(0))
       actual shouldBe expected(0)
     }
 

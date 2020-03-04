@@ -92,7 +92,7 @@ class Transformer2WTypeSpec extends UnitSpec {
 
   "The Transformer2W object" should {
     "build the correct single model" in {
-      val actual = Transformer2WType.buildModel(rawData(0))
+      val actual = Transformer2WType.apply(rawData(0))
       actual shouldBe expected(0)
     }
     "build a correct vector of line types" in {

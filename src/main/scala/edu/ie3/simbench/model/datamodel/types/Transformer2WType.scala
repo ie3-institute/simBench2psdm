@@ -92,7 +92,7 @@ case object Transformer2WType
     * @param rawData mapping from field id to value
     * @return A model
     */
-  override def buildModel(rawData: RawModelData): Transformer2WType = {
+  override def apply(rawData: RawModelData): Transformer2WType = {
     val id = rawData.get(SimbenchModel.ID)
     val sRated = BigDecimal(rawData.get(S_RATED))
     val vMHv = BigDecimal(rawData.get(V_M_HV))
