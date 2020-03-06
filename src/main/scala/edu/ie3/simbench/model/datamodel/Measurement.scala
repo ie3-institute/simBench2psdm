@@ -4,13 +4,13 @@ import edu.ie3.simbench.exception.io.SimbenchDataModelException
 import edu.ie3.simbench.io.HeadLineField
 import edu.ie3.simbench.io.HeadLineField.MandatoryField
 import edu.ie3.simbench.model.RawModelData
-import edu.ie3.simbench.model.datamodel.SimbenchModel.SimbenchCompanionObject
+import edu.ie3.simbench.model.datamodel.EntityModel.EntityModelCompanionObject
 import edu.ie3.simbench.model.datamodel.enums.MeasurementVariable
 import edu.ie3.simbench.model.datamodel.types.LineType
 
 sealed trait Measurement extends EntityModel
 
-object Measurement extends SimbenchCompanionObject[Measurement] {
+object Measurement extends EntityModelCompanionObject[Measurement] {
 
   /**
     * Measurement device, that is able to measure different information at a node
@@ -64,9 +64,9 @@ object Measurement extends SimbenchCompanionObject[Measurement] {
                                     voltLvl: Int)
       extends Measurement
 
-  val ELEMENT_1 = "element1"
-  val ELEMENT_2 = "element2"
-  val VARIABLE = "variable"
+  private val ELEMENT_1 = "element1"
+  private val ELEMENT_2 = "element2"
+  private val VARIABLE = "variable"
 
   /**
     * Get an Array of table fields denoting the mapping to the model's attributes
@@ -74,12 +74,8 @@ object Measurement extends SimbenchCompanionObject[Measurement] {
     * @return Array of table headings
     */
   override def getFields: Array[HeadLineField] =
-    Array(SimbenchModel.ID,
-          ELEMENT_1,
-          ELEMENT_2,
-          VARIABLE,
-          EntityModel.SUBNET,
-          EntityModel.VOLT_LVL).map(id => MandatoryField(id))
+    Array(ID, ELEMENT_1, ELEMENT_2, VARIABLE, SUBNET, VOLT_LVL)
+      .map(id => MandatoryField(id))
 
   /**
     * Factory method to build one model from a mapping from field id to value
@@ -87,7 +83,7 @@ object Measurement extends SimbenchCompanionObject[Measurement] {
     * @param rawData mapping from field id to value
     * @return A model
     */
-  override def buildModel(rawData: RawModelData): Measurement =
+  override def apply(rawData: RawModelData): Measurement =
     throw SimbenchDataModelException(
       s"No basic implementation of model creation available for ${this.getClass.getSimpleName}")
 
@@ -106,8 +102,8 @@ object Measurement extends SimbenchCompanionObject[Measurement] {
       lines: Map[String, Line[_ <: LineType]],
       transformers2W: Map[String, Transformer2W]): Vector[Measurement] =
     for (entry <- rawData) yield {
-      val (id, subnet, voltLvl) = EntityModel.getBaseInformation(entry)
-      val node = EntityModel.getNode(entry.get(ELEMENT_1), nodes)
+      val (id, subnet, voltLvl) = getBaseInformation(entry)
+      val node = getNode(entry.get(ELEMENT_1), nodes)
       val variable = MeasurementVariable(entry.get(VARIABLE))
       val element2 = entry.get(ELEMENT_2)
       if (element2.toLowerCase == "null" || element2.isEmpty)

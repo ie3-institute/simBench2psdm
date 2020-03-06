@@ -4,6 +4,7 @@ import edu.ie3.simbench.exception.io.SimbenchDataModelException
 import edu.ie3.simbench.io.HeadLineField
 import edu.ie3.simbench.io.HeadLineField.MandatoryField
 import edu.ie3.simbench.model.RawModelData
+import edu.ie3.simbench.model.datamodel.EntityModel.EntityModelCompanionObject
 import edu.ie3.simbench.model.datamodel.SimbenchModel.SimbenchCompanionObject
 import edu.ie3.simbench.model.datamodel.enums.SwitchType
 
@@ -29,12 +30,12 @@ case class Switch(id: String,
                   voltLvl: Int)
     extends EntityModel
 
-case object Switch extends SimbenchCompanionObject[Switch] {
-  val NODE_A = "nodeA"
-  val NODE_B = "nodeB"
-  val SWITCH_TYPE = "type"
-  val COND = "cond"
-  val SUBSTATION = "substation"
+case object Switch extends EntityModelCompanionObject[Switch] {
+  private val NODE_A = "nodeA"
+  private val NODE_B = "nodeB"
+  private val SWITCH_TYPE = "type"
+  private val COND = "cond"
+  private val SUBSTATION = "substation"
 
   /**
     * Get an Array of table fields denoting the mapping to the model's attributes
@@ -42,13 +43,8 @@ case object Switch extends SimbenchCompanionObject[Switch] {
     * @return Array of table headings
     */
   override def getFields: Array[HeadLineField] =
-    Array(SimbenchModel.ID,
-          NODE_A,
-          NODE_B,
-          SWITCH_TYPE,
-          COND,
-          EntityModel.SUBNET,
-          EntityModel.VOLT_LVL).map(id => MandatoryField(id))
+    Array(ID, NODE_A, NODE_B, SWITCH_TYPE, COND, SUBNET, VOLT_LVL).map(id =>
+      MandatoryField(id))
 
   /**
     * Factory method to build one model from a mapping from field id to value
@@ -56,7 +52,7 @@ case object Switch extends SimbenchCompanionObject[Switch] {
     * @param rawData mapping from field id to value
     * @return A model
     */
-  override def buildModel(rawData: RawModelData): Switch =
+  override def apply(rawData: RawModelData): Switch =
     throw SimbenchDataModelException(
       s"No basic implementation of model creation available for ${this.getClass.getSimpleName}")
 
@@ -71,7 +67,7 @@ case object Switch extends SimbenchCompanionObject[Switch] {
                   substations: Map[String, Substation]): Vector[Switch] =
     for (entry <- rawData) yield {
       val (nodeA, nodeB) =
-        EntityModel.getNodes(entry.get(NODE_A), entry.get(NODE_B), nodes)
+        getNodes(entry.get(NODE_A), entry.get(NODE_B), nodes)
       val substation = substations.get(entry.get(SUBSTATION))
 
       buildModel(entry, nodeA, nodeB, substation)
@@ -90,7 +86,7 @@ case object Switch extends SimbenchCompanionObject[Switch] {
                  nodeA: Node,
                  nodeB: Node,
                  substation: Option[Substation]): Switch = {
-    val (id, subnet, voltLvl) = EntityModel.getBaseInformation(rawData)
+    val (id, subnet, voltLvl) = getBaseInformation(rawData)
     val switchType = SwitchType(rawData.get(SWITCH_TYPE))
     val cond = rawData.getBoolean(COND)
 

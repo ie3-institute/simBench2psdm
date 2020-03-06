@@ -4,7 +4,7 @@ import edu.ie3.simbench.exception.io.SimbenchDataModelException
 import edu.ie3.simbench.io.HeadLineField
 import edu.ie3.simbench.io.HeadLineField.MandatoryField
 import edu.ie3.simbench.model.RawModelData
-import edu.ie3.simbench.model.datamodel.SimbenchModel.SimbenchCompanionObject
+import edu.ie3.simbench.model.datamodel.EntityModel.EntityModelCompanionObject
 import edu.ie3.simbench.model.datamodel.enums.BranchElementPort
 import edu.ie3.simbench.model.datamodel.types.Transformer2WType
 
@@ -36,16 +36,15 @@ case class Transformer2W(id: String,
                          voltLvl: Int)
     extends EntityModel
 
-case object Transformer2W extends SimbenchCompanionObject[Transformer2W] {
-
-  val NODE_HV = "nodeHV"
-  val NODE_LV = "nodeLV"
-  val TYPE = "type"
-  val TAPPOS = "tappos"
-  val AUTOTAP = "autoTap"
-  val AUTOTAP_SIDE = "autoTapSide"
-  val LOADING_MAX = "loadingMax"
-  val SUBSTATION = "substation"
+case object Transformer2W extends EntityModelCompanionObject[Transformer2W] {
+  private val NODE_HV = "nodeHV"
+  private val NODE_LV = "nodeLV"
+  private val TYPE = "type"
+  private val TAPPOS = "tappos"
+  private val AUTOTAP = "autoTap"
+  private val AUTOTAP_SIDE = "autoTapSide"
+  private val LOADING_MAX = "loadingMax"
+  private val SUBSTATION = "substation"
 
   /**
     * Get an Array of table fields denoting the mapping to the model's attributes
@@ -53,7 +52,7 @@ case object Transformer2W extends SimbenchCompanionObject[Transformer2W] {
     * @return Array of table headings
     */
   override def getFields: Array[HeadLineField] =
-    Array(SimbenchModel.ID,
+    Array(ID,
           NODE_HV,
           NODE_LV,
           TYPE,
@@ -62,8 +61,8 @@ case object Transformer2W extends SimbenchCompanionObject[Transformer2W] {
           AUTOTAP_SIDE,
           LOADING_MAX,
           SUBSTATION,
-          EntityModel.SUBNET,
-          EntityModel.VOLT_LVL).map(id => MandatoryField(id))
+          SUBNET,
+          VOLT_LVL).map(id => MandatoryField(id))
 
   /**
     * Factory method to build one model from a mapping from field id to value
@@ -71,7 +70,7 @@ case object Transformer2W extends SimbenchCompanionObject[Transformer2W] {
     * @param rawData mapping from field id to value
     * @return A model
     */
-  override def buildModel(rawData: RawModelData): Transformer2W =
+  override def apply(rawData: RawModelData): Transformer2W =
     throw SimbenchDataModelException(
       s"No basic implementation of model creation available for ${this.getClass.getSimpleName}")
 
@@ -90,7 +89,7 @@ case object Transformer2W extends SimbenchCompanionObject[Transformer2W] {
                   substations: Map[String, Substation]): Vector[Transformer2W] =
     for (entry <- rawData) yield {
       val (nodeHv, nodeLv) =
-        EntityModel.getNodes(entry.get(NODE_HV), entry.get(NODE_LV), nodes)
+        getNodes(entry.get(NODE_HV), entry.get(NODE_LV), nodes)
       val transformerType = transformerTypes.getOrElse(
         entry.get(TYPE),
         throw SimbenchDataModelException(
@@ -114,15 +113,15 @@ case object Transformer2W extends SimbenchCompanionObject[Transformer2W] {
                  nodeLv: Node,
                  transformerType: Transformer2WType,
                  substation: Option[Substation]): Transformer2W = {
-    val (id, subnet, voltLvl) = EntityModel.getBaseInformation(rawData)
-    val tappos = rawData.get(TAPPOS).toInt
+    val (id, subnet, voltLvl) = getBaseInformation(rawData)
+    val tappos = rawData.getInt(TAPPOS)
     val autoTap = rawData.getBoolean(AUTOTAP)
     val autoTapSide = rawData.get(AUTOTAP_SIDE).toLowerCase() match {
       case "hv" => Some(BranchElementPort.HV)
       case "lv" => Some(BranchElementPort.LV)
       case _    => None
     }
-    val loadingMax = BigDecimal(rawData.get(LOADING_MAX))
+    val loadingMax = rawData.getBigDecimal(LOADING_MAX)
 
     Transformer2W(id,
                   nodeHv,

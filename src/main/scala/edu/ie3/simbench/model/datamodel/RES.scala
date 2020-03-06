@@ -4,9 +4,9 @@ import edu.ie3.simbench.exception.io.SimbenchDataModelException
 import edu.ie3.simbench.io.HeadLineField
 import edu.ie3.simbench.io.HeadLineField.MandatoryField
 import edu.ie3.simbench.model.RawModelData
-import edu.ie3.simbench.model.datamodel.SimbenchModel.SimbenchCompanionObject
+import edu.ie3.simbench.model.datamodel.EntityModel.EntityModelCompanionObject
 import edu.ie3.simbench.model.datamodel.enums.{CalculationType, ResType}
-import edu.ie3.simbench.model.datamodel.profiles.{ResProfile, ResProfileType}
+import edu.ie3.simbench.model.datamodel.profiles.ResProfileType
 
 /**
   * A renewable energy sources asset
@@ -34,14 +34,14 @@ case class RES(id: String,
                voltLvl: Int)
     extends ShuntModel
 
-case object RES extends SimbenchCompanionObject[RES] {
-  val NODE = "node"
-  val TYPE = "type"
-  val PROFILE = "profile"
-  val CALC_TYPE = "calc_type"
-  val P = "pRES"
-  val Q = "qRES"
-  val S_RATED = "sR"
+case object RES extends EntityModelCompanionObject[RES] {
+  private val NODE = "node"
+  private val TYPE = "type"
+  private val PROFILE = "profile"
+  private val CALC_TYPE = "calc_type"
+  private val P = "pRES"
+  private val Q = "qRES"
+  private val S_RATED = "sR"
 
   /**
     * Get an Array of table fields denoting the mapping to the model's attributes
@@ -49,16 +49,8 @@ case object RES extends SimbenchCompanionObject[RES] {
     * @return Array of table headings
     */
   override def getFields: Array[HeadLineField] =
-    Array(SimbenchModel.ID,
-          NODE,
-          TYPE,
-          PROFILE,
-          CALC_TYPE,
-          P,
-          Q,
-          S_RATED,
-          EntityModel.SUBNET,
-          EntityModel.VOLT_LVL).map(id => MandatoryField(id))
+    Array(ID, NODE, TYPE, PROFILE, CALC_TYPE, P, Q, S_RATED, SUBNET, VOLT_LVL)
+      .map(id => MandatoryField(id))
 
   /**
     * Factory method to build one model from a mapping from field id to value
@@ -66,7 +58,7 @@ case object RES extends SimbenchCompanionObject[RES] {
     * @param rawData mapping from field id to value
     * @return A model
     */
-  override def buildModel(rawData: RawModelData): RES =
+  override def apply(rawData: RawModelData): RES =
     throw SimbenchDataModelException(
       s"No basic implementation of model creation available for ${this.getClass.getSimpleName}")
 
@@ -80,7 +72,7 @@ case object RES extends SimbenchCompanionObject[RES] {
   def buildModels(rawData: Vector[RawModelData],
                   nodes: Map[String, Node]): Vector[RES] =
     for (entry <- rawData) yield {
-      val node = EntityModel.getNode(entry.get(NODE), nodes)
+      val node = getNode(entry.get(NODE), nodes)
       buildModel(entry, node)
     }
 
@@ -92,13 +84,13 @@ case object RES extends SimbenchCompanionObject[RES] {
     * @return A model
     */
   def buildModel(rawData: RawModelData, node: Node): RES = {
-    val (id, subnet, voltLvl) = EntityModel.getBaseInformation(rawData)
+    val (id, subnet, voltLvl) = getBaseInformation(rawData)
     val resType = ResType(rawData.get(TYPE))
     val profile = ResProfileType(rawData.get(PROFILE))
     val calcType = CalculationType(rawData.get(CALC_TYPE))
-    val p = BigDecimal(rawData.get(P))
-    val q = BigDecimal(rawData.get(Q))
-    val sRated = BigDecimal(rawData.get(S_RATED))
+    val p = rawData.getBigDecimal(P)
+    val q = rawData.getBigDecimal(Q)
+    val sRated = rawData.getBigDecimal(S_RATED)
 
     RES(id, node, resType, profile, calcType, p, q, sRated, subnet, voltLvl)
   }

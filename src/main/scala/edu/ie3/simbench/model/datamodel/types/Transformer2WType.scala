@@ -47,21 +47,21 @@ case class Transformer2WType(id: String,
 
 case object Transformer2WType
     extends SimbenchCompanionObject[Transformer2WType] {
-  val S_RATED = "sR"
-  val V_M_HV = "vmHV"
-  val V_M_LV = "vmLV"
-  val V_A_0 = "va0"
-  val V_M_IMP = "vmImp"
-  val P_CU = "pCu"
-  val P_FE = "pFe"
-  val I_NO_LOAD = "iNoLoad"
-  val TAPPABLE = "tapable"
-  val TAP_SIDE = "tapside"
-  val D_V_M = "dVm"
-  val D_V_A = "dVa"
-  val TAP_NEUTR = "tapNeutr"
-  val TAP_MIN = "tapMin"
-  val TAP_MAX = "tapMax"
+  private val S_RATED = "sR"
+  private val V_M_HV = "vmHV"
+  private val V_M_LV = "vmLV"
+  private val V_A_0 = "va0"
+  private val V_M_IMP = "vmImp"
+  private val P_CU = "pCu"
+  private val P_FE = "pFe"
+  private val I_NO_LOAD = "iNoLoad"
+  private val TAPPABLE = "tapable"
+  private val TAP_SIDE = "tapside"
+  private val D_V_M = "dVm"
+  private val D_V_A = "dVa"
+  private val TAP_NEUTR = "tapNeutr"
+  private val TAP_MIN = "tapMin"
+  private val TAP_MAX = "tapMax"
 
   /**
     * Get an Array of table fields denoting the mapping to the model's attributes
@@ -69,7 +69,7 @@ case object Transformer2WType
     * @return Array of table headings
     */
   override def getFields: Array[HeadLineField] =
-    Array(SimbenchModel.ID,
+    Array(ID,
           S_RATED,
           V_M_HV,
           V_M_LV,
@@ -92,23 +92,23 @@ case object Transformer2WType
     * @param rawData mapping from field id to value
     * @return A model
     */
-  override def buildModel(rawData: RawModelData): Transformer2WType = {
-    val id = rawData.get(SimbenchModel.ID)
-    val sRated = BigDecimal(rawData.get(S_RATED))
-    val vMHv = BigDecimal(rawData.get(V_M_HV))
-    val vMLv = BigDecimal(rawData.get(V_M_LV))
-    val vA0 = BigDecimal(rawData.get(V_A_0))
-    val vMImp = BigDecimal(rawData.get(V_M_IMP))
-    val pCu = BigDecimal(rawData.get(P_CU))
-    val pFe = BigDecimal(rawData.get(P_FE))
-    val iNoLoad = BigDecimal(rawData.get(I_NO_LOAD))
+  override def apply(rawData: RawModelData): Transformer2WType = {
+    val id = rawData.get(ID)
+    val sRated = rawData.getBigDecimal(S_RATED)
+    val vMHv = rawData.getBigDecimal(V_M_HV)
+    val vMLv = rawData.getBigDecimal(V_M_LV)
+    val vA0 = rawData.getBigDecimal(V_A_0)
+    val vMImp = rawData.getBigDecimal(V_M_IMP)
+    val pCu = rawData.getBigDecimal(P_CU)
+    val pFe = rawData.getBigDecimal(P_FE)
+    val iNoLoad = rawData.getBigDecimal(I_NO_LOAD)
     val tappable = rawData.getBoolean(TAPPABLE)
     val tapSide = BranchElementPort(rawData.get(TAP_SIDE))
-    val dVm = BigDecimal(rawData.get(D_V_M))
-    val dVa = BigDecimal(rawData.get(D_V_A))
-    val tapNeutr = rawData.get(TAP_NEUTR).toInt
-    val tapMin = rawData.get(TAP_MIN).toInt
-    val tapMax = rawData.get(TAP_MAX).toInt
+    val dVm = rawData.getBigDecimal(D_V_M)
+    val dVa = rawData.getBigDecimal(D_V_A)
+    val tapNeutr = rawData.getInt(TAP_NEUTR)
+    val tapMin = rawData.getInt(TAP_MIN)
+    val tapMax = rawData.getInt(TAP_MAX)
 
     Transformer2WType(id,
                       sRated,

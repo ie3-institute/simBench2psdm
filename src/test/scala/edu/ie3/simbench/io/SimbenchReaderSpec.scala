@@ -10,18 +10,7 @@ import edu.ie3.simbench.model.datamodel.profiles.{
   ResProfile
 }
 import edu.ie3.simbench.model.datamodel.types.{LineType, Transformer2WType}
-import edu.ie3.simbench.model.datamodel.{
-  Coordinate,
-  ExternalNet,
-  GridModel,
-  Line,
-  Load,
-  Node,
-  RES,
-  SimbenchModel,
-  StudyCase,
-  Transformer2W
-}
+import edu.ie3.simbench.model.datamodel._
 import edu.ie3.test.common.{SimbenchReaderTestData, UnitSpec}
 import org.scalatest.Inside._
 

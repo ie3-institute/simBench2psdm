@@ -1,11 +1,11 @@
 package edu.ie3.simbench.convert
 
-import com.vividsolutions.jts.geom.{
+import edu.ie3.simbench.model.datamodel.Coordinate
+import org.locationtech.jts.geom.{
   GeometryFactory,
   Point,
   Coordinate => JTSCoordinate
 }
-import edu.ie3.simbench.model.datamodel.Coordinate
 
 /**
   * Converts a SimBench coordinate to the needed geometry position of PowerSystemDataModel

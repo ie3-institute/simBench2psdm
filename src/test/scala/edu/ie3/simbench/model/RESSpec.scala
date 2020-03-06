@@ -78,7 +78,7 @@ class RESSpec extends UnitSpec with ConverterTestData {
   "The RES object" should {
     "throw an exception, when the basic single model creation method is called" in {
       val thrown =
-        intercept[SimbenchDataModelException](RES.buildModel(rawData(0)))
+        intercept[SimbenchDataModelException](RES.apply(rawData(0)))
       thrown.getMessage shouldBe "No basic implementation of model creation available for RES$"
     }
 

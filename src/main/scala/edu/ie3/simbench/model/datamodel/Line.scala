@@ -4,7 +4,7 @@ import edu.ie3.simbench.exception.io.SimbenchDataModelException
 import edu.ie3.simbench.io.HeadLineField
 import edu.ie3.simbench.io.HeadLineField.MandatoryField
 import edu.ie3.simbench.model.RawModelData
-import edu.ie3.simbench.model.datamodel.SimbenchModel.SimbenchCompanionObject
+import edu.ie3.simbench.model.datamodel.EntityModel.EntityModelCompanionObject
 import edu.ie3.simbench.model.datamodel.types.LineType
 import edu.ie3.simbench.model.datamodel.types.LineType.{ACLineType, DCLineType}
 
@@ -16,7 +16,7 @@ sealed trait Line[T <: LineType] extends EntityModel {
   val loadingMax: BigDecimal
 }
 
-object Line extends SimbenchCompanionObject[Line[_ <: LineType]] {
+object Line extends EntityModelCompanionObject[Line[_ <: LineType]] {
 
   /**
     * AC line model
@@ -62,11 +62,11 @@ object Line extends SimbenchCompanionObject[Line[_ <: LineType]] {
                     voltLvl: Int)
       extends Line[DCLineType]
 
-  val NODE_A = "nodeA"
-  val NODE_B = "nodeB"
-  val LINE_TYPE = "type"
-  val LENGTH = "length"
-  val LOADING_MAX = "loadingMax"
+  private val NODE_A = "nodeA"
+  private val NODE_B = "nodeB"
+  private val LINE_TYPE = "type"
+  private val LENGTH = "length"
+  private val LOADING_MAX = "loadingMax"
 
   /**
     * Get an Array of table fields denoting the mapping to the model's attributes
@@ -74,14 +74,8 @@ object Line extends SimbenchCompanionObject[Line[_ <: LineType]] {
     * @return Array of table headings
     */
   override def getFields: Array[HeadLineField] =
-    Array(SimbenchModel.ID,
-          NODE_A,
-          NODE_B,
-          LINE_TYPE,
-          LENGTH,
-          LOADING_MAX,
-          EntityModel.SUBNET,
-          EntityModel.VOLT_LVL).map(id => MandatoryField(id))
+    Array(ID, NODE_A, NODE_B, LINE_TYPE, LENGTH, LOADING_MAX, SUBNET, VOLT_LVL)
+      .map(id => MandatoryField(id))
 
   /**
     * Factory method to build one model from a mapping from field id to value
@@ -89,7 +83,7 @@ object Line extends SimbenchCompanionObject[Line[_ <: LineType]] {
     * @param rawData mapping from field id to value
     * @return A model
     */
-  override def buildModel(rawData: RawModelData): Line[_ <: LineType] =
+  override def apply(rawData: RawModelData): Line[_ <: LineType] =
     throw SimbenchDataModelException(
       s"No basic implementation of model creation available for ${this.getClass.getSimpleName}")
 
@@ -107,7 +101,7 @@ object Line extends SimbenchCompanionObject[Line[_ <: LineType]] {
       lineTypes: Map[String, LineType]): Vector[Line[_ <: LineType]] =
     for (entry <- rawData) yield {
       val (nodeA, nodeB) =
-        EntityModel.getNodes(entry.get(NODE_A), entry.get(NODE_B), nodes)
+        getNodes(entry.get(NODE_A), entry.get(NODE_B), nodes)
       val lineType = lineTypes.getOrElse(
         entry.get(LINE_TYPE),
         throw SimbenchDataModelException(
@@ -130,9 +124,9 @@ object Line extends SimbenchCompanionObject[Line[_ <: LineType]] {
                  nodeA: Node,
                  nodeB: Node,
                  lineType: LineType): Line[_ <: LineType] = {
-    val (id, subnet, voltLvl) = EntityModel.getBaseInformation(rawData)
-    val length = BigDecimal(rawData.get(LENGTH))
-    val loadingMax = BigDecimal(rawData.get(LOADING_MAX))
+    val (id, subnet, voltLvl) = getBaseInformation(rawData)
+    val length = rawData.getBigDecimal(LENGTH)
+    val loadingMax = rawData.getBigDecimal(LOADING_MAX)
 
     lineType match {
       case acLineType: ACLineType =>

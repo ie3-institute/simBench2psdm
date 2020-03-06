@@ -5,6 +5,7 @@ import java.nio.file.Path
 import com.typesafe.scalalogging.LazyLogging
 import edu.ie3.simbench.exception.io.{IoException, SimbenchDataModelException}
 import edu.ie3.simbench.model.RawModelData
+import edu.ie3.simbench.model.datamodel.SimbenchModel.SimbenchCompanionObject
 import edu.ie3.simbench.model.datamodel.profiles.{
   LoadProfile,
   PowerPlantProfile,
@@ -12,25 +13,7 @@ import edu.ie3.simbench.model.datamodel.profiles.{
   StorageProfile
 }
 import edu.ie3.simbench.model.datamodel.types.{LineType, Transformer2WType}
-import edu.ie3.simbench.model.datamodel.{
-  Coordinate,
-  ExternalNet,
-  GridModel,
-  Line,
-  Load,
-  Measurement,
-  Node,
-  PowerPlant,
-  RES,
-  Shunt,
-  SimbenchModel,
-  Storage,
-  StudyCase,
-  Substation,
-  Switch,
-  Transformer2W,
-  Transformer3W
-}
+import edu.ie3.simbench.model.datamodel._
 
 import scala.concurrent.duration.Duration
 import scala.concurrent.{
@@ -39,6 +22,7 @@ import scala.concurrent.{
   ExecutionContextExecutor,
   Future
 }
+import scala.reflect.ClassTag
 import scala.util.{Failure, Success}
 
 /**
@@ -93,29 +77,9 @@ final case class SimbenchReader(folderPath: Path,
     val modelClassToRawData = getFieldToValueMaps
 
     /* Extracting all profiles */
-    val loadProfiles = LoadProfile.buildModels(
-      modelClassToRawData.getOrElse(
-        classOf[LoadProfile],
-        throw IoException(
-          "Cannot build load profiles, as no raw data has been received.")))
-
-    val powerPlantProfiles =
-      modelClassToRawData.get(classOf[PowerPlantProfile]) match {
-        case Some(rawDatas) => PowerPlantProfile.buildModels(rawDatas)
-        case None =>
-          logger.debug(
-            s"No information available for ${classOf[PowerPlantProfile].getSimpleName}")
-          Vector.empty
-      }
-
-    val resProfiles =
-      modelClassToRawData.get(classOf[ResProfile]) match {
-        case Some(rawDatas) => ResProfile.buildModels(rawDatas)
-        case None =>
-          logger.debug(
-            s"No information available for ${classOf[ResProfile].getSimpleName}")
-          Vector.empty
-      }
+    val loadProfiles = buildModels(modelClassToRawData, LoadProfile)
+    val powerPlantProfiles = buildModels(modelClassToRawData, PowerPlantProfile)
+    val resProfiles = buildModels(modelClassToRawData, ResProfile)
 
     val storageProfiles =
       modelClassToRawData.get(classOf[StorageProfile]) match {
@@ -126,42 +90,23 @@ final case class SimbenchReader(folderPath: Path,
       }
 
     /* Creating study cases */
-    val studyCases = modelClassToRawData.get(classOf[StudyCase]) match {
-      case Some(rawDatas) => StudyCase.buildModels(rawDatas)
-      case None =>
-        logger.debug(
-          s"No information available for ${classOf[StudyCase].getSimpleName}")
-        Vector.empty
-    }
+    val studyCases = buildModels(modelClassToRawData, StudyCase)
 
     /* Extracting all types */
-    val lineTypes = modelClassToRawData.get(classOf[LineType]) match {
-      case Some(rawDatas) => getLineTypes(rawDatas)
-      case None =>
-        throw IoException(
-          "Cannot build line types, as no raw data has been received.")
-    }
+    val lineTypes = buildModels(modelClassToRawData, LineType, optional = false)
+      .map(lineType => lineType.id -> lineType)
+      .toMap
     val transformer2WTypes =
-      modelClassToRawData.get(classOf[Transformer2WType]) match {
-        case Some(rawDatas) => getTransformer2WTypes(rawDatas)
-        case None =>
-          throw IoException(
-            "Cannot build transformer types, as no raw data has been received.")
-      }
-    val coordinates = modelClassToRawData.get(classOf[Coordinate]) match {
-      case Some(rawDatas) => getCoordinates(rawDatas)
-      case None =>
-        logger.debug(
-          s"No information available for ${classOf[Coordinate].getSimpleName}")
-        Map.empty[String, Coordinate]
-    }
-    val substations = modelClassToRawData.get(classOf[Substation]) match {
-      case Some(rawDatas) => getSubstations(rawDatas)
-      case None =>
-        logger.debug(
-          s"No information available for ${classOf[Substation].getSimpleName}")
-        Map.empty[String, Substation]
-    }
+      buildModels(modelClassToRawData, Transformer2WType, optional = false)
+        .map(transformer2WType => transformer2WType.id -> transformer2WType)
+        .toMap
+
+    val coordinates = buildModels(modelClassToRawData, Coordinate)
+      .map(coordinate => coordinate.id -> coordinate)
+      .toMap
+    val substations = buildModels(modelClassToRawData, Substation)
+      .map(substation => substation.id -> substation)
+      .toMap
 
     /* Creating the actual models */
     val nodes = modelClassToRawData.get(classOf[Node]) match {
@@ -331,54 +276,31 @@ final case class SimbenchReader(folderPath: Path,
   }
 
   /**
-    * Generate a mapping from line type id to the line type itself
+    * Building models from implicitly given class tag. If the models may or not be apparent, an empty Vector is
+    * returned. If they are mandatory, a [[IoException]] ist thrown.
     *
-    * @param rawData Vector of field to value maps
-    * @return A mapping from line type id to line type itself
+    * @param modelClassToRawData  Mapping from class to specific raw data
+    * @param cls                  Companion object to use for model generation
+    * @param tag                  Implicitly given class tag of the model class to build
+    * @param optional             true, if the models may or not be apparent (Default: true)
+    * @tparam C                   Type of the model class
+    * @return                     A [[Vector]] of models
     */
-  private def getLineTypes(
-      rawData: Vector[RawModelData]): Map[String, LineType] =
-    LineType
-      .buildModels(rawData)
-      .map(lineType => lineType.id -> lineType)
-      .toMap
-
-  /**
-    * Generate a mapping from transformer type id to the transformer type itself
-    *
-    * @param rawData Vector of field to value maps
-    * @return A mapping from transformer type id to transformer type itself
-    */
-  private def getTransformer2WTypes(
-      rawData: Vector[RawModelData]): Map[String, Transformer2WType] =
-    Transformer2WType
-      .buildModels(rawData)
-      .map(transformerType => transformerType.id -> transformerType)
-      .toMap
-
-  /**
-    * Generate a mapping from coordinate id to the coordinate itself
-    *
-    * @param rawData Vector of field to value maps
-    * @return A mapping from coordinate id to coordinate itself
-    */
-  private def getCoordinates(
-      rawData: Vector[RawModelData]): Map[String, Coordinate] =
-    Coordinate
-      .buildModels(rawData)
-      .map(coordinate => coordinate.id -> coordinate)
-      .toMap
-
-  /**
-    * Generate a mapping from substation id to the substation
-    *
-    * @param rawData Vector of field to value maps
-    * @return A mapping from substation id to substation itself
-    */
-  private def getSubstations(
-      rawData: Vector[RawModelData]): Map[String, Substation] =
-    Substation
-      .buildModels(rawData)
-      .map(coordinate => coordinate.id -> coordinate)
-      .toMap
+  private def buildModels[C <: SimbenchModel](
+      modelClassToRawData: Map[Class[_], Vector[RawModelData]],
+      cls: SimbenchCompanionObject[C],
+      optional: Boolean = true)(implicit tag: ClassTag[C]): Vector[C] = {
+    modelClassToRawData.get(tag.runtimeClass) match {
+      case Some(rawDatas) => cls.buildModels(rawDatas)
+      case None =>
+        if (optional) {
+          logger.debug(
+            s"No information available for ${tag.runtimeClass.getSimpleName}")
+          Vector.empty
+        } else {
+          throw IoException(
+            s"Cannot build models of ${tag.runtimeClass.getSimpleName}, as no raw data has been received.")
+        }
+    }
+  }
 }

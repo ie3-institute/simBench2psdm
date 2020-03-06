@@ -1,7 +1,6 @@
 package edu.ie3.simbench.convert
 
-import com.vividsolutions.jts.geom.GeometryFactory
-import com.vividsolutions.jts.geom.{Coordinate => JTSCoordinate}
+import org.locationtech.jts.geom.{GeometryFactory, Coordinate => JTSCoordinate}
 import edu.ie3.simbench.model.datamodel.Coordinate
 import edu.ie3.test.common.UnitSpec
 

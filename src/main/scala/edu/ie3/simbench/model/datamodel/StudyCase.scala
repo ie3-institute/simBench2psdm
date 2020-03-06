@@ -26,13 +26,13 @@ case class StudyCase(id: String,
     extends SimbenchModel
 
 case object StudyCase extends SimbenchCompanionObject[StudyCase] {
-  val ID = "Study Case"
-  val P_LOAD = "pload"
-  val Q_LOAD = "qload"
-  val P_WIND = "Wind_p"
-  val P_PV = "PV_p"
-  val P_RES = "RES_p"
-  val VM_SLACK = "Slack_vm"
+  override protected val ID = "Study Case"
+  private val P_LOAD = "pload"
+  private val Q_LOAD = "qload"
+  private val P_WIND = "Wind_p"
+  private val P_PV = "PV_p"
+  private val P_RES = "RES_p"
+  private val VM_SLACK = "Slack_vm"
 
   /**
     * Get an Array of table fields denoting the mapping to the model's attributes
@@ -49,14 +49,14 @@ case object StudyCase extends SimbenchCompanionObject[StudyCase] {
     * @param rawData mapping from field id to value
     * @return A model
     */
-  override def buildModel(rawData: RawModelData): StudyCase = {
+  override def apply(rawData: RawModelData): StudyCase = {
     val id = rawData.get(ID)
-    val pLoad = BigDecimal(rawData.get(P_LOAD))
-    val qLoad = BigDecimal(rawData.get(Q_LOAD))
-    val pWind = BigDecimal(rawData.get(P_WIND))
-    val pPv = BigDecimal(rawData.get(P_PV))
-    val pRes = BigDecimal(rawData.get(P_RES))
-    val vMSlack = BigDecimal(rawData.get(VM_SLACK))
+    val pLoad = rawData.getBigDecimal(P_LOAD)
+    val qLoad = rawData.getBigDecimal(Q_LOAD)
+    val pWind = rawData.getBigDecimal(P_WIND)
+    val pPv = rawData.getBigDecimal(P_PV)
+    val pRes = rawData.getBigDecimal(P_RES)
+    val vMSlack = rawData.getBigDecimal(VM_SLACK)
 
     StudyCase(id, pLoad, qLoad, pWind, pPv, pRes, vMSlack)
   }

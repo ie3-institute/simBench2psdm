@@ -3,7 +3,7 @@ package edu.ie3.simbench.convert
 import java.util.{Optional, UUID}
 
 import com.typesafe.scalalogging.LazyLogging
-import com.vividsolutions.jts.geom.GeometryFactory
+import org.locationtech.jts.geom.GeometryFactory
 import edu.ie3.models.OperationTime
 import edu.ie3.models.input.{NodeInput, OperatorInput}
 import edu.ie3.models.input.connector.LineInput

@@ -45,7 +45,7 @@ class SubstationSpec extends UnitSpec {
 
   "The Substation object" should {
     "build the correct single model" in {
-      val actual = Substation.buildModel(rawData(1))
+      val actual = Substation.apply(rawData(1))
       actual shouldBe expected(0)
     }
 

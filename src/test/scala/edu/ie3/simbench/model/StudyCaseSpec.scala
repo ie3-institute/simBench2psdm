@@ -50,7 +50,7 @@ class StudyCaseSpec extends UnitSpec {
 
   "The study case object" should {
     "build the correct single model" in {
-      val actual = StudyCase.buildModel(rawData(0))
+      val actual = StudyCase.apply(rawData(0))
       actual shouldBe expected(0)
     }
 

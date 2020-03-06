@@ -2,7 +2,7 @@ package edu.ie3.simbench.convert
 
 import java.util.UUID
 
-import com.vividsolutions.jts.geom.{Point, Coordinate => JTSCoordinate}
+import org.locationtech.jts.geom.{Point, Coordinate => JTSCoordinate}
 import edu.ie3.models.OperationTime
 import edu.ie3.models.input.{NodeInput, OperatorInput}
 import edu.ie3.models.input.connector.`type`.Transformer2WTypeInput

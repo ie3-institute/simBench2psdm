@@ -107,8 +107,7 @@ class ExternalNetSpec extends UnitSpec with ConverterTestData {
   "The external net object" should {
     "throw an exception, when the basic single model creation method is called" in {
       val thrown =
-        intercept[SimbenchDataModelException](
-          ExternalNet.buildModel(rawData(0)))
+        intercept[SimbenchDataModelException](ExternalNet.apply(rawData(0)))
       thrown.getMessage shouldBe "No basic implementation of model creation available for ExternalNet$"
     }
 

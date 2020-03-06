@@ -137,8 +137,7 @@ class Transformer2WSpec extends UnitSpec with ConverterTestData {
   "The two winding transformer object" should {
     "throw an exception, when the basic single model creation method is called" in {
       val thrown =
-        intercept[SimbenchDataModelException](
-          Transformer2W.buildModel(rawData(0)))
+        intercept[SimbenchDataModelException](Transformer2W.apply(rawData(0)))
       thrown.getMessage shouldBe "No basic implementation of model creation available for Transformer2W$"
     }
 

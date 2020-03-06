@@ -14,18 +14,7 @@ import edu.ie3.simbench.model.datamodel.types.{
   Transformer2WType,
   Transformer3WType
 }
-import edu.ie3.simbench.model.datamodel.{
-  Coordinate,
-  ExternalNet,
-  Line,
-  Load,
-  Node,
-  RES,
-  SimbenchModel,
-  StudyCase,
-  Transformer2W,
-  Transformer3W
-}
+import edu.ie3.simbench.model.datamodel._
 
 import scala.util.{Failure, Success, Try}
 
@@ -58,7 +47,6 @@ case object SimbenchFileNamingStrategy {
       classOf[ResProfile] -> "RESProfile",
       classOf[PowerPlantProfile] -> "PowerPlantProfile"
     )
-  // TODO: Add naming strategy for NodePFResult
 
   /**
     * Determine the file name based on the provided class

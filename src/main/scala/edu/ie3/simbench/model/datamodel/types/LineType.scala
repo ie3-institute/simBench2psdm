@@ -65,8 +65,7 @@ object LineType extends SimbenchCompanionObject[LineType] {
     * @return Array of table headings
     */
   override def getFields: Array[HeadLineField] =
-    Array(SimbenchModel.ID, R, X, B, I_MAX, LINE_TYPE).map(id =>
-      MandatoryField(id))
+    Array(ID, R, X, B, I_MAX, LINE_TYPE).map(id => MandatoryField(id))
 
   /**
     * Factory method to build one model from a mapping from field id to value
@@ -74,12 +73,12 @@ object LineType extends SimbenchCompanionObject[LineType] {
     * @param rawData mapping from field id to value
     * @return A model
     */
-  override def buildModel(rawData: RawModelData): LineType = {
-    val id = rawData.get(SimbenchModel.ID)
-    val r = BigDecimal(rawData.get(R))
-    val x = BigDecimal(rawData.get(X))
-    val b = BigDecimal(rawData.get(B))
-    val iMax = BigDecimal(rawData.get(I_MAX))
+  override def apply(rawData: RawModelData): LineType = {
+    val id = rawData.get(ID)
+    val r = rawData.getBigDecimal(R)
+    val x = rawData.getBigDecimal(X)
+    val b = rawData.getBigDecimal(B)
+    val iMax = rawData.getBigDecimal(I_MAX)
     val lineStyle = LineStyle(rawData.get(LINE_TYPE))
 
     /* Normally, here a distinction between AC and DC line has to be made. But until now I did not find a line type file

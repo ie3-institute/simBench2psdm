@@ -27,11 +27,11 @@ trait ProfileModel[T <: ProfileType, D] extends SimbenchModel {
 }
 
 object ProfileModel {
-  val TIME = "time"
 
   abstract class ProfileCompanionObject[
       C <: ProfileModel[_ <: ProfileType, D], D]
       extends SimbenchCompanionObject[C] {
+    protected val TIME = "time"
 
     /**
       * Factory method to build one model from a mapping from field id to value
@@ -39,7 +39,7 @@ object ProfileModel {
       * @param rawData mapping from field id to value
       * @return A model
       */
-    override def buildModel(rawData: RawModelData): C =
+    override def apply(rawData: RawModelData): C =
       throw SimbenchDataModelException(
         s"No basic implementation of model creation available for profiles")
 

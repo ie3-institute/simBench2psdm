@@ -6,7 +6,7 @@
 
 [![simbench logo](https://simbench.de/wp-content/uploads/2019/01/logo.png  "SimBench Logo")](https://www.simbench.net)
 
-Tool to convert SimBench data sets to ie³'s power system data model (to be published in near future).
+Tool to convert SimBench data sets to ie³'s [power system data model](https://github.com/ie3-institute/PowerSystemDataModel).
 SimBench has been research project of Kassel university, Fraunhofer IEE, RWTH Aachen university and TU Dortmund university, aiming at provision of realistic models of electrical distribution grids including time series.
 The data is availabe at https://simbench.de.
 

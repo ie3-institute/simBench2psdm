@@ -2,7 +2,7 @@ package edu.ie3.test.common
 
 import java.util.UUID
 
-import com.vividsolutions.jts.geom.{
+import org.locationtech.jts.geom.{
   GeometryFactory,
   Point,
   Coordinate => JTSCoordinate

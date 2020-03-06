@@ -27,7 +27,7 @@ class LineTypeSpec extends UnitSpec with ConverterTestData {
 
   "The LineType object" should {
     "build the correct single model" in {
-      val actual = LineType.buildModel(rawData(0))
+      val actual = LineType.apply(rawData(0))
       val expected = getLineTypePair("1x630_RM/50")._1.asInstanceOf[ACLineType]
       actual shouldBe expected
     }
