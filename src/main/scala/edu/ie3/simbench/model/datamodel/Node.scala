@@ -4,6 +4,7 @@ import edu.ie3.simbench.exception.io.SimbenchDataModelException
 import edu.ie3.simbench.io.HeadLineField
 import edu.ie3.simbench.io.HeadLineField.MandatoryField
 import edu.ie3.simbench.model.RawModelData
+import edu.ie3.simbench.model.datamodel.EntityModel.EntityModelCompanionObject
 import edu.ie3.simbench.model.datamodel.SimbenchModel.SimbenchCompanionObject
 import edu.ie3.simbench.model.datamodel.enums.NodeType
 
@@ -35,15 +36,15 @@ case class Node(id: String,
                 voltLvl: Int)
     extends EntityModel
 
-case object Node extends SimbenchCompanionObject[Node] {
-  val NODE_TYPE = "type"
-  val VMR = "vmR"
-  val VM_SETP = "vmSetp"
-  val VA_SETP = "vaSetp"
-  val V_M_MIN = "vmMin"
-  val V_M_MAX = "vmMax"
-  val SUBSTATION = "substation"
-  val COORDINATE = "coordID"
+case object Node extends EntityModelCompanionObject[Node] {
+  private val NODE_TYPE = "type"
+  private val VMR = "vmR"
+  private val VM_SETP = "vmSetp"
+  private val VA_SETP = "vaSetp"
+  private val V_M_MIN = "vmMin"
+  private val V_M_MAX = "vmMax"
+  private val SUBSTATION = "substation"
+  private val COORDINATE = "coordID"
 
   /**
     * Get an Array of table fields denoting the mapping to the model's attributes
@@ -51,9 +52,9 @@ case object Node extends SimbenchCompanionObject[Node] {
     * @return Array of table headings
     */
   override def getFields: Array[HeadLineField] =
-    Array(SimbenchModel.ID,
-          EntityModel.VOLT_LVL,
-          EntityModel.SUBNET,
+    Array(ID,
+          VOLT_LVL,
+          SUBNET,
           NODE_TYPE,
           VM_SETP,
           VA_SETP,
@@ -92,7 +93,7 @@ case object Node extends SimbenchCompanionObject[Node] {
   def buildModel(rawData: RawModelData,
                  coordinate: Option[Coordinate],
                  substation: Option[Substation]): Node = {
-    val (id, subnet, voltLvl) = EntityModel.getBaseInformation(rawData)
+    val (id, subnet, voltLvl) = getBaseInformation(rawData)
     val nodeType = NodeType(rawData.get(NODE_TYPE))
     val vmSetp = rawData.getBigDecimalOption(VM_SETP)
     val vaSetp = rawData.getBigDecimalOption(VA_SETP)

@@ -4,7 +4,7 @@ import edu.ie3.simbench.exception.io.SimbenchDataModelException
 import edu.ie3.simbench.io.HeadLineField
 import edu.ie3.simbench.io.HeadLineField.MandatoryField
 import edu.ie3.simbench.model.RawModelData
-import edu.ie3.simbench.model.datamodel.SimbenchModel.SimbenchCompanionObject
+import edu.ie3.simbench.model.datamodel.EntityModel.EntityModelCompanionObject
 import edu.ie3.simbench.model.datamodel.enums.CalculationType
 
 /**
@@ -17,7 +17,7 @@ sealed trait ExternalNet extends ShuntModel {
   val qExt: Option[BigDecimal]
 }
 
-object ExternalNet extends SimbenchCompanionObject[ExternalNet] {
+object ExternalNet extends EntityModelCompanionObject[ExternalNet] {
 
   /**
     * A simple external net only providing power and some voltage regulation facilities
@@ -95,16 +95,16 @@ object ExternalNet extends SimbenchCompanionObject[ExternalNet] {
     override val calculationType: CalculationType = CalculationType.WardExtended
   }
 
-  val NODE = "node"
-  val CALC_TYPE = "calc_type"
-  val DSPF = "dspf"
-  val P_EXT_NET = "pExtNet"
-  val Q_EXT_NET = "qExtNet"
-  val P_WARD_SHUNT = "pWardShunt"
-  val Q_WARD_SHUNT = "qWardShunt"
-  val R_X_WARD = "rXWard"
-  val X_X_WARD = "xXWard"
-  val V_M_X_WARD = "vmXWard"
+  private val NODE = "node"
+  private val CALC_TYPE = "calc_type"
+  private val DSPF = "dspf"
+  private val P_EXT_NET = "pExtNet"
+  private val Q_EXT_NET = "qExtNet"
+  private val P_WARD_SHUNT = "pWardShunt"
+  private val Q_WARD_SHUNT = "qWardShunt"
+  private val R_X_WARD = "rXWard"
+  private val X_X_WARD = "xXWard"
+  private val V_M_X_WARD = "vmXWard"
 
   /**
     * Get an Array of table fields denoting the mapping to the model's attributes
@@ -113,7 +113,7 @@ object ExternalNet extends SimbenchCompanionObject[ExternalNet] {
     */
   override def getFields: Array[HeadLineField] =
     Array(
-      SimbenchModel.ID,
+      ID,
       NODE,
       CALC_TYPE,
       DSPF,
@@ -124,8 +124,8 @@ object ExternalNet extends SimbenchCompanionObject[ExternalNet] {
       R_X_WARD,
       X_X_WARD,
       V_M_X_WARD,
-      EntityModel.SUBNET,
-      EntityModel.VOLT_LVL
+      SUBNET,
+      VOLT_LVL
     ).map(id => MandatoryField(id))
 
   /**
@@ -148,7 +148,7 @@ object ExternalNet extends SimbenchCompanionObject[ExternalNet] {
   def buildModels(rawData: Vector[RawModelData],
                   nodes: Map[String, Node]): Vector[ExternalNet] =
     for (entry <- rawData) yield {
-      val node = EntityModel.getNode(entry.get(NODE), nodes)
+      val node = getNode(entry.get(NODE), nodes)
       buildModel(entry, node)
     }
 
@@ -160,7 +160,7 @@ object ExternalNet extends SimbenchCompanionObject[ExternalNet] {
     * @return A model
     */
   def buildModel(rawData: RawModelData, node: Node): ExternalNet = {
-    val (id, subnet, voltLvl) = EntityModel.getBaseInformation(rawData)
+    val (id, subnet, voltLvl) = getBaseInformation(rawData)
     val calculationType = CalculationType(rawData.get(CALC_TYPE))
     val dspf = rawData.getBigDecimal(DSPF)
     val pExt = rawData.getBigDecimalOption(P_EXT_NET)

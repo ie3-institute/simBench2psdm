@@ -27,11 +27,11 @@ trait ProfileModel[T <: ProfileType, D] extends SimbenchModel {
 }
 
 object ProfileModel {
-  val TIME = "time"
 
   abstract class ProfileCompanionObject[
       C <: ProfileModel[_ <: ProfileType, D], D]
       extends SimbenchCompanionObject[C] {
+    protected val TIME = "time"
 
     /**
       * Factory method to build one model from a mapping from field id to value

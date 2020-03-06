@@ -65,8 +65,7 @@ object LineType extends SimbenchCompanionObject[LineType] {
     * @return Array of table headings
     */
   override def getFields: Array[HeadLineField] =
-    Array(SimbenchModel.ID, R, X, B, I_MAX, LINE_TYPE).map(id =>
-      MandatoryField(id))
+    Array(ID, R, X, B, I_MAX, LINE_TYPE).map(id => MandatoryField(id))
 
   /**
     * Factory method to build one model from a mapping from field id to value
@@ -75,7 +74,7 @@ object LineType extends SimbenchCompanionObject[LineType] {
     * @return A model
     */
   override def apply(rawData: RawModelData): LineType = {
-    val id = rawData.get(SimbenchModel.ID)
+    val id = rawData.get(ID)
     val r = rawData.getBigDecimal(R)
     val x = rawData.getBigDecimal(X)
     val b = rawData.getBigDecimal(B)

@@ -17,14 +17,14 @@ trait SimbenchModel {
 object SimbenchModel {
 
   /**
-    * Table field for id
-    */
-  val ID: String = "id"
-
-  /**
     * Outline of a companion object for all Simbench companion objects
     */
   abstract class SimbenchCompanionObject[C <: SimbenchModel] {
+
+    /**
+      * Table field for id
+      */
+    protected val ID: String = "id"
 
     /**
       * Get an Array of table fields denoting the mapping to the model's attributes

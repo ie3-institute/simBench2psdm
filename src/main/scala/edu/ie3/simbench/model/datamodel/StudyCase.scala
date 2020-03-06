@@ -26,13 +26,13 @@ case class StudyCase(id: String,
     extends SimbenchModel
 
 case object StudyCase extends SimbenchCompanionObject[StudyCase] {
-  val ID = "Study Case"
-  val P_LOAD = "pload"
-  val Q_LOAD = "qload"
-  val P_WIND = "Wind_p"
-  val P_PV = "PV_p"
-  val P_RES = "RES_p"
-  val VM_SLACK = "Slack_vm"
+  override protected val ID = "Study Case"
+  private val P_LOAD = "pload"
+  private val Q_LOAD = "qload"
+  private val P_WIND = "Wind_p"
+  private val P_PV = "PV_p"
+  private val P_RES = "RES_p"
+  private val VM_SLACK = "Slack_vm"
 
   /**
     * Get an Array of table fields denoting the mapping to the model's attributes

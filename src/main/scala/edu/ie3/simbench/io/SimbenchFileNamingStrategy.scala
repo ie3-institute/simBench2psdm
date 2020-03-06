@@ -47,7 +47,6 @@ case object SimbenchFileNamingStrategy {
       classOf[ResProfile] -> "RESProfile",
       classOf[PowerPlantProfile] -> "PowerPlantProfile"
     )
-  // TODO: Add naming strategy for NodePFResult
 
   /**
     * Determine the file name based on the provided class
