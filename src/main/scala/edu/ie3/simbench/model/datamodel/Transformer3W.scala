@@ -1,5 +1,6 @@
 package edu.ie3.simbench.model.datamodel
 
+import edu.ie3.simbench.exception.io.SimbenchDataModelException
 import edu.ie3.simbench.io.HeadLineField
 import edu.ie3.simbench.model.RawModelData
 import edu.ie3.simbench.model.datamodel.EntityModel.EntityModelCompanionObject
@@ -55,5 +56,8 @@ case object Transformer3W extends EntityModelCompanionObject[Transformer3W] {
     * @param rawData mapping from field id to value
     * @return A model
     */
-  override def apply(rawData: RawModelData): Transformer3W = ???
+  override def apply(rawData: RawModelData): Transformer3W =
+    throw SimbenchDataModelException(
+      s"Currently, the concrete characteristics of the data for ${this.getClass.getSimpleName} are not known, so that" +
+        s" the factory method cannot be implemented safely.")
 }
