@@ -1,0 +1,2 @@
+id;node;type;profile;calc_type;pRES;qRES;sR;subnet;voltLvl
+LV1.101 SGen 3;LV1.101 Bus 4;PV;PV5;pq;0.023;0;0.023;LV1.101;7

@@ -1,0 +1,342 @@
+@startuml
+
+Interface SimbenchModel {
+    + id: String
+}
+
+Interface EntityModel {
+    - subnet: String
+    - voltLvl: Int
+}
+SimbenchModel <|-- EntityModel
+
+Class Coordinate {
+    + x: BigDecimal
+    + y: BigDecimal
+    + subnet: String
+    + voltLvl: Int
+}
+EntityModel <|-- Coordinate
+
+Class Node {
+    + nodeType: NodeType
+    + vmSetp: BigDecimal
+    + vaSetp: Option[BigDecimal] = None
+    + vmR: BigDecimal
+    + vmMin: BigDecimal
+    + vmMax: BigDecimal
+    + substation: Substation
+    + coordinate: Coordinate
+}
+EntityModel <|-- Node
+
+Abstract Class ExternalNet{
+  + calculationType: CalculationType
+  + dspf: BigDecimal
+  + pExt: BigDecimal
+  + qExt: BigDecimal
+}
+EntityModel <|-- ExternalNet
+
+Class Simple{
+    + node: Node
+    + calculationType: CalculationType
+    + dspf: BigDecimal
+    + pExt: BigDecimal
+    + qExt: BigDecimal
+}
+ExternalNet <|-- Simple
+
+Class Ward {
+    + node: Node
+    + dspf: BigDecimal
+    + pExt: BigDecimal
+    + qExt: BigDecimal
+    + pWard: BigDecimal
+    + qWard: BigDecimal
+}
+ExternalNet <|-- Ward
+
+Class WardExtended {
+    + node: Node
+    + dspf: BigDecimal
+    + pExt: BigDecimal
+    + qExt: BigDecimal
+    + rWardExtended: BigDecimal
+    + xWardExtended: BigDecimal
+    + vmWardExtended: BigDecimal
+}
+ExternalNet <|-- WardExtended
+
+Abstract Class Line {
+  + nodeA: Node
+  + nodeB: Node
+  + lineType: T
+  + length: BigDecimal
+  + loadingMax: BigDecimal
+}
+EntityModel <|-- Line
+
+Class ACLine {
+    + lineType: ACLineType
+}
+Line <|-- ACLine
+
+Class DCLine {
+    + lineType: DCLineType
+}
+Line <|-- DCLine
+
+Class Measurement {
+    + elements: List[EntityModel]
+    + variable: MeasurementVariable
+}
+EntityModel <|-- Measurement
+
+Class Substation {
+}
+EntityModel <|-- Substation
+
+Class Switch {
+    + nodeA: Node
+    + nodeB: Node
+    + switchType: SwitchType
+    + cond: Boolean
+    + substation: Substation
+}
+EntityModel <|-- Switch
+
+Class Transformer2W {
+    + nodeHV: Node
+    + nodeLV: Node
+    + transformerType: Transformer2WType
+    + tappos: Int
+    + autoTap: Boolean
+    + autoTapSide: BranchElementPort
+    + loadingMax: BigDecimal
+    + substation: Substation
+}
+EntityModel <|-- Transformer2W
+
+Class Transformer3W {
+    + nodeHV: Node
+    + nodeMV: Node
+    + nodeLV: Node
+    + transformerType: Transformer3WType
+    + tapPosHV: Int
+    + tapPosMV: Int
+    + tapPosLV: Int
+    + autoTap: Boolean
+    + autoTapSide: BranchElementPort
+    + loadingMax: BigDecimal
+    + substation: Substation
+}
+EntityModel <|-- Transformer3W
+
+Interface ShuntModel {
+    - node: Node
+}
+SimbenchModel <|-- ShuntModel
+
+Class Load {
+    + profile: LoadProfileType
+    + pLoad: BigDecimal
+    + qLoad: BigDecimal
+    + sR: BigDecimal
+}
+ShuntModel <|-- Load
+
+Class PowerPlant {
+    + powerPlantType: PowerPlantType
+    + profile: PowerPlantProfileType
+    + calculationType: CalculationType
+    + dspf: BigDecimal
+    + p: BigDecimal
+    + q: BigDecimal
+    + sR: BigDecimal
+    + pMin: BigDecimal
+    + pMax: BigDecimal
+    + qMin: BigDecimal
+    + qMax: BigDecimal
+}
+ShuntModel <|-- PowerPlant
+
+Class RES {
+    + resType: ResType
+    + profile: ResProfile
+    + calculationType: CalculationType
+    + p: BigDecimal
+    + q: BigDecimal
+    + sR: BigDecimal
+}
+ShuntModel <|-- RES
+
+Class Shunt {
+    + p0: BigDecimal
+    + q0: BigDecimal
+    + vmR: BigDecimal
+    + step: Int
+}
+ShuntModel <|-- Shunt
+
+Class Storage {
+    + storageType: StorageType
+    + profile: StorageProfile
+    + p: BigDecimal
+    + q: BigDecimal
+    + soc: BigDecimal
+    + sR: BigDecimal
+    + eStore: BigDecimal
+    + etaStore: BigDecimal
+    + selfDischarge: BigDecimal
+    + pMin: BigDecimal
+    + pMax: BigDecimal
+    + qMin: BigDecimal
+    + qMax: BigDecimal
+}
+ShuntModel <|-- Storage
+
+Class StudyCase {
+    + pLoad: BigDecimal
+    + qLoad: BigDecimal
+    + pWind: BigDecimal
+    + pPv: BigDecimal
+    + pRes: BigDecimal
+    + vMSlack: BigDecimal
+}
+SimbenchModel <|-- StudyCase
+
+Abstract Class LineType
+
+Class ACLineType {
+    + id: String
+    + r: BigDecimal
+    + x: BigDecimal
+    + b: BigDecimal
+    + iMax: BigDecimal
+    + style: LineStyle
+}
+LineType <|-- ACLineType
+ACLine --* ACLineType
+
+Class DCLineType {
+    + id: String
+    + p: BigDecimal
+    + relPLoss: BigDecimal
+    + fixPLoss: BigDecimal
+    + pMax: BigDecimal
+    + qMinA: BigDecimal
+    + qMaxA: BigDecimal
+    + qMinB: BigDecimal
+    + qMaxB: BigDecimal
+}
+LineType <|-- DCLineType
+DCLine --* DCLineType
+
+Class Transformer2WType {
+    + sR: BigDecimal
+    + vmHV: BigDecimal
+    + vmLV: BigDecimal
+    + va0: BigDecimal
+    + vmImp: BigDecimal
+    + pCu: BigDecimal
+    + pFe: BigDecimal
+    + iNoLoad: BigDecimal
+    + tapable: Boolean
+    + tapside: BranchElementPort
+    + dVm: BigDecimal
+    + dVa: BigDecimal
+    + tapNeutr: Int
+    + tapMin: Int
+    + tapMax: Int
+}
+SimbenchModel <|-- Transformer2WType
+Transformer2W --* Transformer2WType
+
+Class Transformer3WType {
+    + sRHV: BigDecimal
+    + sRMV: BigDecimal
+    + sRLV: BigDecimal
+    + vmHV: BigDecimal
+    + vmMV: BigDecimal
+    + vmLV: BigDecimal
+    + vaHVMV: BigDecimal
+    + vaHVLV: BigDecimal
+    + vmImpHV: BigDecimal
+    + vmImpMV: BigDecimal
+    + vmImpLV: BigDecimal
+    + pCuHV: BigDecimal
+    + pCuMV: BigDecimal
+    + pCuLV: BigDecimal
+    + pFe: BigDecimal
+    + iNoLoad: BigDecimal
+    + tapable: Boolean
+    + tapSide: BranchElementPort
+    + dVmHV: BigDecimal
+    + dVmMV: BigDecimal
+    + dVmLV: BigDecimal
+    + dVaHV: BigDecimal
+    + dVaMV: BigDecimal
+    + dVaLV: BigDecimal
+    + tapNeutrHV: Int
+    + tapNeutrMV: Int
+    + tapNeutrLV: Int
+    + tapMinHV: Int
+    + tapMinMV: Int
+    + tapMinLV: Int
+    + tapMaxHV: Int
+    + tapMaxMV: Int
+    + tapMaxLV: Int
+}
+SimbenchModel <|-- Transformer3WType
+Transformer3W --* Transformer3WType
+
+Interface ProfileType {
+}
+
+Enum LoadProfileType {
+    + apply(String): LoadProfileType
+}
+ProfileType <|-- LoadProfileType
+
+Enum PowerPlantProfileType {
+    + apply(String): PowerPlantProfileType
+}
+ProfileType <|-- PowerPlantProfileType
+
+Enum ResProfileType {
+    + apply(String): ResProfileType
+}
+ProfileType <|-- ResProfileType
+
+Interface StorageProfileType {
+}
+ProfileType <|-- StorageProfileType
+
+Interface ProfileModel <T extends ProfileType> {
+    + profileType: T
+    + profile: Map<ZonedDateTime, Tuple2<BigDecimal, BigDecimal>>
+}
+SimbenchModel <|-- ProfileModel
+
+Class LoadProfile {
+}
+ProfileModel <|-- LoadProfile
+LoadProfileType *-- LoadProfile
+
+Class PowerPlantProfile {
+}
+ProfileModel <|-- PowerPlantProfile
+PowerPlantProfileType *-- PowerPlantProfile
+
+Class ResProfile {
+}
+ProfileModel <|-- ResProfile
+ResProfileType *-- ResProfile
+
+Class StorageProfile {
+}
+ProfileModel <|-- StorageProfile
+StorageProfileType *-- StorageProfile
+
+@enduml
