@@ -1,0 +1,4 @@
+node;vm;va;substation;subnet;voltLvl
+LV1.101 Bus 1;1.02203;1.17226;NULL;LV1.101;7
+LV1.101 Bus 4;1.02474;1.17148;NULL;LV1.101;7
+MV1.101 Bus 4;1.025;0;NULL;MV1.101_LV1.101_Feeder1;5

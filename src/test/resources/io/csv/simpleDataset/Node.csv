@@ -1,0 +1,4 @@
+id;type;vmSetp;vaSetp;vmR;vmMin;vmMax;substation;coordID;subnet;voltLvl
+MV1.101 Bus 4;busbar;1.025;0.0;20;0.965;1.055;NULL;coord_14;MV1.101_LV1.101_Feeder1;5
+LV1.101 Bus 1;busbar;NULL;NULL;0.4;0.9;1.1;NULL;coord_0;LV1.101;7
+LV1.101 Bus 4;busbar;NULL;NULL;0.4;0.9;1.1;NULL;coord_3;LV1.101;7

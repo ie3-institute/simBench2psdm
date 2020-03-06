@@ -5,7 +5,7 @@ import edu.ie3.simbench.exception.io.SimbenchDataModelException
 /**
   * Different load profile types available in SimBench
   */
-sealed trait LoadProfileType
+sealed trait LoadProfileType extends ProfileType
 
 object LoadProfileType {
   case object BLH extends LoadProfileType
@@ -85,8 +85,7 @@ object LoadProfileType {
     */
   @throws[SimbenchDataModelException]
   def apply(typeString: String): LoadProfileType =
-    typeString.toLowerCase.toLowerCase
-      .replaceAll("[_-]+|(qload)+|(pload)+", "") match {
+    "[-_]+".r.replaceAllIn(stripSuffix(typeString), "").toLowerCase match {
       case "blh"        => BLH
       case "g0a"        => G0A
       case "g0m"        => G0M
@@ -156,7 +155,13 @@ object LoadProfileType {
       case "hsexp1"     => HsExp1
       case whatever =>
         throw SimbenchDataModelException(
-          s"I cannot handle the measurement variable $whatever")
+          s"I cannot handle the load profile id $whatever")
     }
 
+  /**
+    * Removes the "pLoad" and "qLoad" suffix of table head line fields in order to extract the identifiable string
+    * representation of profile types
+    */
+  val stripSuffix: String => String = (input: String) =>
+    "[-_](?:qload|pload)$".r.replaceAllIn(input, "")
 }

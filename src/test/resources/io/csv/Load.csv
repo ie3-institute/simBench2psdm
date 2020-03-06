@@ -1,0 +1,3 @@
+id;node;profile;pLoad;qLoad;sR;subnet;voltLvl
+LV1.101 Load 1;LV1.101 Bus 10;L2-A;0.006;0.002371;0.00645161;LV1.101;7
+LV1.101 Load 2;LV1.101 Bus 8;H0-C;0.003;0.001186;0.00322581;LV1.101;7

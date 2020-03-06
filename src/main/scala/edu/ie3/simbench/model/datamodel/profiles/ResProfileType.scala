@@ -2,7 +2,7 @@ package edu.ie3.simbench.model.datamodel.profiles
 
 import edu.ie3.simbench.exception.io.SimbenchDataModelException
 
-sealed trait ResProfileType
+sealed trait ResProfileType extends ProfileType
 
 case object ResProfileType {
   case object BM1 extends ResProfileType
@@ -55,7 +55,7 @@ case object ResProfileType {
     */
   @throws[SimbenchDataModelException]
   def apply(typeString: String): ResProfileType =
-    typeString.toLowerCase.toLowerCase
+    typeString.toLowerCase
       .replaceAll("[_-]+", "") match {
       case "bm1"        => BM1
       case "bm2"        => BM2
