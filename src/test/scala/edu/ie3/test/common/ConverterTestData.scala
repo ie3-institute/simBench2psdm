@@ -24,6 +24,7 @@ import edu.ie3.simbench.model.datamodel.enums.NodeType.BusBar
 import edu.ie3.simbench.model.datamodel.types.LineType.{ACLineType, DCLineType}
 import edu.ie3.simbench.model.datamodel.{
   Coordinate,
+  Load,
   Node,
   SimbenchModel,
   Substation,
@@ -34,6 +35,7 @@ import edu.ie3.util.quantities.PowerSystemUnits.{
   DEGREE_GEOM,
   KILOVOLT,
   KILOVOLTAMPERE,
+  KILOWATTHOUR,
   PU
 }
 import edu.ie3.models.StandardUnits.{
@@ -43,8 +45,12 @@ import edu.ie3.models.StandardUnits.{
   RATED_VOLTAGE_MAGNITUDE
 }
 import edu.ie3.models.input.connector.SwitchInput
+import edu.ie3.models.input.system.LoadInput
+import edu.ie3.models.timeseries.STimeSeries
 import edu.ie3.simbench.model.datamodel.enums.BranchElementPort.HV
+import edu.ie3.simbench.model.datamodel.profiles.{LoadProfile, LoadProfileType}
 import edu.ie3.simbench.model.datamodel.types.{LineType, Transformer2WType}
+import edu.ie3.util.TimeTools
 import tec.uom.se.unit.MetricPrefix
 import tec.uom.se.unit.Units.{OHM, PERCENT, SIEMENS}
 
@@ -422,5 +428,69 @@ trait ConverterTestData {
         key,
         throw TestingException(
           s"Cannot find input / result pair for ${Switch.getClass.getSimpleName} $key."))
+      .getPair
+
+  val loadProfiles = Map(
+    "test profile" ->
+      LoadProfile(
+        "test profile",
+        LoadProfileType.L2A,
+        Map(
+          TimeTools
+            .toZonedDateTime("01/01/1990 00:00:00") -> (BigDecimal("0.75"), BigDecimal(
+            "0.85")),
+          TimeTools
+            .toZonedDateTime("01/01/1990 00:15:00") -> (BigDecimal("0.55"), BigDecimal(
+            "0.75")),
+          TimeTools
+            .toZonedDateTime("01/01/1990 00:30:00") -> (BigDecimal("0.35"), BigDecimal(
+            "0.65")),
+          TimeTools
+            .toZonedDateTime("01/01/1990 00:45:00") -> (BigDecimal("0.15"), BigDecimal(
+            "0.55"))
+        )
+      )
+  )
+
+  def getLoadProfile(key: String): LoadProfile =
+    loadProfiles
+      .getOrElse(
+        key,
+        throw TestingException(
+          s"Cannot find input / result pair for ${LoadProfile.getClass.getSimpleName} $key."))
+
+  val loads = Map(
+    "LV1.101 Load 8" -> ConversionPair(
+      Load(
+        "LV1.101 Load 8",
+        getNodePair("LV1.101 Bus 1")._1,
+        LoadProfileType.L2A,
+        BigDecimal("0.014"),
+        BigDecimal("0.005533"),
+        BigDecimal("0.0150538"), // cosphi = 0.93
+        "LV1.101",
+        7
+      ),
+      new LoadInput(
+        UUID.randomUUID(),
+        OperationTime.notLimited(),
+        OperatorInput.NO_OPERATOR_ASSIGNED,
+        "LV1.101 Load 8",
+        getNodePair("LV1.101 Bus 1")._2,
+        "cosphi_fixed:0.93",
+        false,
+        Quantities.getQuantity(0d, KILOWATTHOUR),
+        Quantities.getQuantity(15.0538, KILOVOLTAMPERE),
+        0.93
+      )
+    )
+  )
+
+  def getLoadPair(key: String): (Load, LoadInput) =
+    loads
+      .getOrElse(
+        key,
+        throw TestingException(
+          s"Cannot find input / result pair for ${Load.getClass.getSimpleName} $key."))
       .getPair
 }

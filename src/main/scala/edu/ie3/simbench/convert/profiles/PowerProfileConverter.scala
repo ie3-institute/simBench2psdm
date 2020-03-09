@@ -2,6 +2,7 @@ package edu.ie3.simbench.convert.profiles
 
 import edu.ie3.models.timeseries.{PTimeSeries, STimeSeries}
 import edu.ie3.models.value.{PValue, SValue}
+import edu.ie3.simbench.exception.ConversionException
 import edu.ie3.simbench.model.datamodel.profiles.{ProfileModel, ProfileType}
 import javax.measure.quantity.Power
 import tec.uom.se.ComparableQuantity
@@ -54,4 +55,20 @@ case object PowerProfileConverter {
     timeSeries.addAll(values.asJava)
     timeSeries
   }
+
+  /**
+    * Extract one profile from the map from profile type to profile
+    *
+    * @param profileType  Profile type to extract
+    * @param profiles     Map from profile type to profile
+    * @tparam T           Type parameter for the profile's type
+    * @tparam P           Type parameter for the profile itself
+    * @return             The equivalent [[ProfileModel]]
+    */
+  def getProfile[T <: ProfileType, P <: ProfileModel[T, _]](
+      profileType: T,
+      profiles: Map[T, P]): P =
+    profiles.getOrElse(
+      profileType,
+      throw ConversionException(s"Cannot find profile for type $profileType"))
 }

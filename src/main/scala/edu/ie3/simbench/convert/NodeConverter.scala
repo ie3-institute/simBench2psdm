@@ -125,14 +125,20 @@ case object NodeConverter {
   def getNodes(nodeAIn: Node,
                nodeBIn: Node,
                nodes: Map[Node, NodeInput]): (NodeInput, NodeInput) = {
-    val nodeA = nodes.getOrElse(
-      nodeAIn,
-      throw ConversionException(
-        s"Cannot find conversion result for node ${nodeAIn.id}"))
-    val nodeB = nodes.getOrElse(
-      nodeBIn,
-      throw ConversionException(
-        s"Cannot find conversion result for node ${nodeBIn.id}"))
+    val nodeA = getNode(nodeAIn, nodes)
+    val nodeB = getNode(nodeBIn, nodes)
     (nodeA, nodeB)
   }
+
+  /**
+    * Extract one node from the map of SimBench to ie³ data model
+    *
+    * @param nodeIn Input model
+    * @param nodes  Map from SimBench to ie³ data model
+    * @return       The equivalent [[NodeInput]]
+    */
+  def getNode(nodeIn: Node, nodes: Map[Node, NodeInput]): NodeInput =
+    nodes.getOrElse(nodeIn,
+                    throw ConversionException(
+                      s"Cannot find conversion result for node ${nodeIn.id}"))
 }
