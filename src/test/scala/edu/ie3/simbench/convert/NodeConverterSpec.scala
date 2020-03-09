@@ -2,26 +2,18 @@ package edu.ie3.simbench.convert
 
 import java.util.UUID
 
-import edu.ie3.simbench.model.datamodel.{
-  Coordinate,
-  ExternalNet,
-  Node,
-  PowerPlant,
-  RES,
-  Substation
-}
+import edu.ie3.simbench.model.datamodel.ExternalNet.{Simple, WardExtended}
+import edu.ie3.simbench.model.datamodel.Node.NodeKey
 import edu.ie3.simbench.model.datamodel.enums.{
   CalculationType,
-  NodeType,
   PowerPlantType,
   ResType
 }
-import edu.ie3.simbench.model.datamodel.ExternalNet.{Simple, WardExtended}
-import edu.ie3.simbench.model.datamodel.Node.NodeKey
 import edu.ie3.simbench.model.datamodel.profiles.{
   PowerPlantProfileType,
   ResProfileType
 }
+import edu.ie3.simbench.model.datamodel.{ExternalNet, PowerPlant, RES}
 import edu.ie3.test.common.{ConverterTestData, UnitSpec}
 
 class NodeConverterSpec extends UnitSpec with ConverterTestData {
@@ -133,7 +125,6 @@ class NodeConverterSpec extends UnitSpec with ConverterTestData {
       actual.getOperationTime shouldBe slackNodeExpected.getOperationTime
       actual.getOperator shouldBe slackNodeExpected.getOperator
       actual.getGeoPosition shouldBe slackNodeExpected.getGeoPosition
-      actual.getvRated shouldBe slackNodeExpected.getvRated()
       actual.getvTarget shouldBe slackNodeExpected.getvTarget()
       actual.getSubnet shouldBe slackNodeExpected.getSubnet
       actual.getVoltLvl shouldBe slackNodeExpected.getVoltLvl
@@ -146,7 +137,6 @@ class NodeConverterSpec extends UnitSpec with ConverterTestData {
       actual.getOperationTime shouldBe otherNodeExpected.getOperationTime
       actual.getOperator shouldBe otherNodeExpected.getOperator
       actual.getGeoPosition shouldBe otherNodeExpected.getGeoPosition
-      actual.getvRated shouldBe otherNodeExpected.getvRated()
       actual.getvTarget shouldBe otherNodeExpected.getvTarget()
       actual.getSubnet shouldBe otherNodeExpected.getSubnet
       actual.getVoltLvl shouldBe otherNodeExpected.getVoltLvl

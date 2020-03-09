@@ -9,7 +9,11 @@ import org.locationtech.jts.geom.{
 }
 import edu.ie3.models.{OperationTime, UniqueEntity}
 import edu.ie3.models.input.{NodeInput, OperatorInput}
-import edu.ie3.models.GermanVoltageLevel.{LV, MV}
+import edu.ie3.models.voltagelevels.GermanVoltageLevelUtils.{
+  LV,
+  MV_10KV,
+  MV_20KV
+}
 import edu.ie3.models.input.connector.`type`.{
   LineTypeInput,
   Transformer2WTypeInput
@@ -114,10 +118,9 @@ trait ConverterTestData {
         OperatorInput.NO_OPERATOR_ASSIGNED,
         "slack_node_0",
         Quantities.getQuantity(1.3, PU),
-        Quantities.getQuantity(10.0, KILOVOLT),
         true,
         getCoordinatePair("random coordinate")._2,
-        MV,
+        MV_10KV,
         1
       )
     ),
@@ -139,10 +142,9 @@ trait ConverterTestData {
         OperatorInput.NO_OPERATOR_ASSIGNED,
         "node_0",
         Quantities.getQuantity(1.0, PU),
-        Quantities.getQuantity(10.0, KILOVOLT),
         false,
         getCoordinatePair("random coordinate")._2,
-        MV,
+        MV_10KV,
         2
       )
     ),
@@ -166,10 +168,9 @@ trait ConverterTestData {
         OperatorInput.NO_OPERATOR_ASSIGNED,
         "MV1.101 Bus 4",
         Quantities.getQuantity(1.025, PU),
-        Quantities.getQuantity(20, KILOVOLT),
         false,
         getCoordinatePair("coordinate_14")._2,
-        MV,
+        MV_20KV,
         1
       )
     ),
@@ -193,10 +194,9 @@ trait ConverterTestData {
         OperatorInput.NO_OPERATOR_ASSIGNED,
         "MV1.101 Bus 5",
         Quantities.getQuantity(1.025, PU),
-        Quantities.getQuantity(20d, KILOVOLT),
         false,
         getCoordinatePair("coordinate_14")._2,
-        MV,
+        MV_20KV,
         5
       )
     ),
@@ -220,7 +220,6 @@ trait ConverterTestData {
         OperatorInput.NO_OPERATOR_ASSIGNED,
         "LV1.101 Bus 4",
         Quantities.getQuantity(1d, PU),
-        Quantities.getQuantity(0.4, KILOVOLT),
         false,
         getCoordinatePair("coordinate_14")._2,
         LV,
@@ -247,7 +246,6 @@ trait ConverterTestData {
         OperatorInput.NO_OPERATOR_ASSIGNED,
         "LV1.101 Bus 1",
         Quantities.getQuantity(1d, PU),
-        Quantities.getQuantity(0.4, KILOVOLT),
         false,
         getCoordinatePair("coordinate_2")._2,
         LV,

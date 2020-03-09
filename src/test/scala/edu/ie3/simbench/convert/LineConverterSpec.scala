@@ -2,17 +2,17 @@ package edu.ie3.simbench.convert
 
 import java.util.{Optional, UUID}
 
-import edu.ie3.models.GermanVoltageLevel.MV
 import edu.ie3.models.OperationTime
 import edu.ie3.models.input.connector.LineInput
 import edu.ie3.models.input.connector.`type`.LineTypeInput
 import edu.ie3.models.input.{NodeInput, OperatorInput}
+import edu.ie3.models.voltagelevels.GermanVoltageLevelUtils.MV_10KV
 import edu.ie3.simbench.exception.ConversionException
 import edu.ie3.simbench.model.datamodel.Line.{ACLine, DCLine}
 import edu.ie3.simbench.model.datamodel.types.LineType
 import edu.ie3.simbench.model.datamodel.types.LineType.{ACLineType, DCLineType}
 import edu.ie3.test.common.{ConverterTestData, UnitSpec}
-import edu.ie3.util.quantities.PowerSystemUnits.{KILOMETRE, KILOVOLT, PU}
+import edu.ie3.util.quantities.PowerSystemUnits.{KILOMETRE, PU}
 import tec.uom.se.quantity.Quantities
 
 class LineConverterSpec extends UnitSpec with ConverterTestData {
@@ -97,10 +97,9 @@ class LineConverterSpec extends UnitSpec with ConverterTestData {
         OperatorInput.NO_OPERATOR_ASSIGNED,
         "slack_node_0",
         Quantities.getQuantity(1.3, PU),
-        Quantities.getQuantity(10.0, KILOVOLT),
         true,
         null,
-        MV,
+        MV_10KV,
         1
       )
       val nodeB = new NodeInput(
@@ -109,10 +108,9 @@ class LineConverterSpec extends UnitSpec with ConverterTestData {
         OperatorInput.NO_OPERATOR_ASSIGNED,
         "node_0",
         Quantities.getQuantity(1.0, PU),
-        Quantities.getQuantity(10.0, KILOVOLT),
         false,
         null,
-        MV,
+        MV_10KV,
         2
       )
 
@@ -138,10 +136,9 @@ class LineConverterSpec extends UnitSpec with ConverterTestData {
         OperatorInput.NO_OPERATOR_ASSIGNED,
         "slack_node_0",
         Quantities.getQuantity(1.3, PU),
-        Quantities.getQuantity(10.0, KILOVOLT),
         true,
         null,
-        MV,
+        MV_10KV,
         1
       )
 
@@ -167,10 +164,9 @@ class LineConverterSpec extends UnitSpec with ConverterTestData {
         OperatorInput.NO_OPERATOR_ASSIGNED,
         "node_0",
         Quantities.getQuantity(1.0, PU),
-        Quantities.getQuantity(10.0, KILOVOLT),
         false,
         null,
-        MV,
+        MV_10KV,
         2
       )
 

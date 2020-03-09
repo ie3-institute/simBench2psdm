@@ -1,28 +1,35 @@
 package edu.ie3.simbench.convert
 
-import edu.ie3.models.GermanVoltageLevel._
-import edu.ie3.models.VoltageLevel
-import edu.ie3.simbench.model.GermanTransformationVoltageLevel.{
-  EHV2HV,
-  HV2MV,
-  MV2LV
-}
+import edu.ie3.models.voltagelevels.{GermanVoltageLevelUtils, VoltageLevel}
+import javax.measure.quantity.ElectricPotential
+import tec.uom.se.ComparableQuantity
 
 case object VoltLvlConverter {
-  val mapping: Map[Int, VoltageLevel] = Map(
-    1 -> EHV,
-    2 -> EHV2HV,
-    3 -> HV,
-    4 -> HV2MV,
-    5 -> MV,
-    6 -> MV2LV,
-    7 -> LV
+  val mapping: Map[Int, String] = Map(
+    1 -> "ehv",
+    2 -> "ehv2hv",
+    3 -> "hv",
+    4 -> "hv2mv",
+    5 -> "mv",
+    6 -> "mv2lv",
+    7 -> "lv"
   )
 
-  def convert(simbenchVoltLvl: Int): VoltageLevel =
-    mapping.getOrElse(
+  /**
+    * Converts the given SimBench voltLvl id in conjunction with the rated voltage to a voltage level object
+    *
+    * @param simbenchVoltLvl  SimBench voltage level id
+    * @param vRated           Rated voltage
+    * @return                 Voltage level object
+    */
+  def convert(simbenchVoltLvl: Int,
+              vRated: ComparableQuantity[ElectricPotential]): VoltageLevel = {
+    val id = mapping.getOrElse(
       simbenchVoltLvl,
       throw new IllegalArgumentException(
         s"The desired voltage level id $simbenchVoltLvl is not covered by the commonly known voltage levels.")
     )
+
+    GermanVoltageLevelUtils.parse(id, vRated)
+  }
 }
