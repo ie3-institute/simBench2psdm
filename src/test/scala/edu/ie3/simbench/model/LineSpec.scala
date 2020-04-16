@@ -87,15 +87,24 @@ class LineSpec extends UnitSpec with ConverterTestData {
     "build the correct single model" in {
       val actual = Line.buildModel(
         rawData(0),
-        nodeMapping.getOrElse("LV1.101 Bus 4",
-                              throw SimbenchDataModelException(
-                                "Ooops. This is not supposed to happen")),
-        nodeMapping.getOrElse("LV1.101 Bus 1",
-                              throw SimbenchDataModelException(
-                                "Ooops. This is not supposed to happen")),
-        lineTypeMapping.getOrElse("NAYY 4x150SE 0.6/1kV",
-                                  throw SimbenchDataModelException(
-                                    "Ooops. This is not supposed to happen"))
+        nodeMapping.getOrElse(
+          "LV1.101 Bus 4",
+          throw SimbenchDataModelException(
+            "Ooops. This is not supposed to happen"
+          )
+        ),
+        nodeMapping.getOrElse(
+          "LV1.101 Bus 1",
+          throw SimbenchDataModelException(
+            "Ooops. This is not supposed to happen"
+          )
+        ),
+        lineTypeMapping.getOrElse(
+          "NAYY 4x150SE 0.6/1kV",
+          throw SimbenchDataModelException(
+            "Ooops. This is not supposed to happen"
+          )
+        )
       )
       actual shouldBe expected(0)
     }

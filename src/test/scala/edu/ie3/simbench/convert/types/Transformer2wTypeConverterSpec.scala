@@ -16,7 +16,7 @@ import tec.uom.se.unit.MetricPrefix
 import tec.uom.se.unit.Units.{OHM, PERCENT, SIEMENS}
 
 class Transformer2wTypeConverterSpec extends UnitSpec with ConverterTestData {
-  val testingTolerance = 1E-3
+  val testingTolerance = 1e-3
 
   val uuid: UUID = UUID.randomUUID()
   val validInput: Transformer2WType = getTransformer2WTypePair("test type")._1
@@ -66,7 +66,8 @@ class Transformer2wTypeConverterSpec extends UnitSpec with ConverterTestData {
       actual
         .getbM()
         .subtract(
-          Quantities.getQuantity(32972.94113, MetricPrefix.NANO(SIEMENS)))
+          Quantities.getQuantity(32972.94113, MetricPrefix.NANO(SIEMENS))
+        )
         .to(MetricPrefix.NANO(SIEMENS))
         .getValue
         .doubleValue() < testingTolerance shouldBe true
@@ -91,7 +92,8 @@ class Transformer2wTypeConverterSpec extends UnitSpec with ConverterTestData {
     "throw an exception, when the input model does not allow to calculate short circuit parameters correctly" in {
       val invalidInput = validInput.copy(pCu = BigDecimal("3000"))
       val thrown = intercept[ConversionException](
-        Transformer2wTypeConverter.convert(invalidInput, uuid))
+        Transformer2wTypeConverter.convert(invalidInput, uuid)
+      )
       thrown.getMessage shouldBe "Cannot convert two winding transformer type test type into ie³ type, as the " +
         "" +
         "conversion of short circuit parameters is not possible."
@@ -100,7 +102,8 @@ class Transformer2wTypeConverterSpec extends UnitSpec with ConverterTestData {
     "throw an exception, when the input model does not allow to calculate no load circuit parameters correctly" in {
       val invalidInput = validInput.copy(pFe = BigDecimal("150"))
       val thrown = intercept[ConversionException](
-        Transformer2wTypeConverter.convert(invalidInput, uuid))
+        Transformer2wTypeConverter.convert(invalidInput, uuid)
+      )
       thrown.getMessage shouldBe "Cannot convert two winding transformer type test type into ie³ type, as the " +
         "conversion of no load parameters is not possible."
     }

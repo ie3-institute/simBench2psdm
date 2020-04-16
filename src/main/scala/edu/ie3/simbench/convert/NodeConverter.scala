@@ -2,8 +2,8 @@ package edu.ie3.simbench.convert
 
 import java.util.UUID
 
-import edu.ie3.models.OperationTime
-import edu.ie3.models.input.{NodeInput, OperatorInput}
+import edu.ie3.datamodel.models.OperationTime
+import edu.ie3.datamodel.models.input.{NodeInput, OperatorInput}
 import edu.ie3.simbench.exception.ConversionException
 import edu.ie3.simbench.model.datamodel.Node.NodeKey
 import edu.ie3.simbench.model.datamodel.enums.CalculationType
@@ -40,10 +40,12 @@ case object NodeConverter {
     * @param uuid             UUID to use for the model generation (default: Random UUID)
     * @return                 A [[NodeInput]]
     */
-  def convert(input: Node,
-              slackNodeKeys: Vector[NodeKey],
-              subnetConverter: SubnetConverter,
-              uuid: UUID = UUID.randomUUID()): NodeInput = {
+  def convert(
+      input: Node,
+      slackNodeKeys: Vector[NodeKey],
+      subnetConverter: SubnetConverter,
+      uuid: UUID = UUID.randomUUID()
+  ): NodeInput = {
     val vTarget = input.vmSetp match {
       case Some(value) => Quantities.getQuantity(value, PU)
       case None        => Quantities.getQuantity(1d, PU)
@@ -55,15 +57,17 @@ case object NodeConverter {
     val voltLvl = VoltLvlConverter.convert(input.voltLvl, vRated)
     val subnet = subnetConverter.convert(input.subnet)
 
-    new NodeInput(uuid,
-                  OperationTime.notLimited(),
-                  OperatorInput.NO_OPERATOR_ASSIGNED,
-                  input.id,
-                  vTarget,
-                  isSlack,
-                  geopPosition,
-                  voltLvl,
-                  subnet)
+    new NodeInput(
+      uuid,
+      input.id,
+      OperatorInput.NO_OPERATOR_ASSIGNED,
+      OperationTime.notLimited(),
+      vTarget,
+      isSlack,
+      geopPosition,
+      voltLvl,
+      subnet
+    )
   }
 
   /**
@@ -74,9 +78,11 @@ case object NodeConverter {
     * @param res          [[Vector]] of [[RES]]s
     * @return             [[Vector]] of distinct slack node keys (id, subnet, voltLvl)
     */
-  def getSlackNodeKeys(externalNets: Vector[ExternalNet],
-                       powerPlants: Vector[PowerPlant],
-                       res: Vector[RES]): Vector[NodeKey] = {
+  def getSlackNodeKeys(
+      externalNets: Vector[ExternalNet],
+      powerPlants: Vector[PowerPlant],
+      res: Vector[RES]
+  ): Vector[NodeKey] = {
     val calcTypeFromExternalNet = (externalNet: ExternalNet) =>
       externalNet.calculationType
     val calcTypeFromPowerPlant = (powerPlant: PowerPlant) =>
@@ -86,12 +92,16 @@ case object NodeConverter {
     val nodeFromPowerPlant = (powerPlant: PowerPlant) => powerPlant.node
     val nodeFromRes = (res: RES) => res.node
 
-    (extractSlackNodeKeys(externalNets,
-                          calcTypeFromExternalNet,
-                          nodeFromExternalNet) ++
-      extractSlackNodeKeys(powerPlants,
-                           calcTypeFromPowerPlant,
-                           nodeFromPowerPlant) ++
+    (extractSlackNodeKeys(
+      externalNets,
+      calcTypeFromExternalNet,
+      nodeFromExternalNet
+    ) ++
+      extractSlackNodeKeys(
+        powerPlants,
+        calcTypeFromPowerPlant,
+        nodeFromPowerPlant
+      ) ++
       extractSlackNodeKeys(res, calcTypeFromRes, nodeFromRes)).distinct
   }
 
@@ -107,7 +117,8 @@ case object NodeConverter {
   private def extractSlackNodeKeys[T <: EntityModel](
       models: Vector[T],
       getCalcTypeFunc: T => CalculationType,
-      getNode: T => Node): Vector[NodeKey] = {
+      getNode: T => Node
+  ): Vector[NodeKey] = {
     val slackCalculationModes = Vector(VaVm, Ward, WardExtended)
     models
       .filter(model => slackCalculationModes.contains(getCalcTypeFunc(model)))
@@ -122,9 +133,11 @@ case object NodeConverter {
     * @param nodes    Mapping from SimBench [[Node]] to ie³'s [[NodeInput]]
     * @return         A pair with the matching conversions
     */
-  def getNodes(nodeAIn: Node,
-               nodeBIn: Node,
-               nodes: Map[Node, NodeInput]): (NodeInput, NodeInput) = {
+  def getNodes(
+      nodeAIn: Node,
+      nodeBIn: Node,
+      nodes: Map[Node, NodeInput]
+  ): (NodeInput, NodeInput) = {
     val nodeA = getNode(nodeAIn, nodes)
     val nodeB = getNode(nodeBIn, nodes)
     (nodeA, nodeB)
@@ -138,7 +151,10 @@ case object NodeConverter {
     * @return       The equivalent [[NodeInput]]
     */
   def getNode(nodeIn: Node, nodes: Map[Node, NodeInput]): NodeInput =
-    nodes.getOrElse(nodeIn,
-                    throw ConversionException(
-                      s"Cannot find conversion result for node ${nodeIn.id}"))
+    nodes.getOrElse(
+      nodeIn,
+      throw ConversionException(
+        s"Cannot find conversion result for node ${nodeIn.id}"
+      )
+    )
 }

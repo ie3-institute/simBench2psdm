@@ -29,6 +29,7 @@ object MeasurementVariable {
       case "i" => Current
       case whatever =>
         throw SimbenchDataModelException(
-          s"I cannot handle the measurement variable $whatever")
+          s"I cannot handle the measurement variable $whatever"
+        )
     }
 }

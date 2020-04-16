@@ -21,7 +21,8 @@ class SubnetConverterSpec extends UnitSpec {
 
     "throw an exception, if the desired subnet string has not been initialized" in {
       val thrown = intercept[IllegalArgumentException](
-        converter.convert("totally random String"))
+        converter.convert("totally random String")
+      )
       thrown.getMessage shouldBe "The simbench subnet totally random String has not been initialized with the converter."
     }
   }

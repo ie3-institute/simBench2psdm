@@ -2,7 +2,7 @@ package edu.ie3.simbench.convert.types
 
 import java.util.UUID
 
-import edu.ie3.models.input.connector.`type`.Transformer2WTypeInput
+import edu.ie3.datamodel.models.input.connector.`type`.Transformer2WTypeInput
 import edu.ie3.simbench.exception.ConversionException
 import edu.ie3.simbench.model.datamodel.enums.BranchElementPort.LV
 import edu.ie3.simbench.model.datamodel.types.Transformer2WType
@@ -18,8 +18,9 @@ import scala.math.sqrt
   */
 case object Transformer2wTypeConverter {
 
-  def convert(types: Vector[Transformer2WType])
-    : Map[Transformer2WType, Transformer2WTypeInput] =
+  def convert(
+      types: Vector[Transformer2WType]
+  ): Map[Transformer2WType, Transformer2WTypeInput] =
     types.map(input => input -> convert(input)).toMap
 
   /**
@@ -29,8 +30,10 @@ case object Transformer2wTypeConverter {
     * @param uuid   UUID to use for the model generation (default: Random UUID)
     * @return       A ie³ [[Transformer2WTypeInput]]
     */
-  def convert(input: Transformer2WType,
-              uuid: UUID = UUID.randomUUID()): Transformer2WTypeInput = {
+  def convert(
+      input: Transformer2WType,
+      uuid: UUID = UUID.randomUUID()
+  ): Transformer2WTypeInput = {
     val id = input.id
     val tapSide = input.tapside == LV
     val dV = input.dVm
@@ -44,12 +47,12 @@ case object Transformer2wTypeConverter {
      * ------------------------
      * The parameters for the equivalent circuit are given from the perspective of the high voltage side.
      */
-    val sRated = input.sR * 1E6 // Rated apparent power in VA
-    val vmHV = input.vmHV * 1E3 // Rated voltage magnitude at high voltage port in V
-    val vmLV = input.vmLV * 1E3 // Rated voltage magnitude at low voltage port in V
+    val sRated = input.sR * 1e6 // Rated apparent power in VA
+    val vmHV = input.vmHV * 1e3 // Rated voltage magnitude at high voltage port in V
+    val vmLV = input.vmLV * 1e3 // Rated voltage magnitude at low voltage port in V
     val vImp = input.vmImp / 100 * vmHV // Voltage magnitude in short circuit experiment in V
-    val pCu = input.pCu * 1E3 // Copper losses in W
-    val pFe = input.pFe * 1E3 // Iron losses in W
+    val pCu = input.pCu * 1e3 // Copper losses in W
+    val pFe = input.pFe * 1e3 // Iron losses in W
 
     val iRated = sRated / (sqrt(3) * vmHV) // Rated current on high voltage side in Ampere
     val iNoLoad = input.iNoLoad / 100 * iRated // No load current in Ampere
@@ -57,7 +60,8 @@ case object Transformer2wTypeConverter {
     val rSc = pCu / (3 * iRated * iRated) // Short circuit resistance in Ohm
     if (rSc > zSc)
       throw ConversionException(
-        s"Cannot convert two winding transformer type $id into ie³ type, as the conversion of short circuit parameters is not possible.")
+        s"Cannot convert two winding transformer type $id into ie³ type, as the conversion of short circuit parameters is not possible."
+      )
     val xSc = sqrt((zSc * zSc - rSc * rSc).doubleValue) // Short circuit reactance in Ohm
     val vM = vmHV / sqrt(3) - iNoLoad * zSc / 2 // Voltage at the main field admittance in V
     val zNoLoad = vmHV / (sqrt(3) * iNoLoad) - zSc / 2 // No load impedance in Ohm
@@ -65,7 +69,8 @@ case object Transformer2wTypeConverter {
     val gNoLoad = pFe / (vM * vM) // No load conductance in Ohm
     if (gNoLoad > yNoLoad)
       throw ConversionException(
-        s"Cannot convert two winding transformer type $id into ie³ type, as the conversion of no load parameters is not possible.")
+        s"Cannot convert two winding transformer type $id into ie³ type, as the conversion of no load parameters is not possible."
+      )
     val bNoLoad = sqrt((yNoLoad * yNoLoad - gNoLoad * gNoLoad).doubleValue) // No load susceptance in Ohm
 
     new Transformer2WTypeInput(

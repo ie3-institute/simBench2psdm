@@ -4,10 +4,11 @@ import java.util.{Optional, UUID}
 
 import com.typesafe.scalalogging.LazyLogging
 import org.locationtech.jts.geom.GeometryFactory
-import edu.ie3.models.OperationTime
-import edu.ie3.models.input.{NodeInput, OperatorInput}
-import edu.ie3.models.input.connector.LineInput
-import edu.ie3.models.input.connector.`type`.LineTypeInput
+import edu.ie3.datamodel.models.OperationTime
+import edu.ie3.datamodel.models.input.{NodeInput, OperatorInput}
+import edu.ie3.datamodel.models.input.connector.LineInput
+import edu.ie3.datamodel.models.input.connector.`type`.LineTypeInput
+import edu.ie3.datamodel.models.input.system.characteristic.OlmCharacteristicInput
 import edu.ie3.simbench.exception.ConversionException
 import edu.ie3.simbench.model.datamodel.{Line, Node}
 import edu.ie3.simbench.model.datamodel.types.LineType
@@ -25,20 +26,26 @@ case object LineConverter extends LazyLogging {
     * @param nodes  Mapping of SimBench to ie³ nodes
     * @return       A [[Vector]] of [[LineInput]]s
     */
-  def convert(inputs: Vector[Line[_ <: LineType]],
-              types: Map[LineType, LineTypeInput],
-              nodes: Map[Node, NodeInput]): Vector[LineInput] =
-    for (input <- inputs.filter(input =>
-           input match {
-             case _: Line.ACLine => true
-             case _: Line.DCLine => false
-         })) yield {
+  def convert(
+      inputs: Vector[Line[_ <: LineType]],
+      types: Map[LineType, LineTypeInput],
+      nodes: Map[Node, NodeInput]
+  ): Vector[LineInput] =
+    for (input <- inputs.filter(
+           input =>
+             input match {
+               case _: Line.ACLine => true
+               case _: Line.DCLine => false
+             }
+         )) yield {
       val (nodeA, nodeB) =
         NodeConverter.getNodes(input.nodeA, input.nodeB, nodes)
       val lineType = types.getOrElse(
         input.lineType,
         throw ConversionException(
-          s"Cannot find conversion result for line type ${input.lineType.id}"))
+          s"Cannot find conversion result for line type ${input.lineType.id}"
+        )
+      )
       convert(input, lineType, nodeA, nodeB)
     }
 
@@ -53,11 +60,13 @@ case object LineConverter extends LazyLogging {
     * @param uuid     UUID to use for the model generation (default: Random UUID)
     * @return         A [[LineInput]] model
     */
-  def convert(input: Line[_ <: LineType],
-              lineType: LineTypeInput,
-              nodeA: NodeInput,
-              nodeB: NodeInput,
-              uuid: UUID = UUID.randomUUID()): LineInput = {
+  def convert(
+      input: Line[_ <: LineType],
+      lineType: LineTypeInput,
+      nodeA: NodeInput,
+      nodeB: NodeInput,
+      uuid: UUID = UUID.randomUUID()
+  ): LineInput = {
     input match {
       case input: Line.ACLine =>
         val id = input.id
@@ -66,28 +75,33 @@ case object LineConverter extends LazyLogging {
           (Option(nodeA.getGeoPosition), Option(nodeB.getGeoPosition)) match {
             case (Some(pointA), Some(pointB)) =>
               val lineString = geometryFactory.createLineString(
-                Array(pointA.getCoordinate, pointB.getCoordinate))
+                Array(pointA.getCoordinate, pointB.getCoordinate)
+              )
               lineString.setSRID(4326)
               lineString
             case _ =>
               logger.debug(
-                s"Cannot build geo position for line $id, as no fully geo information is given")
+                s"Cannot build geo position for line $id, as no fully geo information is given"
+              )
               null
           }
-        new LineInput(uuid,
-                      OperationTime.notLimited(),
-                      OperatorInput.NO_OPERATOR_ASSIGNED,
-                      id,
-                      nodeA,
-                      nodeB,
-                      1,
-                      lineType,
-                      length,
-                      geoPosition,
-                      Optional.empty())
+        new LineInput(
+          uuid,
+          id,
+          OperatorInput.NO_OPERATOR_ASSIGNED,
+          OperationTime.notLimited(),
+          nodeA,
+          nodeB,
+          1,
+          lineType,
+          length,
+          geoPosition,
+          OlmCharacteristicInput.CONSTANT_CHARACTERISTIC
+        )
       case _: Line.DCLine =>
         throw ConversionException(
-          "Conversion of DC lines is currently not supported.")
+          "Conversion of DC lines is currently not supported."
+        )
     }
   }
 }

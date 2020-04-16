@@ -6,7 +6,7 @@ plugins{
 	id 'maven-publish' // publish to a maven repo (local or mvn central, has to be defined)
 	id 'pmd' // code check, working on source code
 	id 'com.github.spotbugs' version '2.0.0' // code check, working on byte code
-	id 'com.diffplug.gradle.spotless' version '3.24.2'// code format
+	id 'com.diffplug.gradle.spotless' version '3.28.1'// code format
 	id "de.undercouch.download" version "3.4.3" // downloads plugin
 	id 'jacoco' // java code coverage plugin
 	id "org.sonarqube" version "2.7.1" // sonarqube
@@ -48,7 +48,7 @@ dependencies {
 	}
 
 	/* util functions */
-	compile ('com.github.ie3-institute:PowerSystemUtils:1.3+') {
+	compile ('com.github.ie3-institute:PowerSystemUtils:1.3-SNAPSHOT') {
 		/* Exclude nested logging and ie³ related dependencies */
 		exclude group: 'org.slf4j'
 		exclude group: 'com.github.ie3-institute'

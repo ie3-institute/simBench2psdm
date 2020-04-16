@@ -4,7 +4,7 @@ import java.nio.file.{Files, Paths}
 
 import edu.ie3.simbench.exception.io.DownloaderException
 import edu.ie3.test.common.UnitSpec
-import edu.ie3.util.io.FileHelper
+import edu.ie3.util.io.FileIOUtils
 
 import scala.jdk.StreamConverters._
 import scala.language.postfixOps
@@ -12,13 +12,15 @@ import scala.language.postfixOps
 class UnzippingSpec extends UnitSpec with IoUtils {
   val downloader: Downloader = Downloader(
     "testData/download/",
-    "http://141.51.193.167/simbench/gui/usecase/download")
+    "http://141.51.193.167/simbench/gui/usecase/download"
+  )
 
   "The unzipping" should {
     "throw an exception, if the target folder exists and is a file" in {
       val filePath =
         Paths.get(
-          s"${downloader.downloadFolder}targetFolderExistsAndIsFile.zip")
+          s"${downloader.downloadFolder}targetFolderExistsAndIsFile.zip"
+        )
       val thrown = intercept[DownloaderException] {
         Downloader.unzip(downloader, filePath)
       }
@@ -53,13 +55,15 @@ class UnzippingSpec extends UnitSpec with IoUtils {
         "RESProfile.csv",
         "StudyCases.csv",
         "Transformer.csv",
-        "TransformerType.csv",
+        "TransformerType.csv"
       )
       val files = Files.list(secondLevelPath)
       val actualContent = files
         .toScala(LazyList)
-        .map(entry =>
-          fileNameRegexWithAnyEnding.findFirstIn(entry.toString).getOrElse(""))
+        .map(
+          entry =>
+            fileNameRegexWithAnyEnding.findFirstIn(entry.toString).getOrElse("")
+        )
         .sorted
         .toVector
       files.close()
@@ -67,7 +71,7 @@ class UnzippingSpec extends UnitSpec with IoUtils {
       actualContent shouldBe expectedContent
 
       /* Tidy up all the temporary files */
-      FileHelper.deleteRecursively(extractionBasePath)
+      FileIOUtils.deleteRecursively(extractionBasePath)
     }
 
     "unzip the data and flatten the directory structure correctly" in {
@@ -76,7 +80,8 @@ class UnzippingSpec extends UnitSpec with IoUtils {
       val extractionBasePath =
         Paths.get(pwd, s"${downloader.downloadFolder}1-LV-rural1--0-no_sw")
 
-      val actualBasePath = Downloader.unzip(downloader, archiveFilePath, true)
+      val actualBasePath =
+        Downloader.unzip(downloader, archiveFilePath, flattenDirectories = true)
       actualBasePath.toAbsolutePath shouldBe extractionBasePath.toAbsolutePath
       Files.exists(extractionBasePath) shouldBe true
       Files.isDirectory(extractionBasePath) shouldBe true
@@ -94,13 +99,15 @@ class UnzippingSpec extends UnitSpec with IoUtils {
         "RESProfile.csv",
         "StudyCases.csv",
         "Transformer.csv",
-        "TransformerType.csv",
+        "TransformerType.csv"
       )
       val files = Files.list(extractionBasePath)
       val actualContent = files
         .toScala(LazyList)
-        .map(entry =>
-          fileNameRegexWithAnyEnding.findFirstIn(entry.toString).getOrElse(""))
+        .map(
+          entry =>
+            fileNameRegexWithAnyEnding.findFirstIn(entry.toString).getOrElse("")
+        )
         .sorted
         .toVector
       files.close()
@@ -108,7 +115,7 @@ class UnzippingSpec extends UnitSpec with IoUtils {
       actualContent shouldBe expectedContent
 
       /* Tidy up all the temporary files */
-      FileHelper.deleteRecursively(extractionBasePath)
+      FileIOUtils.deleteRecursively(extractionBasePath)
     }
   }
 }

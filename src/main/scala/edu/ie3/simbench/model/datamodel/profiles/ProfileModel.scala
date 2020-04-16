@@ -28,8 +28,7 @@ trait ProfileModel[T <: ProfileType, D] extends SimbenchModel {
 
 object ProfileModel {
 
-  abstract class ProfileCompanionObject[
-      C <: ProfileModel[_ <: ProfileType, D], D]
+  abstract class ProfileCompanionObject[C <: ProfileModel[_ <: ProfileType, D], D]
       extends SimbenchCompanionObject[C] {
     protected val TIME = "time"
 
@@ -41,7 +40,8 @@ object ProfileModel {
       */
     override def apply(rawData: RawModelData): C =
       throw SimbenchDataModelException(
-        s"No basic implementation of model creation available for profiles")
+        s"No basic implementation of model creation available for profiles"
+      )
 
     /**
       * Determine the ids of the available profile types by filtering the head line fields
@@ -52,12 +52,16 @@ object ProfileModel {
       */
     def determineAvailableProfileIds(
         values: Vector[RawModelData],
-        idManipulationFuncOpt: Option[String => String]): Vector[String] = {
+        idManipulationFuncOpt: Option[String => String]
+    ): Vector[String] = {
       val availableTypes = determineAvailableProfileTypes(
         values
           .find(_ => true)
-          .getOrElse(throw SimbenchDataModelException(
-            "Raw data has no content. Unable to determine available profile types."))
+          .getOrElse(
+            throw SimbenchDataModelException(
+              "Raw data has no content. Unable to determine available profile types."
+            )
+          )
           .fieldToValues,
         idManipulationFuncOpt
       )
@@ -73,7 +77,8 @@ object ProfileModel {
       */
     def determineAvailableProfileTypes(
         values: Map[String, String],
-        idManipulationFuncOpt: Option[String => String]): Vector[String] =
+        idManipulationFuncOpt: Option[String => String]
+    ): Vector[String] =
       (for (entry <- values.filterNot(entry => entry._1 == TIME)) yield {
         idManipulationFuncOpt match {
           case Some(value) => value(entry._1)

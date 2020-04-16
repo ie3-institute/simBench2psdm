@@ -13,7 +13,8 @@ class Transformer2WSpec extends UnitSpec with ConverterTestData {
   )
 
   val substations = Map(
-    "substation_1" -> Substation("substation_1", "LV1.101", 7))
+    "substation_1" -> Substation("substation_1", "LV1.101", 7)
+  )
 
   val typeMapping = Map(
     "0.16 MVA 20/0.4 kV DOTE 160/20  SGB" -> Transformer2WType(
@@ -144,22 +145,32 @@ class Transformer2WSpec extends UnitSpec with ConverterTestData {
     "throw an exception, when the basic batch model creation method is called" in {
       val thrown =
         intercept[SimbenchDataModelException](
-          Transformer2W.buildModels(rawData))
+          Transformer2W.buildModels(rawData)
+        )
       thrown.getMessage shouldBe "No basic implementation of model creation available for Transformer2W$"
     }
 
     "build the correct single model" in {
       val actual = Transformer2W.buildModel(
         rawData(0),
-        nodeMapping.getOrElse("MV1.101 Bus 4",
-                              throw SimbenchDataModelException(
-                                "Ooops. This is not supposed to happen")),
-        nodeMapping.getOrElse("LV1.101 Bus 4",
-                              throw SimbenchDataModelException(
-                                "Ooops. This is not supposed to happen")),
-        typeMapping.getOrElse("0.16 MVA 20/0.4 kV DOTE 160/20  SGB",
-                              throw SimbenchDataModelException(
-                                "Ooops. This is not supposed to happen")),
+        nodeMapping.getOrElse(
+          "MV1.101 Bus 4",
+          throw SimbenchDataModelException(
+            "Ooops. This is not supposed to happen"
+          )
+        ),
+        nodeMapping.getOrElse(
+          "LV1.101 Bus 4",
+          throw SimbenchDataModelException(
+            "Ooops. This is not supposed to happen"
+          )
+        ),
+        typeMapping.getOrElse(
+          "0.16 MVA 20/0.4 kV DOTE 160/20  SGB",
+          throw SimbenchDataModelException(
+            "Ooops. This is not supposed to happen"
+          )
+        ),
         substations.get("substation_1")
       )
       actual shouldBe expected(0)
@@ -167,10 +178,12 @@ class Transformer2WSpec extends UnitSpec with ConverterTestData {
 
     "build a correct vector of models" in {
       val actual =
-        Transformer2W.buildModels(rawData,
-                                  nodeMapping,
-                                  typeMapping,
-                                  substations)
+        Transformer2W.buildModels(
+          rawData,
+          nodeMapping,
+          typeMapping,
+          substations
+        )
       actual shouldBe expected
     }
   }

@@ -49,8 +49,9 @@ class SimbenchNamingStrategySpec extends UnitSpec {
     "provide correct file namings" in {
       forAll(validNamings)(
         (clazz: Class[_], expectedFileName: String) =>
-          SimbenchFileNamingStrategy.getFileName(clazz) shouldBe Success(
-            expectedFileName))
+          SimbenchFileNamingStrategy
+            .getFileName(clazz) shouldBe Success(expectedFileName)
+      )
     }
 
     "report a failure, if the class is not covered by the naming strategy" in {

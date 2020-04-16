@@ -1,6 +1,6 @@
 package edu.ie3.simbench.convert
 
-import edu.ie3.models.input.NodeInput
+import edu.ie3.datamodel.models.input.NodeInput
 import edu.ie3.simbench.model.datamodel.Node
 import edu.ie3.test.common.{ConverterTestData, UnitSpec}
 
@@ -8,13 +8,16 @@ class SwitchConverterSpec extends UnitSpec with ConverterTestData {
   val (input, expected) = getSwitchPair("LV1.101 Switch 1")
   val nodeMapping: Map[Node, NodeInput] = Vector(
     getNodePair("LV1.101 Bus 1"),
-    getNodePair("LV1.101 Bus 4")).map(entry => entry._1 -> entry._2).toMap
+    getNodePair("LV1.101 Bus 4")
+  ).map(entry => entry._1 -> entry._2).toMap
 
   "The switch converter" should {
     "convert a single model correctly" in {
-      val actual = SwitchConverter.convert(input,
-                                           getNodePair("LV1.101 Bus 1")._2,
-                                           getNodePair("LV1.101 Bus 4")._2)
+      val actual = SwitchConverter.convert(
+        input,
+        getNodePair("LV1.101 Bus 1")._2,
+        getNodePair("LV1.101 Bus 4")._2
+      )
 
       actual.getId shouldBe expected.getId
       actual.getNodeA shouldBe expected.getNodeA

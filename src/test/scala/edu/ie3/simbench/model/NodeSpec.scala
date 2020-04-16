@@ -7,10 +7,12 @@ import edu.ie3.test.common.{ConverterTestData, UnitSpec}
 
 class NodeSpec extends UnitSpec with ConverterTestData {
   val coordinateMapping = Map(
-    "coordinate_14" -> getCoordinatePair("coordinate_14")._1)
+    "coordinate_14" -> getCoordinatePair("coordinate_14")._1
+  )
 
   val substations = Map(
-    "substation_1" -> Substation("substation_1", "LV1.101", 7))
+    "substation_1" -> Substation("substation_1", "LV1.101", 7)
+  )
 
   val rawData = Vector(
     RawModelData(
@@ -50,14 +52,16 @@ class NodeSpec extends UnitSpec with ConverterTestData {
   val expected = Vector(
     getNodePair("MV1.101 Bus 4")._1,
     getNodePair("MV1.101 Bus 4")._1
-      .copy(vmSetp = None, vaSetp = None, substation = None, coordinate = None),
+      .copy(vmSetp = None, vaSetp = None, substation = None, coordinate = None)
   )
 
   "The node class" should {
     "generate the correct key" in {
-      expected(0).getKey shouldBe NodeKey("MV1.101 Bus 4",
-                                          "MV1.101_LV1.101_Feeder1",
-                                          5)
+      expected(0).getKey shouldBe NodeKey(
+        "MV1.101 Bus 4",
+        "MV1.101_LV1.101_Feeder1",
+        5
+      )
     }
   }
 
@@ -75,9 +79,11 @@ class NodeSpec extends UnitSpec with ConverterTestData {
     }
 
     "build the correct single model" in {
-      val actual = Node.buildModel(rawData(0),
-                                   coordinateMapping.get("coordinate_14"),
-                                   substations.get("substation_1"))
+      val actual = Node.buildModel(
+        rawData(0),
+        coordinateMapping.get("coordinate_14"),
+        substations.get("substation_1")
+      )
       actual shouldBe expected(0)
     }
 

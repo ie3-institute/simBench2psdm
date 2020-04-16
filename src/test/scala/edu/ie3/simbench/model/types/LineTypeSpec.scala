@@ -7,22 +7,28 @@ import edu.ie3.test.common.{ConverterTestData, UnitSpec}
 
 class LineTypeSpec extends UnitSpec with ConverterTestData {
   val rawData = Vector(
-    RawModelData(classOf[LineType],
-                 Map(
-                   "id" -> "1x630_RM/50",
-                   "r" -> "0.122",
-                   "x" -> "0.122522",
-                   "b" -> "58.7478",
-                   "iMax" -> "652",
-                   "type" -> "cable"
-                 )),
-    RawModelData(classOf[LineType],
-                 Map("id" -> "24-AL1/4-ST1A 20.0",
-                     "r" -> "1.2012",
-                     "x" -> "0.394",
-                     "b" -> "3.53429",
-                     "iMax" -> "140",
-                     "type" -> "ohl"))
+    RawModelData(
+      classOf[LineType],
+      Map(
+        "id" -> "1x630_RM/50",
+        "r" -> "0.122",
+        "x" -> "0.122522",
+        "b" -> "58.7478",
+        "iMax" -> "652",
+        "type" -> "cable"
+      )
+    ),
+    RawModelData(
+      classOf[LineType],
+      Map(
+        "id" -> "24-AL1/4-ST1A 20.0",
+        "r" -> "1.2012",
+        "x" -> "0.394",
+        "b" -> "3.53429",
+        "iMax" -> "140",
+        "type" -> "ohl"
+      )
+    )
   )
 
   "The LineType object" should {

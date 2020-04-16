@@ -1,6 +1,9 @@
 package edu.ie3.simbench.convert
 
-import edu.ie3.models.voltagelevels.{GermanVoltageLevelUtils, VoltageLevel}
+import edu.ie3.datamodel.models.voltagelevels.{
+  GermanVoltageLevelUtils,
+  VoltageLevel
+}
 import javax.measure.quantity.ElectricPotential
 import tec.uom.se.ComparableQuantity
 
@@ -22,12 +25,15 @@ case object VoltLvlConverter {
     * @param vRated           Rated voltage
     * @return                 Voltage level object
     */
-  def convert(simbenchVoltLvl: Int,
-              vRated: ComparableQuantity[ElectricPotential]): VoltageLevel = {
+  def convert(
+      simbenchVoltLvl: Int,
+      vRated: ComparableQuantity[ElectricPotential]
+  ): VoltageLevel = {
     val id = mapping.getOrElse(
       simbenchVoltLvl,
       throw new IllegalArgumentException(
-        s"The desired voltage level id $simbenchVoltLvl is not covered by the commonly known voltage levels.")
+        s"The desired voltage level id $simbenchVoltLvl is not covered by the commonly known voltage levels."
+      )
     )
 
     GermanVoltageLevelUtils.parse(id, vRated)

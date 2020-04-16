@@ -19,15 +19,16 @@ import edu.ie3.simbench.model.datamodel.profiles.LoadProfileType
   * @param subnet Subnet it belongs to
   * @param voltLvl Voltage level
   */
-case class Load(id: String,
-                node: Node,
-                profile: LoadProfileType,
-                pLoad: BigDecimal,
-                qLoad: BigDecimal,
-                sR: BigDecimal,
-                subnet: String,
-                voltLvl: Int)
-    extends ShuntModel
+case class Load(
+    id: String,
+    node: Node,
+    profile: LoadProfileType,
+    pLoad: BigDecimal,
+    qLoad: BigDecimal,
+    sR: BigDecimal,
+    subnet: String,
+    voltLvl: Int
+) extends ShuntModel
 
 case object Load extends EntityModelCompanionObject[Load] {
   private val NODE = "node"
@@ -43,7 +44,8 @@ case object Load extends EntityModelCompanionObject[Load] {
     */
   override def getFields: Array[HeadLineField] =
     Array(ID, NODE, PROFILE, P_LOAD, Q_LOAD, S_RATED, SUBNET, VOLT_LVL).map(
-      id => MandatoryField(id))
+      id => MandatoryField(id)
+    )
 
   /**
     * Factory method to build one model from a mapping from field id to value
@@ -53,7 +55,8 @@ case object Load extends EntityModelCompanionObject[Load] {
     */
   override def apply(rawData: RawModelData): Load =
     throw SimbenchDataModelException(
-      s"No basic implementation of model creation available for ${this.getClass.getSimpleName}")
+      s"No basic implementation of model creation available for ${this.getClass.getSimpleName}"
+    )
 
   /**
     * Factory method to build a batch of models from a mapping from field id to value
@@ -61,8 +64,10 @@ case object Load extends EntityModelCompanionObject[Load] {
     * @param rawData mapping from field id to value
     * @return A [[Vector]] of models
     */
-  def buildModels(rawData: Vector[RawModelData],
-                  nodes: Map[String, Node]): Vector[Load] =
+  def buildModels(
+      rawData: Vector[RawModelData],
+      nodes: Map[String, Node]
+  ): Vector[Load] =
     for (entry <- rawData) yield {
       val node = getNode(entry.get(NODE), nodes)
       buildModel(entry, node)

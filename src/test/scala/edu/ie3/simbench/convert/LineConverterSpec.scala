@@ -1,12 +1,13 @@
 package edu.ie3.simbench.convert
 
-import java.util.{Optional, UUID}
+import java.util.UUID
 
-import edu.ie3.models.OperationTime
-import edu.ie3.models.input.connector.LineInput
-import edu.ie3.models.input.connector.`type`.LineTypeInput
-import edu.ie3.models.input.{NodeInput, OperatorInput}
-import edu.ie3.models.voltagelevels.GermanVoltageLevelUtils.MV_10KV
+import edu.ie3.datamodel.models.OperationTime
+import edu.ie3.datamodel.models.input.connector.LineInput
+import edu.ie3.datamodel.models.input.connector.`type`.LineTypeInput
+import edu.ie3.datamodel.models.input.system.characteristic.OlmCharacteristicInput
+import edu.ie3.datamodel.models.input.{NodeInput, OperatorInput}
+import edu.ie3.datamodel.models.voltagelevels.GermanVoltageLevelUtils.MV_10KV
 import edu.ie3.simbench.exception.ConversionException
 import edu.ie3.simbench.model.datamodel.Line.{ACLine, DCLine}
 import edu.ie3.simbench.model.datamodel.types.LineType
@@ -26,7 +27,8 @@ class LineConverterSpec extends UnitSpec with ConverterTestData {
 
   val (lineTypeIn, lineType) = getLineTypePair("NAYY 4x150SE 0.6/1kV")
   val lineTypeMapping: Map[LineType, LineTypeInput] = Map(
-    lineTypeIn -> lineType)
+    lineTypeIn -> lineType
+  )
 
   val invalidInput: DCLine = DCLine(
     "dc line",
@@ -53,24 +55,28 @@ class LineConverterSpec extends UnitSpec with ConverterTestData {
   val lineUuid: UUID = UUID.randomUUID()
   val expectedLine = new LineInput(
     lineUuid,
-    OperationTime.notLimited(),
-    OperatorInput.NO_OPERATOR_ASSIGNED,
     "ac line",
+    OperatorInput.NO_OPERATOR_ASSIGNED,
+    OperationTime.notLimited(),
     nodeA,
     nodeB,
     1,
     lineType,
     Quantities.getQuantity(100d, KILOMETRE),
     geometryFactory.createLineString(
-      Array(nodeA.getGeoPosition.getCoordinate,
-            nodeB.getGeoPosition.getCoordinate)),
-    Optional.empty()
+      Array(
+        nodeA.getGeoPosition.getCoordinate,
+        nodeB.getGeoPosition.getCoordinate
+      )
+    ),
+    OlmCharacteristicInput.CONSTANT_CHARACTERISTIC
   )
 
   "The line converter" should {
     "throw an exception, if a DCLine should be converted" in {
       val thrown = intercept[ConversionException](
-        LineConverter.convert(invalidInput, lineType, nodeA, nodeB, lineUuid))
+        LineConverter.convert(invalidInput, lineType, nodeA, nodeB, lineUuid)
+      )
       thrown.getMessage shouldBe "Conversion of DC lines is currently not supported."
     }
 
@@ -93,9 +99,9 @@ class LineConverterSpec extends UnitSpec with ConverterTestData {
     "convert a correct input model without geo positions correctly" in {
       val nodeA = new NodeInput(
         this.nodeA.getUuid,
-        OperationTime.notLimited(),
-        OperatorInput.NO_OPERATOR_ASSIGNED,
         "slack_node_0",
+        OperatorInput.NO_OPERATOR_ASSIGNED,
+        OperationTime.notLimited(),
         Quantities.getQuantity(1.3, PU),
         true,
         null,
@@ -104,9 +110,9 @@ class LineConverterSpec extends UnitSpec with ConverterTestData {
       )
       val nodeB = new NodeInput(
         this.nodeB.getUuid,
-        OperationTime.notLimited(),
-        OperatorInput.NO_OPERATOR_ASSIGNED,
         "node_0",
+        OperatorInput.NO_OPERATOR_ASSIGNED,
+        OperationTime.notLimited(),
         Quantities.getQuantity(1.0, PU),
         false,
         null,
@@ -132,9 +138,9 @@ class LineConverterSpec extends UnitSpec with ConverterTestData {
     "convert a correct input model with geo positions at node a missing correctly" in {
       val nodeA = new NodeInput(
         this.nodeA.getUuid,
-        OperationTime.notLimited(),
-        OperatorInput.NO_OPERATOR_ASSIGNED,
         "slack_node_0",
+        OperatorInput.NO_OPERATOR_ASSIGNED,
+        OperationTime.notLimited(),
         Quantities.getQuantity(1.3, PU),
         true,
         null,
@@ -160,9 +166,9 @@ class LineConverterSpec extends UnitSpec with ConverterTestData {
     "convert a correct input model with geo positions at node b missing correctly" in {
       val nodeB = new NodeInput(
         this.nodeB.getUuid,
-        OperationTime.notLimited(),
-        OperatorInput.NO_OPERATOR_ASSIGNED,
         "node_0",
+        OperatorInput.NO_OPERATOR_ASSIGNED,
+        OperationTime.notLimited(),
         Quantities.getQuantity(1.0, PU),
         false,
         null,

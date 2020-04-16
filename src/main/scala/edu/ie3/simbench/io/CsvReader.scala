@@ -16,12 +16,13 @@ import scala.io.BufferedSource
   * @param fileEnding   Desired file ending
   * @param fileEncoding Desired file encoding
   */
-final case class CsvReader[T](modelClass: Class[T],
-                              filePath: String,
-                              separator: String,
-                              fileEnding: String = ".csv",
-                              fileEncoding: String = "UTF-8")
-    extends LazyLogging {
+final case class CsvReader[T](
+    modelClass: Class[T],
+    filePath: String,
+    separator: String,
+    fileEnding: String = ".csv",
+    fileEncoding: String = "UTF-8"
+) extends LazyLogging {
   /* Check, if the object exists, is a file and has the correct file ending */
   IoUtils.checkFileExists(filePath, fileEnding)
 
@@ -61,7 +62,8 @@ final case class CsvReader[T](modelClass: Class[T],
     */
   private def mapFields(
       headLine: String,
-      desiredFields: Array[_ <: HeadLineField]): Map[String, Int] = {
+      desiredFields: Array[_ <: HeadLineField]
+  ): Map[String, Int] = {
     /* Split for the single apparent fields in the file and map it to their indices */
     val headLineFields = headLine.split(separator).map(_.trim).zipWithIndex
 
@@ -73,7 +75,8 @@ final case class CsvReader[T](modelClass: Class[T],
         field =>
           field ->
             headLineFields
-              .find(apparentField => apparentField._1 == field.id))
+              .find(apparentField => apparentField._1 == field.id)
+      )
       .filterNot({
         case (_: OptionalField, option: Option[(String, Int)]) => option.isEmpty
         case _                                                 => false
@@ -84,7 +87,8 @@ final case class CsvReader[T](modelClass: Class[T],
           case Some(value) => value._2
           case None =>
             throw IoException(
-              s"The headline of the file $filePath does not contain the mandatory field $fieldId")
+              s"The headline of the file $filePath does not contain the mandatory field $fieldId"
+            )
         }
         fieldId -> colIdx
       })
@@ -98,13 +102,16 @@ final case class CsvReader[T](modelClass: Class[T],
     * @param fieldMapping Mapping from desired field to column position
     * @return             A map from desired field to content of the field
     */
-  private def readLine(line: String,
-                       fieldMapping: Map[String, Int]): Map[String, String] = {
+  private def readLine(
+      line: String,
+      fieldMapping: Map[String, Int]
+  ): Map[String, String] = {
     val fields = line.split(separator).map(_.trim)
     if (fields.length < fieldMapping.values.max + 1)
       throw IoException(
         s"The line of the file $filePath does not contain the correct amount of fields (apparent = ${fields.length}, " +
-          s"needed = ${fieldMapping.values.max + 1}).\nLine affected: $line")
+          s"needed = ${fieldMapping.values.max + 1}).\nLine affected: $line"
+      )
     fieldMapping.map(mappingEntry => (mappingEntry._1, fields(mappingEntry._2)))
   }
 }

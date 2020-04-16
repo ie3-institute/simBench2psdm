@@ -1,7 +1,12 @@
 package edu.ie3.simbench.convert.profiles
 
-import edu.ie3.models.timeseries.{PTimeSeries, STimeSeries}
-import edu.ie3.models.value.{PValue, SValue}
+import java.util.UUID
+
+import edu.ie3.datamodel.models.timeseries.individual.{
+  IndividualTimeSeries,
+  TimeBasedValue
+}
+import edu.ie3.datamodel.models.value.{PValue, SValue}
 import edu.ie3.simbench.exception.ConversionException
 import edu.ie3.simbench.model.datamodel.profiles.{ProfileModel, ProfileType}
 import javax.measure.quantity.Power
@@ -19,20 +24,25 @@ case object PowerProfileConverter {
     * @param profile  The profile to convert
     * @param pRated   Reference active power to meet the peak point of the profile
     * @param qRated   Reference reactive power to meet the peak point of the profile
-    * @return         A [[STimeSeries]] with active and reactive power for each time step
+    * @return         A [[IndividualTimeSeries]] with [[SValue]] (active and reactive power) for each time step
     */
-  def convert(profile: ProfileModel[_ <: ProfileType, (BigDecimal, BigDecimal)],
-              pRated: ComparableQuantity[Power],
-              qRated: ComparableQuantity[Power]): STimeSeries = {
-    val values = profile.profile.map(entry => {
-      val zdt = entry._1
-      val pScaling = entry._2._1
-      val qScaling = entry._2._2
-      zdt -> new SValue(pRated.multiply(pScaling), qRated.multiply(qScaling))
-    })
-    val timeSeries = new STimeSeries()
-    timeSeries.addAll(values.asJava)
-    timeSeries
+  def convert(
+      profile: ProfileModel[_ <: ProfileType, (BigDecimal, BigDecimal)],
+      pRated: ComparableQuantity[Power],
+      qRated: ComparableQuantity[Power]
+  ): IndividualTimeSeries[SValue] = {
+    val values = profile.profile
+      .map(entry => {
+        val zdt = entry._1
+        val pScaling = entry._2._1
+        val qScaling = entry._2._2
+        new TimeBasedValue(
+          zdt,
+          new SValue(pRated.multiply(pScaling), qRated.multiply(qScaling))
+        )
+      })
+      .toSet
+    new IndividualTimeSeries[SValue](UUID.randomUUID(), values.asJava)
   }
 
   /**
@@ -42,18 +52,20 @@ case object PowerProfileConverter {
     *
     * @param profile  The profile to convert
     * @param pRated   Reference active power to meet the peak point of the profile
-    * @return         A [[STimeSeries]] with active and reactive power for each time step
+    * @return         A [[IndividualTimeSeries]] with active and reactive power for each time step
     */
-  def convert(profile: ProfileModel[_ <: ProfileType, BigDecimal],
-              pRated: ComparableQuantity[Power]): PTimeSeries = {
-    val values = profile.profile.map(entry => {
-      val zdt = entry._1
-      val pScaling = entry._2
-      zdt -> new PValue(pRated.multiply(pScaling))
-    })
-    val timeSeries = new PTimeSeries()
-    timeSeries.addAll(values.asJava)
-    timeSeries
+  def convert(
+      profile: ProfileModel[_ <: ProfileType, BigDecimal],
+      pRated: ComparableQuantity[Power]
+  ): IndividualTimeSeries[PValue] = {
+    val values = profile.profile
+      .map(entry => {
+        val zdt = entry._1
+        val pScaling = entry._2
+        new TimeBasedValue(zdt, new PValue(pRated.multiply(pScaling)))
+      })
+      .toSet
+    new IndividualTimeSeries[PValue](UUID.randomUUID(), values.asJava)
   }
 
   /**
@@ -67,8 +79,10 @@ case object PowerProfileConverter {
     */
   def getProfile[T <: ProfileType, P <: ProfileModel[T, _]](
       profileType: T,
-      profiles: Map[T, P]): P =
+      profiles: Map[T, P]
+  ): P =
     profiles.getOrElse(
       profileType,
-      throw ConversionException(s"Cannot find profile for type $profileType"))
+      throw ConversionException(s"Cannot find profile for type $profileType")
+    )
 }

@@ -23,18 +23,19 @@ import edu.ie3.simbench.model.datamodel.types.Transformer2WType
   * @param subnet Subnet it belongs to
   * @param voltLvl Voltage level
   */
-case class Transformer2W(id: String,
-                         nodeHV: Node,
-                         nodeLV: Node,
-                         transformerType: Transformer2WType,
-                         tappos: Int,
-                         autoTap: Boolean,
-                         autoTapSide: Option[BranchElementPort],
-                         loadingMax: BigDecimal,
-                         substation: Option[Substation],
-                         subnet: String,
-                         voltLvl: Int)
-    extends EntityModel
+case class Transformer2W(
+    id: String,
+    nodeHV: Node,
+    nodeLV: Node,
+    transformerType: Transformer2WType,
+    tappos: Int,
+    autoTap: Boolean,
+    autoTapSide: Option[BranchElementPort],
+    loadingMax: BigDecimal,
+    substation: Option[Substation],
+    subnet: String,
+    voltLvl: Int
+) extends EntityModel
 
 case object Transformer2W extends EntityModelCompanionObject[Transformer2W] {
   private val NODE_HV = "nodeHV"
@@ -52,17 +53,19 @@ case object Transformer2W extends EntityModelCompanionObject[Transformer2W] {
     * @return Array of table headings
     */
   override def getFields: Array[HeadLineField] =
-    Array(ID,
-          NODE_HV,
-          NODE_LV,
-          TYPE,
-          TAPPOS,
-          AUTOTAP,
-          AUTOTAP_SIDE,
-          LOADING_MAX,
-          SUBSTATION,
-          SUBNET,
-          VOLT_LVL).map(id => MandatoryField(id))
+    Array(
+      ID,
+      NODE_HV,
+      NODE_LV,
+      TYPE,
+      TAPPOS,
+      AUTOTAP,
+      AUTOTAP_SIDE,
+      LOADING_MAX,
+      SUBSTATION,
+      SUBNET,
+      VOLT_LVL
+    ).map(id => MandatoryField(id))
 
   /**
     * Factory method to build one model from a mapping from field id to value
@@ -72,7 +75,8 @@ case object Transformer2W extends EntityModelCompanionObject[Transformer2W] {
     */
   override def apply(rawData: RawModelData): Transformer2W =
     throw SimbenchDataModelException(
-      s"No basic implementation of model creation available for ${this.getClass.getSimpleName}")
+      s"No basic implementation of model creation available for ${this.getClass.getSimpleName}"
+    )
 
   /**
     * Factory method to build a batch of models from a mapping from field id to value
@@ -83,17 +87,21 @@ case object Transformer2W extends EntityModelCompanionObject[Transformer2W] {
     * @param substations      Substations to use for mapping
     * @return A [[Vector]] of models
     */
-  def buildModels(rawData: Vector[RawModelData],
-                  nodes: Map[String, Node],
-                  transformerTypes: Map[String, Transformer2WType],
-                  substations: Map[String, Substation]): Vector[Transformer2W] =
+  def buildModels(
+      rawData: Vector[RawModelData],
+      nodes: Map[String, Node],
+      transformerTypes: Map[String, Transformer2WType],
+      substations: Map[String, Substation]
+  ): Vector[Transformer2W] =
     for (entry <- rawData) yield {
       val (nodeHv, nodeLv) =
         getNodes(entry.get(NODE_HV), entry.get(NODE_LV), nodes)
       val transformerType = transformerTypes.getOrElse(
         entry.get(TYPE),
         throw SimbenchDataModelException(
-          s"Cannot build ${this.getClass.getSimpleName}, as suitable reference to $TYPE cannot be found."))
+          s"Cannot build ${this.getClass.getSimpleName}, as suitable reference to $TYPE cannot be found."
+        )
+      )
       val substation = substations.get(entry.get(SUBSTATION))
       buildModel(entry, nodeHv, nodeLv, transformerType, substation)
     }
@@ -108,11 +116,13 @@ case object Transformer2W extends EntityModelCompanionObject[Transformer2W] {
     * @param substation       Substation to use
     * @return A model
     */
-  def buildModel(rawData: RawModelData,
-                 nodeHv: Node,
-                 nodeLv: Node,
-                 transformerType: Transformer2WType,
-                 substation: Option[Substation]): Transformer2W = {
+  def buildModel(
+      rawData: RawModelData,
+      nodeHv: Node,
+      nodeLv: Node,
+      transformerType: Transformer2WType,
+      substation: Option[Substation]
+  ): Transformer2W = {
     val (id, subnet, voltLvl) = getBaseInformation(rawData)
     val tappos = rawData.getInt(TAPPOS)
     val autoTap = rawData.getBoolean(AUTOTAP)
@@ -123,16 +133,18 @@ case object Transformer2W extends EntityModelCompanionObject[Transformer2W] {
     }
     val loadingMax = rawData.getBigDecimal(LOADING_MAX)
 
-    Transformer2W(id,
-                  nodeHv,
-                  nodeLv,
-                  transformerType,
-                  tappos,
-                  autoTap,
-                  autoTapSide,
-                  loadingMax,
-                  substation,
-                  subnet,
-                  voltLvl)
+    Transformer2W(
+      id,
+      nodeHv,
+      nodeLv,
+      transformerType,
+      tappos,
+      autoTap,
+      autoTapSide,
+      loadingMax,
+      substation,
+      subnet,
+      voltLvl
+    )
   }
 }

@@ -1,7 +1,7 @@
 package edu.ie3.simbench.convert
 
-import edu.ie3.exceptions.VoltageLevelException
-import edu.ie3.models.voltagelevels.GermanVoltageLevelUtils
+import edu.ie3.datamodel.exceptions.VoltageLevelException
+import edu.ie3.datamodel.models.voltagelevels.GermanVoltageLevelUtils
 import edu.ie3.test.common.UnitSpec
 import edu.ie3.util.quantities.PowerSystemUnits.KILOVOLT
 import tec.uom.se.quantity.Quantities
@@ -51,7 +51,8 @@ class VoltLvlConverterSpec extends UnitSpec {
     "throw an exception, if the desired subnet string has not been initialized" in {
       val thrown =
         intercept[IllegalArgumentException](
-          VoltLvlConverter.convert(8, Quantities.getQuantity(0d, KILOVOLT)))
+          VoltLvlConverter.convert(8, Quantities.getQuantity(0d, KILOVOLT))
+        )
       thrown.getMessage shouldBe "The desired voltage level id 8 is not covered by the commonly known voltage levels."
     }
   }

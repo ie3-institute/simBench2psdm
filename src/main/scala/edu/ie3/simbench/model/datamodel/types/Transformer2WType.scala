@@ -27,23 +27,24 @@ import edu.ie3.simbench.model.datamodel.enums.BranchElementPort
   * @param tapMin Minimum permissible tap position
   * @param tapMax Maximum permissible tap position
   */
-case class Transformer2WType(id: String,
-                             sR: BigDecimal,
-                             vmHV: BigDecimal,
-                             vmLV: BigDecimal,
-                             va0: BigDecimal,
-                             vmImp: BigDecimal,
-                             pCu: BigDecimal,
-                             pFe: BigDecimal,
-                             iNoLoad: BigDecimal,
-                             tapable: Boolean,
-                             tapside: BranchElementPort,
-                             dVm: BigDecimal,
-                             dVa: BigDecimal,
-                             tapNeutr: Int,
-                             tapMin: Int,
-                             tapMax: Int)
-    extends SimbenchModel
+case class Transformer2WType(
+    id: String,
+    sR: BigDecimal,
+    vmHV: BigDecimal,
+    vmLV: BigDecimal,
+    va0: BigDecimal,
+    vmImp: BigDecimal,
+    pCu: BigDecimal,
+    pFe: BigDecimal,
+    iNoLoad: BigDecimal,
+    tapable: Boolean,
+    tapside: BranchElementPort,
+    dVm: BigDecimal,
+    dVa: BigDecimal,
+    tapNeutr: Int,
+    tapMin: Int,
+    tapMax: Int
+) extends SimbenchModel
 
 case object Transformer2WType
     extends SimbenchCompanionObject[Transformer2WType] {
@@ -69,22 +70,24 @@ case object Transformer2WType
     * @return Array of table headings
     */
   override def getFields: Array[HeadLineField] =
-    Array(ID,
-          S_RATED,
-          V_M_HV,
-          V_M_LV,
-          V_A_0,
-          V_M_IMP,
-          P_CU,
-          P_FE,
-          I_NO_LOAD,
-          TAPPABLE,
-          TAP_SIDE,
-          D_V_M,
-          D_V_A,
-          TAP_NEUTR,
-          TAP_MIN,
-          TAP_MAX).map(id => MandatoryField(id))
+    Array(
+      ID,
+      S_RATED,
+      V_M_HV,
+      V_M_LV,
+      V_A_0,
+      V_M_IMP,
+      P_CU,
+      P_FE,
+      I_NO_LOAD,
+      TAPPABLE,
+      TAP_SIDE,
+      D_V_M,
+      D_V_A,
+      TAP_NEUTR,
+      TAP_MIN,
+      TAP_MAX
+    ).map(id => MandatoryField(id))
 
   /**
     * Factory method to build one model from a mapping from field id to value
@@ -110,21 +113,23 @@ case object Transformer2WType
     val tapMin = rawData.getInt(TAP_MIN)
     val tapMax = rawData.getInt(TAP_MAX)
 
-    Transformer2WType(id,
-                      sRated,
-                      vMHv,
-                      vMLv,
-                      vA0,
-                      vMImp,
-                      pCu,
-                      pFe,
-                      iNoLoad,
-                      tappable,
-                      tapSide,
-                      dVm,
-                      dVa,
-                      tapNeutr,
-                      tapMin,
-                      tapMax)
+    Transformer2WType(
+      id,
+      sRated,
+      vMHv,
+      vMLv,
+      vA0,
+      vMImp,
+      pCu,
+      pFe,
+      iNoLoad,
+      tappable,
+      tapSide,
+      dVm,
+      dVa,
+      tapNeutr,
+      tapMin,
+      tapMax
+    )
   }
 }

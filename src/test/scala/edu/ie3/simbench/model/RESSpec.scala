@@ -91,9 +91,12 @@ class RESSpec extends UnitSpec with ConverterTestData {
     "build the correct single model" in {
       val actual = RES.buildModel(
         rawData(0),
-        nodeMapping.getOrElse("LV1.101 Bus 4",
-                              throw SimbenchDataModelException(
-                                "Ooops. This is not supposed to happen")),
+        nodeMapping.getOrElse(
+          "LV1.101 Bus 4",
+          throw SimbenchDataModelException(
+            "Ooops. This is not supposed to happen"
+          )
+        )
       )
       actual shouldBe expected(0)
     }

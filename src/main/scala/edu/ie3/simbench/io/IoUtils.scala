@@ -33,7 +33,8 @@ trait IoUtils {
     */
   val pwd: String = currentDirDotPattern.replaceAllIn(
     Paths.get(".").toAbsolutePath.toString,
-    "")
+    ""
+  )
 
   /**
     * Harmonize all contained file separators to "/"
@@ -46,47 +47,50 @@ trait IoUtils {
     */
   val getFileExtensionWithoutDot: String => String =
     (fullyQualifiedPath: String) =>
-      (singleStringRegex + "|" + "(?<=\\.)\\w+$").r
+      (singleStringRegex.pattern.toString + "|" + "(?<=\\.)\\w+$").r
         .findFirstIn(fullyQualifiedPath) match {
         case Some(endingWithoutDot) => endingWithoutDot
         case None =>
           throw IoException(
-            "The provided path string (" + fullyQualifiedPath + ") does not match the pattern .*\\.\\w+$, why no ending can be extracted.")
-    }
+            "The provided path string (" + fullyQualifiedPath + ") does not match the pattern .*\\.\\w+$, why no ending can be extracted."
+          )
+      }
 
   /**
     * This regex matches the string between the last file separator and the file extension e.g "zip".
     * The dot is added automatically
     */
   val fileNameRegex: String => Regex = (fileEnding: String) =>
-    (singleStringRegex + "|" + everythingExceptSeparatorRegex + "(?=\\." + getFileExtensionWithoutDot(
-      fileEnding) + "$)").r
+    (singleStringRegex.pattern.toString + "|" + everythingExceptSeparatorRegex.pattern.toString + "(?=\\." + getFileExtensionWithoutDot(
+      fileEnding
+    ) + "$)").r
 
   /**
     * This regex matches the string after the last file separator (including the file extension).
     * The dot is added automatically
     */
   val fileNameRegexWithEnding: String => Regex = (fileEnding: String) =>
-    (singleStringRegex + "|" + everythingExceptSeparatorRegex + "\\." + getFileExtensionWithoutDot(
-      fileEnding) + "$").r
+    (singleStringRegex.pattern.toString + "|" + everythingExceptSeparatorRegex.pattern.toString + "\\." + getFileExtensionWithoutDot(
+      fileEnding
+    ) + "$").r
 
   /**
     * Regex to filter all file names without any ending
     */
   val fileNameRegexWithoutAnyEnding: Regex =
-    (singleStringRegex + "|" + everythingExceptSeparatorRegex + "(?=\\.\\w+$)").r
+    (singleStringRegex.pattern.toString + "|" + everythingExceptSeparatorRegex.pattern.toString + "(?=\\.\\w+$)").r
 
   /**
     * Regex to filter all file names with ending, including any extension
     */
   val fileNameRegexWithAnyEnding: Regex =
-    (singleStringRegex + "|" + everythingExceptSeparatorRegex + "\\.\\w+$").r
+    (singleStringRegex.pattern.toString + "|" + everythingExceptSeparatorRegex.pattern.toString + "\\.\\w+$").r
 
   /**
     * Regex to detect a fully qualified path consisting of a folder path followed by a file name with extension
     */
   val fullyQualifiedPathRegex: Regex =
-    ("^(?:\\w\\:" + fileSeparatorRegex + "+|" + fileSeparatorRegex + ")(?:[\\w@\\.-]+" + fileSeparatorRegex + ")*(?:\\w+\\.\\w+)$").r
+    ("^(?:\\w\\:" + fileSeparatorRegex.pattern.toString + "+|" + fileSeparatorRegex.pattern.toString + ")(?:[\\w@\\.-]+" + fileSeparatorRegex.pattern.toString + ")*(?:\\w+\\.\\w+)$").r
 
   /**
     * Identifying a path pointing to a folder and not to a specific file. It consists of three non-capturing groups (?:):
@@ -96,19 +100,20 @@ trait IoUtils {
     * 3) A simple word at the end
     */
   val folderPathWithoutLastSeparator: Regex =
-    ("^(?:\\w\\:" + fileSeparatorRegex + "+|" + fileSeparatorRegex + ")(?:[\\w@\\.-]+" + fileSeparatorRegex + ")*(?:\\w+)$").r
+    ("^(?:\\w\\:" + fileSeparatorRegex.pattern.toString + "+|" + fileSeparatorRegex.pattern.toString + ")(?:[\\w@\\.-]+" + fileSeparatorRegex.pattern.toString + ")*(?:\\w+)$").r
 
   /**
     * Removes a leading file separator at a fully qualified windows file path (e.g. "/C:" to "C:")
     */
   val trimFirstSeparatorInWindowsPath: String => String = (path: String) =>
-    ("^" + fileSeparatorRegex + "(?=\\w+:)").r.replaceAllIn(path, "")
+    ("^" + fileSeparatorRegex.pattern.toString + "(?=\\w+:)").r
+      .replaceAllIn(path, "")
 
   /**
     * Removes a file separator at the very end of the path string
     */
   val trimLastSeparator: String => String = (path: String) =>
-    (fileNameRegex + "$").r.replaceAllIn(path, "")
+    (fileSeparatorRegex.pattern.toString + "$").r.replaceAllIn(path, "")
 
   /**
     * Removes the last file separator, harmonizes all remaining file separators and checks the conformity of the string
@@ -116,10 +121,12 @@ trait IoUtils {
     */
   val prepareFolderPath: String => String = (folderPath: String) => {
     val checkedFolderPath = harmonizeFileSeparator(
-      trimFirstSeparatorInWindowsPath(trimLastSeparator(folderPath)))
+      trimFirstSeparatorInWindowsPath(trimLastSeparator(folderPath))
+    )
     if (!folderPathWithoutLastSeparator.matches(checkedFolderPath))
       throw IoException(
-        s"Cannot determine correct fully qualified folder path from $folderPath")
+        s"Cannot determine correct fully qualified folder path from $folderPath"
+      )
     checkedFolderPath
   }
 }
@@ -134,9 +141,11 @@ object IoUtils extends IoUtils {
     * @param extension  Extension of the file
     * @return A fully qualified path
     */
-  def composeFullyQualifiedPath(folderPath: String,
-                                fileName: String,
-                                extension: String): String = {
+  def composeFullyQualifiedPath(
+      folderPath: String,
+      fileName: String,
+      extension: String
+  ): String = {
     /* Remove last separator from file path if any */
     val checkedFolderPath = prepareFolderPath(folderPath)
 
@@ -145,14 +154,16 @@ object IoUtils extends IoUtils {
         case Some(value) => value
         case None =>
           throw IoException(
-            s"Cannot determine the file name without extension in $fileName")
+            s"Cannot determine the file name without extension in $fileName"
+          )
       }
     val checkedExtension = getFileExtensionWithoutDot(extension)
 
     val fullyQualifiedPath = checkedFolderPath + "/" + checkedFileName + "." + checkedExtension
     if (!fullyQualifiedPathRegex.matches(fullyQualifiedPath))
       throw IoException(
-        s"The composed fully qualified path ($fullyQualifiedPath) is not an actual qualified path...")
+        s"The composed fully qualified path ($fullyQualifiedPath) is not an actual qualified path..."
+      )
     fullyQualifiedPath
   }
 
@@ -184,7 +195,8 @@ object IoUtils extends IoUtils {
     }
     if (!filePath.toAbsolutePath.toString.endsWith(checkedEnding)) {
       throw IoException(
-        s"The file $filePath is of wrong file type. Only $checkedEnding is supported (case sensitive).")
+        s"The file $filePath is of wrong file type. Only $checkedEnding is supported (case sensitive)."
+      )
     }
   }
 }

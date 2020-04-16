@@ -14,7 +14,8 @@ trait SimbenchHelper extends LazyLogging {
       case None =>
         System.exit(-1)
         throw new IllegalArgumentException(
-          "Unable to parse provided Arguments.")
+          "Unable to parse provided Arguments."
+        )
     }
 
     // ConfigConsistencyComparator.parseBeamTemplateConfFile(parsedArgs.configLocation.get) // todo implement
@@ -23,17 +24,21 @@ trait SimbenchHelper extends LazyLogging {
     val parsedArgsConfig = parsedArgs.config match {
       case None =>
         throw new SimbenchConfigException(
-          "Please provide a valid config file via --config <path-to-config-file>.")
+          "Please provide a valid config file via --config <path-to-config-file>."
+        )
       case Some(parsedArgsConfig) => parsedArgsConfig
     }
 
     // set config file location as system property // todo do we need this? (same is valid for additional parsing below)
-    System.setProperty("configFileLocation",
-                       parsedArgs.configLocation.getOrElse(""))
+    System.setProperty(
+      "configFileLocation",
+      parsedArgs.configLocation.getOrElse("")
+    )
 
     val configFromLocationPath =
       ConfigFactory.parseString(
-        s"config=${parsedArgs.configLocation.getOrElse(throw new SimbenchConfigException("Cannot get config location from configuration!"))}")
+        s"config=${parsedArgs.configLocation.getOrElse(throw new SimbenchConfigException("Cannot get config location from configuration!"))}"
+      )
 
     // note: this overrides the default config values provided in the config file!
     // THE ORDER OF THE CALLS MATTERS -> the later the call, the more "fallback" -> first config is always the primary one!
@@ -48,16 +53,22 @@ trait SimbenchHelper extends LazyLogging {
 
   def printOpener(): Unit = {
     println(
-      "   _____ _           ____                  _    _  _   _____ _____ __  __  ____  _   _")
+      "   _____ _           ____                  _    _  _   _____ _____ __  __  ____  _   _"
+    )
     println(
-      "  / ____(_)         |  _ \\                | |  | || | / ____|_   _|  \\/  |/ __ \\| \\ | |   /")
+      "  / ____(_)         |  _ \\                | |  | || | / ____|_   _|  \\/  |/ __ \\| \\ | |   /"
+    )
     println(
-      "  | (___  _ _ __ ___ | |_) | ___ _ __   ___| |__| || || (___   | | | \\  / | |  | |  \\| |  /  \\")
+      "  | (___  _ _ __ ___ | |_) | ___ _ __   ___| |__| || || (___   | | | \\  / | |  | |  \\| |  /  \\"
+    )
     println(
-      "  \\___ \\| | '_ ` _ \\|  _ < / _ \\ '_ \\ / __| '_ \\__   _\\___ \\  | | | |\\/| | |  | | . ` | / /\\ \\")
+      "  \\___ \\| | '_ ` _ \\|  _ < / _ \\ '_ \\ / __| '_ \\__   _\\___ \\  | | | |\\/| | |  | | . ` | / /\\ \\"
+    )
     println(
-      "  ____) | | | | | | | |_) |  __/ | | | (__| | | | | | ____) |_| |_| |  | | |__| | |\\  |/ ____ \\")
+      "  ____) | | | | | | | |_) |  __/ | | | (__| | | | | | ____) |_| |_| |  | | |__| | |\\  |/ ____ \\"
+    )
     println(
-      "  |_____/|_|_| |_| |_|____/ \\___|_| |_|\\___|_| |_| |_||_____/|_____|_|  |_|\\____/|_| \\_/_/    \\_\\")
+      "  |_____/|_|_| |_| |_|____/ \\___|_| |_|\\___|_| |_| |_||_____/|_____|_|  |_|\\____/|_| \\_/_/    \\_\\"
+    )
   }
 }

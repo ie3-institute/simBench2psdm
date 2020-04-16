@@ -2,7 +2,7 @@ package edu.ie3.simbench.convert.types
 
 import java.util.UUID
 
-import edu.ie3.models.StandardUnits
+import edu.ie3.datamodel.models.StandardUnits
 import edu.ie3.simbench.exception.ConversionException
 import edu.ie3.simbench.exception.io.SimbenchDataModelException
 import edu.ie3.simbench.model.datamodel.Line.ACLine
@@ -68,18 +68,20 @@ class LineTypeConverterSpec extends UnitSpec with ConverterTestData {
   "The line type converter" should {
     val determineRatedVoltageMethod =
       PrivateMethod[(LineType, ComparableQuantity[ElectricPotential])](
-        Symbol("determineRatedVoltage"))
+        Symbol("determineRatedVoltage")
+      )
     "extract the rated voltage of one line correctly" in {
       val actual = LineTypeConverter invokePrivate determineRatedVoltageMethod(
-        lines(0))
+        lines(0)
+      )
       actual shouldBe (getLineTypePair("NAYY 4x150SE 0.6/1kV")._1
         .asInstanceOf[ACLineType], Quantities.getQuantity(0.4, KILOVOLT))
     }
 
     "throw an exception, if the rated voltage is ambiguous" in {
       val thrown = intercept[SimbenchDataModelException](
-        LineTypeConverter invokePrivate determineRatedVoltageMethod(
-          invalidLine))
+        LineTypeConverter invokePrivate determineRatedVoltageMethod(invalidLine)
+      )
       thrown.getMessage shouldBe "The line LV1.101 Line 10 connects two nodes with different rated voltages, which " +
         "physically is not possible"
     }
@@ -100,7 +102,8 @@ class LineTypeConverterSpec extends UnitSpec with ConverterTestData {
         LineTypeConverter.convert(
           getLineTypePair("NAYY 4x150SE 0.6/1kV")._1.asInstanceOf[ACLineType],
           Quantities.getQuantity(0.4, KILOVOLT),
-          uuid)
+          uuid
+        )
 
       actual.getUuid shouldBe uuid
       actual.getId shouldBe "NAYY 4x150SE 0.6/1kV"
@@ -108,25 +111,31 @@ class LineTypeConverterSpec extends UnitSpec with ConverterTestData {
         .getQuantity(260.752, StandardUnits.ADMITTANCE_PER_LENGTH)
       actual.getG shouldBe Quantities.getQuantity(
         0d,
-        StandardUnits.ADMITTANCE_PER_LENGTH)
+        StandardUnits.ADMITTANCE_PER_LENGTH
+      )
       actual.getR shouldBe Quantities.getQuantity(
         0.2067,
-        StandardUnits.IMPEDANCE_PER_LENGTH)
+        StandardUnits.IMPEDANCE_PER_LENGTH
+      )
       actual.getX shouldBe Quantities.getQuantity(
         0.0804248,
-        StandardUnits.IMPEDANCE_PER_LENGTH)
+        StandardUnits.IMPEDANCE_PER_LENGTH
+      )
       actual.getiMax shouldBe Quantities.getQuantity(
         270d,
-        StandardUnits.ELECTRIC_CURRENT_MAGNITUDE)
+        StandardUnits.ELECTRIC_CURRENT_MAGNITUDE
+      )
       actual.getvRated shouldBe Quantities.getQuantity(
         0.4,
-        StandardUnits.RATED_VOLTAGE_MAGNITUDE)
+        StandardUnits.RATED_VOLTAGE_MAGNITUDE
+      )
     }
 
     "throw an exception on wrong input type" in {
       val thrown = intercept[ConversionException](
         LineTypeConverter
-          .convert(invalidInput, Quantities.getQuantity(0.4, KILOVOLT), uuid))
+          .convert(invalidInput, Quantities.getQuantity(0.4, KILOVOLT), uuid)
+      )
       thrown.getMessage shouldBe "DC line types are currently not supported by ie³'s data model."
     }
   }

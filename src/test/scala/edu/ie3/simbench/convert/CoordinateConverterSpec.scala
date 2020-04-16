@@ -10,11 +10,14 @@ class CoordinateConverterSpec extends UnitSpec {
 
     "convert an existing Coordinate correctly" in {
       val input = Some(
-        Coordinate("random coordinate",
-                   BigDecimal("7.412262"),
-                   BigDecimal("51.492689"),
-                   "subnet_1",
-                   7))
+        Coordinate(
+          "random coordinate",
+          BigDecimal("7.412262"),
+          BigDecimal("51.492689"),
+          "subnet_1",
+          7
+        )
+      )
       val expected =
         geometryFactory.createPoint(new JTSCoordinate(7.412262, 51.492689))
       expected.setSRID(4326)

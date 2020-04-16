@@ -51,6 +51,7 @@ case object CalculationType {
       case "xward" => WardExtended
       case whatever =>
         throw SimbenchDataModelException(
-          s"I cannot handle the calculation type $whatever")
+          s"I cannot handle the calculation type $whatever"
+        )
     }
 }

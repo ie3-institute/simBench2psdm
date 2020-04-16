@@ -9,7 +9,8 @@ import edu.ie3.test.common.{ConverterTestData, UnitSpec}
 class ExternalNetSpec extends UnitSpec with ConverterTestData {
   val nodeMapping = Map(
     "MV1.101 Bus 4" ->
-      getNodePair("MV1.101 Bus 4")._1)
+      getNodePair("MV1.101 Bus 4")._1
+  )
 
   val rawData = Vector(
     RawModelData(
@@ -120,9 +121,12 @@ class ExternalNetSpec extends UnitSpec with ConverterTestData {
     "build the correct single model" in {
       val actual = ExternalNet.buildModel(
         rawData(0),
-        nodeMapping.getOrElse("MV1.101 Bus 4",
-                              throw SimbenchDataModelException(
-                                "Ooops. This is not supposed to happen"))
+        nodeMapping.getOrElse(
+          "MV1.101 Bus 4",
+          throw SimbenchDataModelException(
+            "Ooops. This is not supposed to happen"
+          )
+        )
       )
       actual shouldBe expected(0)
     }

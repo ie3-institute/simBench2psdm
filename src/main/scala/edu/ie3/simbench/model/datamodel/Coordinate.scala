@@ -15,12 +15,13 @@ import edu.ie3.simbench.model.datamodel.SimbenchModel.SimbenchCompanionObject
   * @param subnet Subnet it belongs to
   * @param voltLvl Voltage level
   */
-case class Coordinate(id: String,
-                      x: BigDecimal,
-                      y: BigDecimal,
-                      subnet: String,
-                      voltLvl: Int)
-    extends EntityModel
+case class Coordinate(
+    id: String,
+    x: BigDecimal,
+    y: BigDecimal,
+    subnet: String,
+    voltLvl: Int
+) extends EntityModel
 
 case object Coordinate extends EntityModelCompanionObject[Coordinate] {
   private val X = "x"

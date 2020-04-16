@@ -20,15 +20,16 @@ import edu.ie3.simbench.model.datamodel.enums.SwitchType
   * @param subnet Subnet it belongs to
   * @param voltLvl Voltage level
   */
-case class Switch(id: String,
-                  nodeA: Node,
-                  nodeB: Node,
-                  switchType: SwitchType,
-                  cond: Boolean,
-                  substation: Option[Substation],
-                  subnet: String,
-                  voltLvl: Int)
-    extends EntityModel
+case class Switch(
+    id: String,
+    nodeA: Node,
+    nodeB: Node,
+    switchType: SwitchType,
+    cond: Boolean,
+    substation: Option[Substation],
+    subnet: String,
+    voltLvl: Int
+) extends EntityModel
 
 case object Switch extends EntityModelCompanionObject[Switch] {
   private val NODE_A = "nodeA"
@@ -43,8 +44,9 @@ case object Switch extends EntityModelCompanionObject[Switch] {
     * @return Array of table headings
     */
   override def getFields: Array[HeadLineField] =
-    Array(ID, NODE_A, NODE_B, SWITCH_TYPE, COND, SUBNET, VOLT_LVL).map(id =>
-      MandatoryField(id))
+    Array(ID, NODE_A, NODE_B, SWITCH_TYPE, COND, SUBNET, VOLT_LVL).map(
+      id => MandatoryField(id)
+    )
 
   /**
     * Factory method to build one model from a mapping from field id to value
@@ -54,7 +56,8 @@ case object Switch extends EntityModelCompanionObject[Switch] {
     */
   override def apply(rawData: RawModelData): Switch =
     throw SimbenchDataModelException(
-      s"No basic implementation of model creation available for ${this.getClass.getSimpleName}")
+      s"No basic implementation of model creation available for ${this.getClass.getSimpleName}"
+    )
 
   /**
     * Factory method to build a batch of models from a mapping from field id to value
@@ -62,9 +65,11 @@ case object Switch extends EntityModelCompanionObject[Switch] {
     * @param rawData mapping from field id to value
     * @return A [[Vector]] of models
     */
-  def buildModels(rawData: Vector[RawModelData],
-                  nodes: Map[String, Node],
-                  substations: Map[String, Substation]): Vector[Switch] =
+  def buildModels(
+      rawData: Vector[RawModelData],
+      nodes: Map[String, Node],
+      substations: Map[String, Substation]
+  ): Vector[Switch] =
     for (entry <- rawData) yield {
       val (nodeA, nodeB) =
         getNodes(entry.get(NODE_A), entry.get(NODE_B), nodes)
@@ -82,10 +87,12 @@ case object Switch extends EntityModelCompanionObject[Switch] {
     * @param substation Substation to use
     * @return A model
     */
-  def buildModel(rawData: RawModelData,
-                 nodeA: Node,
-                 nodeB: Node,
-                 substation: Option[Substation]): Switch = {
+  def buildModel(
+      rawData: RawModelData,
+      nodeA: Node,
+      nodeB: Node,
+      substation: Option[Substation]
+  ): Switch = {
     val (id, subnet, voltLvl) = getBaseInformation(rawData)
     val switchType = SwitchType(rawData.get(SWITCH_TYPE))
     val cond = rawData.getBoolean(COND)

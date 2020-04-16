@@ -1,5 +1,6 @@
 package edu.ie3.simbench.exception
 
-final case class TestingException(private val msg: String,
-                                  private val cause: Throwable = None.orNull)
-    extends SimbenchException(msg, cause)
+final case class TestingException(
+    private val msg: String,
+    private val cause: Throwable = None.orNull
+) extends SimbenchException(msg, cause)

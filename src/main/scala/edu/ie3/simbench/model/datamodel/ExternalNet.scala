@@ -31,15 +31,16 @@ object ExternalNet extends EntityModelCompanionObject[ExternalNet] {
     * @param subnet Subnet it belongs to
     * @param voltLvl Voltage level
     */
-  case class Simple(id: String,
-                    node: Node,
-                    calculationType: CalculationType,
-                    dspf: BigDecimal,
-                    pExt: Option[BigDecimal],
-                    qExt: Option[BigDecimal],
-                    subnet: String,
-                    voltLvl: Int)
-      extends ExternalNet
+  case class Simple(
+      id: String,
+      node: Node,
+      calculationType: CalculationType,
+      dspf: BigDecimal,
+      pExt: Option[BigDecimal],
+      qExt: Option[BigDecimal],
+      subnet: String,
+      voltLvl: Int
+  ) extends ExternalNet
 
   /**
     * Ward equivalent model of the not detailed modeled external grid
@@ -54,16 +55,17 @@ object ExternalNet extends EntityModelCompanionObject[ExternalNet] {
     * @param subnet Subnet it belongs to
     * @param voltLvl Voltage level
     */
-  case class Ward(id: String,
-                  node: Node,
-                  dspf: BigDecimal,
-                  pExt: Option[BigDecimal],
-                  qExt: Option[BigDecimal],
-                  pWard: BigDecimal,
-                  qWard: BigDecimal,
-                  subnet: String,
-                  voltLvl: Int)
-      extends ExternalNet {
+  case class Ward(
+      id: String,
+      node: Node,
+      dspf: BigDecimal,
+      pExt: Option[BigDecimal],
+      qExt: Option[BigDecimal],
+      pWard: BigDecimal,
+      qWard: BigDecimal,
+      subnet: String,
+      voltLvl: Int
+  ) extends ExternalNet {
     override val calculationType: CalculationType = CalculationType.Ward
   }
 
@@ -81,17 +83,18 @@ object ExternalNet extends EntityModelCompanionObject[ExternalNet] {
     * @param subnet Subnet it belongs to
     * @param voltLvl Voltage level
     */
-  case class WardExtended(id: String,
-                          node: Node,
-                          dspf: BigDecimal,
-                          pExt: Option[BigDecimal],
-                          qExt: Option[BigDecimal],
-                          rWardExtended: BigDecimal,
-                          xWardExtended: BigDecimal,
-                          vmWardExtended: BigDecimal,
-                          subnet: String,
-                          voltLvl: Int)
-      extends ExternalNet {
+  case class WardExtended(
+      id: String,
+      node: Node,
+      dspf: BigDecimal,
+      pExt: Option[BigDecimal],
+      qExt: Option[BigDecimal],
+      rWardExtended: BigDecimal,
+      xWardExtended: BigDecimal,
+      vmWardExtended: BigDecimal,
+      subnet: String,
+      voltLvl: Int
+  ) extends ExternalNet {
     override val calculationType: CalculationType = CalculationType.WardExtended
   }
 
@@ -136,7 +139,8 @@ object ExternalNet extends EntityModelCompanionObject[ExternalNet] {
     */
   override def apply(rawData: RawModelData): ExternalNet =
     throw SimbenchDataModelException(
-      s"No basic implementation of model creation available for ${this.getClass.getSimpleName}")
+      s"No basic implementation of model creation available for ${this.getClass.getSimpleName}"
+    )
 
   /**
     * Factory method to build a batch of models from a mapping from field id to value
@@ -145,8 +149,10 @@ object ExternalNet extends EntityModelCompanionObject[ExternalNet] {
     * @param nodes    Mapping of node ids to actual nodes
     * @return A [[Vector]] of models
     */
-  def buildModels(rawData: Vector[RawModelData],
-                  nodes: Map[String, Node]): Vector[ExternalNet] =
+  def buildModels(
+      rawData: Vector[RawModelData],
+      nodes: Map[String, Node]
+  ): Vector[ExternalNet] =
     for (entry <- rawData) yield {
       val node = getNode(entry.get(NODE), nodes)
       buildModel(entry, node)
@@ -176,16 +182,18 @@ object ExternalNet extends EntityModelCompanionObject[ExternalNet] {
         val rWard = rawData.getBigDecimal(R_X_WARD)
         val xWard = rawData.getBigDecimal(X_X_WARD)
         val vWard = rawData.getBigDecimal(V_M_X_WARD)
-        WardExtended(id,
-                     node,
-                     dspf,
-                     pExt,
-                     qExt,
-                     rWard,
-                     xWard,
-                     vWard,
-                     subnet,
-                     voltLvl)
+        WardExtended(
+          id,
+          node,
+          dspf,
+          pExt,
+          qExt,
+          rWard,
+          xWard,
+          vWard,
+          subnet,
+          voltLvl
+        )
     }
   }
 }

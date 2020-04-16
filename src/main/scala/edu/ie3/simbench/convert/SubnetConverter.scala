@@ -22,5 +22,7 @@ case class SubnetConverter(simbenchSubnets: Vector[String]) {
     mapping.getOrElse(
       simbenchSubnet,
       throw new IllegalArgumentException(
-        s"The simbench subnet $simbenchSubnet has not been initialized with the converter."))
+        s"The simbench subnet $simbenchSubnet has not been initialized with the converter."
+      )
+    )
 }

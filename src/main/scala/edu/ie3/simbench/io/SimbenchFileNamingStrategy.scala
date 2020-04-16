@@ -60,7 +60,9 @@ case object SimbenchFileNamingStrategy {
       case None =>
         Failure(
           new SimbenchFileNamingException(
-            s"Cannot determine the filename for class ${clazz.getSimpleName}"))
+            s"Cannot determine the filename for class ${clazz.getSimpleName}"
+          )
+        )
     }
   }
 }

@@ -16,10 +16,12 @@ object RunSimbench extends SimbenchHelper {
       Downloader.download(downloader, "1-EHVHVMVLV-mixed-all-0-sw")
     val dataFolder =
       Downloader.unzip(downloader, downloadedFile, flattenDirectories = true)
-    val simbenchReader = SimbenchReader(dataFolder,
-                                        simbenchConfig.io.csv.separator,
-                                        simbenchConfig.io.csv.fileEnding,
-                                        simbenchConfig.io.csv.fileEncoding)
+    val simbenchReader = SimbenchReader(
+      dataFolder,
+      simbenchConfig.io.csv.separator,
+      simbenchConfig.io.csv.fileEnding,
+      simbenchConfig.io.csv.fileEncoding
+    )
     val model = simbenchReader.readGrid()
   }
 }

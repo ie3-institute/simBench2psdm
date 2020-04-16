@@ -11,7 +11,8 @@ class SwitchSpec extends UnitSpec with ConverterTestData {
   )
 
   val substations = Map(
-    "substation_1" -> Substation("substation_1", "LV1.101", 7))
+    "substation_1" -> Substation("substation_1", "LV1.101", 7)
+  )
 
   val rawData = Vector(
     RawModelData(
@@ -63,12 +64,18 @@ class SwitchSpec extends UnitSpec with ConverterTestData {
     "build the correct single model" in {
       val actual = Switch.buildModel(
         rawData(0),
-        nodeMapping.getOrElse("LV1.101 Bus 1",
-                              throw SimbenchDataModelException(
-                                "Ooops. This is not supposed to happen")),
-        nodeMapping.getOrElse("LV1.101 Bus 4",
-                              throw SimbenchDataModelException(
-                                "Ooops. This is not supposed to happen")),
+        nodeMapping.getOrElse(
+          "LV1.101 Bus 1",
+          throw SimbenchDataModelException(
+            "Ooops. This is not supposed to happen"
+          )
+        ),
+        nodeMapping.getOrElse(
+          "LV1.101 Bus 4",
+          throw SimbenchDataModelException(
+            "Ooops. This is not supposed to happen"
+          )
+        ),
         substations.get("substation_1")
       )
       actual shouldBe expected(0)

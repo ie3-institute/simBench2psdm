@@ -25,21 +25,22 @@ import edu.ie3.simbench.model.datamodel.types.Transformer3WType
   * @param subnet Subnet it belongs to
   * @param voltLvl Voltage level
   */
-case class Transformer3W(id: String,
-                         nodeHV: Node,
-                         nodeMV: Node,
-                         nodeLV: Node,
-                         transformerType: Transformer3WType,
-                         tapPosHV: Int,
-                         tapPosMV: Int,
-                         tapPosLV: Int,
-                         autoTap: Boolean,
-                         autoTapSide: BranchElementPort,
-                         loadingMax: BigDecimal,
-                         substation: Substation,
-                         subnet: String,
-                         voltLvl: Int)
-    extends EntityModel
+case class Transformer3W(
+    id: String,
+    nodeHV: Node,
+    nodeMV: Node,
+    nodeLV: Node,
+    transformerType: Transformer3WType,
+    tapPosHV: Int,
+    tapPosMV: Int,
+    tapPosLV: Int,
+    autoTap: Boolean,
+    autoTapSide: BranchElementPort,
+    loadingMax: BigDecimal,
+    substation: Substation,
+    subnet: String,
+    voltLvl: Int
+) extends EntityModel
 
 case object Transformer3W extends EntityModelCompanionObject[Transformer3W] {
 
@@ -59,5 +60,6 @@ case object Transformer3W extends EntityModelCompanionObject[Transformer3W] {
   override def apply(rawData: RawModelData): Transformer3W =
     throw SimbenchDataModelException(
       s"Currently, the concrete characteristics of the data for ${this.getClass.getSimpleName} are not known, so that" +
-        s" the factory method cannot be implemented safely.")
+        s" the factory method cannot be implemented safely."
+    )
 }

@@ -3,7 +3,7 @@ package edu.ie3.simbench.convert.types
 import java.util.UUID
 
 import com.typesafe.scalalogging.LazyLogging
-import edu.ie3.models.input.connector.`type`.LineTypeInput
+import edu.ie3.datamodel.models.input.connector.`type`.LineTypeInput
 import edu.ie3.simbench.exception.ConversionException
 import edu.ie3.simbench.exception.io.SimbenchDataModelException
 import edu.ie3.simbench.model.datamodel.Line
@@ -42,7 +42,11 @@ case object LineTypeConverter extends LazyLogging {
           ratedVoltageMapping.getOrElse(
             lineType,
             throw SimbenchDataModelException(
-              s"Cannot find the rated voltage vor line type ${lineType}"))))
+              s"Cannot find the rated voltage vor line type ${lineType}"
+            )
+          )
+        )
+    )
   }
 
   /**
@@ -54,9 +58,11 @@ case object LineTypeConverter extends LazyLogging {
     * @param uuid     UUID to use for the model generation (default: Random UUID)
     * @return         A ie³ [[LineTypeInput]]
     */
-  def convert(input: LineType,
-              vRated: ComparableQuantity[ElectricPotential],
-              uuid: UUID = UUID.randomUUID()): LineTypeInput = {
+  def convert(
+      input: LineType,
+      vRated: ComparableQuantity[ElectricPotential],
+      uuid: UUID = UUID.randomUUID()
+  ): LineTypeInput = {
     input match {
       case LineType.ACLineType(id, r, x, b, iMax, _) =>
         val rQty = Quantities.getQuantity(r, OHM_PER_KILOMETRE)
@@ -70,7 +76,8 @@ case object LineTypeConverter extends LazyLogging {
         new LineTypeInput(uuid, id, bQty, gQty, rQty, xQty, iMaxQty, vRated)
       case _: LineType.DCLineType =>
         throw ConversionException(
-          "DC line types are currently not supported by ie³'s data model.")
+          "DC line types are currently not supported by ie³'s data model."
+        )
     }
   }
 
@@ -80,8 +87,9 @@ case object LineTypeConverter extends LazyLogging {
     * @param lines  [[Vector]] of [[Line]]s
     * @return       Mapping of [[LineType]] to [[ComparableQuantity]] of type [[ElectricPotential]]
     */
-  def getRatedVoltages(lines: Vector[Line[_ <: LineType]])
-    : Map[LineType, ComparableQuantity[ElectricPotential]] = {
+  def getRatedVoltages(
+      lines: Vector[Line[_ <: LineType]]
+  ): Map[LineType, ComparableQuantity[ElectricPotential]] = {
     val rawMapping = lines
       .distinctBy(line => line.lineType)
       .map(line => determineRatedVoltage(line))
@@ -91,10 +99,12 @@ case object LineTypeConverter extends LazyLogging {
     rawMapping.find(entry => entry._2.length > 1) match {
       case Some(ambiguousEntry) =>
         throw SimbenchDataModelException(
-          s"Found ambiguous rated voltages for at least one entry: $ambiguousEntry")
+          s"Found ambiguous rated voltages for at least one entry: $ambiguousEntry"
+        )
       case None =>
         logger.debug(
-          "Great! Found only unambiguous line type to rated voltage mappings.")
+          "Great! Found only unambiguous line type to rated voltage mappings."
+        )
     }
 
     /* Mapping the line type to the rated voltage of the first entry of the Vector of each raw mapping. That nothing
@@ -108,13 +118,15 @@ case object LineTypeConverter extends LazyLogging {
     * @param line Specific line to examine
     * @return The rated voltage of the used line type
     */
-  private def determineRatedVoltage(line: Line[_ <: LineType])
-    : (LineType, ComparableQuantity[ElectricPotential]) = {
+  private def determineRatedVoltage(
+      line: Line[_ <: LineType]
+  ): (LineType, ComparableQuantity[ElectricPotential]) = {
     val vRatedA = Quantities.getQuantity(line.nodeA.vmR, KILOVOLT)
     val vRatedB = Quantities.getQuantity(line.nodeB.vmR, KILOVOLT)
     if (vRatedA != vRatedB)
       throw SimbenchDataModelException(
-        s"The line ${line.id} connects two nodes with different rated voltages, which physically is not possible")
+        s"The line ${line.id} connects two nodes with different rated voltages, which physically is not possible"
+      )
     (line.lineType, vRatedA)
   }
 }
