@@ -55,7 +55,7 @@ case object LoadConverter {
     val id = input.id
     val cosphi = cos(atan((input.qLoad / input.pLoad).doubleValue))
     val varCharacteristicString =
-      "cosphi_fixed:%#.2f".formatLocal(Locale.ENGLISH, cosphi)
+      "cosPhiFixed:{(0.0,%#.2f)}".formatLocal(Locale.ENGLISH, cosphi)
     val eCons = Quantities.getQuantity(0d, KILOWATTHOUR)
     val sRated = Quantities.getQuantity(input.sR, MEGAVOLTAMPERE)
 

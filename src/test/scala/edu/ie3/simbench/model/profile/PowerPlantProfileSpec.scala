@@ -6,16 +6,10 @@ import edu.ie3.simbench.model.datamodel.profiles.{
   PowerPlantProfile,
   PowerPlantProfileType
 }
+import edu.ie3.simbench.util.SimbenchTimeUtil
 import edu.ie3.test.common.UnitSpec
-import edu.ie3.util.TimeTools
 
 class PowerPlantProfileSpec extends UnitSpec {
-  TimeTools.initialize(
-    TimeTools.DEFAULT_ZONE_ID,
-    TimeTools.DEFAULT_LOCALE,
-    "dd.MM.yyyy HH:mm"
-  )
-
   val rawData = Vector(
     RawModelData(
       classOf[PowerPlantProfile],
@@ -40,16 +34,16 @@ class PowerPlantProfileSpec extends UnitSpec {
       "PowerPlantProfile16",
       PowerPlantProfileType.PowerPlantProfile16,
       Map(
-        TimeTools.toZonedDateTime("01.01.2016 00:00") -> BigDecimal(0.7),
-        TimeTools.toZonedDateTime("01.01.2016 00:15") -> BigDecimal(0.7)
+        SimbenchTimeUtil.toZonedDateTime("01.01.2016 00:00") -> BigDecimal(0.7),
+        SimbenchTimeUtil.toZonedDateTime("01.01.2016 00:15") -> BigDecimal(0.7)
       )
     ),
     PowerPlantProfile(
       "PowerPlantProfile17",
       PowerPlantProfileType.PowerPlantProfile17,
       Map(
-        TimeTools.toZonedDateTime("01.01.2016 00:00") -> BigDecimal(0.7),
-        TimeTools.toZonedDateTime("01.01.2016 00:15") -> BigDecimal(0.7)
+        SimbenchTimeUtil.toZonedDateTime("01.01.2016 00:00") -> BigDecimal(0.7),
+        SimbenchTimeUtil.toZonedDateTime("01.01.2016 00:15") -> BigDecimal(0.7)
       )
     )
   )

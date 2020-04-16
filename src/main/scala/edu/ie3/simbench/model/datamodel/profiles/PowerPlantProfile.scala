@@ -6,7 +6,7 @@ import edu.ie3.simbench.io.HeadLineField
 import edu.ie3.simbench.io.HeadLineField.{MandatoryField, OptionalField}
 import edu.ie3.simbench.model.RawModelData
 import edu.ie3.simbench.model.datamodel.profiles.ProfileModel.ProfileCompanionObject
-import edu.ie3.util.TimeTools
+import edu.ie3.simbench.util.SimbenchTimeUtil
 
 /**
   * A power plant's profile consisting of an identifier and a mapping of the date to (p,q) pair
@@ -49,7 +49,7 @@ case object PowerPlantProfile
 
     /* Go through each line of the raw data table and extract the time stamp */
     (for (rawTableLine <- rawData) yield {
-      val time = TimeTools.toZonedDateTime(rawTableLine.get(TIME))
+      val time = SimbenchTimeUtil.toZonedDateTime(rawTableLine.get(TIME))
 
       /* Get the active and reactive power for each available load profile */
       for (typeString <- profileTypeStrings) yield {

@@ -513,7 +513,7 @@ trait ConverterTestData {
         OperatorInput.NO_OPERATOR_ASSIGNED,
         OperationTime.notLimited(),
         getNodePair("LV1.101 Bus 1")._2,
-        new CosPhiFixed("cosphi_fixed:{(0.0,0.93)}"),
+        new CosPhiFixed("cosPhiFixed:{(0.0,0.93)}"),
         DefaultLoadProfiles.NO_STANDARD_LOAD_PROFILE,
         false,
         Quantities.getQuantity(0d, KILOWATTHOUR),

@@ -20,15 +20,9 @@ import edu.ie3.simbench.model.datamodel.profiles.LoadProfileType.{
 import edu.ie3.simbench.model.datamodel.profiles._
 import edu.ie3.simbench.model.datamodel.types.LineType.ACLineType
 import edu.ie3.simbench.model.datamodel.types.Transformer2WType
-import edu.ie3.util.TimeTools
+import edu.ie3.simbench.util.SimbenchTimeUtil
 
 trait SimbenchReaderTestData {
-  TimeTools.initialize(
-    TimeTools.DEFAULT_ZONE_ID,
-    TimeTools.DEFAULT_LOCALE,
-    "dd.MM.yyyy HH:mm"
-  )
-
   val studyCases = Vector(
     StudyCase(
       "hL",
@@ -259,10 +253,10 @@ trait SimbenchReaderTestData {
       "H0A",
       H0A,
       Map(
-        TimeTools.toZonedDateTime("01.01.2016 00:00") -> (BigDecimal(
+        SimbenchTimeUtil.toZonedDateTime("01.01.2016 00:00") -> (BigDecimal(
           "0.276685"
         ), BigDecimal("-0.067519")),
-        TimeTools.toZonedDateTime("01.01.2016 00:15") -> (BigDecimal(
+        SimbenchTimeUtil.toZonedDateTime("01.01.2016 00:15") -> (BigDecimal(
           "0.066011"
         ), BigDecimal("0.060412"))
       )
@@ -271,10 +265,10 @@ trait SimbenchReaderTestData {
       "H0B",
       H0B,
       Map(
-        TimeTools.toZonedDateTime("01.01.2016 00:00") -> (BigDecimal(
+        SimbenchTimeUtil.toZonedDateTime("01.01.2016 00:00") -> (BigDecimal(
           "0.065826"
         ), BigDecimal("-0.014175")),
-        TimeTools.toZonedDateTime("01.01.2016 00:15") -> (BigDecimal(
+        SimbenchTimeUtil.toZonedDateTime("01.01.2016 00:15") -> (BigDecimal(
           "0.190476"
         ), BigDecimal("0.212622"))
       )
@@ -283,10 +277,10 @@ trait SimbenchReaderTestData {
       "H0C",
       H0C,
       Map(
-        TimeTools.toZonedDateTime("01.01.2016 00:00") -> (BigDecimal(
+        SimbenchTimeUtil.toZonedDateTime("01.01.2016 00:00") -> (BigDecimal(
           "0.237082"
         ), BigDecimal("0.242253")),
-        TimeTools.toZonedDateTime("01.01.2016 00:15") -> (BigDecimal(
+        SimbenchTimeUtil.toZonedDateTime("01.01.2016 00:15") -> (BigDecimal(
           "0.066869"
         ), BigDecimal("0.007691"))
       )
@@ -295,10 +289,10 @@ trait SimbenchReaderTestData {
       "L1A",
       L1A,
       Map(
-        TimeTools.toZonedDateTime("01.01.2016 00:00") -> (BigDecimal(
+        SimbenchTimeUtil.toZonedDateTime("01.01.2016 00:00") -> (BigDecimal(
           "0.144231"
         ), BigDecimal("0.125501")),
-        TimeTools.toZonedDateTime("01.01.2016 00:15") -> (BigDecimal(
+        SimbenchTimeUtil.toZonedDateTime("01.01.2016 00:15") -> (BigDecimal(
           "0.416628"
         ), BigDecimal("0.587453"))
       )
@@ -307,10 +301,10 @@ trait SimbenchReaderTestData {
       "L2A",
       L2A,
       Map(
-        TimeTools.toZonedDateTime("01.01.2016 00:00") -> (BigDecimal(
+        SimbenchTimeUtil.toZonedDateTime("01.01.2016 00:00") -> (BigDecimal(
           "0.321053"
         ), BigDecimal("0.326352")),
-        TimeTools.toZonedDateTime("01.01.2016 00:15") -> (BigDecimal(
+        SimbenchTimeUtil.toZonedDateTime("01.01.2016 00:15") -> (BigDecimal(
           "0.317544"
         ), BigDecimal("0.346238"))
       )
@@ -322,16 +316,16 @@ trait SimbenchReaderTestData {
       "PowerPlantProfile16",
       PowerPlantProfileType.PowerPlantProfile16,
       Map(
-        TimeTools.toZonedDateTime("01.01.2016 00:00") -> BigDecimal(0.7),
-        TimeTools.toZonedDateTime("01.01.2016 00:15") -> BigDecimal(0.7)
+        SimbenchTimeUtil.toZonedDateTime("01.01.2016 00:00") -> BigDecimal(0.7),
+        SimbenchTimeUtil.toZonedDateTime("01.01.2016 00:15") -> BigDecimal(0.7)
       )
     ),
     PowerPlantProfile(
       "PowerPlantProfile17",
       PowerPlantProfileType.PowerPlantProfile17,
       Map(
-        TimeTools.toZonedDateTime("01.01.2016 00:00") -> BigDecimal(0.7),
-        TimeTools.toZonedDateTime("01.01.2016 00:15") -> BigDecimal(0.7)
+        SimbenchTimeUtil.toZonedDateTime("01.01.2016 00:00") -> BigDecimal(0.7),
+        SimbenchTimeUtil.toZonedDateTime("01.01.2016 00:15") -> BigDecimal(0.7)
       )
     )
   )
@@ -341,18 +335,24 @@ trait SimbenchReaderTestData {
       "PV6",
       ResProfileType.PV6,
       Map(
-        TimeTools.toZonedDateTime("02.01.2016 10:15") -> BigDecimal("0.078013"),
-        TimeTools.toZonedDateTime("02.01.2016 10:30") -> BigDecimal("0.0770834")
+        SimbenchTimeUtil.toZonedDateTime("02.01.2016 10:15") -> BigDecimal(
+          "0.078013"
+        ),
+        SimbenchTimeUtil.toZonedDateTime("02.01.2016 10:30") -> BigDecimal(
+          "0.0770834"
+        )
       )
     ),
     ResProfile(
       "PV8",
       ResProfileType.PV8,
       Map(
-        TimeTools.toZonedDateTime("02.01.2016 10:15") -> BigDecimal(
+        SimbenchTimeUtil.toZonedDateTime("02.01.2016 10:15") -> BigDecimal(
           "0.0550869"
         ),
-        TimeTools.toZonedDateTime("02.01.2016 10:30") -> BigDecimal("0.055754")
+        SimbenchTimeUtil.toZonedDateTime("02.01.2016 10:30") -> BigDecimal(
+          "0.055754"
+        )
       )
     )
   )

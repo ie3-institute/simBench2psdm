@@ -8,12 +8,13 @@ import edu.ie3.simbench.model.datamodel.profiles.{
   PowerPlantProfile,
   PowerPlantProfileType
 }
+import edu.ie3.simbench.util.SimbenchTimeUtil
 import edu.ie3.test.common.UnitSpec
-import edu.ie3.util.TimeTools
 import edu.ie3.util.quantities.PowerSystemUnits.{KILOVAR, KILOWATT}
 import tec.uom.se.quantity.Quantities
 
 import scala.math.abs
+import scala.jdk.OptionConverters._
 
 class PowerProfileConverterSpec extends UnitSpec {
   private val testingTolerance = 1e-6
@@ -22,20 +23,20 @@ class PowerProfileConverterSpec extends UnitSpec {
     "test profile",
     LoadProfileType.H0L,
     Map(
-      TimeTools
-        .toZonedDateTime("01/01/1990 00:00:00") -> (BigDecimal("0.75"), BigDecimal(
+      SimbenchTimeUtil
+        .toZonedDateTime("01.01.1990 00:00") -> (BigDecimal("0.75"), BigDecimal(
         "0.85"
       )),
-      TimeTools
-        .toZonedDateTime("01/01/1990 00:15:00") -> (BigDecimal("0.55"), BigDecimal(
+      SimbenchTimeUtil
+        .toZonedDateTime("01.01.1990 00:15") -> (BigDecimal("0.55"), BigDecimal(
         "0.75"
       )),
-      TimeTools
-        .toZonedDateTime("01/01/1990 00:30:00") -> (BigDecimal("0.35"), BigDecimal(
+      SimbenchTimeUtil
+        .toZonedDateTime("01.01.1990 00:30") -> (BigDecimal("0.35"), BigDecimal(
         "0.65"
       )),
-      TimeTools
-        .toZonedDateTime("01/01/1990 00:45:00") -> (BigDecimal("0.15"), BigDecimal(
+      SimbenchTimeUtil
+        .toZonedDateTime("01.01.1990 00:45") -> (BigDecimal("0.15"), BigDecimal(
         "0.55"
       ))
     )
@@ -45,10 +46,18 @@ class PowerProfileConverterSpec extends UnitSpec {
     "test profile",
     PowerPlantProfileType.PowerPlantProfile1,
     Map(
-      TimeTools.toZonedDateTime("01/01/1990 00:00:00") -> BigDecimal("0.75"),
-      TimeTools.toZonedDateTime("01/01/1990 00:15:00") -> BigDecimal("0.55"),
-      TimeTools.toZonedDateTime("01/01/1990 00:30:00") -> BigDecimal("0.35"),
-      TimeTools.toZonedDateTime("01/01/1990 00:45:00") -> BigDecimal("0.15")
+      SimbenchTimeUtil.toZonedDateTime("01.01.1990 00:00") -> BigDecimal(
+        "0.75"
+      ),
+      SimbenchTimeUtil.toZonedDateTime("01.01.1990 00:15") -> BigDecimal(
+        "0.55"
+      ),
+      SimbenchTimeUtil.toZonedDateTime("01.01.1990 00:30") -> BigDecimal(
+        "0.35"
+      ),
+      SimbenchTimeUtil.toZonedDateTime("01.01.1990 00:45") -> BigDecimal(
+        "0.15"
+      )
     )
   )
 
@@ -58,19 +67,19 @@ class PowerProfileConverterSpec extends UnitSpec {
       val qRated = Quantities.getQuantity(10d, KILOVAR)
 
       val expected = Map(
-        TimeTools.toZonedDateTime("01/01/1990 00:00:00") -> new SValue(
+        SimbenchTimeUtil.toZonedDateTime("01.01.1990 00:00") -> new SValue(
           Quantities.getQuantity(75d, KILOWATT),
           Quantities.getQuantity(8.5, KILOVAR)
         ),
-        TimeTools.toZonedDateTime("01/01/1990 00:15:00") -> new SValue(
+        SimbenchTimeUtil.toZonedDateTime("01.01.1990 00:15") -> new SValue(
           Quantities.getQuantity(55d, KILOWATT),
           Quantities.getQuantity(7.5, KILOVAR)
         ),
-        TimeTools.toZonedDateTime("01/01/1990 00:30:00") -> new SValue(
+        SimbenchTimeUtil.toZonedDateTime("01.01.1990 00:30") -> new SValue(
           Quantities.getQuantity(35d, KILOWATT),
           Quantities.getQuantity(6.5, KILOVAR)
         ),
-        TimeTools.toZonedDateTime("01/01/1990 00:45:00") -> new SValue(
+        SimbenchTimeUtil.toZonedDateTime("01.01.1990 00:45") -> new SValue(
           Quantities.getQuantity(15d, KILOWATT),
           Quantities.getQuantity(5.5, KILOVAR)
         )
@@ -83,29 +92,33 @@ class PowerProfileConverterSpec extends UnitSpec {
           abs(
             actual
               .getValue(entry._1)
-              .orElseThrow(
+              .toScala match {
+              case Some(value) =>
+                value.getP
+                  .subtract(entry._2.getP)
+                  .to(KILOWATT)
+                  .getValue
+                  .doubleValue()
+              case None =>
                 throw ConversionException(
                   s"Cannot find a time series entry for ${entry._1}"
                 )
-              )
-              .getP
-              .subtract(entry._2.getP)
-              .to(KILOWATT)
-              .getValue
-              .doubleValue()
+            }
           ) < testingTolerance shouldBe abs(
             actual
               .getValue(entry._1)
-              .orElseThrow(
+              .toScala match {
+              case Some(value) =>
+                value.getQ
+                  .subtract(entry._2.getQ)
+                  .to(KILOVAR)
+                  .getValue
+                  .doubleValue()
+              case None =>
                 throw ConversionException(
                   s"Cannot find a time series entry for ${entry._1}"
                 )
-              )
-              .getQ
-              .subtract(entry._2.getQ)
-              .to(KILOVAR)
-              .getValue
-              .doubleValue()
+            }
           ) < testingTolerance
       )
     }
@@ -115,16 +128,16 @@ class PowerProfileConverterSpec extends UnitSpec {
     val pRated = Quantities.getQuantity(100d, KILOWATT)
 
     val expected = Map(
-      TimeTools.toZonedDateTime("01/01/1990 00:00:00") -> new PValue(
+      SimbenchTimeUtil.toZonedDateTime("01.01.1990 00:00") -> new PValue(
         Quantities.getQuantity(75d, KILOWATT)
       ),
-      TimeTools.toZonedDateTime("01/01/1990 00:15:00") -> new PValue(
+      SimbenchTimeUtil.toZonedDateTime("01.01.1990 00:15") -> new PValue(
         Quantities.getQuantity(55d, KILOWATT)
       ),
-      TimeTools.toZonedDateTime("01/01/1990 00:30:00") -> new PValue(
+      SimbenchTimeUtil.toZonedDateTime("01.01.1990 00:30") -> new PValue(
         Quantities.getQuantity(35d, KILOWATT)
       ),
-      TimeTools.toZonedDateTime("01/01/1990 00:45:00") -> new PValue(
+      SimbenchTimeUtil.toZonedDateTime("01.01.1990 00:45") -> new PValue(
         Quantities.getQuantity(15d, KILOWATT)
       )
     )
@@ -136,16 +149,18 @@ class PowerProfileConverterSpec extends UnitSpec {
         abs(
           actual
             .getValue(entry._1)
-            .orElseThrow(
+            .toScala match {
+            case Some(value) =>
+              value.getP
+                .subtract(entry._2.getP)
+                .to(KILOWATT)
+                .getValue
+                .doubleValue()
+            case None =>
               throw ConversionException(
                 s"Cannot find a time series entry for ${entry._1}"
               )
-            )
-            .getP
-            .subtract(entry._2.getP)
-            .to(KILOWATT)
-            .getValue
-            .doubleValue()
+          }
         ) < testingTolerance
     )
   }
