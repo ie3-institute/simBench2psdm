@@ -90,7 +90,7 @@ class LineConverterSpec extends UnitSpec with ConverterTestData {
       actual.getType shouldBe expectedLine.getType
       actual.getLength shouldBe expectedLine.getLength
       actual.getOlmCharacteristic shouldBe expectedLine.getOlmCharacteristic
-      actual.getNoOfParallelDevices shouldBe expectedLine.getNoOfParallelDevices
+      actual.getParallelDevices shouldBe expectedLine.getParallelDevices
       actual.getOperationTime shouldBe expectedLine.getOperationTime
       actual.getOperator shouldBe expectedLine.getOperator
       actual.getGeoPosition shouldBe expectedLine.getGeoPosition
@@ -129,7 +129,7 @@ class LineConverterSpec extends UnitSpec with ConverterTestData {
       actual.getType shouldBe expectedLine.getType
       actual.getLength shouldBe expectedLine.getLength
       actual.getOlmCharacteristic shouldBe expectedLine.getOlmCharacteristic
-      actual.getNoOfParallelDevices shouldBe expectedLine.getNoOfParallelDevices
+      actual.getParallelDevices shouldBe expectedLine.getParallelDevices
       actual.getOperationTime shouldBe expectedLine.getOperationTime
       actual.getOperator shouldBe expectedLine.getOperator
       actual.getGeoPosition shouldBe null
@@ -157,7 +157,7 @@ class LineConverterSpec extends UnitSpec with ConverterTestData {
       actual.getType shouldBe expectedLine.getType
       actual.getLength shouldBe expectedLine.getLength
       actual.getOlmCharacteristic shouldBe expectedLine.getOlmCharacteristic
-      actual.getNoOfParallelDevices shouldBe expectedLine.getNoOfParallelDevices
+      actual.getParallelDevices shouldBe expectedLine.getParallelDevices
       actual.getOperationTime shouldBe expectedLine.getOperationTime
       actual.getOperator shouldBe expectedLine.getOperator
       actual.getGeoPosition shouldBe null
@@ -185,7 +185,7 @@ class LineConverterSpec extends UnitSpec with ConverterTestData {
       actual.getType shouldBe expectedLine.getType
       actual.getLength shouldBe expectedLine.getLength
       actual.getOlmCharacteristic shouldBe expectedLine.getOlmCharacteristic
-      actual.getNoOfParallelDevices shouldBe expectedLine.getNoOfParallelDevices
+      actual.getParallelDevices shouldBe expectedLine.getParallelDevices
       actual.getOperationTime shouldBe expectedLine.getOperationTime
       actual.getOperator shouldBe expectedLine.getOperator
       actual.getGeoPosition shouldBe null

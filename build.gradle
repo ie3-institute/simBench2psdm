@@ -26,9 +26,7 @@ ext {
 
 group = 'com.github.ie3-institute'
 description = 'simbench4ie3'
-version = '0.1-SNAPSHOT'
-sourceCompatibility = javaVersion
-targetCompatibility = javaVersion
+version = '1.0-SNAPSHOT'
 
 apply from: scriptsLocation + 'tests.gradle'
 apply from: scriptsLocation + 'pmd.gradle'
@@ -41,21 +39,18 @@ apply from: scriptsLocation + 'jacoco.gradle' // jacoco java code coverage
 repositories {
 	jcenter() //searches in bintray's repository 'jCenter', which contains Maven Central
 	maven { url 'https://www.jitpack.io' } // allows github repos as dependencies
-
-	// sonatype snapshots repo // todo remove
-	maven { url 'https://oss.sonatype.org/service/local/repositories/snapshots/content' }
 }
 
 dependencies {
 	/* PowerSystemDataModel */
-	compile ('com.github.ie3-institute:PowerSystemDataModel:0.1-SNAPSHOT') {
+	compile ('com.github.ie3-institute:PowerSystemDataModel:1.0') {
 		/* Exclude nested logging and ie³ related dependencies */
 		exclude group: 'org.slf4j', module: 'slf4j-api'
 		exclude group: 'com.github.ie3-institute'
 	}
 
 	/* util functions */
-	compile ('com.github.ie3-institute:PowerSystemUtils:1.3-SNAPSHOT') {
+	compile ('com.github.ie3-institute:PowerSystemUtils:1.3.1') {
 		/* Exclude nested logging and ie³ related dependencies */
 		exclude group: 'org.slf4j', module: 'slf4j-api'
 		exclude group: 'com.github.ie3-institute'

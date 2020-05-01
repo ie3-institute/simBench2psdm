@@ -53,7 +53,7 @@ class Transformer2wConverterSpec extends UnitSpec with ConverterTestData {
       actual.getNodeA shouldBe nodeA
       actual.getNodeB shouldBe nodeB
       actual.getType shouldBe resultType
-      actual.getNoOfParallelDevices shouldBe 1
+      actual.getParallelDevices shouldBe 1
       actual.getOperationTime shouldBe OperationTime.notLimited()
       actual.getOperator shouldBe OperatorInput.NO_OPERATOR_ASSIGNED
       actual.getTapPos shouldBe 10
@@ -70,7 +70,7 @@ class Transformer2wConverterSpec extends UnitSpec with ConverterTestData {
     actual(0).getNodeA shouldBe nodeA
     actual(0).getNodeB shouldBe nodeB
     actual(0).getType shouldBe resultType
-    actual(0).getNoOfParallelDevices shouldBe 1
+    actual(0).getParallelDevices shouldBe 1
     actual(0).getOperationTime shouldBe OperationTime.notLimited()
     actual(0).getOperator shouldBe OperatorInput.NO_OPERATOR_ASSIGNED
     actual(0).getTapPos shouldBe 10

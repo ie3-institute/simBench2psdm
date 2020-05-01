@@ -22,7 +22,7 @@ class SwitchConverterSpec extends UnitSpec with ConverterTestData {
       actual.getId shouldBe expected.getId
       actual.getNodeA shouldBe expected.getNodeA
       actual.getNodeB shouldBe expected.getNodeB
-      actual.getNoOfParallelDevices shouldBe expected.getNoOfParallelDevices
+      actual.getParallelDevices shouldBe expected.getParallelDevices
       actual.getOperationTime shouldBe expected.getOperationTime
       actual.getOperator shouldBe expected.getOperator
     }
@@ -34,7 +34,7 @@ class SwitchConverterSpec extends UnitSpec with ConverterTestData {
       actual(0).getId shouldBe expected.getId
       actual(0).getNodeA shouldBe expected.getNodeA
       actual(0).getNodeB shouldBe expected.getNodeB
-      actual(0).getNoOfParallelDevices shouldBe expected.getNoOfParallelDevices
+      actual(0).getParallelDevices shouldBe expected.getParallelDevices
       actual(0).getOperationTime shouldBe expected.getOperationTime
       actual(0).getOperator shouldBe expected.getOperator
     }
