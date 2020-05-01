@@ -8,7 +8,13 @@ test {
 // Task to run scala tests, as Scala tests are not picked up by gradle by default
 task spec(dependsOn: ['testClasses'], type: JavaExec) {
 	main = 'org.scalatest.tools.Runner'
-	args = ['-R', 'build/classes/scala/test', '-h', 'build/reports/tests/scalatest', '-oD']
+	args = [
+		'-R',
+		'build/classes/scala/test',
+		'-h',
+		'build/reports/tests/scalatest',
+		'-oD'
+	]
 	classpath = sourceSets.test.runtimeClasspath
 }
 build.dependsOn spec

@@ -13,7 +13,7 @@ plugins {
 }
 
 ext {
-//version (changing these should be considered thoroughly!)
+	//version (changing these should be considered thoroughly!)
 	javaVersion = JavaVersion.VERSION_11
 
 	unitsOfMeasurementVersion = '1.0.10'
