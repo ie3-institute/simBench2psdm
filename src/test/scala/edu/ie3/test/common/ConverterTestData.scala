@@ -161,7 +161,7 @@ trait ConverterTestData {
         OperationTime.notLimited(),
         Quantities.getQuantity(1.0, PU),
         false,
-        getCoordinatePair("random coordinate")._2,
+        NodeInput.DEFAULT_GEO_POSITION,
         MV_10KV,
         2
       )

@@ -1,5 +1,6 @@
 package edu.ie3.simbench.convert
 
+import edu.ie3.datamodel.models.input.NodeInput
 import edu.ie3.simbench.model.datamodel.Coordinate
 import org.locationtech.jts.geom.{
   GeometryFactory,
@@ -21,13 +22,14 @@ case object CoordinateConverter {
     * @return Geo position
     */
   def convert(coordinateOpt: Option[Coordinate]): Point = {
-    val (lat, lon): (Double, Double) = coordinateOpt match {
-      case Some(coordinate) => (coordinate.y.toDouble, coordinate.x.toDouble)
-      case None             => (51.492689, 7.412262)
+    coordinateOpt match {
+      case Some(coordinate) =>
+        val geoPosition = geometryFactory.createPoint(
+          new JTSCoordinate(coordinate.x.toDouble, coordinate.y.toDouble)
+        )
+        geoPosition.setSRID(4326) // Use WGS84 reference system.
+        geoPosition
+      case None => NodeInput.DEFAULT_GEO_POSITION
     }
-
-    val geoPosition = geometryFactory.createPoint(new JTSCoordinate(lon, lat))
-    geoPosition.setSRID(4326) // Use WGS84 reference system.
-    geoPosition
   }
 }

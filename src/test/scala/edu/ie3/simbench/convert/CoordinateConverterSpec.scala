@@ -1,5 +1,6 @@
 package edu.ie3.simbench.convert
 
+import edu.ie3.datamodel.models.input.NodeInput
 import org.locationtech.jts.geom.{GeometryFactory, Coordinate => JTSCoordinate}
 import edu.ie3.simbench.model.datamodel.Coordinate
 import edu.ie3.test.common.UnitSpec
@@ -26,9 +27,7 @@ class CoordinateConverterSpec extends UnitSpec {
     }
 
     "build correct dummy geo position, if no Coordinate is apparent" in {
-      val expected =
-        geometryFactory.createPoint(new JTSCoordinate(7.412262, 51.492689))
-      expected.setSRID(4326)
+      val expected = NodeInput.DEFAULT_GEO_POSITION
       val actual = CoordinateConverter.convert(None)
       actual shouldBe expected
     }

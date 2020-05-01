@@ -39,11 +39,14 @@ apply from: scriptsLocation + 'jacoco.gradle' // jacoco java code coverage
 repositories {
 	jcenter() //searches in bintray's repository 'jCenter', which contains Maven Central
 	maven { url 'https://www.jitpack.io' } // allows github repos as dependencies
+
+	// sonatype snapshots repo // todo remove
+	maven { url 'https://oss.sonatype.org/service/local/repositories/snapshots/content' }
 }
 
 dependencies {
 	/* PowerSystemDataModel */
-	compile ('com.github.ie3-institute:PowerSystemDataModel:1.0') {
+	compile ('com.github.ie3-institute:PowerSystemDataModel:1.1-SNAPSHOT') {
 		/* Exclude nested logging and ie³ related dependencies */
 		exclude group: 'org.slf4j', module: 'slf4j-api'
 		exclude group: 'com.github.ie3-institute'

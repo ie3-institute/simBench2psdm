@@ -9,6 +9,7 @@ import edu.ie3.datamodel.models.input.{NodeInput, OperatorInput}
 import edu.ie3.datamodel.models.input.connector.LineInput
 import edu.ie3.datamodel.models.input.connector.`type`.LineTypeInput
 import edu.ie3.datamodel.models.input.system.characteristic.OlmCharacteristicInput
+import edu.ie3.datamodel.utils.GridAndGeoUtils
 import edu.ie3.simbench.exception.ConversionException
 import edu.ie3.simbench.model.datamodel.{Line, Node}
 import edu.ie3.simbench.model.datamodel.types.LineType
@@ -72,19 +73,7 @@ case object LineConverter extends LazyLogging {
         val id = input.id
         val length = Quantities.getQuantity(input.length, KILOMETRE)
         val geoPosition =
-          (Option(nodeA.getGeoPosition), Option(nodeB.getGeoPosition)) match {
-            case (Some(pointA), Some(pointB)) =>
-              val lineString = geometryFactory.createLineString(
-                Array(pointA.getCoordinate, pointB.getCoordinate)
-              )
-              lineString.setSRID(4326)
-              lineString
-            case _ =>
-              logger.debug(
-                s"Cannot build geo position for line $id, as no fully geo information is given"
-              )
-              null
-          }
+          GridAndGeoUtils.buildSafeLineStringBetweenNodes(nodeA, nodeB)
         new LineInput(
           uuid,
           id,
