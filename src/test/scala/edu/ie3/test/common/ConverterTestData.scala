@@ -9,7 +9,11 @@ import org.locationtech.jts.geom.{
   Coordinate => JTSCoordinate
 }
 import edu.ie3.datamodel.models.{OperationTime, UniqueEntity}
-import edu.ie3.datamodel.models.input.{NodeInput, OperatorInput}
+import edu.ie3.datamodel.models.input.{
+  MeasurementUnitInput,
+  NodeInput,
+  OperatorInput
+}
 import edu.ie3.datamodel.models.voltagelevels.GermanVoltageLevelUtils.{
   LV,
   MV_10KV,
@@ -26,6 +30,7 @@ import edu.ie3.simbench.model.datamodel.types.LineType.{ACLineType, DCLineType}
 import edu.ie3.simbench.model.datamodel.{
   Coordinate,
   Load,
+  Measurement,
   Node,
   SimbenchModel,
   Substation,
@@ -48,14 +53,22 @@ import edu.ie3.datamodel.models.StandardUnits.{
 import edu.ie3.datamodel.models.input.connector.SwitchInput
 import edu.ie3.datamodel.models.input.system.LoadInput
 import edu.ie3.datamodel.models.input.system.characteristic.CosPhiFixed
+import edu.ie3.datamodel.models.voltagelevels.GermanVoltageLevelUtils
+import edu.ie3.simbench.model.datamodel.Measurement.{
+  LineMeasurement,
+  NodeMeasurement,
+  TransformerMeasurement
+}
 import edu.ie3.simbench.model.datamodel.enums.BranchElementPort.HV
+import edu.ie3.simbench.model.datamodel.enums.MeasurementVariable.Voltage
 import edu.ie3.simbench.model.datamodel.profiles.{LoadProfile, LoadProfileType}
 import edu.ie3.simbench.model.datamodel.types.{LineType, Transformer2WType}
 import edu.ie3.util.TimeUtil
+import org.scalatestplus.mockito.MockitoSugar
 import tec.uom.se.unit.MetricPrefix
 import tec.uom.se.unit.Units.{OHM, PERCENT, SIEMENS}
 
-trait ConverterTestData {
+trait ConverterTestData extends MockitoSugar {
 
   /**
     * Case class to denote a consistent pair of input and expected output of a conversion
@@ -164,6 +177,32 @@ trait ConverterTestData {
         NodeInput.DEFAULT_GEO_POSITION,
         MV_10KV,
         2
+      )
+    ),
+    "HV1 Bus 30" -> ConversionPair(
+      Node(
+        "HV1 Bus 30",
+        BusBar,
+        Some(BigDecimal("1.025")),
+        Some(BigDecimal("0.0")),
+        BigDecimal("110"),
+        BigDecimal("0.9"),
+        BigDecimal("1.1"),
+        None,
+        None,
+        "HV1_MV1.102",
+        1
+      ),
+      new NodeInput(
+        UUID.randomUUID(),
+        "HV1 Bus 30",
+        OperatorInput.NO_OPERATOR_ASSIGNED,
+        OperationTime.notLimited(),
+        Quantities.getQuantity(1.025, PU),
+        false,
+        NodeInput.DEFAULT_GEO_POSITION,
+        GermanVoltageLevelUtils.HV,
+        3
       )
     ),
     "MV1.101 Bus 4" -> ConversionPair(
@@ -529,6 +568,48 @@ trait ConverterTestData {
         key,
         throw TestingException(
           s"Cannot find input / result pair for ${Load.getClass.getSimpleName} $key."
+        )
+      )
+      .getPair
+
+  val measurements
+      : Map[String, ConversionPair[Measurement, MeasurementUnitInput]] = Map(
+    "MV1.102 Measurement 1" -> ConversionPair(
+      NodeMeasurement(
+        "MV1.102 Measurement 1",
+        getNodePair("HV1 Bus 30")._1,
+        Voltage,
+        "HV1_MV1.102",
+        3
+      ),
+      new MeasurementUnitInput(
+        UUID.randomUUID(),
+        "MV1.102 Measurement 1",
+        OperatorInput.NO_OPERATOR_ASSIGNED,
+        OperationTime.notLimited(),
+        getNodePair("HV1 Bus 30")._2,
+        true,
+        true,
+        false,
+        false
+      )
+    ),
+    "MV1.102 Measurement 3" -> ConversionPair(
+      mock[LineMeasurement],
+      null
+    ),
+    "MV1.102 Measurement 28" -> ConversionPair(
+      mock[TransformerMeasurement],
+      null
+    )
+  )
+
+  def getMeasurementPair(key: String): (Measurement, MeasurementUnitInput) =
+    measurements
+      .getOrElse(
+        key,
+        throw TestingException(
+          s"Cannot find input / result pair for ${Measurement.getClass.getSimpleName} $key."
         )
       )
       .getPair

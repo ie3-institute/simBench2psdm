@@ -76,6 +76,7 @@ dependencies {
 	// TEST Scala //
 	testCompile "org.scalatest:scalatest_${scalaVersion}:3.0.8"
 	testRuntime "org.pegdown:pegdown:1.6.0" // HTML report for scalatest
+	compile 'org.mockito:mockito-core:+' // mocking framework
 
 	// config //
 	implementation 'com.typesafe:config:+'
