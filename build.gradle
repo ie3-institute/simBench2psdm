@@ -18,7 +18,7 @@ ext {
 
 	unitsOfMeasurementVersion = '1.0.10'
 	scalaVersion = '2.13'
-	tscfgVersion = '0.9.9'
+	tscfgVersion = '0.9.96'
 	slf4jVersion = '1.7.26'
 
 	scriptsLocation = 'gradle' + File.separator + 'scripts' + File.separator //location of script plugins
@@ -76,7 +76,7 @@ dependencies {
 
 	// config //
 	implementation 'com.typesafe:config:+'
-	compile "com.github.carueda:tscfg:v${tscfgVersion}"
+	compile "com.github.carueda:tscfg_2.13:${tscfgVersion}"
 
 	// cmd args parser //
 	compile "com.github.scopt:scopt_${scalaVersion}:+"
