@@ -25,13 +25,14 @@ import edu.ie3.datamodel.models.input.connector.`type`.{
 }
 import edu.ie3.simbench.exception.TestingException
 import edu.ie3.simbench.model.datamodel.enums.{LineStyle, NodeType, SwitchType}
-import edu.ie3.simbench.model.datamodel.enums.NodeType.BusBar
+import edu.ie3.simbench.model.datamodel.enums.NodeType.{BusBar, DoubleBusBar}
 import edu.ie3.simbench.model.datamodel.types.LineType.{ACLineType, DCLineType}
 import edu.ie3.simbench.model.datamodel.{
   Coordinate,
   Load,
   Measurement,
   Node,
+  PowerPlant,
   SimbenchModel,
   Substation,
   Switch
@@ -42,6 +43,7 @@ import edu.ie3.util.quantities.PowerSystemUnits.{
   KILOVOLT,
   KILOVOLTAMPERE,
   KILOWATTHOUR,
+  MEGAVOLTAMPERE,
   PU
 }
 import edu.ie3.datamodel.models.StandardUnits.{
@@ -51,7 +53,7 @@ import edu.ie3.datamodel.models.StandardUnits.{
   RATED_VOLTAGE_MAGNITUDE
 }
 import edu.ie3.datamodel.models.input.connector.SwitchInput
-import edu.ie3.datamodel.models.input.system.LoadInput
+import edu.ie3.datamodel.models.input.system.{FixedFeedInInput, LoadInput}
 import edu.ie3.datamodel.models.input.system.characteristic.CosPhiFixed
 import edu.ie3.datamodel.models.voltagelevels.GermanVoltageLevelUtils
 import edu.ie3.simbench.model.datamodel.Measurement.{
@@ -60,7 +62,10 @@ import edu.ie3.simbench.model.datamodel.Measurement.{
   TransformerMeasurement
 }
 import edu.ie3.simbench.model.datamodel.enums.BranchElementPort.HV
+import edu.ie3.simbench.model.datamodel.enums.CalculationType.PVm
 import edu.ie3.simbench.model.datamodel.enums.MeasurementVariable.Voltage
+import edu.ie3.simbench.model.datamodel.enums.PowerPlantType.Lignite
+import edu.ie3.simbench.model.datamodel.profiles.PowerPlantProfileType.PowerPlantProfile1
 import edu.ie3.simbench.model.datamodel.profiles.{LoadProfile, LoadProfileType}
 import edu.ie3.simbench.model.datamodel.types.{LineType, Transformer2WType}
 import edu.ie3.util.TimeUtil
@@ -177,6 +182,32 @@ trait ConverterTestData extends MockitoSugar {
         NodeInput.DEFAULT_GEO_POSITION,
         MV_10KV,
         2
+      )
+    ),
+    "EHV Bus 177" -> ConversionPair(
+      Node(
+        "EHV Bus 177",
+        DoubleBusBar,
+        Some(BigDecimal("1.092")),
+        None,
+        BigDecimal("380"),
+        BigDecimal("0.9"),
+        BigDecimal("1.1"),
+        None,
+        None,
+        "EHV1",
+        1
+      ),
+      new NodeInput(
+        UUID.randomUUID(),
+        "EHV Bus 177",
+        OperatorInput.NO_OPERATOR_ASSIGNED,
+        OperationTime.notLimited(),
+        Quantities.getQuantity(1.092, PU),
+        false,
+        NodeInput.DEFAULT_GEO_POSITION,
+        GermanVoltageLevelUtils.EHV_380KV,
+        1
       )
     ),
     "HV1 Bus 30" -> ConversionPair(
@@ -610,6 +641,77 @@ trait ConverterTestData extends MockitoSugar {
         key,
         throw TestingException(
           s"Cannot find input / result pair for ${Measurement.getClass.getSimpleName} $key."
+        )
+      )
+      .getPair
+
+  val powerPlants = Map(
+    "EHV Gen 1" -> ConversionPair(
+      PowerPlant(
+        "EHV Gen 1",
+        getNodePair("EHV Bus 177")._1,
+        Lignite,
+        PowerPlantProfile1,
+        PVm,
+        BigDecimal("1"),
+        BigDecimal("297"),
+        None,
+        BigDecimal("312.632"),
+        BigDecimal("50"),
+        BigDecimal("297"),
+        BigDecimal("-97.6192"),
+        BigDecimal("97.6192"),
+        "EHV1",
+        1
+      ),
+      new FixedFeedInInput(
+        UUID.randomUUID(),
+        "EHV Gen 1",
+        OperatorInput.NO_OPERATOR_ASSIGNED,
+        OperationTime.notLimited(),
+        getNodePair("EHV Bus 177")._2,
+        new CosPhiFixed("cosPhiFixed:{(0.0,1.0)}"),
+        Quantities.getQuantity(312.632, MEGAVOLTAMPERE),
+        1.0
+      )
+    ),
+    "EHV Gen 1_withQ" -> ConversionPair(
+      PowerPlant(
+        "EHV Gen 1",
+        getNodePair("EHV Bus 177")._1,
+        Lignite,
+        PowerPlantProfile1,
+        PVm,
+        BigDecimal("1"),
+        BigDecimal("297"),
+        Some(BigDecimal("97.61")),
+        BigDecimal("312.632"),
+        BigDecimal("50"),
+        BigDecimal("297"),
+        BigDecimal("-97.6192"),
+        BigDecimal("97.6192"),
+        "EHV1",
+        1
+      ),
+      new FixedFeedInInput(
+        UUID.randomUUID(),
+        "EHV Gen 1",
+        OperatorInput.NO_OPERATOR_ASSIGNED,
+        OperationTime.notLimited(),
+        getNodePair("EHV Bus 177")._2,
+        new CosPhiFixed("cosPhiFixed:{(0.0,0.95)}"),
+        Quantities.getQuantity(312.632, MEGAVOLTAMPERE),
+        0.95
+      )
+    )
+  )
+
+  def getPowerPlantPair(key: String): (PowerPlant, FixedFeedInInput) =
+    powerPlants
+      .getOrElse(
+        key,
+        throw TestingException(
+          s"Cannot find input / result pair for ${PowerPlant.getClass.getSimpleName} $key."
         )
       )
       .getPair

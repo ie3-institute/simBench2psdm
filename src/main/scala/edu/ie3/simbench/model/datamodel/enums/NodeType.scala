@@ -15,6 +15,11 @@ object NodeType {
   object BusBar extends NodeType
 
   /**
+    * A double bus bar
+    */
+  object DoubleBusBar extends NodeType
+
+  /**
     * A simple node like a bushing
     */
   object Node extends NodeType
@@ -34,9 +39,10 @@ object NodeType {
   @throws[SimbenchDataModelException]
   def apply(typeString: String): NodeType =
     typeString.toLowerCase.replaceAll("[_]*", "") match {
-      case "busbar"    => BusBar
-      case "node"      => Node
-      case "auxiliary" => Auxiliary
+      case "busbar"       => BusBar
+      case "doublebusbar" => DoubleBusBar
+      case "node"         => Node
+      case "auxiliary"    => Auxiliary
       case whatever =>
         throw SimbenchDataModelException(
           s"I cannot handle the node type $whatever"

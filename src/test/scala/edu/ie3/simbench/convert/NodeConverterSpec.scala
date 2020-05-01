@@ -53,7 +53,7 @@ class NodeConverterSpec extends UnitSpec with ConverterTestData {
     )
   )
 
-  val powerPlants = Vector(
+  val powerPlantsVec = Vector(
     PowerPlant(
       "EHV Gen 75",
       getNodePair("MV1.101 Bus 4")._1,
@@ -163,7 +163,7 @@ class NodeConverterSpec extends UnitSpec with ConverterTestData {
         (model: PowerPlant) => model.calculationType
       val getNodeFromPowerPlant = (model: PowerPlant) => model.node
       NodeConverter invokePrivate extractSlackNodeKeysMethod(
-        powerPlants,
+        powerPlantsVec,
         getCalcTypeFromPowerPlant,
         getNodeFromPowerPlant
       ) shouldBe Vector(NodeKey("MV1.101 Bus 4", "MV1.101_LV1.101_Feeder1", 5))
@@ -178,7 +178,7 @@ class NodeConverterSpec extends UnitSpec with ConverterTestData {
     }
 
     "extract the total set of slack node keys correctly" in {
-      NodeConverter.getSlackNodeKeys(externalNets, powerPlants, res) shouldBe Vector(
+      NodeConverter.getSlackNodeKeys(externalNets, powerPlantsVec, res) shouldBe Vector(
         NodeKey("MV1.101 Bus 4", "MV1.101_LV1.101_Feeder1", 5),
         NodeKey("MV1.101 Bus 5", "MV1.101_LV1.101_Feeder1", 5),
         NodeKey("LV1.101 Bus 4", "LV1.101", 7)
