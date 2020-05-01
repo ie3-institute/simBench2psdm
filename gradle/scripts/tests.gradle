@@ -23,11 +23,11 @@ task integrationTest(type: Test) {
 
 task allTests(type: Test) {
 	description 'executes all tests'
-	filter {
-		includeTestsMatching '*Test*.*'
-		includeTestsMatching '*IT'
-	}
-	mustRunAfter test
+//	filter {
+//		includeTestsMatching '*Test*.*'
+//		includeTestsMatching '*IT'
+//	}
+//	mustRunAfter test
 	mustRunAfter spec
 }
 allTests.dependsOn(spec)
