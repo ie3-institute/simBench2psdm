@@ -31,22 +31,26 @@ case object LineTypeConverter extends LazyLogging {
     * @param lines  [[Vector]] of SimBench [[LineType]]s
     * @return       A [[Vector]] of [[LineTypeInput]]s
     */
-  def convert(lines: Vector[Line[_ <: LineType]]): Vector[LineTypeInput] = {
+  def convert(
+      lines: Vector[Line[_ <: LineType]]
+  ): Map[LineType, LineTypeInput] = {
     val ratedVoltageMapping = getRatedVoltages(lines)
     val lineTypes = lines.map(line => line.lineType).distinct
 
-    lineTypes.map(
-      lineType =>
-        convert(
-          lineType,
-          ratedVoltageMapping.getOrElse(
+    lineTypes
+      .map(
+        lineType =>
+          lineType -> convert(
             lineType,
-            throw SimbenchDataModelException(
-              s"Cannot find the rated voltage vor line type ${lineType}"
+            ratedVoltageMapping.getOrElse(
+              lineType,
+              throw SimbenchDataModelException(
+                s"Cannot find the rated voltage vor line type ${lineType}"
+              )
             )
           )
-        )
-    )
+      )
+      .toMap
   }
 
   /**

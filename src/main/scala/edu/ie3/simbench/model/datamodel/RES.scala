@@ -25,7 +25,7 @@ import edu.ie3.simbench.model.datamodel.profiles.ResProfileType
 case class RES(
     id: String,
     node: Node,
-    resType: ResType,
+    resType: ResType.Value,
     profile: ResProfileType,
     calculationType: CalculationType,
     p: BigDecimal,

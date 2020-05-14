@@ -126,7 +126,7 @@ case object NodeConverter {
   }
 
   /**
-    * Extract the converted nodes of from the map
+    * Extract a pair of nodes from the given map of nodes
     *
     * @param nodeAIn  Input model one to use as key
     * @param nodeBIn  Input model two to use as key

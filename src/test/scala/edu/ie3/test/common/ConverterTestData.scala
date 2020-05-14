@@ -24,7 +24,13 @@ import edu.ie3.datamodel.models.input.connector.`type`.{
   Transformer2WTypeInput
 }
 import edu.ie3.simbench.exception.TestingException
-import edu.ie3.simbench.model.datamodel.enums.{LineStyle, NodeType, SwitchType}
+import edu.ie3.simbench.model.datamodel.enums.{
+  CalculationType,
+  LineStyle,
+  NodeType,
+  ResType,
+  SwitchType
+}
 import edu.ie3.simbench.model.datamodel.enums.NodeType.{BusBar, DoubleBusBar}
 import edu.ie3.simbench.model.datamodel.types.LineType.{ACLineType, DCLineType}
 import edu.ie3.simbench.model.datamodel.{
@@ -33,6 +39,7 @@ import edu.ie3.simbench.model.datamodel.{
   Measurement,
   Node,
   PowerPlant,
+  RES,
   SimbenchModel,
   Substation,
   Switch
@@ -66,7 +73,12 @@ import edu.ie3.simbench.model.datamodel.enums.CalculationType.PVm
 import edu.ie3.simbench.model.datamodel.enums.MeasurementVariable.Voltage
 import edu.ie3.simbench.model.datamodel.enums.PowerPlantType.Lignite
 import edu.ie3.simbench.model.datamodel.profiles.PowerPlantProfileType.PowerPlantProfile1
-import edu.ie3.simbench.model.datamodel.profiles.{LoadProfile, LoadProfileType}
+import edu.ie3.simbench.model.datamodel.profiles.{
+  LoadProfile,
+  LoadProfileType,
+  ResProfile,
+  ResProfileType
+}
 import edu.ie3.simbench.model.datamodel.types.{LineType, Transformer2WType}
 import edu.ie3.util.TimeUtil
 import org.scalatestplus.mockito.MockitoSugar
@@ -712,6 +724,43 @@ trait ConverterTestData extends MockitoSugar {
         key,
         throw TestingException(
           s"Cannot find input / result pair for ${PowerPlant.getClass.getSimpleName} $key."
+        )
+      )
+      .getPair
+
+  val res = Map(
+    "MV1.101 SGen 2" -> ConversionPair(
+      RES(
+        "MV1.101 SGen 2",
+        getNodePair("MV1.101 Bus 4")._1,
+        ResType.LvRes,
+        ResProfileType.LvRural1,
+        CalculationType.PQ,
+        BigDecimal("0.16"),
+        BigDecimal("0.0"),
+        BigDecimal("0.16"),
+        "MV1.101_LV1.101_eq",
+        5
+      ),
+      new FixedFeedInInput(
+        UUID.randomUUID(),
+        "MV1.101 SGen 2_lvres",
+        OperatorInput.NO_OPERATOR_ASSIGNED,
+        OperationTime.notLimited(),
+        getNodePair("MV1.101 Bus 4")._2,
+        new CosPhiFixed("cosPhiFixed:{(0.0,1.0)}"),
+        Quantities.getQuantity(0.16, MEGAVOLTAMPERE),
+        1.0
+      )
+    )
+  )
+
+  def getResPair(key: String): (RES, FixedFeedInInput) =
+    res
+      .getOrElse(
+        key,
+        throw TestingException(
+          s"Cannot find input / result pair for ${RES.getClass.getSimpleName} $key."
         )
       )
       .getPair

@@ -2,18 +2,15 @@ package edu.ie3.simbench.convert
 
 import java.util.{Locale, UUID}
 
-import edu.ie3.datamodel.models.{OperationTime, StandardUnits}
+import edu.ie3.datamodel.models.OperationTime
 import edu.ie3.datamodel.models.input.{NodeInput, OperatorInput}
 import edu.ie3.datamodel.models.input.system.FixedFeedInInput
 import edu.ie3.datamodel.models.input.system.characteristic.CosPhiFixed
 import edu.ie3.datamodel.models.timeseries.individual.IndividualTimeSeries
 import edu.ie3.datamodel.models.value.PValue
 import edu.ie3.simbench.convert.profiles.PowerProfileConverter
-import edu.ie3.simbench.model.datamodel.{Node, PowerPlant}
-import edu.ie3.simbench.model.datamodel.profiles.{
-  PowerPlantProfile,
-  PowerPlantProfileType
-}
+import edu.ie3.simbench.model.datamodel.{Node, RES}
+import edu.ie3.simbench.model.datamodel.profiles.{ResProfile, ResProfileType}
 import edu.ie3.util.quantities.PowerSystemUnits.{
   MEGAVAR,
   MEGAVOLTAMPERE,
@@ -21,52 +18,49 @@ import edu.ie3.util.quantities.PowerSystemUnits.{
 }
 import tec.uom.se.quantity.Quantities
 
-import scala.math._
+import scala.math.{atan, cos, round}
 
-case object PowerPlantConverter {
+case object ResConverter {
 
   /**
-    * Convert a full set of power plants
+    * Convert a full set of renewable energy source system
     *
-    * @param powerPlants  Input models to convert
-    * @param nodes        Mapping from Simbench to power system data model node
-    * @param profiles     Collection of [[PowerPlantProfile]]s
-    * @return A mapping from converted power plant to equivalent individual time series
+    * @param res      Input models to convert
+    * @param nodes    Mapping from Simbench to power system data model node
+    * @param profiles Collection of [[ResProfile]]s
+    * @return A mapping from converted renewable energy source system to equivalent individual time series
     */
   def convert(
-      powerPlants: Vector[PowerPlant],
+      res: Vector[RES],
       nodes: Map[Node, NodeInput],
-      profiles: Map[PowerPlantProfileType, PowerPlantProfile]
+      profiles: Map[ResProfileType, ResProfile]
   ): Map[FixedFeedInInput, IndividualTimeSeries[PValue]] = {
-    (for (powerPlant <- powerPlants) yield {
-      val node = NodeConverter.getNode(powerPlant.node, nodes)
+    (for (plant <- res) yield {
+      val node = NodeConverter.getNode(plant.node, nodes)
       val profile =
-        PowerProfileConverter.getProfile(powerPlant.profile, profiles)
-      convert(powerPlant, node, profile)
+        PowerProfileConverter.getProfile(plant.profile, profiles)
+      convert(plant, node, profile)
     }).toMap
   }
 
   /**
-    * Converts a single power plant model to a fixed feed in model, as the power system data model does not reflect
-    * power plants, yet. Voltage regulation strategies are also not correctly accounted for.
+    * Converts a single renewable energy source system to a fixed feed in model due to lacking information to
+    * sophistically guess typical types of assets. Different voltage regulation strategies are not covered, yet.
     *
     * @param input    Input model
-    * @param node     Node, the power plant is connected to
-    * @param profile  SimBench power plant profile
+    * @param node     Node, the renewable energy source system is connected to
+    * @param profile  SimBench renewable energy source system profile
     * @param uuid     Option to a specific uuid
     * @return A pair of [[FixedFeedInInput]] and matching active power time series
     */
   def convert(
-      input: PowerPlant,
+      input: RES,
       node: NodeInput,
-      profile: PowerPlantProfile,
+      profile: ResProfile,
       uuid: Option[UUID] = None
   ): (FixedFeedInInput, IndividualTimeSeries[PValue]) = {
     val p = Quantities.getQuantity(input.p, MEGAWATT)
-    val q = input.q match {
-      case Some(value) => Quantities.getQuantity(value, MEGAVAR)
-      case None        => Quantities.getQuantity(0d, MEGAVAR)
-    }
+    val q = Quantities.getQuantity(input.q, MEGAVAR)
     val cosPhi = round(
       cos(atan(q.getValue.doubleValue() / p.getValue.doubleValue())) * 100
     ) / 100d
@@ -78,7 +72,7 @@ case object PowerPlantConverter {
 
     new FixedFeedInInput(
       uuid.getOrElse(UUID.randomUUID()),
-      input.id,
+      input.id + "_" + input.resType.toString,
       OperatorInput.NO_OPERATOR_ASSIGNED,
       OperationTime.notLimited(),
       node,
