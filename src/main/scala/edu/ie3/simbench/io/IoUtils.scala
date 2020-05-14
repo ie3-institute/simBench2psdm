@@ -86,21 +86,23 @@ trait IoUtils {
   val fileNameRegexWithAnyEnding: Regex =
     (singleStringRegex.pattern.toString + "|" + everythingExceptSeparatorRegex.pattern.toString + "\\.\\w+$").r
 
+  val folderNameRegex: Regex = "[\\w@.-]+".r
+
   /**
     * Regex to detect a fully qualified path consisting of a folder path followed by a file name with extension
     */
   val fullyQualifiedPathRegex: Regex =
-    ("^(?:\\w\\:" + fileSeparatorRegex.pattern.toString + "+|" + fileSeparatorRegex.pattern.toString + ")(?:[\\w@\\.-]+" + fileSeparatorRegex.pattern.toString + ")*(?:\\w+\\.\\w+)$").r
+    ("^(?:\\w\\:" + fileSeparatorRegex.pattern.toString + "+|" + fileSeparatorRegex.pattern.toString + ")(?:" + folderNameRegex.pattern.toString + fileSeparatorRegex.pattern.toString + ")*(?:\\w+\\.\\w+)$").r
 
   /**
     * Identifying a path pointing to a folder and not to a specific file. It consists of three non-capturing groups (?:):
     * 1) Start of a valid folder string ("C:", "/" or a simple word)
     * 2) Any allowed intermediate string (including "@", "." and "-" to allow urls in the name) followed by a file
     *    separator
-    * 3) A simple word at the end
+    * 3) A simple word at the end (including "@", "." and "-" to allow urls in the name)
     */
   val folderPathWithoutLastSeparator: Regex =
-    ("^(?:\\w\\:" + fileSeparatorRegex.pattern.toString + "+|" + fileSeparatorRegex.pattern.toString + ")(?:[\\w@\\.-]+" + fileSeparatorRegex.pattern.toString + ")*(?:\\w+)$").r
+    ("^(?:\\w\\:" + fileSeparatorRegex.pattern.toString + "+|" + fileSeparatorRegex.pattern.toString + ")(?:" + folderNameRegex.pattern.toString + fileSeparatorRegex.pattern.toString + ")*(?:" + folderNameRegex.pattern.toString + ")$").r
 
   /**
     * Removes a leading file separator at a fully qualified windows file path (e.g. "/C:" to "C:")
