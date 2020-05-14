@@ -111,7 +111,7 @@ final case class SimbenchReader(
       .toMap
 
     /* Creating the actual models */
-    val nodes = modelClassToRawData.get(classOf[Node]) match {
+    val nodes = modelClassToRawData.getOrElse(classOf[Node], None) match {
       case Some(rawDatas) =>
         Node
           .buildModels(rawDatas, coordinates, substations)
@@ -122,27 +122,28 @@ final case class SimbenchReader(
           "Cannot build nodes, as no raw data has been received."
         )
     }
-    val lines = modelClassToRawData.get(classOf[Line[_]]) match {
+    val lines = modelClassToRawData.getOrElse(classOf[Line[_]], None) match {
       case Some(rawDatas) => Line.buildModels(rawDatas, nodes, lineTypes)
       case None =>
         throw IoException(
           "Cannot build lines, as no raw data has been received."
         )
     }
-    val transformers2w = modelClassToRawData.get(classOf[Transformer2W]) match {
-      case Some(rawDatas) =>
-        Transformer2W.buildModels(
-          rawDatas,
-          nodes,
-          transformer2WTypes,
-          substations
-        )
-      case None =>
-        throw IoException(
-          "Cannot build two-winding transformers, as no raw data has been received."
-        )
-    }
-    val switches = modelClassToRawData.get(classOf[Switch]) match {
+    val transformers2w =
+      modelClassToRawData.getOrElse(classOf[Transformer2W], None) match {
+        case Some(rawDatas) =>
+          Transformer2W.buildModels(
+            rawDatas,
+            nodes,
+            transformer2WTypes,
+            substations
+          )
+        case None =>
+          throw IoException(
+            "Cannot build two-winding transformers, as no raw data has been received."
+          )
+      }
+    val switches = modelClassToRawData.getOrElse(classOf[Switch], None) match {
       case Some(rawDatas) => Switch.buildModels(rawDatas, nodes, substations)
       case None =>
         logger.debug(
@@ -150,21 +151,22 @@ final case class SimbenchReader(
         )
         Vector.empty[Switch]
     }
-    val externalNets = modelClassToRawData.get(classOf[ExternalNet]) match {
-      case Some(rawDatas) => ExternalNet.buildModels(rawDatas, nodes)
-      case None =>
-        throw IoException(
-          "Cannot build external nets, as no raw data has been received."
-        )
-    }
-    val loads = modelClassToRawData.get(classOf[Load]) match {
+    val externalNets =
+      modelClassToRawData.getOrElse(classOf[ExternalNet], None) match {
+        case Some(rawDatas) => ExternalNet.buildModels(rawDatas, nodes)
+        case None =>
+          throw IoException(
+            "Cannot build external nets, as no raw data has been received."
+          )
+      }
+    val loads = modelClassToRawData.getOrElse(classOf[Load], None) match {
       case Some(rawDatas) => Load.buildModels(rawDatas, nodes)
       case None =>
         throw IoException(
           "Cannot build external nets, as no raw data has been received."
         )
     }
-    val res = modelClassToRawData.get(classOf[RES]) match {
+    val res = modelClassToRawData.getOrElse(classOf[RES], None) match {
       case Some(rawDatas) => RES.buildModels(rawDatas, nodes)
       case None =>
         logger.debug(
@@ -172,53 +174,56 @@ final case class SimbenchReader(
         )
         Vector.empty[RES]
     }
-    val measurements = modelClassToRawData.get(classOf[Measurement]) match {
-      case Some(rawDatas) =>
-        Measurement.buildModels(
-          rawDatas,
-          nodes,
-          lines.map(line => line.id -> line).toMap,
-          transformers2w
-            .map(transformer => transformer.id -> transformer)
-            .toMap
-        )
-      case None =>
-        logger.debug(
-          s"No information available for ${classOf[Measurement].getSimpleName}"
-        )
-        Vector.empty[Measurement]
-    }
-    val powerPlants = modelClassToRawData.get(classOf[PowerPlant]) match {
-      case Some(rawDatas) => PowerPlant.buildModels(rawDatas, nodes)
-      case None =>
-        logger.debug(
-          s"No information available for ${classOf[PowerPlant].getSimpleName}"
-        )
-        Vector.empty[PowerPlant]
-    }
+    val measurements =
+      modelClassToRawData.getOrElse(classOf[Measurement], None) match {
+        case Some(rawDatas) =>
+          Measurement.buildModels(
+            rawDatas,
+            nodes,
+            lines.map(line => line.id -> line).toMap,
+            transformers2w
+              .map(transformer => transformer.id -> transformer)
+              .toMap
+          )
+        case None =>
+          logger.debug(
+            s"No information available for ${classOf[Measurement].getSimpleName}"
+          )
+          Vector.empty[Measurement]
+      }
+    val powerPlants =
+      modelClassToRawData.getOrElse(classOf[PowerPlant], None) match {
+        case Some(rawDatas) => PowerPlant.buildModels(rawDatas, nodes)
+        case None =>
+          logger.debug(
+            s"No information available for ${classOf[PowerPlant].getSimpleName}"
+          )
+          Vector.empty[PowerPlant]
+      }
 
     /* Currently not known table scheme */
-    val shunts = modelClassToRawData.get(classOf[Shunt]) match {
+    val shunts = modelClassToRawData.getOrElse(classOf[Shunt], None) match {
       case Some(_) =>
         throw SimbenchDataModelException(
           s"Found data set for ${classOf[Shunt]}, but no factory method defined"
         )
       case None => Vector.empty[Shunt]
     }
-    val storages = modelClassToRawData.get(classOf[Storage]) match {
+    val storages = modelClassToRawData.getOrElse(classOf[Storage], None) match {
       case Some(_) =>
         throw SimbenchDataModelException(
           s"Found data set for ${classOf[Storage]}, but no factory method defined"
         )
       case None => Vector.empty[Storage]
     }
-    val transformers3w = modelClassToRawData.get(classOf[Transformer3W]) match {
-      case Some(_) =>
-        throw SimbenchDataModelException(
-          s"Found data set for ${classOf[Transformer3W]}, but no factory method defined"
-        )
-      case None => Vector.empty[Transformer3W]
-    }
+    val transformers3w =
+      modelClassToRawData.getOrElse(classOf[Transformer3W], None) match {
+        case Some(_) =>
+          throw SimbenchDataModelException(
+            s"Found data set for ${classOf[Transformer3W]}, but no factory method defined"
+          )
+        case None => Vector.empty[Transformer3W]
+      }
 
     /* Create grid model */
     GridModel(
@@ -244,16 +249,17 @@ final case class SimbenchReader(
   }
 
   /**
-    * Reading all models of the specified class and returning them
+    * Reading all models of the specified class and returning them as an [[Option]]. Some classes are not mandatory,
+    * therefore, an [[Option]] on the result is handed back.
     *
     * @param modelClass     Class of the models to read
     * @param desiredFields  The desired fields to get from file
-    * @return               A Vector of maps with fields to values
+    * @return               A tuple of modelClass to an Option on a [[Vector]] of raw model data for that class
     */
   private def read[T <: SimbenchModel](
       modelClass: Class[T],
       desiredFields: Array[HeadLineField]
-  ): Future[(Class[T], Vector[RawModelData])] =
+  ): Future[(Class[T], Option[Vector[RawModelData]])] =
     Future {
       /* Determine the matching file name */
       SimbenchFileNamingStrategy.getFileName(modelClass) match {
@@ -263,21 +269,17 @@ final case class SimbenchReader(
             exception
           )
         case Success(filename) =>
-          val csvReader =
-            CsvReader(
-              modelClass,
-              IoUtils.composeFullyQualifiedPath(
-                checkedFolderPath,
-                filename,
-                checkedFileExtension
-              ),
-              separator,
-              fileExtension,
-              fileEncoding
-            )
-
-          /* De-serialise the files */
-          modelClass -> csvReader.read(desiredFields)
+          modelClass -> CsvReader(
+            modelClass,
+            IoUtils.composeFullyQualifiedPath(
+              checkedFolderPath,
+              filename,
+              checkedFileExtension
+            ),
+            separator,
+            fileExtension,
+            fileEncoding
+          ).map(_.read(desiredFields))
       }
     }
 
@@ -286,13 +288,13 @@ final case class SimbenchReader(
     *
     * @return A map of model class to a vector of maps from field to value
     */
-  private def getFieldToValueMaps: Map[Class[_], Vector[RawModelData]] = {
+  private def getFieldToValueMaps
+      : Map[Class[_], Option[Vector[RawModelData]]] = {
     Await
       .result(
         Future.sequence(
           for ((clazz, fields) <- classesToRead)
             yield {
-
               read(clazz, fields)
             }
         ),
@@ -313,11 +315,11 @@ final case class SimbenchReader(
     * @return                     A [[Vector]] of models
     */
   private def buildModels[C <: SimbenchModel](
-      modelClassToRawData: Map[Class[_], Vector[RawModelData]],
+      modelClassToRawData: Map[Class[_], Option[Vector[RawModelData]]],
       cls: SimbenchCompanionObject[C],
       optional: Boolean = true
   )(implicit tag: ClassTag[C]): Vector[C] = {
-    modelClassToRawData.get(tag.runtimeClass) match {
+    modelClassToRawData.getOrElse(tag.runtimeClass, None) match {
       case Some(rawDatas) => cls.buildModels(rawDatas)
       case None =>
         if (optional) {
