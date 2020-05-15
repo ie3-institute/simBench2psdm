@@ -4,9 +4,16 @@ import edu.ie3.simbench.exception.io.SimbenchFileNamingException
 import edu.ie3.simbench.model.datamodel.ExternalNet.{Simple, Ward, WardExtended}
 import edu.ie3.simbench.model.datamodel.Line.{ACLine, DCLine}
 import edu.ie3.simbench.model.datamodel._
-import edu.ie3.simbench.model.datamodel.profiles.{LoadProfile, PowerPlantProfile, ResProfile}
+import edu.ie3.simbench.model.datamodel.profiles.{
+  LoadProfile,
+  PowerPlantProfile,
+  ResProfile
+}
 import edu.ie3.simbench.model.datamodel.types.LineType.{ACLineType, DCLineType}
-import edu.ie3.simbench.model.datamodel.types.{Transformer2WType, Transformer3WType}
+import edu.ie3.simbench.model.datamodel.types.{
+  Transformer2WType,
+  Transformer3WType
+}
 import edu.ie3.test.common.UnitSpec
 import org.scalatest.Inside._
 import org.scalatest.prop.TableDrivenPropertyChecks._

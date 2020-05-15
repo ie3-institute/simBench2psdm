@@ -2,9 +2,18 @@ package edu.ie3.simbench.model
 
 import edu.ie3.simbench.exception.io.SimbenchDataModelException
 import edu.ie3.simbench.model.datamodel.Line.ACLine
-import edu.ie3.simbench.model.datamodel.Measurement.{LineMeasurement, NodeMeasurement, TransformerMeasurement}
+import edu.ie3.simbench.model.datamodel.Measurement.{
+  LineMeasurement,
+  NodeMeasurement,
+  TransformerMeasurement
+}
 import edu.ie3.simbench.model.datamodel._
-import edu.ie3.simbench.model.datamodel.enums.{BranchElementPort, LineStyle, MeasurementVariable, NodeType}
+import edu.ie3.simbench.model.datamodel.enums.{
+  BranchElementPort,
+  LineStyle,
+  MeasurementVariable,
+  NodeType
+}
 import edu.ie3.simbench.model.datamodel.types.LineType.ACLineType
 import edu.ie3.simbench.model.datamodel.types.Transformer2WType
 import edu.ie3.test.common.UnitSpec

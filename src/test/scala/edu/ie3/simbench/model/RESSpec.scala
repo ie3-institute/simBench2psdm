@@ -1,7 +1,11 @@
 package edu.ie3.simbench.model
 
 import edu.ie3.simbench.exception.io.SimbenchDataModelException
-import edu.ie3.simbench.model.datamodel.enums.{CalculationType, NodeType, ResType}
+import edu.ie3.simbench.model.datamodel.enums.{
+  CalculationType,
+  NodeType,
+  ResType
+}
 import edu.ie3.simbench.model.datamodel.profiles.ResProfileType
 import edu.ie3.simbench.model.datamodel.{Coordinate, Node, RES}
 import edu.ie3.test.common.UnitSpec

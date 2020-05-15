@@ -1,6 +1,11 @@
 package edu.ie3.simbench.model.datamodel
 
-import edu.ie3.simbench.model.datamodel.profiles.{LoadProfile, PowerPlantProfile, ResProfile, StorageProfile}
+import edu.ie3.simbench.model.datamodel.profiles.{
+  LoadProfile,
+  PowerPlantProfile,
+  ResProfile,
+  StorageProfile
+}
 import edu.ie3.simbench.model.datamodel.types.LineType
 
 case class GridModel(

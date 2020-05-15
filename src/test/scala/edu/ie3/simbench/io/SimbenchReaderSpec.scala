@@ -5,7 +5,11 @@ import java.nio.file.Paths
 import edu.ie3.simbench.exception.io.IoException
 import edu.ie3.simbench.model.RawModelData
 import edu.ie3.simbench.model.datamodel._
-import edu.ie3.simbench.model.datamodel.profiles.{LoadProfile, PowerPlantProfile, ResProfile}
+import edu.ie3.simbench.model.datamodel.profiles.{
+  LoadProfile,
+  PowerPlantProfile,
+  ResProfile
+}
 import edu.ie3.simbench.model.datamodel.types.{LineType, Transformer2WType}
 import edu.ie3.test.common.{SimbenchReaderTestData, UnitSpec}
 import org.scalatest.Inside._

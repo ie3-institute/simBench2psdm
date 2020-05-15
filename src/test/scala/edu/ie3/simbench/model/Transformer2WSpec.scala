@@ -3,7 +3,12 @@ package edu.ie3.simbench.model
 import edu.ie3.simbench.exception.io.SimbenchDataModelException
 import edu.ie3.simbench.model.datamodel.enums.{BranchElementPort, NodeType}
 import edu.ie3.simbench.model.datamodel.types.Transformer2WType
-import edu.ie3.simbench.model.datamodel.{Coordinate, Node, Substation, Transformer2W}
+import edu.ie3.simbench.model.datamodel.{
+  Coordinate,
+  Node,
+  Substation,
+  Transformer2W
+}
 import edu.ie3.test.common.UnitSpec
 
 class Transformer2WSpec extends UnitSpec {

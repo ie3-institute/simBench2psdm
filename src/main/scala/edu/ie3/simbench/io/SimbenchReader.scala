@@ -7,11 +7,21 @@ import edu.ie3.simbench.exception.io.{IoException, SimbenchDataModelException}
 import edu.ie3.simbench.model.RawModelData
 import edu.ie3.simbench.model.datamodel.SimbenchModel.SimbenchCompanionObject
 import edu.ie3.simbench.model.datamodel._
-import edu.ie3.simbench.model.datamodel.profiles.{LoadProfile, PowerPlantProfile, ResProfile, StorageProfile}
+import edu.ie3.simbench.model.datamodel.profiles.{
+  LoadProfile,
+  PowerPlantProfile,
+  ResProfile,
+  StorageProfile
+}
 import edu.ie3.simbench.model.datamodel.types.{LineType, Transformer2WType}
 
 import scala.concurrent.duration.Duration
-import scala.concurrent.{Await, ExecutionContext, ExecutionContextExecutor, Future}
+import scala.concurrent.{
+  Await,
+  ExecutionContext,
+  ExecutionContextExecutor,
+  Future
+}
 import scala.reflect.ClassTag
 import scala.util.{Failure, Success}
 

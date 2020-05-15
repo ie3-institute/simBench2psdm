@@ -3,7 +3,12 @@ package edu.ie3.simbench.model
 import edu.ie3.simbench.exception.io.SimbenchDataModelException
 import edu.ie3.simbench.model.datamodel.ExternalNet.{Simple, Ward, WardExtended}
 import edu.ie3.simbench.model.datamodel.enums.{CalculationType, NodeType}
-import edu.ie3.simbench.model.datamodel.{Coordinate, ExternalNet, Node, Substation}
+import edu.ie3.simbench.model.datamodel.{
+  Coordinate,
+  ExternalNet,
+  Node,
+  Substation
+}
 import edu.ie3.test.common.UnitSpec
 
 class ExternalNetSpec extends UnitSpec {

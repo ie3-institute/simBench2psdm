@@ -1,9 +1,18 @@
 package edu.ie3.simbench.model
 
 import edu.ie3.simbench.exception.io.SimbenchDataModelException
-import edu.ie3.simbench.model.datamodel.enums.{CalculationType, NodeType, PowerPlantType}
+import edu.ie3.simbench.model.datamodel.enums.{
+  CalculationType,
+  NodeType,
+  PowerPlantType
+}
 import edu.ie3.simbench.model.datamodel.profiles.PowerPlantProfileType
-import edu.ie3.simbench.model.datamodel.{Coordinate, Node, PowerPlant, Substation}
+import edu.ie3.simbench.model.datamodel.{
+  Coordinate,
+  Node,
+  PowerPlant,
+  Substation
+}
 import edu.ie3.test.common.UnitSpec
 
 class PowerPlantSpec extends UnitSpec {

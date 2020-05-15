@@ -2,7 +2,10 @@ package edu.ie3.simbench.model.profile
 
 import edu.ie3.simbench.exception.io.SimbenchDataModelException
 import edu.ie3.simbench.model.RawModelData
-import edu.ie3.simbench.model.datamodel.profiles.{PowerPlantProfile, PowerPlantProfileType}
+import edu.ie3.simbench.model.datamodel.profiles.{
+  PowerPlantProfile,
+  PowerPlantProfileType
+}
 import edu.ie3.test.common.UnitSpec
 import edu.ie3.util.{TimeTools, TimeUtil}
 
