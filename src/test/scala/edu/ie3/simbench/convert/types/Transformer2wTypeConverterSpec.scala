@@ -66,7 +66,7 @@ class Transformer2wTypeConverterSpec extends UnitSpec with ConverterTestData {
       actual
         .getbM()
         .subtract(
-          Quantities.getQuantity(32972.94113, MetricPrefix.NANO(SIEMENS))
+          Quantities.getQuantity(33047.51904649951, MetricPrefix.NANO(SIEMENS))
         )
         .to(MetricPrefix.NANO(SIEMENS))
         .getValue
@@ -100,7 +100,7 @@ class Transformer2wTypeConverterSpec extends UnitSpec with ConverterTestData {
     }
 
     "throw an exception, when the input model does not allow to calculate no load circuit parameters correctly" in {
-      val invalidInput = validInput.copy(pFe = BigDecimal("150"))
+      val invalidInput = validInput.copy(pFe = BigDecimal("1000"))
       val thrown = intercept[ConversionException](
         Transformer2wTypeConverter.convert(invalidInput, uuid)
       )
