@@ -3,20 +3,16 @@ package edu.ie3.simbench.model.profile
 import edu.ie3.simbench.exception.io.SimbenchDataModelException
 import edu.ie3.simbench.model.RawModelData
 import edu.ie3.simbench.model.datamodel.profiles.LoadProfile
-import edu.ie3.simbench.model.datamodel.profiles.LoadProfileType.{
-  H0A,
-  H0B,
-  H0C,
-  L1A,
-  L2A
-}
+import edu.ie3.simbench.model.datamodel.profiles.LoadProfileType._
 import edu.ie3.test.common.UnitSpec
-import edu.ie3.util.TimeTools
+import edu.ie3.util.{TimeTools, TimeUtil}
 
 class LoadProfileSpec extends UnitSpec {
-  TimeTools.initialize(TimeTools.DEFAULT_ZONE_ID,
-                       TimeTools.DEFAULT_LOCALE,
-                       "dd.MM.yyyy HH:mm")
+  TimeTools.initialize(
+    TimeTools.DEFAULT_ZONE_ID,
+    TimeTools.DEFAULT_LOCALE,
+    "dd.MM.yyyy HH:mm"
+  )
 
   val rawData = Vector(
     RawModelData(
@@ -58,50 +54,70 @@ class LoadProfileSpec extends UnitSpec {
       "H0A",
       H0A,
       Map(
-        TimeTools.toZonedDateTime("01.01.2016 00:00") -> (BigDecimal(
-          "0.276685"), BigDecimal("-0.067519")),
-        TimeTools.toZonedDateTime("01.01.2016 00:15") -> (BigDecimal(
-          "0.066011"), BigDecimal("0.060412"))
+        TimeUtil.withDefaults
+          .toZonedDateTime("2016-01-01 00:00:00") -> (BigDecimal(
+          "0.276685"
+        ), BigDecimal("-0.067519")),
+        TimeUtil.withDefaults
+          .toZonedDateTime("2016-01-01 00:15:00") -> (BigDecimal(
+          "0.066011"
+        ), BigDecimal("0.060412"))
       )
     ),
     LoadProfile(
       "H0B",
       H0B,
       Map(
-        TimeTools.toZonedDateTime("01.01.2016 00:00") -> (BigDecimal(
-          "0.065826"), BigDecimal("-0.014175")),
-        TimeTools.toZonedDateTime("01.01.2016 00:15") -> (BigDecimal(
-          "0.190476"), BigDecimal("0.212622"))
+        TimeUtil.withDefaults
+          .toZonedDateTime("2016-01-01 00:00:00") -> (BigDecimal(
+          "0.065826"
+        ), BigDecimal("-0.014175")),
+        TimeUtil.withDefaults
+          .toZonedDateTime("2016-01-01 00:15:00") -> (BigDecimal(
+          "0.190476"
+        ), BigDecimal("0.212622"))
       )
     ),
     LoadProfile(
       "H0C",
       H0C,
       Map(
-        TimeTools.toZonedDateTime("01.01.2016 00:00") -> (BigDecimal(
-          "0.237082"), BigDecimal("0.242253")),
-        TimeTools.toZonedDateTime("01.01.2016 00:15") -> (BigDecimal(
-          "0.066869"), BigDecimal("0.007691"))
+        TimeUtil.withDefaults
+          .toZonedDateTime("2016-01-01 00:00:00") -> (BigDecimal(
+          "0.237082"
+        ), BigDecimal("0.242253")),
+        TimeUtil.withDefaults
+          .toZonedDateTime("2016-01-01 00:15:00") -> (BigDecimal(
+          "0.066869"
+        ), BigDecimal("0.007691"))
       )
     ),
     LoadProfile(
       "L1A",
       L1A,
       Map(
-        TimeTools.toZonedDateTime("01.01.2016 00:00") -> (BigDecimal(
-          "0.144231"), BigDecimal("0.125501")),
-        TimeTools.toZonedDateTime("01.01.2016 00:15") -> (BigDecimal(
-          "0.416628"), BigDecimal("0.587453"))
+        TimeUtil.withDefaults
+          .toZonedDateTime("2016-01-01 00:00:00") -> (BigDecimal(
+          "0.144231"
+        ), BigDecimal("0.125501")),
+        TimeUtil.withDefaults
+          .toZonedDateTime("2016-01-01 00:15:00") -> (BigDecimal(
+          "0.416628"
+        ), BigDecimal("0.587453"))
       )
     ),
     LoadProfile(
       "L2A",
       L2A,
       Map(
-        TimeTools.toZonedDateTime("01.01.2016 00:00") -> (BigDecimal(
-          "0.321053"), BigDecimal("0.326352")),
-        TimeTools.toZonedDateTime("01.01.2016 00:15") -> (BigDecimal(
-          "0.317544"), BigDecimal("0.346238"))
+        TimeUtil.withDefaults
+          .toZonedDateTime("2016-01-01 00:00:00") -> (BigDecimal(
+          "0.321053"
+        ), BigDecimal("0.326352")),
+        TimeUtil.withDefaults
+          .toZonedDateTime("2016-01-01 00:15:00") -> (BigDecimal(
+          "0.317544"
+        ), BigDecimal("0.346238"))
       )
     )
   )

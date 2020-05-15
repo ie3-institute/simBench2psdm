@@ -20,6 +20,7 @@ object StorageType {
     typeString.toLowerCase.replaceAll("[_ ]*", "") match {
       case whatever =>
         throw SimbenchDataModelException(
-          s"I cannot handle the storage type $whatever")
+          s"I cannot handle the storage type $whatever"
+        )
     }
 }

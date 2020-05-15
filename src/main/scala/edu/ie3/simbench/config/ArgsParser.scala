@@ -3,13 +3,15 @@ package edu.ie3.simbench.config
 import java.io.File
 import java.nio.file.Paths
 
-import scopt.{OptionParser => scoptOptionParser}
 import com.typesafe.config.{ConfigFactory, Config => TypesafeConfig}
+import scopt.{OptionParser => scoptOptionParser}
 
 object ArgsParser {
   // case class for allowed arguments
-  final case class Arguments(configLocation: Option[String] = None,
-                             config: Option[TypesafeConfig] = None)
+  final case class Arguments(
+      configLocation: Option[String] = None,
+      config: Option[TypesafeConfig] = None
+  )
 
   // build the config parser using scopt library
   private def buildParser: scoptOptionParser[Arguments] = {
@@ -37,8 +39,10 @@ object ArgsParser {
     }
   }
 
-  private def parse(parser: scoptOptionParser[Arguments],
-                    args: Array[String]): Option[Arguments] = {
+  private def parse(
+      parser: scoptOptionParser[Arguments],
+      args: Array[String]
+  ): Option[Arguments] = {
     parser.parse(args, init = Arguments())
   }
 

@@ -1,13 +1,9 @@
 package edu.ie3.simbench.model
 
 import edu.ie3.simbench.exception.io.SimbenchDataModelException
-import edu.ie3.simbench.model.datamodel.{Coordinate, Node, RES, Substation}
-import edu.ie3.simbench.model.datamodel.enums.{
-  CalculationType,
-  NodeType,
-  ResType
-}
+import edu.ie3.simbench.model.datamodel.enums.{CalculationType, NodeType, ResType}
 import edu.ie3.simbench.model.datamodel.profiles.ResProfileType
+import edu.ie3.simbench.model.datamodel.{Coordinate, Node, RES}
 import edu.ie3.test.common.UnitSpec
 
 class RESSpec extends UnitSpec {
@@ -28,7 +24,8 @@ class RESSpec extends UnitSpec {
           BigDecimal("53.6413"),
           "MV1.101_LV1.101_Feeder1",
           5
-        )),
+        )
+      ),
       "LV1.101",
       7
     )
@@ -86,7 +83,8 @@ class RESSpec extends UnitSpec {
             BigDecimal("53.6413"),
             "MV1.101_LV1.101_Feeder1",
             5
-          )),
+          )
+        ),
         "LV1.101",
         7
       ),
@@ -117,7 +115,8 @@ class RESSpec extends UnitSpec {
             BigDecimal("53.6413"),
             "MV1.101_LV1.101_Feeder1",
             5
-          )),
+          )
+        ),
         "LV1.101",
         7
       ),
@@ -148,9 +147,12 @@ class RESSpec extends UnitSpec {
     "build the correct single model" in {
       val actual = RES.buildModel(
         rawData(0),
-        nodes.getOrElse("LV1.101 Bus 4",
-                        throw SimbenchDataModelException(
-                          "Ooops. This is not supposed to happen")),
+        nodes.getOrElse(
+          "LV1.101 Bus 4",
+          throw SimbenchDataModelException(
+            "Ooops. This is not supposed to happen"
+          )
+        )
       )
       actual shouldBe expected(0)
     }

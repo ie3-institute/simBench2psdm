@@ -155,7 +155,8 @@ object LoadProfileType {
       case "hsexp1"     => HsExp1
       case whatever =>
         throw SimbenchDataModelException(
-          s"I cannot handle the load profile id $whatever")
+          s"I cannot handle the load profile id $whatever"
+        )
     }
 
   /**

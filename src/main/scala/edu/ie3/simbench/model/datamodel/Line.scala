@@ -30,15 +30,16 @@ object Line extends EntityModelCompanionObject[Line[_ <: LineType]] {
     * @param subnet     Subnet it belongs to
     * @param voltLvl    Voltage level
     */
-  case class ACLine(id: String,
-                    nodeA: Node,
-                    nodeB: Node,
-                    lineType: ACLineType,
-                    length: BigDecimal,
-                    loadingMax: BigDecimal,
-                    subnet: String,
-                    voltLvl: Int)
-      extends Line[ACLineType]
+  case class ACLine(
+      id: String,
+      nodeA: Node,
+      nodeB: Node,
+      lineType: ACLineType,
+      length: BigDecimal,
+      loadingMax: BigDecimal,
+      subnet: String,
+      voltLvl: Int
+  ) extends Line[ACLineType]
 
   /**
     * DC line model
@@ -52,15 +53,16 @@ object Line extends EntityModelCompanionObject[Line[_ <: LineType]] {
     * @param subnet     Subnet it belongs to
     * @param voltLvl    Voltage level
     */
-  case class DCLine(id: String,
-                    nodeA: Node,
-                    nodeB: Node,
-                    lineType: DCLineType,
-                    length: BigDecimal,
-                    loadingMax: BigDecimal,
-                    subnet: String,
-                    voltLvl: Int)
-      extends Line[DCLineType]
+  case class DCLine(
+      id: String,
+      nodeA: Node,
+      nodeB: Node,
+      lineType: DCLineType,
+      length: BigDecimal,
+      loadingMax: BigDecimal,
+      subnet: String,
+      voltLvl: Int
+  ) extends Line[DCLineType]
 
   private val NODE_A = "nodeA"
   private val NODE_B = "nodeB"
@@ -85,7 +87,8 @@ object Line extends EntityModelCompanionObject[Line[_ <: LineType]] {
     */
   override def apply(rawData: RawModelData): Line[_ <: LineType] =
     throw SimbenchDataModelException(
-      s"No basic implementation of model creation available for ${this.getClass.getSimpleName}")
+      s"No basic implementation of model creation available for ${this.getClass.getSimpleName}"
+    )
 
   /**
     * Factory method to build a batch of models from a mapping from field id to value
@@ -98,14 +101,16 @@ object Line extends EntityModelCompanionObject[Line[_ <: LineType]] {
   def buildModels(
       rawData: Vector[RawModelData],
       nodes: Map[String, Node],
-      lineTypes: Map[String, LineType]): Vector[Line[_ <: LineType]] =
+      lineTypes: Map[String, LineType]
+  ): Vector[Line[_ <: LineType]] =
     for (entry <- rawData) yield {
       val (nodeA, nodeB) =
         getNodes(entry.get(NODE_A), entry.get(NODE_B), nodes)
       val lineType = lineTypes.getOrElse(
         entry.get(LINE_TYPE),
         throw SimbenchDataModelException(
-          s"Cannot build ${this.getClass.getSimpleName}, as suitable reference to $LINE_TYPE cannot be found.")
+          s"Cannot build ${this.getClass.getSimpleName}, as suitable reference to $LINE_TYPE cannot be found."
+        )
       )
 
       buildModel(entry, nodeA, nodeB, lineType)
@@ -120,33 +125,39 @@ object Line extends EntityModelCompanionObject[Line[_ <: LineType]] {
     * @param lineType Line type to use for this line
     * @return A model
     */
-  def buildModel(rawData: RawModelData,
-                 nodeA: Node,
-                 nodeB: Node,
-                 lineType: LineType): Line[_ <: LineType] = {
+  def buildModel(
+      rawData: RawModelData,
+      nodeA: Node,
+      nodeB: Node,
+      lineType: LineType
+  ): Line[_ <: LineType] = {
     val (id, subnet, voltLvl) = getBaseInformation(rawData)
     val length = rawData.getBigDecimal(LENGTH)
     val loadingMax = rawData.getBigDecimal(LOADING_MAX)
 
     lineType match {
       case acLineType: ACLineType =>
-        ACLine(id,
-               nodeA,
-               nodeB,
-               acLineType,
-               length,
-               loadingMax,
-               subnet,
-               voltLvl)
+        ACLine(
+          id,
+          nodeA,
+          nodeB,
+          acLineType,
+          length,
+          loadingMax,
+          subnet,
+          voltLvl
+        )
       case dcLineType: DCLineType =>
-        DCLine(id,
-               nodeA,
-               nodeB,
-               dcLineType,
-               length,
-               loadingMax,
-               subnet,
-               voltLvl)
+        DCLine(
+          id,
+          nodeA,
+          nodeB,
+          dcLineType,
+          length,
+          loadingMax,
+          subnet,
+          voltLvl
+        )
     }
   }
 }

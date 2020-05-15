@@ -6,7 +6,7 @@ import edu.ie3.simbench.io.HeadLineField
 import edu.ie3.simbench.io.HeadLineField.{MandatoryField, OptionalField}
 import edu.ie3.simbench.model.RawModelData
 import edu.ie3.simbench.model.datamodel.profiles.ProfileModel.ProfileCompanionObject
-import edu.ie3.util.TimeTools
+import edu.ie3.util.TimeUtil
 
 /**
   * A power plant's profile consisting of an identifier and a mapping of the date to (p,q) pair
@@ -15,10 +15,11 @@ import edu.ie3.util.TimeTools
   * @param profileType  The type of the profile
   * @param profile      The actual profile as scaling factor in p.u.
   */
-case class PowerPlantProfile(id: String,
-                             profileType: PowerPlantProfileType,
-                             profile: Map[ZonedDateTime, BigDecimal])
-    extends ProfileModel[PowerPlantProfileType, BigDecimal]
+case class PowerPlantProfile(
+    id: String,
+    profileType: PowerPlantProfileType,
+    profile: Map[ZonedDateTime, BigDecimal]
+) extends ProfileModel[PowerPlantProfileType, BigDecimal]
 
 case object PowerPlantProfile
     extends ProfileCompanionObject[PowerPlantProfile, BigDecimal] {
@@ -29,9 +30,9 @@ case object PowerPlantProfile
     * @return Array of table headings
     */
   override def getFields: Array[HeadLineField] =
-    Array(MandatoryField("time")) ++ (1 to 318).map(cnt =>
-      OptionalField("pp_" + cnt)) ++ Array(OptionalField("imp0"),
-                                           OptionalField("imp1"))
+    Array(MandatoryField("time")) ++ (1 to 318).map(
+      cnt => OptionalField("pp_" + cnt)
+    ) ++ Array(OptionalField("imp0"), OptionalField("imp1"))
 
   /**
     * Factory method to build a batch of models from a mapping from field id to value
@@ -40,14 +41,15 @@ case object PowerPlantProfile
     * @return A [[Vector]] of models
     */
   override def buildModels(
-      rawData: Vector[RawModelData]): Vector[PowerPlantProfile] = {
+      rawData: Vector[RawModelData]
+  ): Vector[PowerPlantProfile] = {
     /* Determine the ids of the available load profiles by filtering the head line fields */
     val profileTypeStrings =
       super.determineAvailableProfileIds(rawData, None)
 
     /* Go through each line of the raw data table and extract the time stamp */
     (for (rawTableLine <- rawData) yield {
-      val time = TimeTools.toZonedDateTime(rawTableLine.get(TIME))
+      val time = TimeUtil.withDefaults.toZonedDateTime(rawTableLine.get(TIME))
 
       /* Get the active and reactive power for each available load profile */
       for (typeString <- profileTypeStrings) yield {

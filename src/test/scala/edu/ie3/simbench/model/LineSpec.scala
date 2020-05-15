@@ -19,11 +19,14 @@ class LineSpec extends UnitSpec {
       BigDecimal("1.1"),
       None,
       Some(
-        Coordinate("coord_0",
-                   BigDecimal("11.411"),
-                   BigDecimal("53.6407"),
-                   "LV1.101",
-                   7)),
+        Coordinate(
+          "coord_0",
+          BigDecimal("11.411"),
+          BigDecimal("53.6407"),
+          "LV1.101",
+          7
+        )
+      ),
       "LV1.101",
       7
     ),
@@ -37,29 +40,36 @@ class LineSpec extends UnitSpec {
       BigDecimal("1.1"),
       None,
       Some(
-        Coordinate("coord_3",
-                   BigDecimal("11.4097"),
-                   BigDecimal("53.6413"),
-                   "LV1.101",
-                   7)),
+        Coordinate(
+          "coord_3",
+          BigDecimal("11.4097"),
+          BigDecimal("53.6413"),
+          "LV1.101",
+          7
+        )
+      ),
       "LV1.101",
       7
     )
   )
 
   val lineTypes = Map(
-    "NAYY 4x150SE 0.6/1kV" -> ACLineType("NAYY 4x150SE 0.6/1kV",
-                                         BigDecimal("0.2067"),
-                                         BigDecimal("0.0804248"),
-                                         BigDecimal("260.752"),
-                                         BigDecimal("270"),
-                                         LineStyle.Cable),
-    "24-AL1/4-ST1A 20.0" -> ACLineType("24-AL1/4-ST1A 20.0",
-                                       BigDecimal("1.2012"),
-                                       BigDecimal("0.394"),
-                                       BigDecimal("3.53429"),
-                                       BigDecimal("140"),
-                                       LineStyle.OverheadLine)
+    "NAYY 4x150SE 0.6/1kV" -> ACLineType(
+      "NAYY 4x150SE 0.6/1kV",
+      BigDecimal("0.2067"),
+      BigDecimal("0.0804248"),
+      BigDecimal("260.752"),
+      BigDecimal("270"),
+      LineStyle.Cable
+    ),
+    "24-AL1/4-ST1A 20.0" -> ACLineType(
+      "24-AL1/4-ST1A 20.0",
+      BigDecimal("1.2012"),
+      BigDecimal("0.394"),
+      BigDecimal("3.53429"),
+      BigDecimal("140"),
+      LineStyle.OverheadLine
+    )
   )
 
   val rawData = Vector(
@@ -104,11 +114,14 @@ class LineSpec extends UnitSpec {
         BigDecimal("1.1"),
         None,
         Some(
-          Coordinate("coord_3",
-                     BigDecimal("11.4097"),
-                     BigDecimal("53.6413"),
-                     "LV1.101",
-                     7)),
+          Coordinate(
+            "coord_3",
+            BigDecimal("11.4097"),
+            BigDecimal("53.6413"),
+            "LV1.101",
+            7
+          )
+        ),
         "LV1.101",
         7
       ),
@@ -122,20 +135,25 @@ class LineSpec extends UnitSpec {
         BigDecimal("1.1"),
         None,
         Some(
-          Coordinate("coord_0",
-                     BigDecimal("11.411"),
-                     BigDecimal("53.6407"),
-                     "LV1.101",
-                     7)),
+          Coordinate(
+            "coord_0",
+            BigDecimal("11.411"),
+            BigDecimal("53.6407"),
+            "LV1.101",
+            7
+          )
+        ),
         "LV1.101",
         7
       ),
-      ACLineType("NAYY 4x150SE 0.6/1kV",
-                 BigDecimal("0.2067"),
-                 BigDecimal("0.0804248"),
-                 BigDecimal("260.752"),
-                 BigDecimal("270"),
-                 LineStyle.Cable),
+      ACLineType(
+        "NAYY 4x150SE 0.6/1kV",
+        BigDecimal("0.2067"),
+        BigDecimal("0.0804248"),
+        BigDecimal("260.752"),
+        BigDecimal("270"),
+        LineStyle.Cable
+      ),
       BigDecimal("0.132499"),
       BigDecimal("100"),
       "LV1.101",
@@ -153,11 +171,14 @@ class LineSpec extends UnitSpec {
         BigDecimal("1.1"),
         None,
         Some(
-          Coordinate("coord_0",
-                     BigDecimal("11.411"),
-                     BigDecimal("53.6407"),
-                     "LV1.101",
-                     7)),
+          Coordinate(
+            "coord_0",
+            BigDecimal("11.411"),
+            BigDecimal("53.6407"),
+            "LV1.101",
+            7
+          )
+        ),
         "LV1.101",
         7
       ),
@@ -171,20 +192,25 @@ class LineSpec extends UnitSpec {
         BigDecimal("1.1"),
         None,
         Some(
-          Coordinate("coord_3",
-                     BigDecimal("11.4097"),
-                     BigDecimal("53.6413"),
-                     "LV1.101",
-                     7)),
+          Coordinate(
+            "coord_3",
+            BigDecimal("11.4097"),
+            BigDecimal("53.6413"),
+            "LV1.101",
+            7
+          )
+        ),
         "LV1.101",
         7
       ),
-      ACLineType("24-AL1/4-ST1A 20.0",
-                 BigDecimal("1.2012"),
-                 BigDecimal("0.394"),
-                 BigDecimal("3.53429"),
-                 BigDecimal("140"),
-                 LineStyle.OverheadLine),
+      ACLineType(
+        "24-AL1/4-ST1A 20.0",
+        BigDecimal("1.2012"),
+        BigDecimal("0.394"),
+        BigDecimal("3.53429"),
+        BigDecimal("140"),
+        LineStyle.OverheadLine
+      ),
       BigDecimal("0.132499"),
       BigDecimal("100"),
       "LV1.101",
@@ -208,15 +234,24 @@ class LineSpec extends UnitSpec {
     "build the correct single model" in {
       val actual = Line.buildModel(
         rawData(0),
-        nodes.getOrElse("LV1.101 Bus 4",
-                        throw SimbenchDataModelException(
-                          "Ooops. This is not supposed to happen")),
-        nodes.getOrElse("LV1.101 Bus 1",
-                        throw SimbenchDataModelException(
-                          "Ooops. This is not supposed to happen")),
-        lineTypes.getOrElse("NAYY 4x150SE 0.6/1kV",
-                            throw SimbenchDataModelException(
-                              "Ooops. This is not supposed to happen"))
+        nodes.getOrElse(
+          "LV1.101 Bus 4",
+          throw SimbenchDataModelException(
+            "Ooops. This is not supposed to happen"
+          )
+        ),
+        nodes.getOrElse(
+          "LV1.101 Bus 1",
+          throw SimbenchDataModelException(
+            "Ooops. This is not supposed to happen"
+          )
+        ),
+        lineTypes.getOrElse(
+          "NAYY 4x150SE 0.6/1kV",
+          throw SimbenchDataModelException(
+            "Ooops. This is not supposed to happen"
+          )
+        )
       )
       actual shouldBe expected(0)
     }

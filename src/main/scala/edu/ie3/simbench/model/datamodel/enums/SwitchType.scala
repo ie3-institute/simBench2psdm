@@ -29,6 +29,7 @@ case object SwitchType {
       case "ls"  => LoadSwitch
       case whatever =>
         throw SimbenchDataModelException(
-          s"I cannot handle the switch type $whatever")
+          s"I cannot handle the switch type $whatever"
+        )
     }
 }

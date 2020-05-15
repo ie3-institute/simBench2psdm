@@ -24,21 +24,22 @@ import edu.ie3.simbench.model.datamodel.profiles.StorageProfile
   * @param subnet Subnet it belongs to
   * @param voltLvl Voltage level
   */
-case class Storage(id: String,
-                   node: Node,
-                   storageType: StorageType,
-                   profile: StorageProfile,
-                   p: BigDecimal,
-                   q: BigDecimal,
-                   soc: BigDecimal,
-                   sR: BigDecimal,
-                   eStore: BigDecimal,
-                   etaStore: BigDecimal,
-                   selfDischarge: BigDecimal,
-                   pMin: BigDecimal,
-                   pMax: BigDecimal,
-                   qMin: BigDecimal,
-                   qMax: BigDecimal,
-                   subnet: String,
-                   voltLvl: Int)
-    extends ShuntModel
+case class Storage(
+    id: String,
+    node: Node,
+    storageType: StorageType,
+    profile: StorageProfile,
+    p: BigDecimal,
+    q: BigDecimal,
+    soc: BigDecimal,
+    sR: BigDecimal,
+    eStore: BigDecimal,
+    etaStore: BigDecimal,
+    selfDischarge: BigDecimal,
+    pMin: BigDecimal,
+    pMax: BigDecimal,
+    qMin: BigDecimal,
+    qMax: BigDecimal,
+    subnet: String,
+    voltLvl: Int
+) extends ShuntModel

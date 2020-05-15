@@ -6,7 +6,7 @@ import edu.ie3.simbench.io.HeadLineField
 import edu.ie3.simbench.io.HeadLineField.{MandatoryField, OptionalField}
 import edu.ie3.simbench.model.RawModelData
 import edu.ie3.simbench.model.datamodel.profiles.ProfileModel.ProfileCompanionObject
-import edu.ie3.util.TimeTools
+import edu.ie3.util.TimeUtil
 
 /**
   * A load profile consisting of an identifier and a mapping of the date to (p,q) pair
@@ -15,10 +15,11 @@ import edu.ie3.util.TimeTools
   * @param profileType  The type of the profile
   * @param profile      The actual profile as scaling factor in p.u.
   */
-case class LoadProfile(id: String,
-                       profileType: LoadProfileType,
-                       profile: Map[ZonedDateTime, (BigDecimal, BigDecimal)])
-    extends ProfileModel[LoadProfileType, (BigDecimal, BigDecimal)]
+case class LoadProfile(
+    id: String,
+    profileType: LoadProfileType,
+    profile: Map[ZonedDateTime, (BigDecimal, BigDecimal)]
+) extends ProfileModel[LoadProfileType, (BigDecimal, BigDecimal)]
 
 case object LoadProfile
     extends ProfileCompanionObject[LoadProfile, (BigDecimal, BigDecimal)] {
@@ -110,8 +111,11 @@ case object LoadProfile
       MandatoryField(TIME)
     ) ++ profiles.flatMap(
       profile =>
-        Vector(OptionalField(profile + activePowerSuffix),
-               OptionalField(profile + reactivePowerSuffix)))
+        Vector(
+          OptionalField(profile + activePowerSuffix),
+          OptionalField(profile + reactivePowerSuffix)
+        )
+    )
 
   /**
     * Factory method to build a batch of models from a mapping from field id to value
@@ -119,15 +123,19 @@ case object LoadProfile
     * @param rawData mapping from field id to value
     * @return A [[Vector]] of models
     */
-  override def buildModels(rawData: Vector[RawModelData]): Vector[LoadProfile] = {
+  override def buildModels(
+      rawData: Vector[RawModelData]
+  ): Vector[LoadProfile] = {
     /* Determine the ids of the available load profiles by filtering the head line fields */
     val profileTypeStrings =
-      super.determineAvailableProfileIds(rawData,
-                                         Some(LoadProfileType.stripSuffix))
+      super.determineAvailableProfileIds(
+        rawData,
+        Some(LoadProfileType.stripSuffix)
+      )
 
     /* Go through each line of the raw data table and extract the time stamp */
     (for (rawTableLine <- rawData) yield {
-      val time = TimeTools.toZonedDateTime(rawTableLine.get(TIME))
+      val time = TimeUtil.withDefaults.toZonedDateTime(rawTableLine.get(TIME))
 
       /* Get the active and reactive power for each available load profile */
       for (typeString <- profileTypeStrings) yield {
@@ -147,7 +155,8 @@ case object LoadProfile
         LoadProfile(
           "\\$$".r.replaceAllIn(profileType.getClass.getSimpleName, ""),
           profileType,
-          profileValues)
+          profileValues
+        )
       })
       .toVector /* Finally build the Vector(LoadProfile) */
   }

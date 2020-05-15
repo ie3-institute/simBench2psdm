@@ -37,6 +37,7 @@ case object PowerPlantType {
       case "waste"    => Waste
       case whatever =>
         throw SimbenchDataModelException(
-          s"I cannot handle the power plant type $whatever")
+          s"I cannot handle the power plant type $whatever"
+        )
     }
 }

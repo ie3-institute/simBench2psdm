@@ -22,17 +22,18 @@ import edu.ie3.simbench.model.datamodel.profiles.ResProfileType
   * @param subnet Subnet it belongs to
   * @param voltLvl Voltage level
   */
-case class RES(id: String,
-               node: Node,
-               resType: ResType,
-               profile: ResProfileType,
-               calculationType: CalculationType,
-               p: BigDecimal,
-               q: BigDecimal,
-               sR: BigDecimal,
-               subnet: String,
-               voltLvl: Int)
-    extends ShuntModel
+case class RES(
+    id: String,
+    node: Node,
+    resType: ResType,
+    profile: ResProfileType,
+    calculationType: CalculationType,
+    p: BigDecimal,
+    q: BigDecimal,
+    sR: BigDecimal,
+    subnet: String,
+    voltLvl: Int
+) extends ShuntModel
 
 case object RES extends EntityModelCompanionObject[RES] {
   private val NODE = "node"
@@ -60,7 +61,8 @@ case object RES extends EntityModelCompanionObject[RES] {
     */
   override def apply(rawData: RawModelData): RES =
     throw SimbenchDataModelException(
-      s"No basic implementation of model creation available for ${this.getClass.getSimpleName}")
+      s"No basic implementation of model creation available for ${this.getClass.getSimpleName}"
+    )
 
   /**
     * Factory method to build a batch of models from a mapping from field id to value
@@ -69,8 +71,10 @@ case object RES extends EntityModelCompanionObject[RES] {
     * @param nodes    Mapping from node id to node itself
     * @return A [[Vector]] of models
     */
-  def buildModels(rawData: Vector[RawModelData],
-                  nodes: Map[String, Node]): Vector[RES] =
+  def buildModels(
+      rawData: Vector[RawModelData],
+      nodes: Map[String, Node]
+  ): Vector[RES] =
     for (entry <- rawData) yield {
       val node = getNode(entry.get(NODE), nodes)
       buildModel(entry, node)

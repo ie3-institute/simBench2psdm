@@ -3,18 +3,10 @@ package edu.ie3.simbench.io
 import edu.ie3.simbench.exception.io.SimbenchFileNamingException
 import edu.ie3.simbench.model.datamodel.ExternalNet.{Simple, Ward, WardExtended}
 import edu.ie3.simbench.model.datamodel.Line.{ACLine, DCLine}
-import edu.ie3.simbench.model.datamodel.profiles.{
-  LoadProfile,
-  PowerPlantProfile,
-  ResProfile
-}
-import edu.ie3.simbench.model.datamodel.types.LineType.{ACLineType, DCLineType}
-import edu.ie3.simbench.model.datamodel.types.{
-  LineType,
-  Transformer2WType,
-  Transformer3WType
-}
 import edu.ie3.simbench.model.datamodel._
+import edu.ie3.simbench.model.datamodel.profiles.{LoadProfile, PowerPlantProfile, ResProfile}
+import edu.ie3.simbench.model.datamodel.types.LineType.{ACLineType, DCLineType}
+import edu.ie3.simbench.model.datamodel.types.{LineType, Transformer2WType, Transformer3WType}
 
 import scala.util.{Failure, Success, Try}
 
@@ -60,7 +52,9 @@ case object SimbenchFileNamingStrategy {
       case None =>
         Failure(
           new SimbenchFileNamingException(
-            s"Cannot determine the filename for class ${clazz.getSimpleName}"))
+            s"Cannot determine the filename for class ${clazz.getSimpleName}"
+          )
+        )
     }
   }
 }

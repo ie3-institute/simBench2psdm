@@ -3,12 +3,7 @@ package edu.ie3.simbench.model
 import edu.ie3.simbench.exception.io.SimbenchDataModelException
 import edu.ie3.simbench.model.datamodel.enums.{BranchElementPort, NodeType}
 import edu.ie3.simbench.model.datamodel.types.Transformer2WType
-import edu.ie3.simbench.model.datamodel.{
-  Coordinate,
-  Node,
-  Substation,
-  Transformer2W
-}
+import edu.ie3.simbench.model.datamodel.{Coordinate, Node, Substation, Transformer2W}
 import edu.ie3.test.common.UnitSpec
 
 class Transformer2WSpec extends UnitSpec {
@@ -29,7 +24,8 @@ class Transformer2WSpec extends UnitSpec {
           BigDecimal("53.6413"),
           "MV1.101_LV1.101_Feeder1",
           5
-        )),
+        )
+      ),
       "MV1.101_LV1.101_Feeder1",
       5
     ),
@@ -49,14 +45,16 @@ class Transformer2WSpec extends UnitSpec {
           BigDecimal("53.6413"),
           "MV1.101_LV1.101_Feeder1",
           5
-        )),
+        )
+      ),
       "LV1.101",
       7
     )
   )
 
   val substations = Map(
-    "substation_1" -> Substation("substation_1", "LV1.101", 7))
+    "substation_1" -> Substation("substation_1", "LV1.101", 7)
+  )
 
   val transformerTypes = Map(
     "0.16 MVA 20/0.4 kV DOTE 160/20  SGB" -> Transformer2WType(
@@ -133,7 +131,8 @@ class Transformer2WSpec extends UnitSpec {
             BigDecimal("53.6413"),
             "MV1.101_LV1.101_Feeder1",
             5
-          )),
+          )
+        ),
         "MV1.101_LV1.101_Feeder1",
         5
       ),
@@ -153,7 +152,8 @@ class Transformer2WSpec extends UnitSpec {
             BigDecimal("53.6413"),
             "MV1.101_LV1.101_Feeder1",
             5
-          )),
+          )
+        ),
         "LV1.101",
         7
       ),
@@ -201,7 +201,8 @@ class Transformer2WSpec extends UnitSpec {
             BigDecimal("53.6413"),
             "MV1.101_LV1.101_Feeder1",
             5
-          )),
+          )
+        ),
         "MV1.101_LV1.101_Feeder1",
         5
       ),
@@ -221,7 +222,8 @@ class Transformer2WSpec extends UnitSpec {
             BigDecimal("53.6413"),
             "MV1.101_LV1.101_Feeder1",
             5
-          )),
+          )
+        ),
         "LV1.101",
         7
       ),
@@ -263,22 +265,32 @@ class Transformer2WSpec extends UnitSpec {
     "throw an exception, when the basic batch model creation method is called" in {
       val thrown =
         intercept[SimbenchDataModelException](
-          Transformer2W.buildModels(rawData))
+          Transformer2W.buildModels(rawData)
+        )
       thrown.getMessage shouldBe "No basic implementation of model creation available for Transformer2W$"
     }
 
     "build the correct single model" in {
       val actual = Transformer2W.buildModel(
         rawData(0),
-        nodes.getOrElse("MV1.101 Bus 4",
-                        throw SimbenchDataModelException(
-                          "Ooops. This is not supposed to happen")),
-        nodes.getOrElse("LV1.101 Bus 4",
-                        throw SimbenchDataModelException(
-                          "Ooops. This is not supposed to happen")),
-        transformerTypes.getOrElse("0.16 MVA 20/0.4 kV DOTE 160/20  SGB",
-                                   throw SimbenchDataModelException(
-                                     "Ooops. This is not supposed to happen")),
+        nodes.getOrElse(
+          "MV1.101 Bus 4",
+          throw SimbenchDataModelException(
+            "Ooops. This is not supposed to happen"
+          )
+        ),
+        nodes.getOrElse(
+          "LV1.101 Bus 4",
+          throw SimbenchDataModelException(
+            "Ooops. This is not supposed to happen"
+          )
+        ),
+        transformerTypes.getOrElse(
+          "0.16 MVA 20/0.4 kV DOTE 160/20  SGB",
+          throw SimbenchDataModelException(
+            "Ooops. This is not supposed to happen"
+          )
+        ),
         substations.get("substation_1")
       )
       actual shouldBe expected(0)
