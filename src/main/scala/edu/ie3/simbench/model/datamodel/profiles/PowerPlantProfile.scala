@@ -49,7 +49,7 @@ case object PowerPlantProfile
 
     /* Go through each line of the raw data table and extract the time stamp */
     (for (rawTableLine <- rawData) yield {
-      val time = TimeUtil.withDefaults.toZonedDateTime(rawTableLine.get(TIME))
+      val time = simbenchTimeUtil.toZonedDateTime(rawTableLine.get(TIME))
 
       /* Get the active and reactive power for each available load profile */
       for (typeString <- profileTypeStrings) yield {
