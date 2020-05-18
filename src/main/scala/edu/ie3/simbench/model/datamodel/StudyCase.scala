@@ -16,7 +16,7 @@ import edu.ie3.simbench.model.datamodel.SimbenchModel.SimbenchCompanionObject
   * @param pRes Scaling factor for renewable energy sources (active power)
   * @param vMSlack Voltage magnitude at the slack nodes
   */
-case class StudyCase(
+final case class StudyCase(
     id: String,
     pLoad: BigDecimal,
     qLoad: BigDecimal,

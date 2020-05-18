@@ -30,7 +30,7 @@ object Line extends EntityModelCompanionObject[Line[_ <: LineType]] {
     * @param subnet     Subnet it belongs to
     * @param voltLvl    Voltage level
     */
-  case class ACLine(
+  final case class ACLine(
       id: String,
       nodeA: Node,
       nodeB: Node,
@@ -53,7 +53,7 @@ object Line extends EntityModelCompanionObject[Line[_ <: LineType]] {
     * @param subnet     Subnet it belongs to
     * @param voltLvl    Voltage level
     */
-  case class DCLine(
+  final case class DCLine(
       id: String,
       nodeA: Node,
       nodeB: Node,

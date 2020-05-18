@@ -8,7 +8,7 @@ import edu.ie3.simbench.model.datamodel.profiles.{
 }
 import edu.ie3.simbench.model.datamodel.types.LineType
 
-case class GridModel(
+final case class GridModel(
     externalNets: Vector[ExternalNet],
     lines: Vector[Line[_ <: LineType]],
     loads: Vector[Load],

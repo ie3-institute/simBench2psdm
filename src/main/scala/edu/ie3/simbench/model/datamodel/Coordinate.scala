@@ -14,7 +14,7 @@ import edu.ie3.simbench.model.datamodel.EntityModel.EntityModelCompanionObject
   * @param subnet Subnet it belongs to
   * @param voltLvl Voltage level
   */
-case class Coordinate(
+final case class Coordinate(
     id: String,
     x: BigDecimal,
     y: BigDecimal,

@@ -36,7 +36,7 @@ class SimbenchReaderSpec extends UnitSpec with SimbenchReaderTestData {
   "The SimBench data set reader" should {
     "throw an exception on the wrong model class to read" in {
       /* Simple mocking class implementing nothing at all */
-      case class SimbenchMock() extends SimbenchModel {
+      final case class SimbenchMock() extends SimbenchModel {
 
         /**
           * Identifier

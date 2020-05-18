@@ -21,7 +21,7 @@ object LineType extends SimbenchCompanionObject[LineType] {
     * @param iMax Maximum permissible current in A
     * @param style The construction type of the line
     */
-  case class ACLineType(
+  final case class ACLineType(
       id: String,
       r: BigDecimal,
       x: BigDecimal,
@@ -43,7 +43,7 @@ object LineType extends SimbenchCompanionObject[LineType] {
     * @param qMinB Minimum permissible reactive power provision at port B in MVAr
     * @param qMaxB Maximum permissible reactive power provision at port B in MVAr
     */
-  case class DCLineType(
+  final case class DCLineType(
       id: String,
       p: BigDecimal,
       relPLoss: BigDecimal,

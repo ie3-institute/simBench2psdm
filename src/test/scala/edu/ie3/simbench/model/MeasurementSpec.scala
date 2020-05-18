@@ -21,7 +21,7 @@ class MeasurementSpec extends UnitSpec with ConverterTestData {
     "LV1.101 Bus 1" -> getNodePair("LV1.101 Bus 1")._1
   )
 
-  val lines = Map(
+  val lineVec = Map(
     "LV1.101 Line 10" ->
       ACLine(
         "LV1.101 Line 10",
@@ -186,7 +186,7 @@ class MeasurementSpec extends UnitSpec with ConverterTestData {
 
     "build a correct vector of models" in {
       val actual =
-        Measurement.buildModels(rawData, nodeMapping, lines, transformers)
+        Measurement.buildModels(rawData, nodeMapping, lineVec, transformers)
       actual shouldBe expected
     }
   }

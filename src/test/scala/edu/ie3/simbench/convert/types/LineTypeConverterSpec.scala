@@ -26,7 +26,7 @@ class LineTypeConverterSpec extends UnitSpec with ConverterTestData {
     7
   )
 
-  val lines = Vector(
+  val lineVec = Vector(
     ACLine(
       "LV1.101 Line 10",
       getNodePair("LV1.101 Bus 4")._1,
@@ -71,7 +71,7 @@ class LineTypeConverterSpec extends UnitSpec with ConverterTestData {
       )
     "extract the rated voltage of one line correctly" in {
       val actual = LineTypeConverter invokePrivate determineRatedVoltageMethod(
-        lines(0)
+        lineVec(0)
       )
       actual shouldBe (getLineTypePair("NAYY 4x150SE 0.6/1kV")._1
         .asInstanceOf[ACLineType], Quantities.getQuantity(0.4, KILOVOLT))
@@ -86,7 +86,7 @@ class LineTypeConverterSpec extends UnitSpec with ConverterTestData {
     }
 
     "build line type to rated voltage mapping correctly" in {
-      val actual = LineTypeConverter.getRatedVoltages(lines)
+      val actual = LineTypeConverter.getRatedVoltages(lineVec)
       val expected = Map(
         getLineTypePair("NAYY 4x150SE 0.6/1kV")._1
           .asInstanceOf[ACLineType] -> Quantities.getQuantity(0.4, KILOVOLT),

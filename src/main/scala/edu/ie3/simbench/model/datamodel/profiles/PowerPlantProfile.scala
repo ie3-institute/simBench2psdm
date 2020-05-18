@@ -14,7 +14,7 @@ import edu.ie3.simbench.model.datamodel.profiles.ProfileModel.ProfileCompanionOb
   * @param profileType  The type of the profile
   * @param profile      The actual profile as scaling factor in p.u.
   */
-case class PowerPlantProfile(
+final case class PowerPlantProfile(
     id: String,
     profileType: PowerPlantProfileType,
     profile: Map[ZonedDateTime, BigDecimal]

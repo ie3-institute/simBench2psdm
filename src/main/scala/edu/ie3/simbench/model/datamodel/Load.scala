@@ -19,7 +19,7 @@ import edu.ie3.simbench.model.datamodel.profiles.LoadProfileType
   * @param subnet Subnet it belongs to
   * @param voltLvl Voltage level
   */
-case class Load(
+final case class Load(
     id: String,
     node: Node,
     profile: LoadProfileType,

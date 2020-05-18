@@ -45,7 +45,7 @@ import edu.ie3.simbench.model.datamodel.enums.BranchElementPort
   * @param tapMaxMV  Maximum permissible tap position, if the tap changer is on medium voltage side
   * @param tapMaxLV  Maximum permissible tap position, if the tap changer is on low voltage side
   */
-case class Transformer3WType(
+final case class Transformer3WType(
     id: String,
     sRHV: BigDecimal,
     sRMV: BigDecimal,

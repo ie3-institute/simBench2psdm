@@ -31,7 +31,7 @@ object ExternalNet extends EntityModelCompanionObject[ExternalNet] {
     * @param subnet Subnet it belongs to
     * @param voltLvl Voltage level
     */
-  case class Simple(
+  final case class Simple(
       id: String,
       node: Node,
       calculationType: CalculationType,
@@ -55,7 +55,7 @@ object ExternalNet extends EntityModelCompanionObject[ExternalNet] {
     * @param subnet Subnet it belongs to
     * @param voltLvl Voltage level
     */
-  case class Ward(
+  final case class Ward(
       id: String,
       node: Node,
       dspf: BigDecimal,
@@ -83,7 +83,7 @@ object ExternalNet extends EntityModelCompanionObject[ExternalNet] {
     * @param subnet Subnet it belongs to
     * @param voltLvl Voltage level
     */
-  case class WardExtended(
+  final case class WardExtended(
       id: String,
       node: Node,
       dspf: BigDecimal,
