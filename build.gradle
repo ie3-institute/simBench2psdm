@@ -32,6 +32,7 @@ apply from: scriptsLocation + 'tests.gradle'
 apply from: scriptsLocation + 'pmd.gradle'
 apply from: scriptsLocation + 'spotbugs.gradle'
 apply from: scriptsLocation + 'spotless.gradle'
+apply from: scriptsLocation + 'sonarqube.gradle'
 apply from: scriptsLocation + 'checkJavaVersion.gradle'
 apply from: scriptsLocation + 'tscfg.gradle' // config tasks
 apply from: scriptsLocation + 'jacoco.gradle' // jacoco java code coverage

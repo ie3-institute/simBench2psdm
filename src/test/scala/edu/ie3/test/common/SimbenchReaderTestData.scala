@@ -8,14 +8,9 @@ import edu.ie3.simbench.model.datamodel.profiles.LoadProfileType._
 import edu.ie3.simbench.model.datamodel.profiles._
 import edu.ie3.simbench.model.datamodel.types.LineType.ACLineType
 import edu.ie3.simbench.model.datamodel.types.Transformer2WType
-import edu.ie3.util.{TimeTools, TimeUtil}
+import edu.ie3.util.TimeUtil
 
 trait SimbenchReaderTestData {
-  TimeTools.initialize(
-    TimeTools.DEFAULT_ZONE_ID,
-    TimeTools.DEFAULT_LOCALE,
-    "dd.MM.yyyy HH:mm"
-  )
 
   val studyCases = Vector(
     StudyCase(

@@ -1,43 +1,14 @@
 package edu.ie3.simbench.model
 
 import edu.ie3.simbench.exception.io.SimbenchDataModelException
-import edu.ie3.simbench.model.datamodel.enums.{
-  CalculationType,
-  NodeType,
-  PowerPlantType
-}
+import edu.ie3.simbench.model.datamodel.enums.{CalculationType, PowerPlantType}
 import edu.ie3.simbench.model.datamodel.profiles.PowerPlantProfileType
-import edu.ie3.simbench.model.datamodel.{
-  Coordinate,
-  Node,
-  PowerPlant,
-  Substation
-}
-import edu.ie3.test.common.UnitSpec
+import edu.ie3.simbench.model.datamodel.{Node, PowerPlant}
+import edu.ie3.test.common.{ConverterTestData, UnitSpec}
 
-class PowerPlantSpec extends UnitSpec {
-  val nodes = Map(
-    "MV1.101 Bus 4" -> Node(
-      "MV1.101 Bus 4",
-      NodeType.BusBar,
-      Some(BigDecimal("1.025")),
-      Some(BigDecimal("0.0")),
-      BigDecimal("20"),
-      BigDecimal("0.965"),
-      BigDecimal("1.055"),
-      Some(Substation("substation_1", "LV1.101", 7)),
-      Some(
-        Coordinate(
-          "coord_14",
-          BigDecimal("11.4097"),
-          BigDecimal("53.6413"),
-          "MV1.101_LV1.101_Feeder1",
-          5
-        )
-      ),
-      "MV1.101_LV1.101_Feeder1",
-      5
-    )
+class PowerPlantSpec extends UnitSpec with ConverterTestData {
+  val nodeMapping: Map[String, Node] = Map(
+    "MV1.101 Bus 4" -> getNodePair("MV1.101 Bus 4")._1
   )
 
   val rawData = Vector(
@@ -86,27 +57,7 @@ class PowerPlantSpec extends UnitSpec {
   val expected = Vector(
     PowerPlant(
       "EHV Gen 75",
-      Node(
-        "MV1.101 Bus 4",
-        NodeType.BusBar,
-        Some(BigDecimal("1.025")),
-        Some(BigDecimal("0.0")),
-        BigDecimal("20"),
-        BigDecimal("0.965"),
-        BigDecimal("1.055"),
-        Some(Substation("substation_1", "LV1.101", 7)),
-        Some(
-          Coordinate(
-            "coord_14",
-            BigDecimal("11.4097"),
-            BigDecimal("53.6413"),
-            "MV1.101_LV1.101_Feeder1",
-            5
-          )
-        ),
-        "MV1.101_LV1.101_Feeder1",
-        5
-      ),
+      getNodePair("MV1.101 Bus 4")._1,
       PowerPlantType("hard coal"),
       PowerPlantProfileType("pp_75"),
       CalculationType("pvm"),
@@ -123,27 +74,7 @@ class PowerPlantSpec extends UnitSpec {
     ),
     PowerPlant(
       "EHV Gen 76",
-      Node(
-        "MV1.101 Bus 4",
-        NodeType.BusBar,
-        Some(BigDecimal("1.025")),
-        Some(BigDecimal("0.0")),
-        BigDecimal("20"),
-        BigDecimal("0.965"),
-        BigDecimal("1.055"),
-        Some(Substation("substation_1", "LV1.101", 7)),
-        Some(
-          Coordinate(
-            "coord_14",
-            BigDecimal("11.4097"),
-            BigDecimal("53.6413"),
-            "MV1.101_LV1.101_Feeder1",
-            5
-          )
-        ),
-        "MV1.101_LV1.101_Feeder1",
-        5
-      ),
+      getNodePair("MV1.101 Bus 4")._1,
       PowerPlantType("hard coal"),
       PowerPlantProfileType("pp_76"),
       CalculationType("pvm"),
@@ -176,19 +107,14 @@ class PowerPlantSpec extends UnitSpec {
     "build the correct single model" in {
       val actual = PowerPlant.buildModel(
         rawData(0),
-        nodes.getOrElse(
-          "MV1.101 Bus 4",
-          throw SimbenchDataModelException(
-            "Ooops. This is not supposed to happen"
-          )
-        )
+        getNodePair("MV1.101 Bus 4")._1
       )
       actual shouldBe expected(0)
     }
 
     "build a correct vector of models" in {
       val actual =
-        PowerPlant.buildModels(rawData, nodes)
+        PowerPlant.buildModels(rawData, nodeMapping)
       actual shouldBe expected
     }
   }

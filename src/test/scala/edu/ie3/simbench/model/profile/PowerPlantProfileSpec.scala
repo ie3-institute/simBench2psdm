@@ -7,15 +7,9 @@ import edu.ie3.simbench.model.datamodel.profiles.{
   PowerPlantProfileType
 }
 import edu.ie3.test.common.UnitSpec
-import edu.ie3.util.{TimeTools, TimeUtil}
+import edu.ie3.util.TimeUtil
 
 class PowerPlantProfileSpec extends UnitSpec {
-  TimeTools.initialize(
-    TimeTools.DEFAULT_ZONE_ID,
-    TimeTools.DEFAULT_LOCALE,
-    "dd.MM.yyyy HH:mm"
-  )
-
   val rawData = Vector(
     RawModelData(
       classOf[PowerPlantProfile],

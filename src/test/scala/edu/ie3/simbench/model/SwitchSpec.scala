@@ -1,54 +1,13 @@
 package edu.ie3.simbench.model
 
 import edu.ie3.simbench.exception.io.SimbenchDataModelException
-import edu.ie3.simbench.model.datamodel.enums.{NodeType, SwitchType}
-import edu.ie3.simbench.model.datamodel.{Coordinate, Node, Substation, Switch}
-import edu.ie3.test.common.UnitSpec
+import edu.ie3.simbench.model.datamodel.{Substation, Switch}
+import edu.ie3.test.common.{ConverterTestData, UnitSpec}
 
-class SwitchSpec extends UnitSpec {
-  val nodes = Map(
-    "LV1.101 Bus 1" -> Node(
-      "LV1.101 Bus 1",
-      NodeType.BusBar,
-      None,
-      None,
-      BigDecimal("0.4"),
-      BigDecimal("0.9"),
-      BigDecimal("1.1"),
-      None,
-      Some(
-        Coordinate(
-          "coord_0",
-          BigDecimal("11.411"),
-          BigDecimal("53.6407"),
-          "LV1.101",
-          7
-        )
-      ),
-      "LV1.101",
-      7
-    ),
-    "LV1.101 Bus 4" -> Node(
-      "LV1.101 Bus 4",
-      NodeType.BusBar,
-      None,
-      None,
-      BigDecimal("0.4"),
-      BigDecimal("0.9"),
-      BigDecimal("1.1"),
-      None,
-      Some(
-        Coordinate(
-          "coord_3",
-          BigDecimal("11.4097"),
-          BigDecimal("53.6413"),
-          "LV1.101",
-          7
-        )
-      ),
-      "LV1.101",
-      7
-    )
+class SwitchSpec extends UnitSpec with ConverterTestData {
+  val nodeMapping = Map(
+    "LV1.101 Bus 1" -> getNodePair("LV1.101 Bus 1")._1,
+    "LV1.101 Bus 4" -> getNodePair("LV1.101 Bus 4")._1
   )
 
   val substations = Map(
@@ -85,106 +44,8 @@ class SwitchSpec extends UnitSpec {
   )
 
   val expected = Vector(
-    Switch(
-      "LV1.101 Switch 1",
-      Node(
-        "LV1.101 Bus 1",
-        NodeType.BusBar,
-        None,
-        None,
-        BigDecimal("0.4"),
-        BigDecimal("0.9"),
-        BigDecimal("1.1"),
-        None,
-        Some(
-          Coordinate(
-            "coord_0",
-            BigDecimal("11.411"),
-            BigDecimal("53.6407"),
-            "LV1.101",
-            7
-          )
-        ),
-        "LV1.101",
-        7
-      ),
-      Node(
-        "LV1.101 Bus 4",
-        NodeType.BusBar,
-        None,
-        None,
-        BigDecimal("0.4"),
-        BigDecimal("0.9"),
-        BigDecimal("1.1"),
-        None,
-        Some(
-          Coordinate(
-            "coord_3",
-            BigDecimal("11.4097"),
-            BigDecimal("53.6413"),
-            "LV1.101",
-            7
-          )
-        ),
-        "LV1.101",
-        7
-      ),
-      SwitchType.LoadSwitch,
-      cond = true,
-      Some(Substation("substation_1", "LV1.101", 7)),
-      "LV1.101",
-      7
-    ),
-    Switch(
-      "LV1.101 Switch 1",
-      Node(
-        "LV1.101 Bus 1",
-        NodeType.BusBar,
-        None,
-        None,
-        BigDecimal("0.4"),
-        BigDecimal("0.9"),
-        BigDecimal("1.1"),
-        None,
-        Some(
-          Coordinate(
-            "coord_0",
-            BigDecimal("11.411"),
-            BigDecimal("53.6407"),
-            "LV1.101",
-            7
-          )
-        ),
-        "LV1.101",
-        7
-      ),
-      Node(
-        "LV1.101 Bus 4",
-        NodeType.BusBar,
-        None,
-        None,
-        BigDecimal("0.4"),
-        BigDecimal("0.9"),
-        BigDecimal("1.1"),
-        None,
-        Some(
-          Coordinate(
-            "coord_3",
-            BigDecimal("11.4097"),
-            BigDecimal("53.6413"),
-            "LV1.101",
-            7
-          )
-        ),
-        "LV1.101",
-        7
-      ),
-      SwitchType.LoadSwitch,
-      cond = false,
-      None,
-      "LV1.101",
-      7
-    )
+    getSwitchPair("LV1.101 Switch 1")._1,
+    getSwitchPair("LV1.101 Switch 1")._1.copy(cond = false, substation = None)
   )
 
   "The switch object" should {
@@ -203,13 +64,13 @@ class SwitchSpec extends UnitSpec {
     "build the correct single model" in {
       val actual = Switch.buildModel(
         rawData(0),
-        nodes.getOrElse(
+        nodeMapping.getOrElse(
           "LV1.101 Bus 1",
           throw SimbenchDataModelException(
             "Ooops. This is not supposed to happen"
           )
         ),
-        nodes.getOrElse(
+        nodeMapping.getOrElse(
           "LV1.101 Bus 4",
           throw SimbenchDataModelException(
             "Ooops. This is not supposed to happen"
@@ -222,7 +83,7 @@ class SwitchSpec extends UnitSpec {
 
     "build a correct vector of models" in {
       val actual =
-        Switch.buildModels(rawData, nodes, substations)
+        Switch.buildModels(rawData, nodeMapping, substations)
       actual shouldBe expected
     }
   }

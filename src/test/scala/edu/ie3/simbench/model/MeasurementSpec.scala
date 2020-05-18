@@ -7,96 +7,27 @@ import edu.ie3.simbench.model.datamodel.Measurement.{
   NodeMeasurement,
   TransformerMeasurement
 }
-import edu.ie3.simbench.model.datamodel._
 import edu.ie3.simbench.model.datamodel.enums.{
   BranchElementPort,
-  LineStyle,
-  MeasurementVariable,
-  NodeType
+  MeasurementVariable
 }
 import edu.ie3.simbench.model.datamodel.types.LineType.ACLineType
 import edu.ie3.simbench.model.datamodel.types.Transformer2WType
-import edu.ie3.test.common.UnitSpec
+import edu.ie3.simbench.model.datamodel.{Measurement, Substation, Transformer2W}
+import edu.ie3.test.common.{ConverterTestData, UnitSpec}
 
-class MeasurementSpec extends UnitSpec {
-  val nodes = Map(
-    "LV1.101 Bus 1" -> Node(
-      "LV1.101 Bus 1",
-      NodeType.BusBar,
-      None,
-      None,
-      BigDecimal("0.4"),
-      BigDecimal("0.9"),
-      BigDecimal("1.1"),
-      None,
-      Some(
-        Coordinate(
-          "coord_0",
-          BigDecimal("11.411"),
-          BigDecimal("53.6407"),
-          "LV1.101",
-          7
-        )
-      ),
-      "LV1.101",
-      7
-    )
+class MeasurementSpec extends UnitSpec with ConverterTestData {
+  val nodeMapping = Map(
+    "LV1.101 Bus 1" -> getNodePair("LV1.101 Bus 1")._1
   )
 
   val lines = Map(
     "LV1.101 Line 10" ->
       ACLine(
         "LV1.101 Line 10",
-        Node(
-          "LV1.101 Bus 4",
-          NodeType.BusBar,
-          None,
-          None,
-          BigDecimal("0.4"),
-          BigDecimal("0.9"),
-          BigDecimal("1.1"),
-          None,
-          Some(
-            Coordinate(
-              "coord_3",
-              BigDecimal("11.4097"),
-              BigDecimal("53.6413"),
-              "LV1.101",
-              7
-            )
-          ),
-          "LV1.101",
-          7
-        ),
-        Node(
-          "LV1.101 Bus 1",
-          NodeType.BusBar,
-          None,
-          None,
-          BigDecimal("0.4"),
-          BigDecimal("0.9"),
-          BigDecimal("1.1"),
-          None,
-          Some(
-            Coordinate(
-              "coord_0",
-              BigDecimal("11.411"),
-              BigDecimal("53.6407"),
-              "LV1.101",
-              7
-            )
-          ),
-          "LV1.101",
-          7
-        ),
-        ACLineType(
-          "NAYY 4x150SE 0.6/1kV",
-          BigDecimal("0.2067"),
-          BigDecimal("0.0804248"),
-          BigDecimal("260.752"),
-          BigDecimal("270"),
-          LineStyle.Cable
-        ),
+        getNodePair("LV1.101 Bus 4")._1,
+        getNodePair("LV1.101 Bus 1")._1,
+        getLineTypePair("NAYY 4x150SE 0.6/1kV")._1.asInstanceOf[ACLineType],
         BigDecimal("0.132499"),
         BigDecimal("100"),
         "LV1.101",
@@ -108,48 +39,8 @@ class MeasurementSpec extends UnitSpec {
     "MV1.101-LV1.101-Trafo 1" ->
       Transformer2W(
         "MV1.101-LV1.101-Trafo 1",
-        Node(
-          "MV1.101 Bus 4",
-          NodeType.BusBar,
-          Some(BigDecimal("1.025")),
-          Some(BigDecimal("0.0")),
-          BigDecimal("20"),
-          BigDecimal("0.965"),
-          BigDecimal("1.055"),
-          Some(Substation("substation_1", "LV1.101", 7)),
-          Some(
-            Coordinate(
-              "coord_14",
-              BigDecimal("11.4097"),
-              BigDecimal("53.6413"),
-              "MV1.101_LV1.101_Feeder1",
-              5
-            )
-          ),
-          "MV1.101_LV1.101_Feeder1",
-          5
-        ),
-        Node(
-          "LV1.101 Bus 4",
-          NodeType.BusBar,
-          None,
-          None,
-          BigDecimal("0.4"),
-          BigDecimal("0.9"),
-          BigDecimal("1.1"),
-          None,
-          Some(
-            Coordinate(
-              "coord_14",
-              BigDecimal("11.4097"),
-              BigDecimal("53.6413"),
-              "MV1.101_LV1.101_Feeder1",
-              5
-            )
-          ),
-          "LV1.101",
-          7
-        ),
+        getNodePair("MV1.101 Bus 4")._1,
+        getNodePair("LV1.101 Bus 4")._1,
         Transformer2WType(
           "0.16 MVA 20/0.4 kV DOTE 160/20  SGB",
           BigDecimal("0.16"),
@@ -217,27 +108,7 @@ class MeasurementSpec extends UnitSpec {
   val expected = Vector(
     NodeMeasurement(
       "LV1.101 Measurement 1",
-      Node(
-        "LV1.101 Bus 1",
-        NodeType.BusBar,
-        None,
-        None,
-        BigDecimal("0.4"),
-        BigDecimal("0.9"),
-        BigDecimal("1.1"),
-        None,
-        Some(
-          Coordinate(
-            "coord_0",
-            BigDecimal("11.411"),
-            BigDecimal("53.6407"),
-            "LV1.101",
-            7
-          )
-        ),
-        "LV1.101",
-        7
-      ),
+      getNodePair("LV1.101 Bus 1")._1,
       MeasurementVariable.Voltage,
       "MV4.101",
       7
@@ -246,82 +117,15 @@ class MeasurementSpec extends UnitSpec {
       "LV1.101 Measurement 1",
       ACLine(
         "LV1.101 Line 10",
-        Node(
-          "LV1.101 Bus 4",
-          NodeType.BusBar,
-          None,
-          None,
-          BigDecimal("0.4"),
-          BigDecimal("0.9"),
-          BigDecimal("1.1"),
-          None,
-          Some(
-            Coordinate(
-              "coord_3",
-              BigDecimal("11.4097"),
-              BigDecimal("53.6413"),
-              "LV1.101",
-              7
-            )
-          ),
-          "LV1.101",
-          7
-        ),
-        Node(
-          "LV1.101 Bus 1",
-          NodeType.BusBar,
-          None,
-          None,
-          BigDecimal("0.4"),
-          BigDecimal("0.9"),
-          BigDecimal("1.1"),
-          None,
-          Some(
-            Coordinate(
-              "coord_0",
-              BigDecimal("11.411"),
-              BigDecimal("53.6407"),
-              "LV1.101",
-              7
-            )
-          ),
-          "LV1.101",
-          7
-        ),
-        ACLineType(
-          "NAYY 4x150SE 0.6/1kV",
-          BigDecimal("0.2067"),
-          BigDecimal("0.0804248"),
-          BigDecimal("260.752"),
-          BigDecimal("270"),
-          LineStyle.Cable
-        ),
+        getNodePair("LV1.101 Bus 4")._1,
+        getNodePair("LV1.101 Bus 1")._1,
+        getLineTypePair("NAYY 4x150SE 0.6/1kV")._1.asInstanceOf[ACLineType],
         BigDecimal("0.132499"),
         BigDecimal("100"),
         "LV1.101",
         7
       ),
-      Node(
-        "LV1.101 Bus 1",
-        NodeType.BusBar,
-        None,
-        None,
-        BigDecimal("0.4"),
-        BigDecimal("0.9"),
-        BigDecimal("1.1"),
-        None,
-        Some(
-          Coordinate(
-            "coord_0",
-            BigDecimal("11.411"),
-            BigDecimal("53.6407"),
-            "LV1.101",
-            7
-          )
-        ),
-        "LV1.101",
-        7
-      ),
+      getNodePair("LV1.101 Bus 1")._1,
       MeasurementVariable.ActivePower,
       "MV4.101",
       7
@@ -330,48 +134,8 @@ class MeasurementSpec extends UnitSpec {
       "LV1.101 Measurement 1",
       Transformer2W(
         "MV1.101-LV1.101-Trafo 1",
-        Node(
-          "MV1.101 Bus 4",
-          NodeType.BusBar,
-          Some(BigDecimal("1.025")),
-          Some(BigDecimal("0.0")),
-          BigDecimal("20"),
-          BigDecimal("0.965"),
-          BigDecimal("1.055"),
-          Some(Substation("substation_1", "LV1.101", 7)),
-          Some(
-            Coordinate(
-              "coord_14",
-              BigDecimal("11.4097"),
-              BigDecimal("53.6413"),
-              "MV1.101_LV1.101_Feeder1",
-              5
-            )
-          ),
-          "MV1.101_LV1.101_Feeder1",
-          5
-        ),
-        Node(
-          "LV1.101 Bus 4",
-          NodeType.BusBar,
-          None,
-          None,
-          BigDecimal("0.4"),
-          BigDecimal("0.9"),
-          BigDecimal("1.1"),
-          None,
-          Some(
-            Coordinate(
-              "coord_14",
-              BigDecimal("11.4097"),
-              BigDecimal("53.6413"),
-              "MV1.101_LV1.101_Feeder1",
-              5
-            )
-          ),
-          "LV1.101",
-          7
-        ),
+        getNodePair("MV1.101 Bus 4")._1,
+        getNodePair("LV1.101 Bus 4")._1,
         Transformer2WType(
           "0.16 MVA 20/0.4 kV DOTE 160/20  SGB",
           BigDecimal("0.16"),
@@ -398,27 +162,7 @@ class MeasurementSpec extends UnitSpec {
         "LV1.101",
         6
       ),
-      Node(
-        "LV1.101 Bus 1",
-        NodeType.BusBar,
-        None,
-        None,
-        BigDecimal("0.4"),
-        BigDecimal("0.9"),
-        BigDecimal("1.1"),
-        None,
-        Some(
-          Coordinate(
-            "coord_0",
-            BigDecimal("11.411"),
-            BigDecimal("53.6407"),
-            "LV1.101",
-            7
-          )
-        ),
-        "LV1.101",
-        7
-      ),
+      getNodePair("LV1.101 Bus 1")._1,
       MeasurementVariable.ActivePower,
       "MV4.101",
       7
@@ -442,7 +186,7 @@ class MeasurementSpec extends UnitSpec {
 
     "build a correct vector of models" in {
       val actual =
-        Measurement.buildModels(rawData, nodes, lines, transformers)
+        Measurement.buildModels(rawData, nodeMapping, lines, transformers)
       actual shouldBe expected
     }
   }

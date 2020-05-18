@@ -6,7 +6,6 @@ import edu.ie3.simbench.io.HeadLineField
 import edu.ie3.simbench.io.HeadLineField.{MandatoryField, OptionalField}
 import edu.ie3.simbench.model.RawModelData
 import edu.ie3.simbench.model.datamodel.profiles.ProfileModel.ProfileCompanionObject
-import edu.ie3.util.TimeUtil
 
 /**
   * A load profile consisting of an identifier and a mapping of the date to (p,q) pair

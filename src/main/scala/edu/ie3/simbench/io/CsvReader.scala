@@ -115,3 +115,25 @@ final case class CsvReader[T](
     fieldMapping.map(mappingEntry => (mappingEntry._1, fields(mappingEntry._2)))
   }
 }
+
+case object CsvReader {
+  def apply[T](
+      modelClass: Class[T],
+      filePath: String,
+      separator: String,
+      fileEnding: String = ".csv",
+      fileEncoding: String = "UTF-8"
+  ): Option[CsvReader[T]] =
+    try {
+      Some(
+        new CsvReader(modelClass, filePath, separator, fileEnding, fileEncoding)
+      )
+    } catch {
+      case _: IoException => None
+      case e: Throwable =>
+        throw IoException(
+          s"Unknown error occurred during instantiation of csv reader for class $modelClass",
+          e
+        )
+    }
+}
