@@ -1,8 +1,9 @@
 package edu.ie3.simbench.model.types
 
+import edu.ie3.simbench.exception.TestingException
 import edu.ie3.simbench.model.RawModelData
 import edu.ie3.simbench.model.datamodel.types.LineType
-import edu.ie3.simbench.model.datamodel.types.LineType.ACLineType
+import edu.ie3.simbench.model.datamodel.types.LineType.{ACLineType, DCLineType}
 import edu.ie3.test.common.{ConverterTestData, UnitSpec}
 
 class LineTypeSpec extends UnitSpec with ConverterTestData {
@@ -34,15 +35,33 @@ class LineTypeSpec extends UnitSpec with ConverterTestData {
   "The LineType object" should {
     "build the correct single model" in {
       val actual = LineType.apply(rawData(0))
-      val expected = getLineTypePair("1x630_RM/50")._1.asInstanceOf[ACLineType]
+      val expected = getLineTypePair("1x630_RM/50")._1 match {
+        case acLineType: ACLineType => acLineType
+        case dcLineType: DCLineType =>
+          throw TestingException(
+            s"Found DC line type '$dcLineType' instead of AC line type"
+          )
+      }
       actual shouldBe expected
     }
 
     "build a correct vector of line types" in {
       val actual = LineType.buildModels(rawData)
       val expected = Vector(
-        getLineTypePair("1x630_RM/50")._1.asInstanceOf[ACLineType],
-        getLineTypePair("24-AL1/4-ST1A 20.0")._1.asInstanceOf[ACLineType]
+        getLineTypePair("1x630_RM/50")._1 match {
+          case acLineType: ACLineType => acLineType
+          case dcLineType: DCLineType =>
+            throw TestingException(
+              s"Found DC line type '$dcLineType' instead of AC line type"
+            )
+        },
+        getLineTypePair("24-AL1/4-ST1A 20.0")._1 match {
+          case acLineType: ACLineType => acLineType
+          case dcLineType: DCLineType =>
+            throw TestingException(
+              s"Found DC line type '$dcLineType' instead of AC line type"
+            )
+        }
       )
       actual shouldBe expected
     }

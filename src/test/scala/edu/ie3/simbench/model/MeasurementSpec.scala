@@ -1,5 +1,6 @@
 package edu.ie3.simbench.model
 
+import edu.ie3.simbench.exception.TestingException
 import edu.ie3.simbench.exception.io.SimbenchDataModelException
 import edu.ie3.simbench.model.datamodel.Line.ACLine
 import edu.ie3.simbench.model.datamodel.Measurement.{
@@ -11,7 +12,7 @@ import edu.ie3.simbench.model.datamodel.enums.{
   BranchElementPort,
   MeasurementVariable
 }
-import edu.ie3.simbench.model.datamodel.types.LineType.ACLineType
+import edu.ie3.simbench.model.datamodel.types.LineType.{ACLineType, DCLineType}
 import edu.ie3.simbench.model.datamodel.types.Transformer2WType
 import edu.ie3.simbench.model.datamodel.{Measurement, Substation, Transformer2W}
 import edu.ie3.test.common.{ConverterTestData, UnitSpec}
@@ -27,7 +28,13 @@ class MeasurementSpec extends UnitSpec with ConverterTestData {
         "LV1.101 Line 10",
         getNodePair("LV1.101 Bus 4")._1,
         getNodePair("LV1.101 Bus 1")._1,
-        getLineTypePair("NAYY 4x150SE 0.6/1kV")._1.asInstanceOf[ACLineType],
+        getLineTypePair("NAYY 4x150SE 0.6/1kV")._1 match {
+          case acLineType: ACLineType => acLineType
+          case dcLineType: DCLineType =>
+            throw TestingException(
+              s"Found DC line type '$dcLineType' instead of AC line type"
+            )
+        },
         BigDecimal("0.132499"),
         BigDecimal("100"),
         "LV1.101",
@@ -119,7 +126,13 @@ class MeasurementSpec extends UnitSpec with ConverterTestData {
         "LV1.101 Line 10",
         getNodePair("LV1.101 Bus 4")._1,
         getNodePair("LV1.101 Bus 1")._1,
-        getLineTypePair("NAYY 4x150SE 0.6/1kV")._1.asInstanceOf[ACLineType],
+        getLineTypePair("NAYY 4x150SE 0.6/1kV")._1 match {
+          case acLineType: ACLineType => acLineType
+          case dcLineType: DCLineType =>
+            throw TestingException(
+              s"Found DC line type '$dcLineType' instead of AC line type"
+            )
+        },
         BigDecimal("0.132499"),
         BigDecimal("100"),
         "LV1.101",

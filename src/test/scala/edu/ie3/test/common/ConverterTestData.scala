@@ -449,7 +449,13 @@ trait ConverterTestData extends MockitoSugar {
         "ac line",
         getNodePair("slack_node_0")._1,
         getNodePair("node_0")._1,
-        getLineTypePair("NAYY 4x150SE 0.6/1kV")._1.asInstanceOf[ACLineType],
+        getLineTypePair("NAYY 4x150SE 0.6/1kV")._1 match {
+          case acLineType: ACLineType => acLineType
+          case dcLineType: DCLineType =>
+            throw TestingException(
+              s"Found DC line type '$dcLineType' instead of AC line type"
+            )
+        },
         BigDecimal("100"),
         BigDecimal("120"),
         "subnet 1",

@@ -189,7 +189,7 @@ trait SimbenchReaderTestData {
       0,
       autoTap = false,
       None,
-      BigDecimal(100),
+      BigDecimal("100"),
       None,
       "LV1.101",
       6
@@ -316,9 +316,9 @@ trait SimbenchReaderTestData {
       PowerPlantProfileType.PowerPlantProfile16,
       Map(
         TimeUtil.withDefaults
-          .toZonedDateTime("2016-01-01 00:00:00") -> BigDecimal(0.7),
+          .toZonedDateTime("2016-01-01 00:00:00") -> BigDecimal("0.7"),
         TimeUtil.withDefaults
-          .toZonedDateTime("2016-01-01 00:15:00") -> BigDecimal(0.7)
+          .toZonedDateTime("2016-01-01 00:15:00") -> BigDecimal("0.7")
       )
     ),
     PowerPlantProfile(
@@ -326,9 +326,9 @@ trait SimbenchReaderTestData {
       PowerPlantProfileType.PowerPlantProfile17,
       Map(
         TimeUtil.withDefaults
-          .toZonedDateTime("2016-01-01 00:00:00") -> BigDecimal(0.7),
+          .toZonedDateTime("2016-01-01 00:00:00") -> BigDecimal("0.7"),
         TimeUtil.withDefaults
-          .toZonedDateTime("2016-01-01 00:15:00") -> BigDecimal(0.7)
+          .toZonedDateTime("2016-01-01 00:15:00") -> BigDecimal("0.7")
       )
     )
   )

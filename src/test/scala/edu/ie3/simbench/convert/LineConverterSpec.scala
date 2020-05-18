@@ -3,7 +3,7 @@ package edu.ie3.simbench.convert
 import java.util.{Objects, UUID}
 
 import edu.ie3.datamodel.models.input.connector.`type`.LineTypeInput
-import edu.ie3.simbench.exception.ConversionException
+import edu.ie3.simbench.exception.{ConversionException, TestingException}
 import edu.ie3.simbench.model.datamodel.Line.DCLine
 import edu.ie3.simbench.model.datamodel.types.LineType
 import edu.ie3.simbench.model.datamodel.types.LineType.DCLineType
@@ -22,7 +22,13 @@ class LineConverterSpec extends UnitSpec with ConverterTestData {
     "dc line",
     nodeAIn,
     nodeBIn,
-    getLineTypePair("dc line type")._1.asInstanceOf[DCLineType],
+    getLineTypePair("dc line type")._1 match {
+      case dcLineType: DCLineType => dcLineType
+      case acLineType: LineType.ACLineType =>
+        throw TestingException(
+          s"Found AC line type '$acLineType' instead of DC line type"
+        )
+    },
     BigDecimal("100"),
     BigDecimal("100"),
     "subnet 1",
