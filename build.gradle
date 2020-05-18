@@ -5,7 +5,7 @@ plugins {
 	id 'scala' // scala support
 	id 'maven-publish' // publish to a maven repo (local or mvn central, has to be defined)
 	id 'pmd' // code check, working on source code
-	id 'com.diffplug.gradle.spotless' version '3.28.1'// code format
+	id 'com.diffplug.gradle.spotless' version '3.29.0'// code format
 	id 'com.github.spotbugs' version '2.0.0' // code check, working on byte code
 	id "de.undercouch.download" version "3.4.3" // downloads plugin
 	id 'jacoco' // java code coverage plugin
@@ -124,7 +124,7 @@ compileTestScala {
 }
 
 wrapper {
-	gradleVersion = '6.0.1'
+	gradleVersion = '6.4'
 }
 
 tasks.withType(JavaCompile) {
