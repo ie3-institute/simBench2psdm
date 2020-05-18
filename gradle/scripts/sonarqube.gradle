@@ -34,8 +34,8 @@ sonarqube {
 		property 'sonar.groovy.jacoco.itReportPath', 'build/jacoco/allTests.exec'
 		property 'sonar.groovy.binaries', 'build/classes/groovy' // groovy binaries
 
-		// remove auto generated SimonaConfig file from analysis
-		property 'sonar.exclusions','SimbenchConfig.scala'
+		// remove auto generated SimbenchConfig file from analysis
+		property 'sonar.exclusions','**/SimbenchConfig.scala'
 	}
 }
 
