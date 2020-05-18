@@ -1,32 +1,31 @@
 package edu.ie3.simbench.model.datamodel.enums
 
 import edu.ie3.simbench.exception.io.SimbenchDataModelException
+import edu.ie3.simbench.util.ParsableEnumeration
 
 /**
   * Available renewable energy sources to SimBench
   */
-sealed trait ResType
-
-case object ResType {
-  case object Biomass extends ResType
-  case object PV extends ResType
-  case object RunOfRiver extends ResType
-  case object WindOnshore extends ResType
-  case object WindOffshore extends ResType
-  case object BiomassMv extends ResType
-  case object HydroMv extends ResType
-  case object PvMv extends ResType
-  case object WindMv extends ResType
-  case object LvRural1 extends ResType
-  case object LvRural2 extends ResType
-  case object LvRural3 extends ResType
-  case object LvSemiurb4 extends ResType
-  case object LvRes extends ResType
-  case object MvAdd0 extends ResType
-  case object MvAdd1 extends ResType
-  case object MvComm extends ResType
-  case object MvRural extends ResType
-  case object MvSemiurb extends ResType
+case object ResType extends ParsableEnumeration {
+  val Biomass: Value = Value("biomass")
+  val PV: Value = Value("pv")
+  val RunOfRiver: Value = Value("runofriver")
+  val WindOnshore: Value = Value("windonshore")
+  val WindOffshore: Value = Value("windoffshore")
+  val BiomassMv: Value = Value("biomassmv")
+  val HydroMv: Value = Value("hydromv")
+  val PvMv: Value = Value("pvmv")
+  val WindMv: Value = Value("windmv")
+  val LvRural1: Value = Value("lvrural1")
+  val LvRural2: Value = Value("lvrural2")
+  val LvRural3: Value = Value("lvrural3")
+  val LvSemiurb4: Value = Value("lvsemiurb4")
+  val LvRes: Value = Value("lvres")
+  val MvAdd0: Value = Value("mvadd0")
+  val MvAdd1: Value = Value("mvadd1")
+  val MvComm: Value = Value("mvcomm")
+  val MvRural: Value = Value("mvrural")
+  val MvSemiurb: Value = Value("mvsemiurb")
 
   /**
     * Hands back a suitable [[ResType]] based on the entries given in SimBench csv files
@@ -36,30 +35,14 @@ case object ResType {
     * @throws SimbenchDataModelException if a non valid type string has been provided
     */
   @throws[SimbenchDataModelException]
-  def apply(typeString: String): ResType =
-    typeString.toLowerCase.replaceAll("[_ ]*", "") match {
-      case "biomass"      => Biomass
-      case "pv"           => PV
-      case "runofriver"   => RunOfRiver
-      case "windonshore"  => WindOnshore
-      case "windoffshore" => WindOffshore
-      case "biomassmv"    => BiomassMv
-      case "hydromv"      => HydroMv
-      case "pvmv"         => PvMv
-      case "windmv"       => WindMv
-      case "lvrural1"     => LvRural1
-      case "lvrural2"     => LvRural2
-      case "lvrural3"     => LvRural3
-      case "lvsemiurb4"   => LvSemiurb4
-      case "lvres"        => LvRes
-      case "mvadd0"       => MvAdd0
-      case "mvadd1"       => MvAdd1
-      case "mvcomm"       => MvComm
-      case "mvrural"      => MvRural
-      case "mvsemiurb"    => MvSemiurb
-      case whatever =>
+  def apply(typeString: String): ResType.Value =
+    try {
+      parse(typeString)
+    } catch {
+      case e: NoSuchElementException =>
         throw SimbenchDataModelException(
-          s"I cannot handle the RES type $whatever"
+          s"I cannot handle the RES type $typeString",
+          e
         )
     }
 }

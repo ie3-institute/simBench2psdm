@@ -4,7 +4,9 @@ import edu.ie3.simbench.exception.io.SimbenchDataModelException
 import edu.ie3.simbench.io.HeadLineField
 import edu.ie3.simbench.io.HeadLineField.MandatoryField
 import edu.ie3.simbench.model.RawModelData
+import edu.ie3.simbench.model.datamodel.Node.NodeKey
 import edu.ie3.simbench.model.datamodel.EntityModel.EntityModelCompanionObject
+import edu.ie3.simbench.model.datamodel.SimbenchModel.SimbenchCompanionObject
 import edu.ie3.simbench.model.datamodel.enums.NodeType
 
 /**
@@ -34,7 +36,15 @@ case class Node(
     coordinate: Option[Coordinate] = None,
     subnet: String,
     voltLvl: Int
-) extends EntityModel
+) extends EntityModel {
+
+  /**
+    * Generating the key, to uniquely identify this node
+    *
+    * @return The node's key as (id, subnet, voltLvl)
+    */
+  def getKey: NodeKey = NodeKey(id, subnet, voltLvl)
+}
 
 case object Node extends EntityModelCompanionObject[Node] {
   private val NODE_TYPE = "type"
@@ -132,4 +142,13 @@ case object Node extends EntityModelCompanionObject[Node] {
     throw SimbenchDataModelException(
       s"No basic implementation of model creation available for ${this.getClass.getSimpleName}"
     )
+
+  /**
+    * Key to uniquely identify different nodes in the SimBench data set.
+    *
+    * @param id       Identifier
+    * @param subnet   Subnet description
+    * @param voltLvl  Voltage level
+    */
+  case class NodeKey(id: String, subnet: String, voltLvl: Int)
 }
