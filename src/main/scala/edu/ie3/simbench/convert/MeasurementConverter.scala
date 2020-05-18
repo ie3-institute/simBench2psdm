@@ -45,7 +45,13 @@ case object MeasurementConverter extends LazyLogging {
         case _: Measurement.LineMeasurement        => false
         case _: Measurement.TransformerMeasurement => false
       }
-      .map(_.asInstanceOf[NodeMeasurement])
+      .map {
+        case nodeMeasurement: NodeMeasurement => nodeMeasurement
+        case _ =>
+          throw ConversionException(
+            "Filtering for node measurement devices failed"
+          )
+      }
       /* group the measurements by their nodes */
       .groupMap(_.node)(identity)
       .values
@@ -90,7 +96,11 @@ case object MeasurementConverter extends LazyLogging {
           convert(measurement, node)
         }
       })
-      .map(_.get)
+      .map {
+        case Some(measurement) => measurement
+        case None =>
+          throw ConversionException("Failure during measurement conversion.")
+      }
       .toVector
   }
 
