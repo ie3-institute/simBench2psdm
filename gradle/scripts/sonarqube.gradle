@@ -1,6 +1,5 @@
 sonarqube {
 	properties {
-		// todo CK enable accordingly!
 		// general stuff
 		property 'sonar.projectName', 'simbench4ie3' // project name
 		property 'sonar.verbose', 'true' // verbose mode

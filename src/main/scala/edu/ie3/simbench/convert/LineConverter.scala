@@ -31,22 +31,18 @@ case object LineConverter extends LazyLogging {
       types: Map[LineType, LineTypeInput],
       nodes: Map[Node, NodeInput]
   ): Vector[LineInput] =
-    for (input <- inputs.filter(
-           input =>
-             input match {
-               case _: Line.ACLine => true
-               case _: Line.DCLine => false
-             }
-         )) yield {
-      val (nodeA, nodeB) =
-        NodeConverter.getNodes(input.nodeA, input.nodeB, nodes)
-      val lineType = types.getOrElse(
-        input.lineType,
-        throw ConversionException(
-          s"Cannot find conversion result for line type ${input.lineType.id}"
+    inputs.flatMap {
+      case acLine: Line.ACLine =>
+        val (nodeA, nodeB) =
+          NodeConverter.getNodes(acLine.nodeA, acLine.nodeB, nodes)
+        val lineType = types.getOrElse(
+          acLine.lineType,
+          throw ConversionException(
+            s"Cannot find conversion result for line type ${acLine.lineType.id}"
+          )
         )
-      )
-      convert(input, lineType, nodeA, nodeB)
+        Some(convert(acLine, lineType, nodeA, nodeB))
+      case _: Line.ACLine => None
     }
 
   /**
