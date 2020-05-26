@@ -112,9 +112,9 @@ final case class SimbenchReader(
 
     /* Creating the actual models */
     val nodes = modelClassToRawData.get(classOf[Node]) match {
-      case Some(rawDatas) =>
+      case Some(rawData) =>
         Node
-          .buildModels(rawDatas, coordinates, substations)
+          .buildModels(rawData, coordinates, substations)
           .map(node => node.id -> node)
           .toMap
       case None =>
@@ -123,16 +123,16 @@ final case class SimbenchReader(
         )
     }
     val lines = modelClassToRawData.get(classOf[Line[_]]) match {
-      case Some(rawDatas) => Line.buildModels(rawDatas, nodes, lineTypes)
+      case Some(rawData) => Line.buildModels(rawData, nodes, lineTypes)
       case None =>
         throw IoException(
           "Cannot build lines, as no raw data has been received."
         )
     }
     val transformers2w = modelClassToRawData.get(classOf[Transformer2W]) match {
-      case Some(rawDatas) =>
+      case Some(rawData) =>
         Transformer2W.buildModels(
-          rawDatas,
+          rawData,
           nodes,
           transformer2WTypes,
           substations
@@ -143,7 +143,7 @@ final case class SimbenchReader(
         )
     }
     val switches = modelClassToRawData.get(classOf[Switch]) match {
-      case Some(rawDatas) => Switch.buildModels(rawDatas, nodes, substations)
+      case Some(rawData) => Switch.buildModels(rawData, nodes, substations)
       case None =>
         logger.debug(
           s"No information available for ${classOf[Switch].getSimpleName}"
@@ -151,21 +151,21 @@ final case class SimbenchReader(
         Vector.empty[Switch]
     }
     val externalNets = modelClassToRawData.get(classOf[ExternalNet]) match {
-      case Some(rawDatas) => ExternalNet.buildModels(rawDatas, nodes)
+      case Some(rawData) => ExternalNet.buildModels(rawData, nodes)
       case None =>
         throw IoException(
           "Cannot build external nets, as no raw data has been received."
         )
     }
     val loads = modelClassToRawData.get(classOf[Load]) match {
-      case Some(rawDatas) => Load.buildModels(rawDatas, nodes)
+      case Some(rawData) => Load.buildModels(rawData, nodes)
       case None =>
         throw IoException(
           "Cannot build external nets, as no raw data has been received."
         )
     }
     val res = modelClassToRawData.get(classOf[RES]) match {
-      case Some(rawDatas) => RES.buildModels(rawDatas, nodes)
+      case Some(rawData) => RES.buildModels(rawData, nodes)
       case None =>
         logger.debug(
           s"No information available for ${classOf[RES].getSimpleName}"
@@ -173,9 +173,9 @@ final case class SimbenchReader(
         Vector.empty[RES]
     }
     val measurements = modelClassToRawData.get(classOf[Measurement]) match {
-      case Some(rawDatas) =>
+      case Some(rawData) =>
         Measurement.buildModels(
-          rawDatas,
+          rawData,
           nodes,
           lines.map(line => line.id -> line).toMap,
           transformers2w
@@ -189,7 +189,7 @@ final case class SimbenchReader(
         Vector.empty[Measurement]
     }
     val powerPlants = modelClassToRawData.get(classOf[PowerPlant]) match {
-      case Some(rawDatas) => PowerPlant.buildModels(rawDatas, nodes)
+      case Some(rawData) => PowerPlant.buildModels(rawData, nodes)
       case None =>
         logger.debug(
           s"No information available for ${classOf[PowerPlant].getSimpleName}"
@@ -318,7 +318,7 @@ final case class SimbenchReader(
       optional: Boolean = true
   )(implicit tag: ClassTag[C]): Vector[C] = {
     modelClassToRawData.get(tag.runtimeClass) match {
-      case Some(rawDatas) => cls.buildModels(rawDatas)
+      case Some(rawData) => cls.buildModels(rawData)
       case None =>
         if (optional) {
           logger.debug(

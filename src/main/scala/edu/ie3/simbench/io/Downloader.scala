@@ -6,6 +6,7 @@ import java.nio.file.{Files, Path, Paths}
 
 import com.typesafe.scalalogging.LazyLogging
 import edu.ie3.simbench.exception.io.DownloaderException
+import edu.ie3.simbench.model.SimbenchCode
 import org.apache.commons.compress.archivers.zip.ZipFile
 
 import scala.language.postfixOps
@@ -20,10 +21,12 @@ case object Downloader extends IoUtils with LazyLogging {
     *  not possible to check, if the URL is correct, because the SimBench website does redirect.
     * @param simbenchCode A valid SimBench code
     */
-  def download(downloader: Downloader, simbenchCode: String): Path = {
+  def download(downloader: Downloader, simbenchCode: SimbenchCode): Path = {
     val downloadFolderPath = new File(s"${downloader.downloadFolder}/")
     val downloadPath =
-      Paths.get(s"${downloadFolderPath.getAbsolutePath}/$simbenchCode.zip")
+      Paths.get(
+        s"${downloadFolderPath.getAbsolutePath}/${simbenchCode.code}.zip"
+      )
     val downloadFile = downloadPath.toFile
     if (downloadFolderPath.mkdirs()) {
       logger.debug("Created all non existing folders")
@@ -34,7 +37,9 @@ case object Downloader extends IoUtils with LazyLogging {
       logger.debug(s"Overwrite existing file ${downloadFile.getName}")
     }
 
-    val url = new URL(s"${downloader.baseUrl}/?Simbench_Code=$simbenchCode")
+    val url = new URL(
+      s"${downloader.baseUrl}/?Simbench_Code=${simbenchCode.code}"
+    )
     url #> downloadFile !!
 
     downloadPath
