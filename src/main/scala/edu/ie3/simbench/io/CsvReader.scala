@@ -77,10 +77,11 @@ final case class CsvReader[T](
             headLineFields
               .find(apparentField => apparentField._1 == field.id)
       )
-      .filterNot({
-        case (_: OptionalField, option: Option[(String, Int)]) => option.isEmpty
-        case _                                                 => false
-      })
+      .filter {
+        case (_: OptionalField, option: Option[(String, Int)]) =>
+          option.isDefined
+        case _ => true
+      }
       .map(entry => {
         val fieldId = entry._1.id
         val colIdx = entry._2 match {
