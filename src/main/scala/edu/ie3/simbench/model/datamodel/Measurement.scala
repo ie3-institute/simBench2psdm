@@ -21,12 +21,13 @@ object Measurement extends EntityModelCompanionObject[Measurement] {
     * @param subnet   Subnet it belongs to
     * @param voltLvl  Voltage level
     */
-  case class NodeMeasurement(id: String,
-                             node: Node,
-                             variable: MeasurementVariable,
-                             subnet: String,
-                             voltLvl: Int)
-      extends Measurement
+  case class NodeMeasurement(
+      id: String,
+      node: Node,
+      variable: MeasurementVariable,
+      subnet: String,
+      voltLvl: Int
+  ) extends Measurement
 
   /**
     * Measurement device, that is able to measure different information at a certain node of a line
@@ -38,13 +39,14 @@ object Measurement extends EntityModelCompanionObject[Measurement] {
     * @param subnet   Subnet it belongs to
     * @param voltLvl  Voltage level
     */
-  case class LineMeasurement(id: String,
-                             line: Line[_ <: LineType],
-                             node: Node,
-                             variable: MeasurementVariable,
-                             subnet: String,
-                             voltLvl: Int)
-      extends Measurement
+  case class LineMeasurement(
+      id: String,
+      line: Line[_ <: LineType],
+      node: Node,
+      variable: MeasurementVariable,
+      subnet: String,
+      voltLvl: Int
+  ) extends Measurement
 
   /**
     * Measurement device, that is able to measure different information at a certain node of a two winding transformer
@@ -56,13 +58,14 @@ object Measurement extends EntityModelCompanionObject[Measurement] {
     * @param subnet         Subnet it belongs to
     * @param voltLvl        Voltage level
     */
-  case class TransformerMeasurement(id: String,
-                                    transformer2W: Transformer2W,
-                                    node: Node,
-                                    variable: MeasurementVariable,
-                                    subnet: String,
-                                    voltLvl: Int)
-      extends Measurement
+  case class TransformerMeasurement(
+      id: String,
+      transformer2W: Transformer2W,
+      node: Node,
+      variable: MeasurementVariable,
+      subnet: String,
+      voltLvl: Int
+  ) extends Measurement
 
   private val ELEMENT_1 = "element1"
   private val ELEMENT_2 = "element2"
@@ -85,7 +88,8 @@ object Measurement extends EntityModelCompanionObject[Measurement] {
     */
   override def apply(rawData: RawModelData): Measurement =
     throw SimbenchDataModelException(
-      s"No basic implementation of model creation available for ${this.getClass.getSimpleName}")
+      s"No basic implementation of model creation available for ${this.getClass.getSimpleName}"
+    )
 
   /**
     * Factory method to build one model from a mapping from field id to value
@@ -100,7 +104,8 @@ object Measurement extends EntityModelCompanionObject[Measurement] {
       rawData: Vector[RawModelData],
       nodes: Map[String, Node],
       lines: Map[String, Line[_ <: LineType]],
-      transformers2W: Map[String, Transformer2W]): Vector[Measurement] =
+      transformers2W: Map[String, Transformer2W]
+  ): Vector[Measurement] =
     for (entry <- rawData) yield {
       val (id, subnet, voltLvl) = getBaseInformation(entry)
       val node = getNode(entry.get(ELEMENT_1), nodes)
@@ -115,15 +120,18 @@ object Measurement extends EntityModelCompanionObject[Measurement] {
           case None =>
             transformers2W.get(element2) match {
               case Some(transformer2W) =>
-                TransformerMeasurement(id,
-                                       transformer2W,
-                                       node,
-                                       variable,
-                                       subnet,
-                                       voltLvl)
+                TransformerMeasurement(
+                  id,
+                  transformer2W,
+                  node,
+                  variable,
+                  subnet,
+                  voltLvl
+                )
               case None =>
                 throw SimbenchDataModelException(
-                  s"The given measurement $id does not comply the assumed scheme. Cannot determine the type of measurement.")
+                  s"The given measurement $id does not comply the assumed scheme. Cannot determine the type of measurement."
+                )
             }
         }
     }

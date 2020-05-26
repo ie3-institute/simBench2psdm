@@ -27,22 +27,23 @@ import edu.ie3.simbench.model.datamodel.profiles.PowerPlantProfileType
   * @param subnet Subnet it belongs to
   * @param voltLvl Voltage level
   */
-case class PowerPlant(id: String,
-                      node: Node,
-                      powerPlantType: PowerPlantType,
-                      profile: PowerPlantProfileType,
-                      calculationType: CalculationType,
-                      dspf: BigDecimal,
-                      p: BigDecimal,
-                      q: Option[BigDecimal],
-                      sR: BigDecimal,
-                      pMin: BigDecimal,
-                      pMax: BigDecimal,
-                      qMin: BigDecimal,
-                      qMax: BigDecimal,
-                      subnet: String,
-                      voltLvl: Int)
-    extends ShuntModel
+case class PowerPlant(
+    id: String,
+    node: Node,
+    powerPlantType: PowerPlantType,
+    profile: PowerPlantProfileType,
+    calculationType: CalculationType,
+    dspf: BigDecimal,
+    p: BigDecimal,
+    q: Option[BigDecimal],
+    sR: BigDecimal,
+    pMin: BigDecimal,
+    pMax: BigDecimal,
+    qMin: BigDecimal,
+    qMax: BigDecimal,
+    subnet: String,
+    voltLvl: Int
+) extends ShuntModel
 
 case object PowerPlant extends EntityModelCompanionObject[PowerPlant] {
   private val NODE = "node"
@@ -64,21 +65,23 @@ case object PowerPlant extends EntityModelCompanionObject[PowerPlant] {
     * @return Array of table headings
     */
   override def getFields: Array[HeadLineField] =
-    Array(ID,
-          NODE,
-          PLANT_TYPE,
-          PROFILE_TYPE,
-          CALC_TYPE,
-          DSPF,
-          P,
-          Q,
-          S_RATED,
-          P_MIN,
-          P_MAX,
-          Q_MIN,
-          Q_MAX,
-          SUBNET,
-          VOLT_LVL).map(id => MandatoryField(id))
+    Array(
+      ID,
+      NODE,
+      PLANT_TYPE,
+      PROFILE_TYPE,
+      CALC_TYPE,
+      DSPF,
+      P,
+      Q,
+      S_RATED,
+      P_MIN,
+      P_MAX,
+      Q_MIN,
+      Q_MAX,
+      SUBNET,
+      VOLT_LVL
+    ).map(id => MandatoryField(id))
 
   /**
     * Factory method to build one model from a mapping from field id to value
@@ -88,7 +91,8 @@ case object PowerPlant extends EntityModelCompanionObject[PowerPlant] {
     */
   override def apply(rawData: RawModelData): PowerPlant =
     throw SimbenchDataModelException(
-      s"No basic implementation of model creation available for ${this.getClass.getSimpleName}")
+      s"No basic implementation of model creation available for ${this.getClass.getSimpleName}"
+    )
 
   /**
     * Factory method to build a batch of models from a mapping from field id to value
@@ -97,8 +101,10 @@ case object PowerPlant extends EntityModelCompanionObject[PowerPlant] {
     * @param nodes    A mapping from node id to node itself
     * @return A [[Vector]] of models
     */
-  def buildModels(rawData: Vector[RawModelData],
-                  nodes: Map[String, Node]): Vector[PowerPlant] =
+  def buildModels(
+      rawData: Vector[RawModelData],
+      nodes: Map[String, Node]
+  ): Vector[PowerPlant] =
     for (entry <- rawData) yield {
       val node = getNode(entry.get(NODE), nodes)
       buildModel(entry, node)
@@ -125,20 +131,22 @@ case object PowerPlant extends EntityModelCompanionObject[PowerPlant] {
     val qMin = rawData.getBigDecimal(Q_MIN)
     val qMax = rawData.getBigDecimal(Q_MAX)
 
-    PowerPlant(id,
-               node,
-               plantType,
-               profileType,
-               calcType,
-               dspf,
-               p,
-               q,
-               sRated,
-               pMin,
-               pMax,
-               qMin,
-               qMax,
-               subnet,
-               voltLvl)
+    PowerPlant(
+      id,
+      node,
+      plantType,
+      profileType,
+      calcType,
+      dspf,
+      p,
+      q,
+      sRated,
+      pMin,
+      pMax,
+      qMin,
+      qMax,
+      subnet,
+      voltLvl
+    )
   }
 }

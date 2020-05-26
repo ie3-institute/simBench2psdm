@@ -1,14 +1,16 @@
 package edu.ie3.simbench.io
 
-import scala.language.postfixOps
-import sys.process._
-import java.net.URL
 import java.io.{File, FileOutputStream}
+import java.net.URL
 import java.nio.file.{Files, Path, Paths}
 
 import com.typesafe.scalalogging.LazyLogging
 import edu.ie3.simbench.exception.io.DownloaderException
+import edu.ie3.simbench.model.SimbenchCode
 import org.apache.commons.compress.archivers.zip.ZipFile
+
+import scala.language.postfixOps
+import scala.sys.process._
 
 case class Downloader(downloadFolder: String, baseUrl: String)
 
@@ -19,10 +21,12 @@ case object Downloader extends IoUtils with LazyLogging {
     *  not possible to check, if the URL is correct, because the SimBench website does redirect.
     * @param simbenchCode A valid SimBench code
     */
-  def download(downloader: Downloader, simbenchCode: String): Path = {
+  def download(downloader: Downloader, simbenchCode: SimbenchCode): Path = {
     val downloadFolderPath = new File(s"${downloader.downloadFolder}/")
     val downloadPath =
-      Paths.get(s"${downloadFolderPath.getAbsolutePath}/$simbenchCode.zip")
+      Paths.get(
+        s"${downloadFolderPath.getAbsolutePath}/${simbenchCode.code}.zip"
+      )
     val downloadFile = downloadPath.toFile
     if (downloadFolderPath.mkdirs()) {
       logger.debug("Created all non existing folders")
@@ -33,7 +37,9 @@ case object Downloader extends IoUtils with LazyLogging {
       logger.debug(s"Overwrite existing file ${downloadFile.getName}")
     }
 
-    val url = new URL(s"${downloader.baseUrl}/?Simbench_Code=$simbenchCode")
+    val url = new URL(
+      s"${downloader.baseUrl}/?Simbench_Code=${simbenchCode.code}"
+    )
     url #> downloadFile !!
 
     downloadPath
@@ -48,24 +54,30 @@ case object Downloader extends IoUtils with LazyLogging {
     * @return [[Path]] to the folder, where the decompressed files are stored
     */
   @throws(classOf[DownloaderException])
-  def unzip(downloader: Downloader,
-            zipArchive: Path,
-            flattenDirectories: Boolean = false): Path = {
+  def unzip(
+      downloader: Downloader,
+      zipArchive: Path,
+      flattenDirectories: Boolean = false
+  ): Path = {
     /* Pre-unzip safety checks */
     IoUtils.checkFileExists(zipArchive, ".zip")
 
     /* Create and check the target folder */
     val archiveName = fileNameRegex("zip")
       .findFirstIn(zipArchive.toAbsolutePath.toString)
-      .getOrElse(throw DownloaderException(
-        s"Unable to determine the target filename from the provided file $zipArchive"))
+      .getOrElse(
+        throw DownloaderException(
+          s"Unable to determine the target filename from the provided file $zipArchive"
+        )
+      )
     val targetFolder = Paths.get(s"${downloader.downloadFolder}$archiveName/")
     if (!Files.exists(targetFolder)) {
       Files.createDirectories(targetFolder)
     } else if (!Files.isDirectory(targetFolder)) {
       throw DownloaderException(
         s"The target directory to unzip $zipArchive already exists, but is not a " +
-          s"directory")
+          s"directory"
+      )
     } else {
       /* Check if the folder is not empty */
       val folderStream =
@@ -84,18 +96,23 @@ case object Downloader extends IoUtils with LazyLogging {
         case (true, true) =>
           /* Flatten everything, that is in this directory */
           logger.debug(
-            s"I will flatten all entries, that are in the directory ${entry.getName}")
+            s"I will flatten all entries, that are in the directory ${entry.getName}"
+          )
         case (true, false) =>
           /* Create the subfolder */
           val subfolder = Paths.get(
-            s"${targetFolder.toAbsolutePath.toString}/${entry.getName}")
+            s"${targetFolder.toAbsolutePath.toString}/${entry.getName}"
+          )
           Files.createDirectories(subfolder)
         case (false, _) =>
           val entryName = if (flattenDirectories) {
             fileNameRegexWithAnyEnding
               .findFirstIn(entry.getName)
-              .getOrElse(throw DownloaderException(
-                s"Cannot extract the flattened file name of ${entry.getName}"))
+              .getOrElse(
+                throw DownloaderException(
+                  s"Cannot extract the flattened file name of ${entry.getName}"
+                )
+              )
           } else {
             entry.getName
           }

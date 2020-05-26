@@ -22,7 +22,9 @@ class IoUtilsSpec extends UnitSpec {
     "throw an IoException, if the provided string is not a path description" in {
       val thrown = intercept[IoException](
         IoUtils.getFileExtensionWithoutDot(
-          "totally random string without any meaning"))
+          "totally random string without any meaning"
+        )
+      )
       thrown.getMessage shouldBe "The provided path string (totally random string without any meaning) does not " +
         "match the pattern .*\\.\\w+$, why no ending can be extracted."
     }
@@ -57,7 +59,8 @@ class IoUtilsSpec extends UnitSpec {
       IoUtils.fullyQualifiedPathRegex.matches("C:\\\\foo\\bar\\file.ext") shouldBe true
       IoUtils.fullyQualifiedPathRegex.matches("C:\\a@b.com\\foo\\bar\\file.ext") shouldBe true
       IoUtils.fullyQualifiedPathRegex.matches(
-        "C:\\\\a@b.com\\foo\\bar\\file.ext") shouldBe true
+        "C:\\\\a@b.com\\foo\\bar\\file.ext"
+      ) shouldBe true
       IoUtils.fullyQualifiedPathRegex.matches("/bla/file.ext") shouldBe true
       IoUtils.fullyQualifiedPathRegex.matches("/foo/bar/bla/file.ext") shouldBe true
       IoUtils.fullyQualifiedPathRegex.matches("/a@b.com/foo/bar/bla/file.ext") shouldBe true
@@ -69,7 +72,8 @@ class IoUtilsSpec extends UnitSpec {
 
     "throw an error, if the folder path is not correct" in {
       val thrown = intercept[IoException](
-        IoUtils.composeFullyQualifiedPath("home.user.test.path", "file", "ext"))
+        IoUtils.composeFullyQualifiedPath("home.user.test.path", "file", "ext")
+      )
       thrown.getMessage shouldBe "Cannot determine correct fully qualified folder path from home.user.test.path"
     }
   }

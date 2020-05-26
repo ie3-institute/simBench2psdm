@@ -99,6 +99,7 @@ case object ResProfileType {
       case "wp9"        => WP9
       case whatever =>
         throw SimbenchDataModelException(
-          s"I cannot handle the measurement variable $whatever")
+          s"I cannot handle the measurement variable $whatever"
+        )
     }
 }

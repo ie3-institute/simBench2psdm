@@ -7,13 +7,7 @@ import edu.ie3.simbench.model.datamodel.Measurement.{
   NodeMeasurement,
   TransformerMeasurement
 }
-import edu.ie3.simbench.model.datamodel.{
-  Coordinate,
-  Measurement,
-  Node,
-  Substation,
-  Transformer2W
-}
+import edu.ie3.simbench.model.datamodel._
 import edu.ie3.simbench.model.datamodel.enums.{
   BranchElementPort,
   LineStyle,
@@ -36,11 +30,14 @@ class MeasurementSpec extends UnitSpec {
       BigDecimal("1.1"),
       None,
       Some(
-        Coordinate("coord_0",
-                   BigDecimal("11.411"),
-                   BigDecimal("53.6407"),
-                   "LV1.101",
-                   7)),
+        Coordinate(
+          "coord_0",
+          BigDecimal("11.411"),
+          BigDecimal("53.6407"),
+          "LV1.101",
+          7
+        )
+      ),
       "LV1.101",
       7
     )
@@ -60,11 +57,14 @@ class MeasurementSpec extends UnitSpec {
           BigDecimal("1.1"),
           None,
           Some(
-            Coordinate("coord_3",
-                       BigDecimal("11.4097"),
-                       BigDecimal("53.6413"),
-                       "LV1.101",
-                       7)),
+            Coordinate(
+              "coord_3",
+              BigDecimal("11.4097"),
+              BigDecimal("53.6413"),
+              "LV1.101",
+              7
+            )
+          ),
           "LV1.101",
           7
         ),
@@ -78,20 +78,25 @@ class MeasurementSpec extends UnitSpec {
           BigDecimal("1.1"),
           None,
           Some(
-            Coordinate("coord_0",
-                       BigDecimal("11.411"),
-                       BigDecimal("53.6407"),
-                       "LV1.101",
-                       7)),
+            Coordinate(
+              "coord_0",
+              BigDecimal("11.411"),
+              BigDecimal("53.6407"),
+              "LV1.101",
+              7
+            )
+          ),
           "LV1.101",
           7
         ),
-        ACLineType("NAYY 4x150SE 0.6/1kV",
-                   BigDecimal("0.2067"),
-                   BigDecimal("0.0804248"),
-                   BigDecimal("260.752"),
-                   BigDecimal("270"),
-                   LineStyle.Cable),
+        ACLineType(
+          "NAYY 4x150SE 0.6/1kV",
+          BigDecimal("0.2067"),
+          BigDecimal("0.0804248"),
+          BigDecimal("260.752"),
+          BigDecimal("270"),
+          LineStyle.Cable
+        ),
         BigDecimal("0.132499"),
         BigDecimal("100"),
         "LV1.101",
@@ -119,7 +124,8 @@ class MeasurementSpec extends UnitSpec {
               BigDecimal("53.6413"),
               "MV1.101_LV1.101_Feeder1",
               5
-            )),
+            )
+          ),
           "MV1.101_LV1.101_Feeder1",
           5
         ),
@@ -139,7 +145,8 @@ class MeasurementSpec extends UnitSpec {
               BigDecimal("53.6413"),
               "MV1.101_LV1.101_Feeder1",
               5
-            )),
+            )
+          ),
           "LV1.101",
           7
         ),
@@ -220,11 +227,14 @@ class MeasurementSpec extends UnitSpec {
         BigDecimal("1.1"),
         None,
         Some(
-          Coordinate("coord_0",
-                     BigDecimal("11.411"),
-                     BigDecimal("53.6407"),
-                     "LV1.101",
-                     7)),
+          Coordinate(
+            "coord_0",
+            BigDecimal("11.411"),
+            BigDecimal("53.6407"),
+            "LV1.101",
+            7
+          )
+        ),
         "LV1.101",
         7
       ),
@@ -246,11 +256,14 @@ class MeasurementSpec extends UnitSpec {
           BigDecimal("1.1"),
           None,
           Some(
-            Coordinate("coord_3",
-                       BigDecimal("11.4097"),
-                       BigDecimal("53.6413"),
-                       "LV1.101",
-                       7)),
+            Coordinate(
+              "coord_3",
+              BigDecimal("11.4097"),
+              BigDecimal("53.6413"),
+              "LV1.101",
+              7
+            )
+          ),
           "LV1.101",
           7
         ),
@@ -264,20 +277,25 @@ class MeasurementSpec extends UnitSpec {
           BigDecimal("1.1"),
           None,
           Some(
-            Coordinate("coord_0",
-                       BigDecimal("11.411"),
-                       BigDecimal("53.6407"),
-                       "LV1.101",
-                       7)),
+            Coordinate(
+              "coord_0",
+              BigDecimal("11.411"),
+              BigDecimal("53.6407"),
+              "LV1.101",
+              7
+            )
+          ),
           "LV1.101",
           7
         ),
-        ACLineType("NAYY 4x150SE 0.6/1kV",
-                   BigDecimal("0.2067"),
-                   BigDecimal("0.0804248"),
-                   BigDecimal("260.752"),
-                   BigDecimal("270"),
-                   LineStyle.Cable),
+        ACLineType(
+          "NAYY 4x150SE 0.6/1kV",
+          BigDecimal("0.2067"),
+          BigDecimal("0.0804248"),
+          BigDecimal("260.752"),
+          BigDecimal("270"),
+          LineStyle.Cable
+        ),
         BigDecimal("0.132499"),
         BigDecimal("100"),
         "LV1.101",
@@ -293,11 +311,14 @@ class MeasurementSpec extends UnitSpec {
         BigDecimal("1.1"),
         None,
         Some(
-          Coordinate("coord_0",
-                     BigDecimal("11.411"),
-                     BigDecimal("53.6407"),
-                     "LV1.101",
-                     7)),
+          Coordinate(
+            "coord_0",
+            BigDecimal("11.411"),
+            BigDecimal("53.6407"),
+            "LV1.101",
+            7
+          )
+        ),
         "LV1.101",
         7
       ),
@@ -325,7 +346,8 @@ class MeasurementSpec extends UnitSpec {
               BigDecimal("53.6413"),
               "MV1.101_LV1.101_Feeder1",
               5
-            )),
+            )
+          ),
           "MV1.101_LV1.101_Feeder1",
           5
         ),
@@ -345,7 +367,8 @@ class MeasurementSpec extends UnitSpec {
               BigDecimal("53.6413"),
               "MV1.101_LV1.101_Feeder1",
               5
-            )),
+            )
+          ),
           "LV1.101",
           7
         ),
@@ -385,11 +408,14 @@ class MeasurementSpec extends UnitSpec {
         BigDecimal("1.1"),
         None,
         Some(
-          Coordinate("coord_0",
-                     BigDecimal("11.411"),
-                     BigDecimal("53.6407"),
-                     "LV1.101",
-                     7)),
+          Coordinate(
+            "coord_0",
+            BigDecimal("11.411"),
+            BigDecimal("53.6407"),
+            "LV1.101",
+            7
+          )
+        ),
         "LV1.101",
         7
       ),

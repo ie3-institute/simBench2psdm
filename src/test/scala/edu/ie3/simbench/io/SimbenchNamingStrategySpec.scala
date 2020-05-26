@@ -3,6 +3,7 @@ package edu.ie3.simbench.io
 import edu.ie3.simbench.exception.io.SimbenchFileNamingException
 import edu.ie3.simbench.model.datamodel.ExternalNet.{Simple, Ward, WardExtended}
 import edu.ie3.simbench.model.datamodel.Line.{ACLine, DCLine}
+import edu.ie3.simbench.model.datamodel._
 import edu.ie3.simbench.model.datamodel.profiles.{
   LoadProfile,
   PowerPlantProfile,
@@ -13,10 +14,9 @@ import edu.ie3.simbench.model.datamodel.types.{
   Transformer2WType,
   Transformer3WType
 }
-import edu.ie3.simbench.model.datamodel._
 import edu.ie3.test.common.UnitSpec
-import org.scalatest.prop.TableDrivenPropertyChecks._
 import org.scalatest.Inside._
+import org.scalatest.prop.TableDrivenPropertyChecks._
 
 import scala.util.{Failure, Success}
 
@@ -49,8 +49,9 @@ class SimbenchNamingStrategySpec extends UnitSpec {
     "provide correct file namings" in {
       forAll(validNamings)(
         (clazz: Class[_], expectedFileName: String) =>
-          SimbenchFileNamingStrategy.getFileName(clazz) shouldBe Success(
-            expectedFileName))
+          SimbenchFileNamingStrategy
+            .getFileName(clazz) shouldBe Success(expectedFileName)
+      )
     }
 
     "report a failure, if the class is not covered by the naming strategy" in {

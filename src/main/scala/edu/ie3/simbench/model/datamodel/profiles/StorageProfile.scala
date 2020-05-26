@@ -8,7 +8,8 @@ import java.time.ZonedDateTime
   * @param profileType  The type if profile
   * @param profile      The actual profile
   */
-case class StorageProfile(id: String,
-                          profileType: StorageProfileType,
-                          profile: Map[ZonedDateTime, (BigDecimal, BigDecimal)])
-    extends ProfileModel[StorageProfileType, (BigDecimal, BigDecimal)]
+case class StorageProfile(
+    id: String,
+    profileType: StorageProfileType,
+    profile: Map[ZonedDateTime, (BigDecimal, BigDecimal)]
+) extends ProfileModel[StorageProfileType, (BigDecimal, BigDecimal)]

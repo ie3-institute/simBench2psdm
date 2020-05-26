@@ -10,7 +10,8 @@ class CsvReaderSpec extends UnitSpec {
   "The csv reader" should {
     val classLoader = this.getClass.getClassLoader
     val validCsvFilePath = IoUtils.trimFirstSeparatorInWindowsPath(
-      classLoader.getResource("io/csv/Load.csv").getPath)
+      classLoader.getResource("io/csv/Load.csv").getPath
+    )
     val validFields: Array[HeadLineField] = Array(
       MandatoryField("id"),
       MandatoryField("node"),
@@ -23,7 +24,8 @@ class CsvReaderSpec extends UnitSpec {
     )
     val invalidFilePath =
       IoUtils.trimFirstSeparatorInWindowsPath(
-        classLoader.getResource("io/csv/invalidFile.png").getPath)
+        classLoader.getResource("io/csv/invalidFile.png").getPath
+      )
     val separator = ";"
 
     "be instantiated correctly with valid file path" in {
@@ -36,7 +38,8 @@ class CsvReaderSpec extends UnitSpec {
 
     "throw an IoException when instantiated with an invalid file path" in {
       val thrown = intercept[IoException](
-        CsvReader(classOf[Load], invalidFilePath, separator))
+        CsvReader(classOf[Load], invalidFilePath, separator)
+      )
       thrown.getMessage.endsWith("Only .csv is supported (case sensitive).") shouldBe true
     }
 
@@ -59,14 +62,16 @@ class CsvReaderSpec extends UnitSpec {
       val method = PrivateMethod[Map[String, Int]](Symbol("mapFields"))
       val mapping = csvReader invokePrivate method(headline, desiredFields)
 
-      mapping shouldBe Map("id" -> 0,
-                           "node" -> 1,
-                           "profile" -> 2,
-                           "pLoad" -> 3,
-                           "qLoad" -> 4,
-                           "sR" -> 5,
-                           "subnet" -> 6,
-                           "voltLvl" -> 7)
+      mapping shouldBe Map(
+        "id" -> 0,
+        "node" -> 1,
+        "profile" -> 2,
+        "pLoad" -> 3,
+        "qLoad" -> 4,
+        "sR" -> 5,
+        "subnet" -> 6,
+        "voltLvl" -> 7
+      )
     }
 
     "correctly map the desired field ids of a valid headline with more than the desired fields" in {
@@ -83,17 +88,21 @@ class CsvReaderSpec extends UnitSpec {
         MandatoryField("voltLvl")
       )
 
-      val mapping = csvReader invokePrivate mapFieldsMethod(headline,
-                                                            desiredFields)
+      val mapping = csvReader invokePrivate mapFieldsMethod(
+        headline,
+        desiredFields
+      )
 
-      mapping shouldBe Map("id" -> 0,
-                           "node" -> 1,
-                           "profile" -> 2,
-                           "pLoad" -> 3,
-                           "qLoad" -> 4,
-                           "sR" -> 6,
-                           "subnet" -> 7,
-                           "voltLvl" -> 8)
+      mapping shouldBe Map(
+        "id" -> 0,
+        "node" -> 1,
+        "profile" -> 2,
+        "pLoad" -> 3,
+        "qLoad" -> 4,
+        "sR" -> 6,
+        "subnet" -> 7,
+        "voltLvl" -> 8
+      )
     }
 
     "throw an exception, if one mandatory field is missing in an invalid headline" in {
@@ -110,7 +119,8 @@ class CsvReaderSpec extends UnitSpec {
       )
 
       val thrown = intercept[IoException](
-        csvReader invokePrivate mapFieldsMethod(headline, desiredFields))
+        csvReader invokePrivate mapFieldsMethod(headline, desiredFields)
+      )
 
       thrown.getMessage.endsWith("does not contain the mandatory field subnet") shouldBe true
     }
@@ -128,16 +138,20 @@ class CsvReaderSpec extends UnitSpec {
         MandatoryField("voltLvl")
       )
 
-      val mapping = csvReader invokePrivate mapFieldsMethod(headline,
-                                                            desiredFields)
+      val mapping = csvReader invokePrivate mapFieldsMethod(
+        headline,
+        desiredFields
+      )
 
-      mapping shouldBe Map("id" -> 0,
-                           "node" -> 1,
-                           "profile" -> 2,
-                           "pLoad" -> 3,
-                           "qLoad" -> 4,
-                           "sR" -> 5,
-                           "voltLvl" -> 6)
+      mapping shouldBe Map(
+        "id" -> 0,
+        "node" -> 1,
+        "profile" -> 2,
+        "pLoad" -> 3,
+        "qLoad" -> 4,
+        "sR" -> 5,
+        "voltLvl" -> 6
+      )
     }
 
     val readLineMethod = PrivateMethod[Map[String, String]](Symbol("readLine"))
@@ -145,17 +159,21 @@ class CsvReaderSpec extends UnitSpec {
     "read a single valid line correctly" in {
       val validLine =
         "LV1.101 Load 4;LV1.101 Bus 13;H0-B;0.002;0.00079;0.00215054;LV1.101;7"
-      val fieldMapping = Map("id" -> 0,
-                             "node" -> 1,
-                             "profile" -> 2,
-                             "pLoad" -> 3,
-                             "qLoad" -> 4,
-                             "sR" -> 5,
-                             "subnet" -> 6,
-                             "voltLvl" -> 7)
+      val fieldMapping = Map(
+        "id" -> 0,
+        "node" -> 1,
+        "profile" -> 2,
+        "pLoad" -> 3,
+        "qLoad" -> 4,
+        "sR" -> 5,
+        "subnet" -> 6,
+        "voltLvl" -> 7
+      )
 
-      val result = csvReader invokePrivate readLineMethod(validLine,
-                                                          fieldMapping)
+      val result = csvReader invokePrivate readLineMethod(
+        validLine,
+        fieldMapping
+      )
       result shouldBe Map(
         "id" -> "LV1.101 Load 4",
         "node" -> "LV1.101 Bus 13",
@@ -171,20 +189,24 @@ class CsvReaderSpec extends UnitSpec {
     "throw an exception, if one field is missing" in {
       val validLine =
         "LV1.101 Load 4;LV1.101 Bus 13;H0-B;0.002;0.00215054;LV1.101;7"
-      val fieldMapping = Map("id" -> 0,
-                             "node" -> 1,
-                             "profile" -> 2,
-                             "pLoad" -> 3,
-                             "qLoad" -> 4,
-                             "sR" -> 5,
-                             "subnet" -> 6,
-                             "voltLvl" -> 7)
+      val fieldMapping = Map(
+        "id" -> 0,
+        "node" -> 1,
+        "profile" -> 2,
+        "pLoad" -> 3,
+        "qLoad" -> 4,
+        "sR" -> 5,
+        "subnet" -> 6,
+        "voltLvl" -> 7
+      )
 
       val thrown = intercept[IoException](
-        csvReader invokePrivate readLineMethod(validLine, fieldMapping))
+        csvReader invokePrivate readLineMethod(validLine, fieldMapping)
+      )
 
       thrown.getMessage.contains(
-        "does not contain the correct amount of fields (apparent = 7, needed = 8)") shouldBe true
+        "does not contain the correct amount of fields (apparent = 7, needed = 8)"
+      ) shouldBe true
     }
 
     "read the valid file correctly" in {

@@ -26,6 +26,7 @@ object LineStyle {
       case "ohl"   => OverheadLine
       case whatever =>
         throw SimbenchDataModelException(
-          s"I cannot handle the line style $whatever")
+          s"I cannot handle the line style $whatever"
+        )
     }
 }

@@ -59,6 +59,7 @@ case object ResType {
       case "mvsemiurb"    => MvSemiurb
       case whatever =>
         throw SimbenchDataModelException(
-          s"I cannot handle the RES type $whatever")
+          s"I cannot handle the RES type $whatever"
+        )
     }
 }

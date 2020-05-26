@@ -5,20 +5,26 @@ import edu.ie3.test.common.UnitSpec
 
 class CoordinateSpec extends UnitSpec {
   val rawData = Vector(
-    RawModelData(classOf[Coordinate],
-                 Map("id" -> "coord_3",
-                     "x" -> "11.4097",
-                     "y" -> "53.6413",
-                     "subnet" -> "LV1.101",
-                     "voltLvl" -> "7")),
-    RawModelData(classOf[Coordinate],
-                 Map(
-                   "id" -> "coord_14",
-                   "x" -> "11.4097",
-                   "y" -> "53.6413",
-                   "subnet" -> "MV1.101_LV1.101_Feeder1",
-                   "voltLvl" -> "5"
-                 ))
+    RawModelData(
+      classOf[Coordinate],
+      Map(
+        "id" -> "coord_3",
+        "x" -> "11.4097",
+        "y" -> "53.6413",
+        "subnet" -> "LV1.101",
+        "voltLvl" -> "7"
+      )
+    ),
+    RawModelData(
+      classOf[Coordinate],
+      Map(
+        "id" -> "coord_14",
+        "x" -> "11.4097",
+        "y" -> "53.6413",
+        "subnet" -> "MV1.101_LV1.101_Feeder1",
+        "voltLvl" -> "5"
+      )
+    )
   )
 
   val expected = Vector(

@@ -1,18 +1,18 @@
 package edu.ie3.simbench.model
 
 import edu.ie3.simbench.exception.io.SimbenchDataModelException
-import edu.ie3.simbench.model.datamodel.{
-  Coordinate,
-  Node,
-  PowerPlant,
-  Substation
-}
 import edu.ie3.simbench.model.datamodel.enums.{
   CalculationType,
   NodeType,
   PowerPlantType
 }
 import edu.ie3.simbench.model.datamodel.profiles.PowerPlantProfileType
+import edu.ie3.simbench.model.datamodel.{
+  Coordinate,
+  Node,
+  PowerPlant,
+  Substation
+}
 import edu.ie3.test.common.UnitSpec
 
 class PowerPlantSpec extends UnitSpec {
@@ -33,7 +33,8 @@ class PowerPlantSpec extends UnitSpec {
           BigDecimal("53.6413"),
           "MV1.101_LV1.101_Feeder1",
           5
-        )),
+        )
+      ),
       "MV1.101_LV1.101_Feeder1",
       5
     )
@@ -101,7 +102,8 @@ class PowerPlantSpec extends UnitSpec {
             BigDecimal("53.6413"),
             "MV1.101_LV1.101_Feeder1",
             5
-          )),
+          )
+        ),
         "MV1.101_LV1.101_Feeder1",
         5
       ),
@@ -137,7 +139,8 @@ class PowerPlantSpec extends UnitSpec {
             BigDecimal("53.6413"),
             "MV1.101_LV1.101_Feeder1",
             5
-          )),
+          )
+        ),
         "MV1.101_LV1.101_Feeder1",
         5
       ),
@@ -173,9 +176,12 @@ class PowerPlantSpec extends UnitSpec {
     "build the correct single model" in {
       val actual = PowerPlant.buildModel(
         rawData(0),
-        nodes.getOrElse("MV1.101 Bus 4",
-                        throw SimbenchDataModelException(
-                          "Ooops. This is not supposed to happen"))
+        nodes.getOrElse(
+          "MV1.101 Bus 4",
+          throw SimbenchDataModelException(
+            "Ooops. This is not supposed to happen"
+          )
+        )
       )
       actual shouldBe expected(0)
     }

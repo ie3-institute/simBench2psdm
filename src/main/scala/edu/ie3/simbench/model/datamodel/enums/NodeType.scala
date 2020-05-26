@@ -39,6 +39,7 @@ object NodeType {
       case "auxiliary" => Auxiliary
       case whatever =>
         throw SimbenchDataModelException(
-          s"I cannot handle the node type $whatever")
+          s"I cannot handle the node type $whatever"
+        )
     }
 }

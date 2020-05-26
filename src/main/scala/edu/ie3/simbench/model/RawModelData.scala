@@ -4,8 +4,10 @@ import edu.ie3.simbench.exception.io.IoException
 
 import scala.util.{Failure, Success, Try}
 
-final case class RawModelData(modelClass: Class[_],
-                              fieldToValues: Map[String, String]) {
+final case class RawModelData(
+    modelClass: Class[_],
+    fieldToValues: Map[String, String]
+) {
 
   /**
     * Extract the id from the field values
@@ -16,8 +18,8 @@ final case class RawModelData(modelClass: Class[_],
   def get(field: String): String =
     fieldToValues.getOrElse(
       field,
-      throw IoException(
-        s"Cannot build $modelClass, as field $field is missing"))
+      throw IoException(s"Cannot build $modelClass, as field $field is missing")
+    )
 
   /**
     * Getting Int entry from field
@@ -32,7 +34,8 @@ final case class RawModelData(modelClass: Class[_],
       case Failure(exception) =>
         throw IoException(
           s"Cannot build Int from $field, as the underlying entry $entry cannot be converted to Int.",
-          exception)
+          exception
+        )
     }
   }
 
@@ -58,7 +61,8 @@ final case class RawModelData(modelClass: Class[_],
       case Failure(exception) =>
         throw IoException(
           s"Cannot build BigDecimal from $field, as the underlying entry $entry cannot be converted to BigDecimal.",
-          exception)
+          exception
+        )
     }
   }
 

@@ -25,7 +25,8 @@ class SimbenchCodeSpec extends UnitSpec {
         case Success(value) => value.code shouldBe validCode
         case _ =>
           fail(
-            s"Checking simbench code $validCode did not result in a valid instance.")
+            s"Checking simbench code $validCode did not result in a valid instance."
+          )
       }
     }
   }

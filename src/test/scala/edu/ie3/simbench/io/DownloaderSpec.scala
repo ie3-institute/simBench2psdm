@@ -3,9 +3,11 @@ package edu.ie3.simbench.io
 import java.io.File
 import java.nio.file.{Files, Paths}
 
+import edu.ie3.simbench.exception.CodeValidationException
 import edu.ie3.simbench.exception.io.{DownloaderException, IoException}
+import edu.ie3.simbench.model.SimbenchCode
 import edu.ie3.test.common.UnitSpec
-import edu.ie3.util.io.FileHelper
+import edu.ie3.util.io.FileIOUtils
 
 import scala.jdk.StreamConverters._
 import scala.language.postfixOps
@@ -13,19 +15,25 @@ import scala.language.postfixOps
 class DownloaderSpec extends UnitSpec with IoUtils {
   val downloader: Downloader = Downloader(
     "testData/download/",
-    "http://141.51.193.167/simbench/gui/usecase/download")
+    "http://141.51.193.167/simbench/gui/usecase/download"
+  )
 
   "The download" should {
     "provide a file in the correct location" in {
-      val targetSimbenchCode = "1-LV-urban6--0-sw"
+      val targetSimbenchCode = SimbenchCode("1-LV-urban6--0-sw").getOrElse(
+        throw CodeValidationException(
+          "'1-LV-urban6--0-sw' is no valid SimBench code."
+        )
+      )
       val downloadFolderPath = new File("testData/download")
       val expectedPath = Paths.get(
-        s"${downloadFolderPath.getAbsolutePath}/$targetSimbenchCode.zip")
+        s"${downloadFolderPath.getAbsolutePath}/${targetSimbenchCode.code}.zip"
+      )
 
       val actualFile = Downloader.download(downloader, targetSimbenchCode)
       actualFile shouldBe expectedPath
 
-      FileHelper.deleteRecursively(actualFile)
+      FileIOUtils.deleteRecursively(actualFile)
     }
   }
 
@@ -51,7 +59,8 @@ class DownloaderSpec extends UnitSpec with IoUtils {
     "throw an exception, if the file is not a zip archive" in {
       Files.createDirectories(Paths.get(pwd, s"${downloader.downloadFolder}"))
       val filePath = Files.createFile(
-        Paths.get(pwd, s"${downloader.downloadFolder}/test.txt"))
+        Paths.get(pwd, s"${downloader.downloadFolder}/test.txt")
+      )
 
       intercept[IoException] {
         Downloader.unzip(downloader, filePath)
@@ -64,7 +73,8 @@ class DownloaderSpec extends UnitSpec with IoUtils {
     "throw an exception, if the target folder exists and is a file" in {
       val filePath =
         Paths.get(
-          s"${downloader.downloadFolder}targetFolderExistsAndIsFile.zip")
+          s"${downloader.downloadFolder}targetFolderExistsAndIsFile.zip"
+        )
       val thrown = intercept[DownloaderException] {
         Downloader.unzip(downloader, filePath)
       }
@@ -99,13 +109,15 @@ class DownloaderSpec extends UnitSpec with IoUtils {
         "RESProfile.csv",
         "StudyCases.csv",
         "Transformer.csv",
-        "TransformerType.csv",
+        "TransformerType.csv"
       )
       val files = Files.list(secondLevelPath)
       val actualContent = files
         .toScala(LazyList)
-        .map(entry =>
-          fileNameRegexWithAnyEnding.findFirstIn(entry.toString).getOrElse(""))
+        .map(
+          entry =>
+            fileNameRegexWithAnyEnding.findFirstIn(entry.toString).getOrElse("")
+        )
         .sorted
         .toVector
       files.close()
@@ -113,7 +125,7 @@ class DownloaderSpec extends UnitSpec with IoUtils {
       actualContent shouldBe expectedContent
 
       /* Tidy up all the temporary files */
-      FileHelper.deleteRecursively(extractionBasePath)
+      FileIOUtils.deleteRecursively(extractionBasePath)
     }
 
     "unzip the data and flatten the directory structure correctly" in {
@@ -122,7 +134,8 @@ class DownloaderSpec extends UnitSpec with IoUtils {
       val extractionBasePath =
         Paths.get(pwd, s"${downloader.downloadFolder}1-LV-rural1--0-no_sw")
 
-      val actualBasePath = Downloader.unzip(downloader, archiveFilePath, true)
+      val actualBasePath =
+        Downloader.unzip(downloader, archiveFilePath, flattenDirectories = true)
       actualBasePath.toAbsolutePath shouldBe extractionBasePath.toAbsolutePath
       Files.exists(extractionBasePath) shouldBe true
       Files.isDirectory(extractionBasePath) shouldBe true
@@ -140,13 +153,15 @@ class DownloaderSpec extends UnitSpec with IoUtils {
         "RESProfile.csv",
         "StudyCases.csv",
         "Transformer.csv",
-        "TransformerType.csv",
+        "TransformerType.csv"
       )
       val files = Files.list(extractionBasePath)
       val actualContent = files
         .toScala(LazyList)
-        .map(entry =>
-          fileNameRegexWithAnyEnding.findFirstIn(entry.toString).getOrElse(""))
+        .map(
+          entry =>
+            fileNameRegexWithAnyEnding.findFirstIn(entry.toString).getOrElse("")
+        )
         .sorted
         .toVector
       files.close()
@@ -154,7 +169,7 @@ class DownloaderSpec extends UnitSpec with IoUtils {
       actualContent shouldBe expectedContent
 
       /* Tidy up all the temporary files */
-      FileHelper.deleteRecursively(extractionBasePath)
+      FileIOUtils.deleteRecursively(extractionBasePath)
     }
   }
 }

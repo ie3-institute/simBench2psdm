@@ -1,8 +1,8 @@
 package edu.ie3.simbench.model
 
 import edu.ie3.simbench.exception.io.SimbenchDataModelException
-import edu.ie3.simbench.model.datamodel.{Coordinate, Node, Substation}
 import edu.ie3.simbench.model.datamodel.enums.NodeType
+import edu.ie3.simbench.model.datamodel.{Coordinate, Node, Substation}
 import edu.ie3.test.common.UnitSpec
 
 class NodeSpec extends UnitSpec {
@@ -13,10 +13,12 @@ class NodeSpec extends UnitSpec {
       BigDecimal("53.6413"),
       "MV1.101_LV1.101_Feeder1",
       5
-    ))
+    )
+  )
 
   val substations = Map(
-    "substation_1" -> Substation("substation_1", "LV1.101", 7))
+    "substation_1" -> Substation("substation_1", "LV1.101", 7)
+  )
 
   val rawData = Vector(
     RawModelData(
@@ -70,7 +72,8 @@ class NodeSpec extends UnitSpec {
           BigDecimal("53.6413"),
           "MV1.101_LV1.101_Feeder1",
           5
-        )),
+        )
+      ),
       "MV1.101_LV1.101_Feeder1",
       5
     ),
@@ -103,9 +106,11 @@ class NodeSpec extends UnitSpec {
     }
 
     "build the correct single model" in {
-      val actual = Node.buildModel(rawData(0),
-                                   coordinates.get("coord_14"),
-                                   substations.get("substation_1"))
+      val actual = Node.buildModel(
+        rawData(0),
+        coordinates.get("coord_14"),
+        substations.get("substation_1")
+      )
       actual shouldBe expected(0)
     }
 

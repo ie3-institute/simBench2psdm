@@ -41,7 +41,8 @@ object SimbenchConfig {
           else "http://141.51.193.167/simbench/gui/usecase/download",
         csv = SimbenchConfig.Io.Csv(
           if (c.hasPathOrNull("csv")) c.getConfig("csv")
-          else com.typesafe.config.ConfigFactory.parseString("csv{}")),
+          else com.typesafe.config.ConfigFactory.parseString("csv{}")
+        ),
         downloadFolder =
           if (c.hasPathOrNull("downloadFolder")) c.getString("downloadFolder")
           else "inputData/download/",
@@ -54,22 +55,27 @@ object SimbenchConfig {
     SimbenchConfig(
       io = SimbenchConfig.Io(
         if (c.hasPathOrNull("io")) c.getConfig("io")
-        else com.typesafe.config.ConfigFactory.parseString("io{}"))
+        else com.typesafe.config.ConfigFactory.parseString("io{}")
+      )
     )
   }
 
   private def $_L$_str(
-      cl: com.typesafe.config.ConfigList): scala.List[java.lang.String] = {
+      cl: com.typesafe.config.ConfigList
+  ): scala.List[java.lang.String] = {
     import scala.collection.JavaConverters._
     cl.asScala.map(cv => $_str(cv)).toList
   }
-  private def $_expE(cv: com.typesafe.config.ConfigValue,
-                     exp: java.lang.String) = {
+  private def $_expE(
+      cv: com.typesafe.config.ConfigValue,
+      exp: java.lang.String
+  ) = {
     val u: Any = cv.unwrapped
     new java.lang.RuntimeException(
       cv.origin.lineNumber +
         ": expecting: " + exp + " got: " +
-        (if (u.isInstanceOf[java.lang.String]) "\"" + u + "\"" else u))
+        (if (u.isInstanceOf[java.lang.String]) "\"" + u + "\"" else u)
+    )
   }
   private def $_str(cv: com.typesafe.config.ConfigValue) =
     java.lang.String.valueOf(cv.unwrapped())
