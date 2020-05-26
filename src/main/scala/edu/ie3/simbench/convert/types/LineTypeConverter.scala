@@ -97,10 +97,15 @@ case object LineTypeConverter extends LazyLogging {
     val rawMapping = lines
       .distinctBy(line => line.lineType)
       .map(line => determineRatedVoltage(line))
-      .groupBy(tuple => tuple._1)
+      .groupMap(_._1)(_._2)
 
     /* Sanity check, that there is no ambiguous mapping */
-    rawMapping.find(entry => entry._2.length > 1) match {
+    rawMapping.find {
+      case (_, ratedVoltages) if ratedVoltages.length > 1 =>
+        true
+      case _ =>
+        false
+    } match {
       case Some(ambiguousEntry) =>
         throw SimbenchDataModelException(
           s"Found ambiguous rated voltages for at least one entry: $ambiguousEntry"
@@ -113,7 +118,14 @@ case object LineTypeConverter extends LazyLogging {
 
     /* Mapping the line type to the rated voltage of the first entry of the Vector of each raw mapping. That nothing
      * is missed is ensured by the sanity check beforehand */
-    rawMapping.map(rawEntry => rawEntry._1 -> rawEntry._2(0)._2)
+    rawMapping.map {
+      case (lineType, lineTypeVRatedVector) =>
+        lineType -> lineTypeVRatedVector.headOption.getOrElse(
+          throw SimbenchDataModelException(
+            s"Cannot receive rated voltage for line type '$lineType'."
+          )
+        )
+    }
   }
 
   /**

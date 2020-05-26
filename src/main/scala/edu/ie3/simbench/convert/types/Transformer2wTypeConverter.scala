@@ -45,7 +45,9 @@ case object Transformer2wTypeConverter {
     /*
      * Conversion of parameters
      * ------------------------
-     * The parameters for the equivalent circuit are given from the perspective of the high voltage side.
+     * The parameters for the equivalent circuit are given from the perspective of the high voltage side. This can be
+     * looked up in the official SimBench documentation:
+     * https://simbench.de/wp-content/uploads/2020/01/simbench_documentation_de_1.0.1.pdf
      */
     val sRated = input.sR * 1e6 // Rated apparent power in VA
     val vmHV = input.vmHV * 1e3 // Rated voltage magnitude at high voltage port in V
