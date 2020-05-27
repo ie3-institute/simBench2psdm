@@ -21,27 +21,23 @@ case object PowerProfileConverter {
     * active and reactive power. The SimBench model gives only scaling factors for active and reactive power, which will
     * scale the maximum active and reactive power of a distinct entity.
     *
-    * @param profile  The profile to convert
+    * @param profileModel  The profile to convert
     * @param pRated   Reference active power to meet the peak point of the profile
     * @param qRated   Reference reactive power to meet the peak point of the profile
     * @return         A [[IndividualTimeSeries]] with [[SValue]] (active and reactive power) for each time step
     */
   def convert(
-      profile: ProfileModel[_ <: ProfileType, (BigDecimal, BigDecimal)],
+      profileModel: ProfileModel[_ <: ProfileType, (BigDecimal, BigDecimal)],
       pRated: ComparableQuantity[Power],
       qRated: ComparableQuantity[Power]
   ): IndividualTimeSeries[SValue] = {
-    val values = profile.profile
-      .map(entry => {
-        val zdt = entry._1
-        val pScaling = entry._2._1
-        val qScaling = entry._2._2
+    val values = profileModel.profile.map {
+      case (zdt, (pScaling, qScaling)) =>
         new TimeBasedValue(
           zdt,
           new SValue(pRated.multiply(pScaling), qRated.multiply(qScaling))
         )
-      })
-      .toSet
+    }.toSet
     new IndividualTimeSeries[SValue](UUID.randomUUID(), values.asJava)
   }
 
@@ -50,21 +46,18 @@ case object PowerProfileConverter {
     * The SimBench model gives only scaling factors for active power, which will scale the maximum active power of a
     * distinct entity.
     *
-    * @param profile  The profile to convert
+    * @param profileModel  The profile to convert
     * @param pRated   Reference active power to meet the peak point of the profile
     * @return         A [[IndividualTimeSeries]] with active and reactive power for each time step
     */
   def convert(
-      profile: ProfileModel[_ <: ProfileType, BigDecimal],
+      profileModel: ProfileModel[_ <: ProfileType, BigDecimal],
       pRated: ComparableQuantity[Power]
   ): IndividualTimeSeries[PValue] = {
-    val values = profile.profile
-      .map(entry => {
-        val zdt = entry._1
-        val pScaling = entry._2
+    val values = profileModel.profile.map {
+      case (zdt, pScaling) =>
         new TimeBasedValue(zdt, new PValue(pRated.multiply(pScaling)))
-      })
-      .toSet
+    }.toSet
     new IndividualTimeSeries[PValue](UUID.randomUUID(), values.asJava)
   }
 
