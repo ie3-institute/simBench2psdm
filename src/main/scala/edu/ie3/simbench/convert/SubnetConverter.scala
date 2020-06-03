@@ -8,9 +8,10 @@ package edu.ie3.simbench.convert
   */
 case class SubnetConverter(simbenchSubnets: Vector[String]) {
   val mapping: Map[String, Int] =
-    simbenchSubnets.distinct.sorted.zipWithIndex
-      .map(entry => (entry._1, entry._2 + 1))
-      .toMap
+    simbenchSubnets.distinct.sorted.zipWithIndex.map {
+      case (simBenchSubnetString, simBenchSubGridId) =>
+        simBenchSubnetString -> (simBenchSubGridId + 1)
+    }.toMap
 
   /**
     * Get the converted subnet as Int

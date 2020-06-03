@@ -40,17 +40,17 @@ case object MeasurementConverter extends LazyLogging {
   ): Vector[MeasurementUnitInput] = {
     /* Filter for node measurements (only supported yet) */
     measurements
-      .filter {
-        case _: Measurement.NodeMeasurement        => true
-        case _: Measurement.LineMeasurement        => false
-        case _: Measurement.TransformerMeasurement => false
+      .flatMap {
+        case measurement: Measurement.NodeMeasurement => Some(measurement)
+        case _: Measurement.LineMeasurement |
+            _: Measurement.TransformerMeasurement =>
+          None
       }
-      .map(_.asInstanceOf[NodeMeasurement])
       /* group the measurements by their nodes */
       .groupMap(_.node)(identity)
       .values
       /* map the measurement groups onto one measurement */
-      .map(measurementGroup => {
+      .flatMap(measurementGroup => {
         val measurement = measurementGroup.head
         val node = nodes.getOrElse(
           measurement.node,
@@ -90,7 +90,6 @@ case object MeasurementConverter extends LazyLogging {
           convert(measurement, node)
         }
       })
-      .map(_.get)
       .toVector
   }
 

@@ -46,7 +46,7 @@ case object NodeConverter {
     val vRated = Quantities.getQuantity(input.vmR, KILOVOLT)
     val isSlack =
       slackNodeKeys.contains(input.getKey)
-    val geopPosition = CoordinateConverter.convert(input.coordinate)
+    val geoPosition = CoordinateConverter.convert(input.coordinate)
     val voltLvl = VoltLvlConverter.convert(input.voltLvl, vRated)
     val subnet = subnetConverter.convert(input.subnet)
 
@@ -57,7 +57,7 @@ case object NodeConverter {
       OperationTime.notLimited(),
       vTarget,
       isSlack,
-      geopPosition,
+      geoPosition,
       voltLvl,
       subnet
     )
