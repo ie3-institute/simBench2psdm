@@ -20,7 +20,7 @@ import tec.uom.se.unit.MetricPrefix
 import tec.uom.se.unit.Units.AMPERE
 
 /**
-  * Currently not supported by ie³'s data model:
+  * Currently not supported by ie3's data model:
   *   - line style
   */
 case object LineTypeConverter extends LazyLogging {
@@ -54,13 +54,13 @@ case object LineTypeConverter extends LazyLogging {
   }
 
   /**
-    * Converts a given SimBench [[LineType]] into a ie³ [[LineTypeInput]]. The [[LineType.DCLineType]]s are currently
-    * not supported by the ie³ data model. Therefore an [[IllegalArgumentException]] is thrown.
+    * Converts a given SimBench [[LineType]] into a ie3 [[LineTypeInput]]. The [[LineType.DCLineType]]s are currently
+    * not supported by the ie3 data model. Therefore an [[IllegalArgumentException]] is thrown.
     *
     * @param input    SimBench [[LineType]] to convert
     * @param vRated   Externally provided rated voltage, as the SimBench [[LineType]] does not provide this information
     * @param uuid     UUID to use for the model generation (default: Random UUID)
-    * @return         A ie³ [[LineTypeInput]]
+    * @return         A ie3 [[LineTypeInput]]
     */
   def convert(
       input: LineType,
@@ -80,7 +80,7 @@ case object LineTypeConverter extends LazyLogging {
         new LineTypeInput(uuid, id, bQty, gQty, rQty, xQty, iMaxQty, vRated)
       case _: LineType.DCLineType =>
         throw ConversionException(
-          "DC line types are currently not supported by ie³'s data model."
+          "DC line types are currently not supported by ie3's data model."
         )
     }
   }

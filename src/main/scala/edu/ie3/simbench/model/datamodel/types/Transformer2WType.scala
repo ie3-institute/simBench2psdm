@@ -14,7 +14,7 @@ import edu.ie3.simbench.model.datamodel.enums.BranchElementPort
   * @param sR Rated apparent power in MVA
   * @param vmHV Rated voltage magnitude at high voltage side
   * @param vmLV Rated voltage magnitude at low voltage side
-  * @param va0 Phase shifting based on the assembly style of the transformer (e.g. Dy5 => 150°) in °
+  * @param va0 Phase shifting based on the assembly style of the transformer (e.g. Dy5 => 150Degree) in Degree
   * @param vmImp Relative voltage magnitude in the short circuit experiment in %
   * @param pCu Copper losses in short circuit experiment in kW
   * @param pFe Iron losses in no load experiment in kW
@@ -22,7 +22,7 @@ import edu.ie3.simbench.model.datamodel.enums.BranchElementPort
   * @param tapable Is the transformer tapable?
   * @param tapside Winding at which side the transformer is installed
   * @param dVm Voltage magnitude increase per step in p.u. / step
-  * @param dVa Voltage angle increase per step in ° / step
+  * @param dVa Voltage angle increase per step in Degree / step
   * @param tapNeutr Neutral tap position
   * @param tapMin Minimum permissible tap position
   * @param tapMax Maximum permissible tap position

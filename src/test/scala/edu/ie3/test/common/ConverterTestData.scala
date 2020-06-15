@@ -1,6 +1,7 @@
 package edu.ie3.test.common
 
-import java.util.UUID
+import java.time.ZoneId
+import java.util.{Locale, UUID}
 
 import edu.ie3.datamodel.models.StandardLoadProfile.DefaultLoadProfiles
 import edu.ie3.datamodel.models.StandardUnits.{
@@ -62,6 +63,9 @@ import tec.uom.se.unit.MetricPrefix
 import tec.uom.se.unit.Units.{OHM, PERCENT, SIEMENS}
 
 trait ConverterTestData extends MockitoSugar {
+
+  protected val simbenchTimeUtil =
+    new TimeUtil(ZoneId.of("UTC"), Locale.GERMANY, "dd.MM.yyyy HH:mm")
 
   /**
     * Case class to denote a consistent pair of input and expected output of a conversion
