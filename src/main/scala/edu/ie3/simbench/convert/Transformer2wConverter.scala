@@ -13,12 +13,12 @@ import edu.ie3.simbench.model.datamodel.{Node, Transformer2W}
 case object Transformer2wConverter {
 
   /**
-    * Converts a [[Vector]] of [[Transformer2W]] into ie³'s [[Transformer2WInput]] models
+    * Converts a [[Vector]] of [[Transformer2W]] into ie3's [[Transformer2WInput]] models
     *
     * @param inputs Vector of input models
     * @param types  Mapping from input model to transformer type
     * @param nodes  Mapping from input node model to converted node model
-    * @return       A Vector of ie³'s [[Transformer2WInput]]
+    * @return       A Vector of ie3's [[Transformer2WInput]]
     */
   def convert(
       inputs: Vector[Transformer2W],

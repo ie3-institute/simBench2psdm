@@ -123,7 +123,7 @@ case object NodeConverter {
     *
     * @param nodeAIn  Input model one to use as key
     * @param nodeBIn  Input model two to use as key
-    * @param nodes    Mapping from SimBench [[Node]] to ie³'s [[NodeInput]]
+    * @param nodes    Mapping from SimBench [[Node]] to ie3's [[NodeInput]]
     * @return         A pair with the matching conversions
     */
   def getNodes(
@@ -137,10 +137,10 @@ case object NodeConverter {
   }
 
   /**
-    * Extract one node from the map of SimBench to ie³ data model
+    * Extract one node from the map of SimBench to ie3 data model
     *
     * @param nodeIn Input model
-    * @param nodes  Map from SimBench to ie³ data model
+    * @param nodes  Map from SimBench to ie3 data model
     * @return       The equivalent [[NodeInput]]
     */
   def getNode(nodeIn: Node, nodes: Map[Node, NodeInput]): NodeInput =

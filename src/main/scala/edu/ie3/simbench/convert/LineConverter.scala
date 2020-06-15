@@ -22,8 +22,8 @@ case object LineConverter extends LazyLogging {
     * Convert a full vector of [[Line]]s to [[LineInput]]s
     *
     * @param inputs Vector of input model
-    * @param types  Mapping of SimBench to ie³ line types
-    * @param nodes  Mapping of SimBench to ie³ nodes
+    * @param types  Mapping of SimBench to ie3 line types
+    * @param nodes  Mapping of SimBench to ie3 nodes
     * @return       A [[Vector]] of [[LineInput]]s
     */
   def convert(
@@ -50,7 +50,7 @@ case object LineConverter extends LazyLogging {
     }
 
   /**
-    * Converts a single [[Line]] to [[LineInput]]. [[Line.DCLine]] is not converted, as the ie³ data model does not
+    * Converts a single [[Line]] to [[LineInput]]. [[Line.DCLine]] is not converted, as the ie3 data model does not
     * support it. Currently, the maximum loading from SimBench is not supported.
     *
     * @param input    Input model

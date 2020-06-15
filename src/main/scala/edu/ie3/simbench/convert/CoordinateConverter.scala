@@ -12,7 +12,7 @@ case object CoordinateConverter {
 
   /**
     * Converts a SimBench coordinate to the needed geometry position of PowerSystemDataModel. If no Coordinate is given,
-    * the coordinates of the ie³ institute are taken as fallback
+    * the coordinates of the ie3 institute are taken as fallback
     *
     * @param coordinateOpt Option to a coordinate
     * @return Geo position

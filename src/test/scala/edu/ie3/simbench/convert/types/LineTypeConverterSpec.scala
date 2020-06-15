@@ -135,7 +135,7 @@ class LineTypeConverterSpec extends UnitSpec with ConverterTestData {
         LineTypeConverter
           .convert(invalidInput, Quantities.getQuantity(0.4, KILOVOLT), uuid)
       )
-      thrown.getMessage shouldBe "DC line types are currently not supported by ie³'s data model."
+      thrown.getMessage shouldBe "DC line types are currently not supported by ie3's data model."
     }
   }
 }

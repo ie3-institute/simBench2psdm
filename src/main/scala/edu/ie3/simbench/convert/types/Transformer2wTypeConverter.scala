@@ -24,11 +24,11 @@ case object Transformer2wTypeConverter {
     types.map(input => input -> convert(input)).toMap
 
   /**
-    * Converts a singe [[Transformer2WType]] into ie³'s [[Transformer2WTypeInput]]
+    * Converts a singe [[Transformer2WType]] into ie3's [[Transformer2WTypeInput]]
     *
     * @param input  Input model to use
     * @param uuid   UUID to use for the model generation (default: Random UUID)
-    * @return       A ie³ [[Transformer2WTypeInput]]
+    * @return       A ie3 [[Transformer2WTypeInput]]
     */
   def convert(
       input: Transformer2WType,
@@ -62,7 +62,7 @@ case object Transformer2wTypeConverter {
     val rSc = pCu / (3 * iRated * iRated) // Short circuit resistance in Ohm
     if (rSc > zSc)
       throw ConversionException(
-        s"Cannot convert two winding transformer type $id into ie³ type, as the conversion of short circuit parameters is not possible."
+        s"Cannot convert two winding transformer type $id into ie3 type, as the conversion of short circuit parameters is not possible."
       )
     val xSc = sqrt((zSc * zSc - rSc * rSc).doubleValue) // Short circuit reactance in Ohm
 
@@ -73,7 +73,7 @@ case object Transformer2wTypeConverter {
     val gNoLoad = pFe / (3 * vM * vM) // No load conductance in Ohm
     if (gNoLoad > yNoLoad)
       throw ConversionException(
-        s"Cannot convert two winding transformer type $id into ie³ type, as the conversion of no load parameters is not possible."
+        s"Cannot convert two winding transformer type $id into ie3 type, as the conversion of no load parameters is not possible."
       )
     val bNoLoad = sqrt((yNoLoad * yNoLoad - gNoLoad * gNoLoad).doubleValue) // No load susceptance in Ohm
 
