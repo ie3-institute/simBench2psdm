@@ -1,6 +1,7 @@
 package edu.ie3.simbench.util
 
 import edu.ie3.util.StringUtils
+import scala.util.Try
 
 abstract class ParsableEnumeration extends Enumeration {
 
@@ -12,6 +13,6 @@ abstract class ParsableEnumeration extends Enumeration {
     * @return Matching enumeration value
     * @throws NoSuchElementException If no element with the given definition is apparent
     */
-  def parse(key: String): Value =
-    super.withName(StringUtils.cleanString(key).toLowerCase)
+  def parse(key: String): Try[Value] =
+    Try(super.withName(StringUtils.cleanString(key).toLowerCase))
 }

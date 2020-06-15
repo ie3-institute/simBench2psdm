@@ -36,5 +36,5 @@ case object ResType extends ParsableEnumeration {
     * @throws SimbenchDataModelException if a non valid type string has been provided
     */
   @throws[SimbenchDataModelException]
-  def apply(typeString: String): Try[ResType.Value] = Try(parse(typeString))
+  def apply(typeString: String): Try[ResType.Value] = parse(typeString)
 }
