@@ -23,7 +23,8 @@ class ConfigValidatorSpec extends UnitSpec with ConfigTestData {
           correctException.getMessage shouldBe "blabla is no valid SimbenchCode"
         case _ =>
           fail(
-            "The validation of an IO config with invalid SimbenchCode did not fail properly.")
+            "The validation of an IO config with invalid SimbenchCode did not fail properly."
+          )
       }
     }
   }

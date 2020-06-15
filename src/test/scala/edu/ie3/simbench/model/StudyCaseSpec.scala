@@ -5,26 +5,30 @@ import edu.ie3.test.common.UnitSpec
 
 class StudyCaseSpec extends UnitSpec {
   val rawData = Vector(
-    RawModelData(classOf[StudyCase],
-                 Map(
-                   "Study Case" -> "hW",
-                   "pload" -> "1",
-                   "qload" -> "1",
-                   "Wind_p" -> "1",
-                   "PV_p" -> "0.8",
-                   "RES_p" -> "1",
-                   "Slack_vm" -> "0.965"
-                 )),
-    RawModelData(classOf[StudyCase],
-                 Map(
-                   "Study Case" -> "hPV",
-                   "pload" -> "1",
-                   "qload" -> "1",
-                   "Wind_p" -> "0.85",
-                   "PV_p" -> "0.95",
-                   "RES_p" -> "1",
-                   "Slack_vm" -> "0.965"
-                 ))
+    RawModelData(
+      classOf[StudyCase],
+      Map(
+        "Study Case" -> "hW",
+        "pload" -> "1",
+        "qload" -> "1",
+        "Wind_p" -> "1",
+        "PV_p" -> "0.8",
+        "RES_p" -> "1",
+        "Slack_vm" -> "0.965"
+      )
+    ),
+    RawModelData(
+      classOf[StudyCase],
+      Map(
+        "Study Case" -> "hPV",
+        "pload" -> "1",
+        "qload" -> "1",
+        "Wind_p" -> "0.85",
+        "PV_p" -> "0.95",
+        "RES_p" -> "1",
+        "Slack_vm" -> "0.965"
+      )
+    )
   )
 
   val expected = Vector(

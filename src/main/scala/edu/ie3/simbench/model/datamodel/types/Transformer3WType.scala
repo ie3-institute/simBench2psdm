@@ -45,41 +45,42 @@ import edu.ie3.simbench.model.datamodel.enums.BranchElementPort
   * @param tapMaxMV  Maximum permissible tap position, if the tap changer is on medium voltage side
   * @param tapMaxLV  Maximum permissible tap position, if the tap changer is on low voltage side
   */
-case class Transformer3WType(id: String,
-                             sRHV: BigDecimal,
-                             sRMV: BigDecimal,
-                             sRLV: BigDecimal,
-                             vmHV: BigDecimal,
-                             vmMV: BigDecimal,
-                             vmLV: BigDecimal,
-                             vaHVMV: BigDecimal,
-                             vaHVLV: BigDecimal,
-                             vmImpHV: BigDecimal,
-                             vmImpMV: BigDecimal,
-                             vmImpLV: BigDecimal,
-                             pCuHV: BigDecimal,
-                             pCuMV: BigDecimal,
-                             pCuLV: BigDecimal,
-                             pFe: BigDecimal,
-                             iNoLoad: BigDecimal,
-                             tapable: Boolean,
-                             tapSide: BranchElementPort,
-                             dVmHV: BigDecimal,
-                             dVmMV: BigDecimal,
-                             dVmLV: BigDecimal,
-                             dVaHV: BigDecimal,
-                             dVaMV: BigDecimal,
-                             dVaLV: BigDecimal,
-                             tapNeutrHV: Int,
-                             tapNeutrMV: Int,
-                             tapNeutrLV: Int,
-                             tapMinHV: Int,
-                             tapMinMV: Int,
-                             tapMinLV: Int,
-                             tapMaxHV: Int,
-                             tapMaxMV: Int,
-                             tapMaxLV: Int)
-    extends SimbenchModel
+case class Transformer3WType(
+    id: String,
+    sRHV: BigDecimal,
+    sRMV: BigDecimal,
+    sRLV: BigDecimal,
+    vmHV: BigDecimal,
+    vmMV: BigDecimal,
+    vmLV: BigDecimal,
+    vaHVMV: BigDecimal,
+    vaHVLV: BigDecimal,
+    vmImpHV: BigDecimal,
+    vmImpMV: BigDecimal,
+    vmImpLV: BigDecimal,
+    pCuHV: BigDecimal,
+    pCuMV: BigDecimal,
+    pCuLV: BigDecimal,
+    pFe: BigDecimal,
+    iNoLoad: BigDecimal,
+    tapable: Boolean,
+    tapSide: BranchElementPort,
+    dVmHV: BigDecimal,
+    dVmMV: BigDecimal,
+    dVmLV: BigDecimal,
+    dVaHV: BigDecimal,
+    dVaMV: BigDecimal,
+    dVaLV: BigDecimal,
+    tapNeutrHV: Int,
+    tapNeutrMV: Int,
+    tapNeutrLV: Int,
+    tapMinHV: Int,
+    tapMinMV: Int,
+    tapMinLV: Int,
+    tapMaxHV: Int,
+    tapMaxMV: Int,
+    tapMaxLV: Int
+) extends SimbenchModel
 
 case object Transformer3WType
     extends SimbenchCompanionObject[Transformer3WType] {
@@ -100,5 +101,6 @@ case object Transformer3WType
   override def apply(rawData: RawModelData): Transformer3WType =
     throw SimbenchDataModelException(
       s"Currently, the concrete characteristics of the data for ${this.getClass.getSimpleName} are not known, so that" +
-        s" the factory method cannot be implemented safely.")
+        s" the factory method cannot be implemented safely."
+    )
 }

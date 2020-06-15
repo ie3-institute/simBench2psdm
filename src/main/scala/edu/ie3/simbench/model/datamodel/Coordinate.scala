@@ -4,7 +4,6 @@ import edu.ie3.simbench.io.HeadLineField
 import edu.ie3.simbench.io.HeadLineField.MandatoryField
 import edu.ie3.simbench.model.RawModelData
 import edu.ie3.simbench.model.datamodel.EntityModel.EntityModelCompanionObject
-import edu.ie3.simbench.model.datamodel.SimbenchModel.SimbenchCompanionObject
 
 /**
   * Coordinate to describe a geographical location in the WGS84 reference system
@@ -15,12 +14,13 @@ import edu.ie3.simbench.model.datamodel.SimbenchModel.SimbenchCompanionObject
   * @param subnet Subnet it belongs to
   * @param voltLvl Voltage level
   */
-case class Coordinate(id: String,
-                      x: BigDecimal,
-                      y: BigDecimal,
-                      subnet: String,
-                      voltLvl: Int)
-    extends EntityModel
+case class Coordinate(
+    id: String,
+    x: BigDecimal,
+    y: BigDecimal,
+    subnet: String,
+    voltLvl: Int
+) extends EntityModel
 
 case object Coordinate extends EntityModelCompanionObject[Coordinate] {
   private val X = "x"

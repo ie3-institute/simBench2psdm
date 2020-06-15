@@ -17,11 +17,14 @@ class SwitchSpec extends UnitSpec {
       BigDecimal("1.1"),
       None,
       Some(
-        Coordinate("coord_0",
-                   BigDecimal("11.411"),
-                   BigDecimal("53.6407"),
-                   "LV1.101",
-                   7)),
+        Coordinate(
+          "coord_0",
+          BigDecimal("11.411"),
+          BigDecimal("53.6407"),
+          "LV1.101",
+          7
+        )
+      ),
       "LV1.101",
       7
     ),
@@ -35,18 +38,22 @@ class SwitchSpec extends UnitSpec {
       BigDecimal("1.1"),
       None,
       Some(
-        Coordinate("coord_3",
-                   BigDecimal("11.4097"),
-                   BigDecimal("53.6413"),
-                   "LV1.101",
-                   7)),
+        Coordinate(
+          "coord_3",
+          BigDecimal("11.4097"),
+          BigDecimal("53.6413"),
+          "LV1.101",
+          7
+        )
+      ),
       "LV1.101",
       7
     )
   )
 
   val substations = Map(
-    "substation_1" -> Substation("substation_1", "LV1.101", 7))
+    "substation_1" -> Substation("substation_1", "LV1.101", 7)
+  )
 
   val rawData = Vector(
     RawModelData(
@@ -90,11 +97,14 @@ class SwitchSpec extends UnitSpec {
         BigDecimal("1.1"),
         None,
         Some(
-          Coordinate("coord_0",
-                     BigDecimal("11.411"),
-                     BigDecimal("53.6407"),
-                     "LV1.101",
-                     7)),
+          Coordinate(
+            "coord_0",
+            BigDecimal("11.411"),
+            BigDecimal("53.6407"),
+            "LV1.101",
+            7
+          )
+        ),
         "LV1.101",
         7
       ),
@@ -108,11 +118,14 @@ class SwitchSpec extends UnitSpec {
         BigDecimal("1.1"),
         None,
         Some(
-          Coordinate("coord_3",
-                     BigDecimal("11.4097"),
-                     BigDecimal("53.6413"),
-                     "LV1.101",
-                     7)),
+          Coordinate(
+            "coord_3",
+            BigDecimal("11.4097"),
+            BigDecimal("53.6413"),
+            "LV1.101",
+            7
+          )
+        ),
         "LV1.101",
         7
       ),
@@ -134,11 +147,14 @@ class SwitchSpec extends UnitSpec {
         BigDecimal("1.1"),
         None,
         Some(
-          Coordinate("coord_0",
-                     BigDecimal("11.411"),
-                     BigDecimal("53.6407"),
-                     "LV1.101",
-                     7)),
+          Coordinate(
+            "coord_0",
+            BigDecimal("11.411"),
+            BigDecimal("53.6407"),
+            "LV1.101",
+            7
+          )
+        ),
         "LV1.101",
         7
       ),
@@ -152,11 +168,14 @@ class SwitchSpec extends UnitSpec {
         BigDecimal("1.1"),
         None,
         Some(
-          Coordinate("coord_3",
-                     BigDecimal("11.4097"),
-                     BigDecimal("53.6413"),
-                     "LV1.101",
-                     7)),
+          Coordinate(
+            "coord_3",
+            BigDecimal("11.4097"),
+            BigDecimal("53.6413"),
+            "LV1.101",
+            7
+          )
+        ),
         "LV1.101",
         7
       ),
@@ -184,12 +203,18 @@ class SwitchSpec extends UnitSpec {
     "build the correct single model" in {
       val actual = Switch.buildModel(
         rawData(0),
-        nodes.getOrElse("LV1.101 Bus 1",
-                        throw SimbenchDataModelException(
-                          "Ooops. This is not supposed to happen")),
-        nodes.getOrElse("LV1.101 Bus 4",
-                        throw SimbenchDataModelException(
-                          "Ooops. This is not supposed to happen")),
+        nodes.getOrElse(
+          "LV1.101 Bus 1",
+          throw SimbenchDataModelException(
+            "Ooops. This is not supposed to happen"
+          )
+        ),
+        nodes.getOrElse(
+          "LV1.101 Bus 4",
+          throw SimbenchDataModelException(
+            "Ooops. This is not supposed to happen"
+          )
+        ),
         substations.get("substation_1")
       )
       actual shouldBe expected(0)

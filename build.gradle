@@ -1,4 +1,4 @@
-plugins{
+plugins {
 	id "com.jfrog.artifactory" version "4.9.7"
 	id 'groovy' // groovy support
 	id 'java' // java support
@@ -6,30 +6,33 @@ plugins{
 	id 'maven-publish' // publish to a maven repo (local or mvn central, has to be defined)
 	id 'pmd' // code check, working on source code
 	id 'com.github.spotbugs' version '2.0.0' // code check, working on byte code
-	id 'com.diffplug.gradle.spotless' version '3.24.2'// code format
+	id 'com.diffplug.gradle.spotless' version '3.28.1'// code format
 	id "de.undercouch.download" version "3.4.3" // downloads plugin
 	id 'jacoco' // java code coverage plugin
-	id "org.sonarqube" version "2.7.1" // sonarqube
+	id "org.sonarqube" version "2.8" // sonarqube
 	id 'org.scoverage' version '4.0.1' // Code coverage plugin for scala
 }
 
 ext {
-//version (changing these should be considered thoroughly!)
-	unitsOfMeasurementVersion = '1.0.8'
-	javaVersion = JavaVersion.VERSION_11
+	//version (changing these should be considered thoroughly!)
+	javaVersion = JavaVersion.VERSION_1_8
 
+	unitsOfMeasurementVersion = '1.0.10'
 	scalaVersion = '2.13'
-	tscfgVersion = '0.9.9'
+	tscfgVersion = '0.9.96'
 	slf4jVersion = '1.7.26'
 
 	scriptsLocation = 'gradle' + File.separator + 'scripts' + File.separator //location of script plugins
 }
 
+group = 'com.github.ie3-institute'
+description = 'simbench4ie3'
+version = '1.0-SNAPSHOT'
+
+apply from: scriptsLocation + 'tests.gradle'
 apply from: scriptsLocation + 'pmd.gradle'
 apply from: scriptsLocation + 'spotbugs.gradle'
-apply from: scriptsLocation + 'sonarqube.gradle' // sonarqube config
 apply from: scriptsLocation + 'spotless.gradle'
-apply from: scriptsLocation + 'tests.gradle' // tasks for tests
 apply from: scriptsLocation + 'checkJavaVersion.gradle'
 apply from: scriptsLocation + 'tscfg.gradle' // config tasks
 apply from: scriptsLocation + 'jacoco.gradle' // jacoco java code coverage
@@ -38,31 +41,37 @@ apply from: scriptsLocation + 'scoverage.gradle'
 repositories {
 	jcenter() //searches in bintray's repository 'jCenter', which contains Maven Central
 	maven { url 'https://www.jitpack.io' } // allows github repos as dependencies
+
+	// sonatype snapshots repo // todo remove
+	maven { url 'https://oss.sonatype.org/service/local/repositories/snapshots/content' }
 }
 
 dependencies {
-	/* util functions */
-	compile ('com.github.ie3-institute:PowerSystemUtils:1.3+') {
+	/* PowerSystemDataModel */
+	compile ('com.github.ie3-institute:PowerSystemDataModel:1.1-SNAPSHOT') {
 		/* Exclude nested logging and ie³ related dependencies */
-		exclude group: 'org.slf4j'
+		exclude group: 'org.slf4j', module: 'slf4j-api'
 		exclude group: 'com.github.ie3-institute'
 	}
 
+	/* util functions */
+	compile ('com.github.ie3-institute:PowerSystemUtils:1.3.1') {
+		/* Exclude nested logging and ie³ related dependencies */
+		exclude group: 'org.slf4j', module: 'slf4j-api'
+		exclude group: 'com.github.ie3-institute'
+	}
+
+	compile 'org.codehaus.groovy:groovy:3.0.3'
+
+	compile "tec.uom:uom-se:$unitsOfMeasurementVersion"
+
 	// logging
-	compile "org.slf4j:slf4j-api:${slf4jVersion}"  // slf4j wrapper
-	compile 'com.lmax:disruptor:3.4.2' // async logging
 	compile 'org.apache.logging.log4j:log4j-api:+' // log4j
 	compile 'org.apache.logging.log4j:log4j-core:+' // log4j
 	compile 'org.apache.logging.log4j:log4j-slf4j-impl:+' // log4j -> slf4j
 
 	compile "com.typesafe.scala-logging:scala-logging_${scalaVersion}:+" // akka scala logging
 	compile "org.slf4j:log4j-over-slf4j:${slf4jVersion}" // slf4j -> log4j
-
-	// testing
-	testCompile 'org.spockframework:spock-core:1.3-groovy-+'
-
-	compile 'javax.measure:unit-api:+'
-	compile "tec.uom:uom-se:$unitsOfMeasurementVersion" // quantities
 
 	// NEW scala libs //
 	// CORE Scala //
@@ -71,12 +80,13 @@ dependencies {
 	// TEST Scala //
 	testCompile "org.scalatest:scalatest_${scalaVersion}:3.0.8"
 	testRuntime "org.pegdown:pegdown:1.6.0" // HTML report for scalatest
+	compile 'org.mockito:mockito-core:+' // mocking framework
 	scoverage "org.scoverage:scalac-scoverage-plugin_${scalaVersion}:1.4.1"
 	scoverage "org.scoverage:scalac-scoverage-runtime_${scalaVersion}:1.4.1"
 
 	// config //
 	implementation 'com.typesafe:config:+'
-	compile "com.github.carueda:tscfg:v${tscfgVersion}"
+	compile "com.github.carueda:tscfg_2.13:${tscfgVersion}"
 
 	// cmd args parser //
 	compile "com.github.scopt:scopt_${scalaVersion}:+"
@@ -89,61 +99,6 @@ wrapper {
 	gradleVersion = '6.0.1'
 }
 
-group = 'edu.ie3'
-version = '0.1-SNAPSHOT'
-description = 'simbench4ie3'
-sourceCompatibility = javaVersion
-targetCompatibility = javaVersion
-
-task sourcesJar(type: Jar) {
-	getArchiveClassifier().set('sources')
-	from(sourceSets.main.allSource)
-}
-
-task javadocJar(type: Jar) {
-	getArchiveClassifier().set('javadoc')
-	from(javadoc.destinationDir)
-}
-
-if (project.hasProperty('user') && project.hasProperty('password')) {
-	artifactory {
-		contextUrl = "https://simona.ie3.e-technik.tu-dortmund.de/artifactory"
-		publish {
-			repository {
-				repoKey = 'libs-snapshot-local'
-				username = project.getProperty('user')
-				password = project.getProperty('password')
-				maven = true
-			}
-			defaults {
-				publications('mavenJava')
-			}
-		}
-	}
-}
-
-publishing {
-	publications {
-		mavenJava(MavenPublication) {
-			artifactId = 'simbench4ie3'
-			from components.java
-			artifact sourcesJar
-			artifact javadocJar
-			versionMapping {
-				usage('java-api') {
-					fromResolutionOf('runtimeClasspath')
-				}
-				usage('java-runtime') {
-					fromResolutionResult()
-				}
-			}
-		}
-	}
-	repositories {
-		maven {
-			def releasesRepoUrl = "$buildDir/repos/releases"
-			def snapshotsRepoUrl = "$buildDir/repos/snapshots"
-			url = version.endsWith('SNAPSHOT') ? snapshotsRepoUrl : releasesRepoUrl
-		}
-	}
+tasks.withType(JavaCompile) {
+	options.encoding = 'UTF-8'
 }

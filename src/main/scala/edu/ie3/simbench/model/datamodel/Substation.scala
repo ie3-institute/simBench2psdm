@@ -33,9 +33,12 @@ case object Substation extends EntityModelCompanionObject[Substation] {
     * @param rawData mapping from field id to value
     * @return A [[Vector]] of models
     */
-  override def buildModels(rawData: Vector[RawModelData]): Vector[Substation] = {
-    val filteredRawData = rawData.filter(data =>
-      data.get(SUBSTATION) != "NULL" && data.get(SUBSTATION).nonEmpty)
+  override def buildModels(
+      rawData: Vector[RawModelData]
+  ): Vector[Substation] = {
+    val filteredRawData = rawData.filter(
+      data => data.get(SUBSTATION) != "NULL" && data.get(SUBSTATION).nonEmpty
+    )
     for (entry <- filteredRawData) yield {
       apply(entry)
     }

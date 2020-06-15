@@ -6,7 +6,7 @@ import edu.ie3.simbench.io.HeadLineField
 import edu.ie3.simbench.io.HeadLineField.{MandatoryField, OptionalField}
 import edu.ie3.simbench.model.RawModelData
 import edu.ie3.simbench.model.datamodel.profiles.ProfileModel.ProfileCompanionObject
-import edu.ie3.util.TimeTools
+import edu.ie3.util.TimeUtil
 
 /**
   * A renewable energy source's profile consisting of an identifier and a mapping of the date to
@@ -16,10 +16,11 @@ import edu.ie3.util.TimeTools
   * @param profileType  The type of the profile
   * @param profile      The actual profile as scaling factor in p.u.
   */
-case class ResProfile(id: String,
-                      profileType: ResProfileType,
-                      profile: Map[ZonedDateTime, BigDecimal])
-    extends ProfileModel[ResProfileType, BigDecimal]
+case class ResProfile(
+    id: String,
+    profileType: ResProfileType,
+    profile: Map[ZonedDateTime, BigDecimal]
+) extends ProfileModel[ResProfileType, BigDecimal]
 
 case object ResProfile extends ProfileCompanionObject[ResProfile, BigDecimal] {
   private val PV1 = "PV1"
@@ -122,14 +123,16 @@ case object ResProfile extends ProfileCompanionObject[ResProfile, BigDecimal] {
     * @param rawData mapping from field id to value
     * @return A [[Vector]] of models
     */
-  override def buildModels(rawData: Vector[RawModelData]): Vector[ResProfile] = {
+  override def buildModels(
+      rawData: Vector[RawModelData]
+  ): Vector[ResProfile] = {
     /* Determine the ids of the available load profiles by filtering the head line fields */
     val profileTypeStrings =
       super.determineAvailableProfileIds(rawData, None)
 
     /* Go through each line of the raw data table and extract the time stamp */
     (for (rawTableLine <- rawData) yield {
-      val time = TimeTools.toZonedDateTime(rawTableLine.get(TIME))
+      val time = simbenchTimeUtil.toZonedDateTime(rawTableLine.get(TIME))
 
       /* Get the active and reactive power for each available load profile */
       for (typeString <- profileTypeStrings) yield {

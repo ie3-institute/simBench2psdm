@@ -1,7 +1,11 @@
 package edu.ie3.simbench.model.datamodel
 
+import java.time.ZoneId
+import java.util.Locale
+
 import edu.ie3.simbench.io.HeadLineField
 import edu.ie3.simbench.model.RawModelData
+import edu.ie3.util.TimeUtil
 
 /**
   * Common fields, every SimBench model has
@@ -25,6 +29,9 @@ object SimbenchModel {
       * Table field for id
       */
     protected val ID: String = "id"
+
+    protected val simbenchTimeUtil =
+      new TimeUtil(ZoneId.of("UTC"), Locale.GERMANY, "dd.MM.yyyy HH:mm")
 
     /**
       * Get an Array of table fields denoting the mapping to the model's attributes

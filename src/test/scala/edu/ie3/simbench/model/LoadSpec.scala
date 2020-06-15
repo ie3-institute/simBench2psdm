@@ -18,11 +18,14 @@ class LoadSpec extends UnitSpec {
       BigDecimal("1.1"),
       None,
       Some(
-        Coordinate("coord_0",
-                   BigDecimal("11.411"),
-                   BigDecimal("53.6407"),
-                   "LV1.101",
-                   7)),
+        Coordinate(
+          "coord_0",
+          BigDecimal("11.411"),
+          BigDecimal("53.6407"),
+          "LV1.101",
+          7
+        )
+      ),
       "LV1.101",
       7
     )
@@ -70,11 +73,14 @@ class LoadSpec extends UnitSpec {
         BigDecimal("1.1"),
         None,
         Some(
-          Coordinate("coord_0",
-                     BigDecimal("11.411"),
-                     BigDecimal("53.6407"),
-                     "LV1.101",
-                     7)),
+          Coordinate(
+            "coord_0",
+            BigDecimal("11.411"),
+            BigDecimal("53.6407"),
+            "LV1.101",
+            7
+          )
+        ),
         "LV1.101",
         7
       ),
@@ -97,11 +103,14 @@ class LoadSpec extends UnitSpec {
         BigDecimal("1.1"),
         None,
         Some(
-          Coordinate("coord_0",
-                     BigDecimal("11.411"),
-                     BigDecimal("53.6407"),
-                     "LV1.101",
-                     7)),
+          Coordinate(
+            "coord_0",
+            BigDecimal("11.411"),
+            BigDecimal("53.6407"),
+            "LV1.101",
+            7
+          )
+        ),
         "LV1.101",
         7
       ),
@@ -130,9 +139,12 @@ class LoadSpec extends UnitSpec {
     "build the correct single model" in {
       val actual = Load.buildModel(
         rawData(0),
-        nodes.getOrElse("LV1.101 Bus 1",
-                        throw SimbenchDataModelException(
-                          "Ooops. This is not supposed to happen"))
+        nodes.getOrElse(
+          "LV1.101 Bus 1",
+          throw SimbenchDataModelException(
+            "Ooops. This is not supposed to happen"
+          )
+        )
       )
       actual shouldBe expected(0)
     }

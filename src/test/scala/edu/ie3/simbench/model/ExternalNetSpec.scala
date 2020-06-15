@@ -30,10 +30,12 @@ class ExternalNetSpec extends UnitSpec {
             BigDecimal("53.6413"),
             "MV1.101_LV1.101_Feeder1",
             5
-          )),
+          )
+        ),
         "MV1.101_LV1.101_Feeder1",
         5
-      ))
+      )
+  )
 
   val rawData = Vector(
     RawModelData(
@@ -111,7 +113,8 @@ class ExternalNetSpec extends UnitSpec {
             BigDecimal("53.6413"),
             "MV1.101_LV1.101_Feeder1",
             5
-          )),
+          )
+        ),
         "MV1.101_LV1.101_Feeder1",
         5
       ),
@@ -140,7 +143,8 @@ class ExternalNetSpec extends UnitSpec {
             BigDecimal("53.6413"),
             "MV1.101_LV1.101_Feeder1",
             5
-          )),
+          )
+        ),
         "MV1.101_LV1.101_Feeder1",
         5
       ),
@@ -170,7 +174,8 @@ class ExternalNetSpec extends UnitSpec {
             BigDecimal("53.6413"),
             "MV1.101_LV1.101_Feeder1",
             5
-          )),
+          )
+        ),
         "MV1.101_LV1.101_Feeder1",
         5
       ),
@@ -201,9 +206,12 @@ class ExternalNetSpec extends UnitSpec {
     "build the correct single model" in {
       val actual = ExternalNet.buildModel(
         rawData(0),
-        nodes.getOrElse("MV1.101 Bus 4",
-                        throw SimbenchDataModelException(
-                          "Ooops. This is not supposed to happen"))
+        nodes.getOrElse(
+          "MV1.101 Bus 4",
+          throw SimbenchDataModelException(
+            "Ooops. This is not supposed to happen"
+          )
+        )
       )
       actual shouldBe expected(0)
     }

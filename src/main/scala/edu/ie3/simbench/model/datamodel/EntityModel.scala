@@ -54,7 +54,8 @@ case object EntityModel {
     def getNode(nodeId: String, nodes: Map[String, Node]): Node = {
       nodes.getOrElse(
         nodeId,
-        throw SimbenchDataModelException(s"Cannot find node $nodeId."))
+        throw SimbenchDataModelException(s"Cannot find node $nodeId.")
+      )
     }
 
     /**
@@ -65,9 +66,11 @@ case object EntityModel {
       * @param nodes   Map of node id to node
       * @return A tuple of two nodes
       */
-    def getNodes(nodeId0: String,
-                 nodeId1: String,
-                 nodes: Map[String, Node]): (Node, Node) = {
+    def getNodes(
+        nodeId0: String,
+        nodeId1: String,
+        nodes: Map[String, Node]
+    ): (Node, Node) = {
       (getNode(nodeId0, nodes), getNode(nodeId1, nodes))
     }
   }

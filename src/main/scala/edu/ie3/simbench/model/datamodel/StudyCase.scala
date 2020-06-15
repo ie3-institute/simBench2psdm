@@ -16,14 +16,15 @@ import edu.ie3.simbench.model.datamodel.SimbenchModel.SimbenchCompanionObject
   * @param pRes Scaling factor for renewable energy sources (active power)
   * @param vMSlack Voltage magnitude at the slack nodes
   */
-case class StudyCase(id: String,
-                     pLoad: BigDecimal,
-                     qLoad: BigDecimal,
-                     pWind: BigDecimal,
-                     pPv: BigDecimal,
-                     pRes: BigDecimal,
-                     vMSlack: BigDecimal)
-    extends SimbenchModel
+case class StudyCase(
+    id: String,
+    pLoad: BigDecimal,
+    qLoad: BigDecimal,
+    pWind: BigDecimal,
+    pPv: BigDecimal,
+    pRes: BigDecimal,
+    vMSlack: BigDecimal
+) extends SimbenchModel
 
 case object StudyCase extends SimbenchCompanionObject[StudyCase] {
   override protected val ID = "Study Case"
@@ -40,8 +41,9 @@ case object StudyCase extends SimbenchCompanionObject[StudyCase] {
     * @return Array of table headings
     */
   override def getFields: Array[HeadLineField] =
-    Array(ID, P_LOAD, Q_LOAD, P_WIND, P_PV, P_RES, VM_SLACK).map(id =>
-      MandatoryField(id))
+    Array(ID, P_LOAD, Q_LOAD, P_WIND, P_PV, P_RES, VM_SLACK).map(
+      id => MandatoryField(id)
+    )
 
   /**
     * Factory method to build one model from a mapping from field id to value
