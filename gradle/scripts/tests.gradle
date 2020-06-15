@@ -1,10 +1,11 @@
-task integrationTest(type: Test) {
-	description 'executes only the integration tests'
-	filter {
-		excludeTestsMatching '*Test*.*'
-		includeTestsMatching '*IT'
-	}
-	mustRunAfter test
-}
+// Currently there are no integration tests
+//task integrationTest(type: Test) {
+//	description 'executes only the integration tests'
+//	filter {
+//		excludeTestsMatching '*Test*.*'
+//		includeTestsMatching '*IT'
+//	}
+//	mustRunAfter test
+//}
 
 check.dependsOn(scalatest)
