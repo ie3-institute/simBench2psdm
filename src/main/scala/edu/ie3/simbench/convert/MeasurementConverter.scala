@@ -51,7 +51,11 @@ case object MeasurementConverter extends LazyLogging {
       .values
       /* map the measurement groups onto one measurement */
       .flatMap(measurementGroup => {
-        val measurement = measurementGroup.head
+        val measurement = measurementGroup.headOption match {
+          case Some(value) => value
+          case None =>
+            throw ConversionException("Got an empty measurement group.")
+        }
         val node = nodes.getOrElse(
           measurement.node,
           throw ConversionException(
