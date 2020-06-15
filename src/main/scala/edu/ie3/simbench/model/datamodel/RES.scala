@@ -8,6 +8,8 @@ import edu.ie3.simbench.model.datamodel.EntityModel.EntityModelCompanionObject
 import edu.ie3.simbench.model.datamodel.enums.{CalculationType, ResType}
 import edu.ie3.simbench.model.datamodel.profiles.ResProfileType
 
+import scala.util.{Failure, Success}
+
 /**
   * A renewable energy sources asset
   *
@@ -89,7 +91,14 @@ case object RES extends EntityModelCompanionObject[RES] {
     */
   def buildModel(rawData: RawModelData, node: Node): RES = {
     val (id, subnet, voltLvl) = getBaseInformation(rawData)
-    val resType = ResType(rawData.get(TYPE))
+    val resType = ResType(rawData.get(TYPE)) match {
+      case Success(resType) => resType
+      case Failure(exception) =>
+        throw SimbenchDataModelException(
+          s"I cannot handle the RES type ${rawData.get(TYPE)}",
+          exception
+        )
+    }
     val profile = ResProfileType(rawData.get(PROFILE))
     val calcType = CalculationType(rawData.get(CALC_TYPE))
     val p = rawData.getBigDecimal(P)
