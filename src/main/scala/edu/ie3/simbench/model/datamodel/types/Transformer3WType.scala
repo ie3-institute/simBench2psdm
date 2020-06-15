@@ -17,8 +17,8 @@ import edu.ie3.simbench.model.datamodel.enums.BranchElementPort
   * @param vmHV Rated voltage magnitude at high voltage side in kV
   * @param vmMV Rated voltage magnitude at medium voltage side in kV
   * @param vmLV Rated voltage magnitude at low voltage site in kV
-  * @param vaHVMV Voltage angle deviation between high and medium voltage side in °
-  * @param vaHVLV Voltage angle deviation between high and low voltage side in °
+  * @param vaHVMV Voltage angle deviation between high and medium voltage side in Degree
+  * @param vaHVLV Voltage angle deviation between high and low voltage side in Degree
   * @param vmImpHV Voltage magnitude in short circuit experiment on high voltage side in %
   * @param vmImpMV Voltage magnitude in short circuit experiment on medium voltage side in %
   * @param vmImpLV Voltage magnitude in short circuit experiment on low voltage side in %

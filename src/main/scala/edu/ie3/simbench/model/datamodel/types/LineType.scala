@@ -15,9 +15,9 @@ object LineType extends SimbenchCompanionObject[LineType] {
     * Describing the attributes of a piece of AC line
     *
     * @param id Identifier
-    * @param r Relative resistance in Ω/km
-    * @param x Relative reactance in Ω/km
-    * @param b Relative susceptance in µS/km
+    * @param r Relative resistance in Ohm/km
+    * @param x Relative reactance in Ohm/km
+    * @param b Relative susceptance in microS/km
     * @param iMax Maximum permissible current in A
     * @param style The construction type of the line
     */

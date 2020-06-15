@@ -17,7 +17,7 @@ import scala.jdk.CollectionConverters._
 case object PowerProfileConverter {
 
   /**
-    * Converts a given profile with a tuple of BigDecimal as data to a ie³'s data model time series denoting a tuple of
+    * Converts a given profile with a tuple of BigDecimal as data to a ie3's data model time series denoting a tuple of
     * active and reactive power. The SimBench model gives only scaling factors for active and reactive power, which will
     * scale the maximum active and reactive power of a distinct entity.
     *
@@ -42,7 +42,7 @@ case object PowerProfileConverter {
   }
 
   /**
-    * Converts a given profile with s single BigDecimal as data to a ie³'s data model time series denoting active power.
+    * Converts a given profile with s single BigDecimal as data to a ie3's data model time series denoting active power.
     * The SimBench model gives only scaling factors for active power, which will scale the maximum active power of a
     * distinct entity.
     *

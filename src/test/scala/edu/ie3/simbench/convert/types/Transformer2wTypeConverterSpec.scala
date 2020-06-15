@@ -93,7 +93,7 @@ class Transformer2wTypeConverterSpec extends UnitSpec with ConverterTestData {
       val thrown = intercept[ConversionException](
         Transformer2wTypeConverter.convert(invalidInput, uuid)
       )
-      thrown.getMessage shouldBe "Cannot convert two winding transformer type test type into ie³ type, as the " +
+      thrown.getMessage shouldBe "Cannot convert two winding transformer type test type into ie3 type, as the " +
         "" +
         "conversion of short circuit parameters is not possible."
     }
@@ -103,7 +103,7 @@ class Transformer2wTypeConverterSpec extends UnitSpec with ConverterTestData {
       val thrown = intercept[ConversionException](
         Transformer2wTypeConverter.convert(invalidInput, uuid)
       )
-      thrown.getMessage shouldBe "Cannot convert two winding transformer type test type into ie³ type, as the " +
+      thrown.getMessage shouldBe "Cannot convert two winding transformer type test type into ie3 type, as the " +
         "conversion of no load parameters is not possible."
     }
   }
