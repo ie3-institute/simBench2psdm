@@ -20,7 +20,7 @@ import tec.uom.se.unit.MetricPrefix
 import tec.uom.se.unit.Units.AMPERE
 
 /**
-  * Currently not supported by ie³'s data model:
+  * Currently not supported by ie3's data model:
   *   - line style
   */
 case object LineTypeConverter extends LazyLogging {
@@ -54,13 +54,13 @@ case object LineTypeConverter extends LazyLogging {
   }
 
   /**
-    * Converts a given SimBench [[LineType]] into a ie³ [[LineTypeInput]]. The [[LineType.DCLineType]]s are currently
-    * not supported by the ie³ data model. Therefore an [[IllegalArgumentException]] is thrown.
+    * Converts a given SimBench [[LineType]] into a ie3 [[LineTypeInput]]. The [[LineType.DCLineType]]s are currently
+    * not supported by the ie3 data model. Therefore an [[IllegalArgumentException]] is thrown.
     *
     * @param input    SimBench [[LineType]] to convert
     * @param vRated   Externally provided rated voltage, as the SimBench [[LineType]] does not provide this information
     * @param uuid     UUID to use for the model generation (default: Random UUID)
-    * @return         A ie³ [[LineTypeInput]]
+    * @return         A ie3 [[LineTypeInput]]
     */
   def convert(
       input: LineType,
@@ -80,7 +80,7 @@ case object LineTypeConverter extends LazyLogging {
         new LineTypeInput(uuid, id, bQty, gQty, rQty, xQty, iMaxQty, vRated)
       case _: LineType.DCLineType =>
         throw ConversionException(
-          "DC line types are currently not supported by ie³'s data model."
+          "DC line types are currently not supported by ie3's data model."
         )
     }
   }
@@ -97,10 +97,15 @@ case object LineTypeConverter extends LazyLogging {
     val rawMapping = lines
       .distinctBy(line => line.lineType)
       .map(line => determineRatedVoltage(line))
-      .groupBy(tuple => tuple._1)
+      .groupMap(_._1)(_._2)
 
     /* Sanity check, that there is no ambiguous mapping */
-    rawMapping.find(entry => entry._2.length > 1) match {
+    rawMapping.find {
+      case (_, ratedVoltages) if ratedVoltages.length > 1 =>
+        true
+      case _ =>
+        false
+    } match {
       case Some(ambiguousEntry) =>
         throw SimbenchDataModelException(
           s"Found ambiguous rated voltages for at least one entry: $ambiguousEntry"
@@ -113,7 +118,14 @@ case object LineTypeConverter extends LazyLogging {
 
     /* Mapping the line type to the rated voltage of the first entry of the Vector of each raw mapping. That nothing
      * is missed is ensured by the sanity check beforehand */
-    rawMapping.map(rawEntry => rawEntry._1 -> rawEntry._2(0)._2)
+    rawMapping.map {
+      case (lineType, lineTypeVRatedVector) =>
+        lineType -> lineTypeVRatedVector.headOption.getOrElse(
+          throw SimbenchDataModelException(
+            s"Cannot receive rated voltage for line type '$lineType'."
+          )
+        )
+    }
   }
 
   /**

@@ -16,7 +16,7 @@ import edu.ie3.datamodel.models.input.graphics.{
   NodeGraphicInput
 }
 import edu.ie3.datamodel.models.input.system._
-import edu.ie3.datamodel.models.input.{EvcsInput, NodeInput}
+import edu.ie3.datamodel.models.input.NodeInput
 import edu.ie3.datamodel.models.timeseries.individual.IndividualTimeSeries
 import edu.ie3.datamodel.models.value.{PValue, SValue}
 import edu.ie3.simbench.convert.types.{

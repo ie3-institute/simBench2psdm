@@ -77,8 +77,8 @@ object ExternalNet extends EntityModelCompanionObject[ExternalNet] {
     * @param dspf Distributed Slack Power Factor in p.u.
     * @param pExt Active power contribution in MW
     * @param qExt Reactive power contribution in MVAr
-    * @param rWardExtended Resistance of the extended Ward model in Ω
-    * @param xWardExtended Reactance of the extended Ward model in Ω
+    * @param rWardExtended Resistance of the extended Ward model in Ohm
+    * @param xWardExtended Reactance of the extended Ward model in Ohm
     * @param vmWardExtended Voltage magnitude of the extended Ward model in p.u.
     * @param subnet Subnet it belongs to
     * @param voltLvl Voltage level

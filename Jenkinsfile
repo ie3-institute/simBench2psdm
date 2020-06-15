@@ -1,4 +1,4 @@
-#!groovy​
+#!groovy
 
 ////////////////////////////////
 // general config values
@@ -32,7 +32,7 @@ def sshCredentialsId = "19f16959-8a0d-4a60-bd1f-5adb4572b702"
 //// define and setjava version ////
 //// requires the java version to be set in the internal jenkins java version management
 //// use identifier accordingly
-def javaVersionId = 'jdk-11'
+def javaVersionId = 'jdk-8'
 
 //// set java version method (needs node{} for execution)
 void setJavaVersion(javaVersionId) {

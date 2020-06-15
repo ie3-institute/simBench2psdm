@@ -39,12 +39,9 @@ class VoltLvlConverterSpec extends UnitSpec {
         val vRated = entry._1._2
         val expectedMessage = entry._2
 
-        try {
+        intercept[VoltageLevelException] {
           VoltLvlConverter.convert(idx, vRated)
-          fail(s"No exception thrown for $idx @ $vRated")
-        } catch {
-          case e: VoltageLevelException => e.getMessage shouldBe expectedMessage
-        }
+        }.getMessage shouldBe expectedMessage
       })
     }
 

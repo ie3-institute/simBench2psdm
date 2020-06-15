@@ -36,7 +36,7 @@ case object LoadConverter {
   }
 
   /**
-    * Converts a single SimBench [[Load]] to ie³'s [[LoadInput]]. Currently not sufficiently covered:
+    * Converts a single SimBench [[Load]] to ie3's [[LoadInput]]. Currently not sufficiently covered:
     *   - Consumed energy throughout the year
     *   - different VAr characteristics
     *

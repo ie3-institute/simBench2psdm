@@ -13,7 +13,7 @@ case object SwitchConverter {
     * Converts a set of [[Switch]]es to [[SwitchInput]]
     *
     * @param switches [[Vector]] of SimBench [[Switch]]es
-    * @param nodes    Mapping from SimBench [[Node]] to ie³'s [[NodeInput]]
+    * @param nodes    Mapping from SimBench [[Node]] to ie3's [[NodeInput]]
     * @return         [[Vector]] of [[SwitchInput]]
     */
   def convert(
@@ -27,7 +27,7 @@ case object SwitchConverter {
     }
 
   /**
-    * Converts a [[Switch]] into ie³'s [[SwitchInput]]
+    * Converts a [[Switch]] into ie3's [[SwitchInput]]
     *
     * @param input  Model to convert
     * @param nodeA  One of the nodes, the switch connects

@@ -12,6 +12,11 @@ abstract class ParsableEnumeration extends Enumeration {
     * @return Matching enumeration value
     * @throws NoSuchElementException If no element with the given definition is apparent
     */
-  def parse(key: String): Value =
-    super.withName(StringUtils.cleanString(key).toLowerCase)
+  def parse(key: String): Option[Value] =
+    super.values.find(
+      value =>
+        StringUtils.cleanString(value.toString).toLowerCase == StringUtils
+          .cleanString(key)
+          .toLowerCase
+    )
 }

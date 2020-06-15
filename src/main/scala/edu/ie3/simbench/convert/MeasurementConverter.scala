@@ -40,24 +40,22 @@ case object MeasurementConverter extends LazyLogging {
   ): Vector[MeasurementUnitInput] = {
     /* Filter for node measurements (only supported yet) */
     measurements
-      .filter {
-        case _: Measurement.NodeMeasurement        => true
-        case _: Measurement.LineMeasurement        => false
-        case _: Measurement.TransformerMeasurement => false
-      }
-      .map {
-        case nodeMeasurement: NodeMeasurement => nodeMeasurement
-        case _ =>
-          throw ConversionException(
-            "Filtering for node measurement devices failed"
-          )
+      .flatMap {
+        case measurement: Measurement.NodeMeasurement => Some(measurement)
+        case _: Measurement.LineMeasurement |
+            _: Measurement.TransformerMeasurement =>
+          None
       }
       /* group the measurements by their nodes */
       .groupMap(_.node)(identity)
       .values
       /* map the measurement groups onto one measurement */
-      .map(measurementGroup => {
-        val measurement = measurementGroup.head
+      .flatMap(measurementGroup => {
+        val measurement = measurementGroup.headOption match {
+          case Some(value) => value
+          case None =>
+            throw ConversionException("Got an empty measurement group.")
+        }
         val node = nodes.getOrElse(
           measurement.node,
           throw ConversionException(
@@ -96,11 +94,6 @@ case object MeasurementConverter extends LazyLogging {
           convert(measurement, node)
         }
       })
-      .map {
-        case Some(measurement) => measurement
-        case None =>
-          throw ConversionException("Failure during measurement conversion.")
-      }
       .toVector
   }
 

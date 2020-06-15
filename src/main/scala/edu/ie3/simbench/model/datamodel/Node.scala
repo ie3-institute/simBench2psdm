@@ -15,7 +15,7 @@ import edu.ie3.simbench.model.datamodel.enums.NodeType
   * @param id Identifier
   * @param nodeType Type of the node
   * @param vmSetp Setpoint for the voltage magnitude in p.u.
-  * @param vaSetp Setpoint for the voltage angle in ° (Optional)
+  * @param vaSetp Setpoint for the voltage angle in Degree (Optional)
   * @param vmR Rated voltage magnitude in kV
   * @param vmMin Minimum permissible voltage magnitude in p.u.
   * @param vmMax Maximum permissible voltage magnitude in p.u.

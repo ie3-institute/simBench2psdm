@@ -3,6 +3,8 @@ package edu.ie3.simbench.model.datamodel.enums
 import edu.ie3.simbench.exception.io.SimbenchDataModelException
 import edu.ie3.simbench.util.ParsableEnumeration
 
+import scala.util.{Failure, Success, Try}
+
 /**
   * Available renewable energy sources to SimBench
   */
@@ -34,15 +36,13 @@ case object ResType extends ParsableEnumeration {
     * @return The matching [[ResType]]
     * @throws SimbenchDataModelException if a non valid type string has been provided
     */
-  @throws[SimbenchDataModelException]
-  def apply(typeString: String): ResType.Value =
-    try {
-      parse(typeString)
-    } catch {
-      case e: NoSuchElementException =>
-        throw SimbenchDataModelException(
-          s"I cannot handle the RES type $typeString",
-          e
+  def apply(typeString: String): Try[ResType.Value] = parse(typeString) match {
+    case Some(value) => Success(value)
+    case None =>
+      Failure(
+        SimbenchDataModelException(
+          s"There is no defined energy source for identifier type '$typeString'"
         )
-    }
+      )
+  }
 }
