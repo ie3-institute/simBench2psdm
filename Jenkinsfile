@@ -45,7 +45,7 @@ void setJavaVersion(javaVersionId) {
 String featureBranchName = ""
 
 //// gradle tasks that are executed
-def gradleTasks = "--refresh-dependencies clean spotlessCheck pmdMain pmdTest spotbugsMain spotbugsTest check" // the gradle tasks that are executed on ALL projects
+def gradleTasks = "--refresh-dependencies clean spotlessCheck pmdMain pmdTest check" // the gradle tasks that are executed on ALL projects
 def mainProjectGradleTasks = "reportScoverage checkScoverage" // additional tasks that are only executed on project 0 (== main project)
 // if you need additional tasks for deployment add them here
 // NOTE: artifactory task with credentials will be added below
@@ -331,10 +331,6 @@ def publishReports() {
     
     // publish pmd report for main project only
     publishHTML([allowMissing: true, alwaysLinkToLastBuild: true, escapeUnderscores: false, keepAll: true, reportDir: projects.get(0) + '/build/reports/pmd', reportFiles: 'main.html', reportName: "${projects.get(0)}_pmd_report", reportTitles: ''])
-
-    // publish spotbugs report for main project only
-    publishHTML([allowMissing: true, alwaysLinkToLastBuild: true, escapeUnderscores: false, keepAll: true, reportDir: projects.get(0) + '/build/reports/spotbugs', reportFiles: 'main.html', reportName: "${projects.get(0)}_spotbugs_report", reportTitles: ''])
-
 }
 
 
