@@ -1,14 +1,29 @@
 package edu.ie3.simbench.convert
 
 import com.typesafe.scalalogging.LazyLogging
-import edu.ie3.datamodel.models.input.connector.{LineInput, Transformer2WInput, Transformer3WInput}
-import edu.ie3.datamodel.models.input.container.{GraphicElements, JointGridContainer, RawGridElements, SystemParticipants}
-import edu.ie3.datamodel.models.input.graphics.{LineGraphicInput, NodeGraphicInput}
+import edu.ie3.datamodel.models.input.connector.{
+  LineInput,
+  Transformer2WInput,
+  Transformer3WInput
+}
+import edu.ie3.datamodel.models.input.container.{
+  GraphicElements,
+  JointGridContainer,
+  RawGridElements,
+  SystemParticipants
+}
+import edu.ie3.datamodel.models.input.graphics.{
+  LineGraphicInput,
+  NodeGraphicInput
+}
 import edu.ie3.datamodel.models.input.system._
 import edu.ie3.datamodel.models.input.NodeInput
 import edu.ie3.datamodel.models.timeseries.individual.IndividualTimeSeries
 import edu.ie3.datamodel.models.value.{PValue, SValue}
-import edu.ie3.simbench.convert.types.{LineTypeConverter, Transformer2wTypeConverter}
+import edu.ie3.simbench.convert.types.{
+  LineTypeConverter,
+  Transformer2wTypeConverter
+}
 import edu.ie3.simbench.model.datamodel.{GridModel, Node}
 
 import scala.jdk.CollectionConverters._
@@ -62,7 +77,9 @@ case object GridConverter extends LazyLogging {
     val transformers2w =
       convertTransformers2w(gridInput, nodeConversion).toSet.asJava
     val transformers3w = Set.empty[Transformer3WInput].asJava /* Currently, no conversion strategy is known */
-    logger.debug("Creation of three winding transformers is not yet implemented.")
+    logger.debug(
+      "Creation of three winding transformers is not yet implemented."
+    )
     val switches =
       SwitchConverter.convert(gridInput.switches, nodeConversion).toSet.asJava
     val measurements = MeasurementConverter
