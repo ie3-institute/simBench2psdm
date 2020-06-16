@@ -29,7 +29,6 @@ group = 'com.github.ie3-institute'
 description = 'simbench4ie3'
 version = '1.0-SNAPSHOT'
 
-apply from: scriptsLocation + 'tests.gradle'
 apply from: scriptsLocation + 'pmd.gradle'
 apply from: scriptsLocation + 'spotless.gradle'
 apply from: scriptsLocation + 'checkJavaVersion.gradle'
