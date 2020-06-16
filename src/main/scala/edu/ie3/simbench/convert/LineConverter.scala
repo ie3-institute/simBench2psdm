@@ -42,7 +42,7 @@ case object LineConverter extends LazyLogging {
           )
         )
         Some(convert(acLine, lineType, nodeA, nodeB))
-      case _: Line.ACLine => None
+      case _: Line.DCLine => None
     }
 
   /**
