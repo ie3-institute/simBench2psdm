@@ -5,11 +5,12 @@ plugins {
 	id 'scala' // scala support
 	id 'maven-publish' // publish to a maven repo (local or mvn central, has to be defined)
 	id 'pmd' // code check, working on source code
-	id 'com.github.spotbugs' version '2.0.0' // code check, working on byte code
 	id 'com.diffplug.gradle.spotless' version '3.28.1'// code format
 	id "de.undercouch.download" version "3.4.3" // downloads plugin
 	id 'jacoco' // java code coverage plugin
 	id "org.sonarqube" version "2.8" // sonarqube
+	id 'org.scoverage' version '4.0.2' // Code coverage plugin for scala
+	id "com.github.maiflai.scalatest" version "0.26" // run scalatest without specific task
 }
 
 ext {
@@ -28,13 +29,11 @@ group = 'com.github.ie3-institute'
 description = 'simbench4ie3'
 version = '1.0-SNAPSHOT'
 
-apply from: scriptsLocation + 'tests.gradle'
 apply from: scriptsLocation + 'pmd.gradle'
-apply from: scriptsLocation + 'spotbugs.gradle'
 apply from: scriptsLocation + 'spotless.gradle'
 apply from: scriptsLocation + 'checkJavaVersion.gradle'
 apply from: scriptsLocation + 'tscfg.gradle' // config tasks
-apply from: scriptsLocation + 'jacoco.gradle' // jacoco java code coverage
+apply from: scriptsLocation + 'scoverage.gradle'
 
 repositories {
 	jcenter() //searches in bintray's repository 'jCenter', which contains Maven Central
@@ -79,6 +78,8 @@ dependencies {
 	testCompile "org.scalatest:scalatest_${scalaVersion}:3.0.8"
 	testRuntime "org.pegdown:pegdown:1.6.0" // HTML report for scalatest
 	compile 'org.mockito:mockito-core:+' // mocking framework
+	scoverage "org.scoverage:scalac-scoverage-plugin_${scalaVersion}:1.4.1"
+	scoverage "org.scoverage:scalac-scoverage-runtime_${scalaVersion}:1.4.1"
 
 	// config //
 	implementation 'com.typesafe:config:+'

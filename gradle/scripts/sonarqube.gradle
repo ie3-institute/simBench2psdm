@@ -1,6 +1,5 @@
 sonarqube {
 	properties {
-		// todo CK enable accordingly!
 		// general stuff
 		property 'sonar.projectName', 'simbench4ie3' // project name
 		property 'sonar.verbose', 'true' // verbose mode
@@ -25,12 +24,8 @@ sonarqube {
 			"build/reports/spotbugs/main.xml",
 			"build/reports/spotbugs/test.xml"] // Comma-delimited list of paths to reports from SpotBugs
 		// scala specific stuff
-		//property 'sonar.scala.coverage.reportPaths', ''//todo enable when scoverage gradle plugin is available for scala 2.13
+		property 'sonar.scala.coverage.reportPaths', 'build/reports/scoverage/scoverage.xml'
 
-		// groovy specific stuff
-		property 'sonar.groovy.jacoco.reportPath', 'build/jacoco/test.exec' // unit tests reports dir
-		/// integration tests reports dir (if any)
-		property 'sonar.groovy.jacoco.itReportPath', 'build/jacoco/allTests.exec'
 		property 'sonar.groovy.binaries', 'build/classes/groovy' // groovy binaries
 
 		// remove auto generated SimonaConfig file from analysis
@@ -43,7 +38,7 @@ project.tasks["sonarqube"].dependsOn "pmdMain"
 project.tasks["sonarqube"].dependsOn "pmdTest"
 project.tasks["sonarqube"].dependsOn "spotbugsMain"
 project.tasks["sonarqube"].dependsOn "spotbugsTest"
-project.tasks["sonarqube"].dependsOn "allTests"
+project.tasks["sonarqube"].dependsOn "check"
 
-project.tasks["sonarqube"].dependsOn "jacocoTestReport"
-project.tasks["sonarqube"].dependsOn "jacocoTestCoverageVerification"
+project.tasks["sonarqube"].dependsOn "reportScoverage"
+project.tasks["sonarqube"].dependsOn "checkScoverage"
