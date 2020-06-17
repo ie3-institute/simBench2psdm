@@ -155,9 +155,10 @@ final case class SimbenchReader(
       modelClassToRawData.getOrElse(classOf[ExternalNet], None) match {
         case Some(rawData) => ExternalNet.buildModels(rawData, nodes)
         case None =>
-          throw IoException(
-            "Cannot build external nets, as no raw data has been received."
+          logger.debug(
+            s"No information available for ${classOf[ExternalNet].getSimpleName}"
           )
+          Vector.empty[ExternalNet]
       }
     val loads = modelClassToRawData.getOrElse(classOf[Load], None) match {
       case Some(rawData) => Load.buildModels(rawData, nodes)

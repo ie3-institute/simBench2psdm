@@ -836,7 +836,7 @@ trait ConverterTestData extends MockitoSugar {
       ),
       new FixedFeedInInput(
         UUID.randomUUID(),
-        "MV1.101 SGen 2_lvres",
+        "MV1.101 SGen 2_lv_res",
         OperatorInput.NO_OPERATOR_ASSIGNED,
         OperationTime.notLimited(),
         getNodePair("MV1.101 Bus 4")._2,

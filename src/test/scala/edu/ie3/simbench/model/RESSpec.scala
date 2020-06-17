@@ -32,7 +32,7 @@ class RESSpec extends UnitSpec with ConverterTestData {
       Map(
         "id" -> "LV1.101 SGen 4",
         "node" -> "LV1.101 Bus 4",
-        "type" -> "WindMV",
+        "type" -> "Wind_MV",
         "profile" -> "WP4",
         "calc_type" -> "vavm",
         "pRES" -> "0.023",
