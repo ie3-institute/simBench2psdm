@@ -19,7 +19,7 @@ import edu.ie3.simbench.model.datamodel.enums.SwitchType
   * @param subnet Subnet it belongs to
   * @param voltLvl Voltage level
   */
-case class Switch(
+final case class Switch(
     id: String,
     nodeA: Node,
     nodeB: Node,

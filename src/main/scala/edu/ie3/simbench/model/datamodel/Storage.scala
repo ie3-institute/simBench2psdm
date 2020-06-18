@@ -24,7 +24,7 @@ import edu.ie3.simbench.model.datamodel.profiles.StorageProfile
   * @param subnet Subnet it belongs to
   * @param voltLvl Voltage level
   */
-case class Storage(
+final case class Storage(
     id: String,
     node: Node,
     storageType: StorageType,

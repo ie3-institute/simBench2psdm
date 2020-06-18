@@ -24,7 +24,7 @@ import scala.util.{Failure, Success}
   * @param subnet Subnet it belongs to
   * @param voltLvl Voltage level
   */
-case class RES(
+final case class RES(
     id: String,
     node: Node,
     resType: ResType.Value,

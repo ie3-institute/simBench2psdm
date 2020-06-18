@@ -1,28 +1,17 @@
 package edu.ie3.simbench.convert
 
-import java.util.UUID
+import java.util.{Objects, UUID}
 
-import edu.ie3.datamodel.models.OperationTime
-import edu.ie3.datamodel.models.input.OperatorInput
-import edu.ie3.datamodel.models.input.connector.LineInput
 import edu.ie3.datamodel.models.input.connector.`type`.LineTypeInput
-import edu.ie3.datamodel.models.input.system.characteristic.OlmCharacteristicInput
-import edu.ie3.simbench.exception.ConversionException
-import edu.ie3.simbench.model.datamodel.Line.{ACLine, DCLine}
+import edu.ie3.simbench.exception.{ConversionException, TestingException}
+import edu.ie3.simbench.model.datamodel.Line.DCLine
 import edu.ie3.simbench.model.datamodel.types.LineType
-import edu.ie3.simbench.model.datamodel.types.LineType.{ACLineType, DCLineType}
+import edu.ie3.simbench.model.datamodel.types.LineType.DCLineType
 import edu.ie3.test.common.{ConverterTestData, UnitSpec}
-import edu.ie3.util.quantities.PowerSystemUnits.KILOMETRE
-import tec.uom.se.quantity.Quantities
 
 class LineConverterSpec extends UnitSpec with ConverterTestData {
   val (nodeAIn, nodeA) = getNodePair("slack_node_0")
   val (nodeBIn, nodeB) = getNodePair("node_0")
-
-  val nodeMap = Map(
-    nodeAIn -> nodeA,
-    nodeBIn -> nodeB
-  )
 
   val (lineTypeIn, lineType) = getLineTypePair("NAYY 4x150SE 0.6/1kV")
   val lineTypeMapping: Map[LineType, LineTypeInput] = Map(
@@ -33,43 +22,22 @@ class LineConverterSpec extends UnitSpec with ConverterTestData {
     "dc line",
     nodeAIn,
     nodeBIn,
-    getLineTypePair("dc line type")._1.asInstanceOf[DCLineType],
+    getLineTypePair("dc line type")._1 match {
+      case dcLineType: DCLineType => dcLineType
+      case acLineType: LineType.ACLineType =>
+        throw TestingException(
+          s"Found AC line type '$acLineType' instead of DC line type"
+        )
+    },
     BigDecimal("100"),
     BigDecimal("100"),
     "subnet 1",
     7
   )
 
-  val validInput: ACLine = ACLine(
-    "ac line",
-    nodeAIn,
-    nodeBIn,
-    lineTypeIn.asInstanceOf[ACLineType],
-    BigDecimal("100"),
-    BigDecimal("120"),
-    "subnet 1",
-    7
-  )
+  val (validInput, expectedLine) = getLinePair("ac line")
 
   val lineUuid: UUID = UUID.randomUUID()
-  val expectedLine = new LineInput(
-    lineUuid,
-    "ac line",
-    OperatorInput.NO_OPERATOR_ASSIGNED,
-    OperationTime.notLimited(),
-    nodeA,
-    nodeB,
-    1,
-    lineType,
-    Quantities.getQuantity(100d, KILOMETRE),
-    geometryFactory.createLineString(
-      Array(
-        nodeA.getGeoPosition.getCoordinate,
-        nodeB.getGeoPosition.getCoordinate
-      )
-    ),
-    OlmCharacteristicInput.CONSTANT_CHARACTERISTIC
-  )
 
   "The line converter" should {
     "throw an exception, if a DCLine should be converted" in {
@@ -82,7 +50,7 @@ class LineConverterSpec extends UnitSpec with ConverterTestData {
     "convert a correct input model correctly" in {
       val actual =
         LineConverter.convert(validInput, lineType, nodeA, nodeB, lineUuid)
-      actual.getUuid shouldBe expectedLine.getUuid
+      Objects.nonNull(actual.getUuid) shouldBe true
       actual.getId shouldBe expectedLine.getId
       actual.getNodeA shouldBe expectedLine.getNodeA
       actual.getNodeB shouldBe expectedLine.getNodeB

@@ -13,36 +13,18 @@ import org.locationtech.jts.geom.{Point, Coordinate => JTSCoordinate}
 
 class Transformer2wConverterSpec extends UnitSpec with ConverterTestData {
   val (inputType, resultType) = getTransformer2WTypePair("test type")
-
   val types: Map[Transformer2WType, Transformer2WTypeInput] = Map(
     inputType -> resultType
   )
 
-  val nodeAUuid: UUID = UUID.randomUUID()
-  val nodeBUuid: UUID = UUID.randomUUID()
-  val randomCoordinate: Point =
-    geometryFactory.createPoint(new JTSCoordinate(7.412262, 51.492689))
   val (nodeAInput, nodeA) = getNodePair("MV1.101 Bus 4")
   val (nodeBInput, nodeB) = getNodePair("LV1.101 Bus 4")
-
   val nodeMapping: Map[Node, NodeInput] = Map(
     nodeAInput -> nodeA,
     nodeBInput -> nodeB
   )
 
-  val input: Transformer2W = Transformer2W(
-    "MV1.101-LV1.101-Trafo 1",
-    getNodePair("MV1.101 Bus 4")._1,
-    getNodePair("LV1.101 Bus 4")._1,
-    inputType,
-    10,
-    autoTap = true,
-    Some(HV),
-    BigDecimal("100"),
-    None,
-    "LV1.101",
-    6
-  )
+  val (input, expected) = getTransformer2WPair("MV1.101-LV1.101-Trafo 1")
 
   "The two winding transformer converter" should {
     "convert a single input correctly" in {

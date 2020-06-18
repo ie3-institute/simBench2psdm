@@ -36,7 +36,7 @@ class SimbenchReaderSpec extends UnitSpec with SimbenchReaderTestData {
   "The SimBench data set reader" should {
     "throw an exception on the wrong model class to read" in {
       /* Simple mocking class implementing nothing at all */
-      case class SimbenchMock() extends SimbenchModel {
+      final case class SimbenchMock() extends SimbenchModel {
 
         /**
           * Identifier
@@ -61,35 +61,37 @@ class SimbenchReaderSpec extends UnitSpec with SimbenchReaderTestData {
     }
 
     "read the coordinates correctly" in {
-      val expected = classOf[Coordinate] -> Vector(
-        RawModelData(
-          classOf[Coordinate],
-          Map(
-            "id" -> "coord_0",
-            "x" -> "11.411",
-            "y" -> "53.6407",
-            "subnet" -> "LV1.101",
-            "voltLvl" -> "7"
-          )
-        ),
-        RawModelData(
-          classOf[Coordinate],
-          Map(
-            "id" -> "coord_3",
-            "x" -> "11.4097",
-            "y" -> "53.6413",
-            "subnet" -> "LV1.101",
-            "voltLvl" -> "7"
-          )
-        ),
-        RawModelData(
-          classOf[Coordinate],
-          Map(
-            "id" -> "coord_14",
-            "x" -> "11.4097",
-            "y" -> "53.6413",
-            "subnet" -> "MV1.101_LV1.101_Feeder1",
-            "voltLvl" -> "5"
+      val expected = classOf[Coordinate] -> Some(
+        Vector(
+          RawModelData(
+            classOf[Coordinate],
+            Map(
+              "id" -> "coord_0",
+              "x" -> "11.411",
+              "y" -> "53.6407",
+              "subnet" -> "LV1.101",
+              "voltLvl" -> "7"
+            )
+          ),
+          RawModelData(
+            classOf[Coordinate],
+            Map(
+              "id" -> "coord_3",
+              "x" -> "11.4097",
+              "y" -> "53.6413",
+              "subnet" -> "LV1.101",
+              "voltLvl" -> "7"
+            )
+          ),
+          RawModelData(
+            classOf[Coordinate],
+            Map(
+              "id" -> "coord_14",
+              "x" -> "11.4097",
+              "y" -> "53.6413",
+              "subnet" -> "MV1.101_LV1.101_Feeder1",
+              "voltLvl" -> "5"
+            )
           )
         )
       )
@@ -109,7 +111,7 @@ class SimbenchReaderSpec extends UnitSpec with SimbenchReaderTestData {
 
     "get the field to value maps correctly" in {
       val fieldToValuesMethod = PrivateMethod[
-        Map[Class[_ <: SimbenchModel], Vector[Map[String, String]]]
+        Map[Class[_], Option[Vector[RawModelData]]]
       ](Symbol("getFieldToValueMaps"))
       val fieldToValuesMap = reader invokePrivate fieldToValuesMethod()
 
@@ -121,11 +123,15 @@ class SimbenchReaderSpec extends UnitSpec with SimbenchReaderTestData {
           classOf[LoadProfile],
           fail(s"No entry available for class ${classOf[LoadProfile]}")
         )
+        .getOrElse(fail(s"Entry for class ${classOf[LoadProfile]} is empty."))
         .length shouldBe 2 /* Here, each time step is an entry */
       fieldToValuesMap
         .getOrElse(
           classOf[PowerPlantProfile],
           fail(s"No entry available for class ${classOf[PowerPlantProfile]}")
+        )
+        .getOrElse(
+          fail(s"Entry for class ${classOf[PowerPlantProfile]} is empty.")
         )
         .length shouldBe 2 /* Here, each time step is an entry */
       fieldToValuesMap
@@ -133,6 +139,7 @@ class SimbenchReaderSpec extends UnitSpec with SimbenchReaderTestData {
           classOf[ResProfile],
           fail(s"No entry available for class ${classOf[ResProfile]}")
         )
+        .getOrElse(fail(s"Entry for class ${classOf[ResProfile]} is empty."))
         .length shouldBe 2 /* Here, each time step is an entry */
 
       fieldToValuesMap
@@ -140,29 +147,36 @@ class SimbenchReaderSpec extends UnitSpec with SimbenchReaderTestData {
           classOf[StudyCase],
           fail(s"No entry available for class ${classOf[StudyCase]}")
         )
+        .getOrElse(fail(s"Entry for class ${classOf[StudyCase]} is empty."))
         .length shouldBe 6
       fieldToValuesMap
         .getOrElse(
           classOf[Coordinate],
           fail(s"No entry available for class ${classOf[Coordinate]}")
         )
+        .getOrElse(fail(s"Entry for class ${classOf[Coordinate]} is empty."))
         .length shouldBe 3
       fieldToValuesMap
         .getOrElse(
           classOf[ExternalNet],
           fail(s"No entry available for class ${classOf[ExternalNet]}")
         )
+        .getOrElse(fail(s"Entry for class ${classOf[ExternalNet]} is empty."))
         .length shouldBe 1
       fieldToValuesMap
         .getOrElse(
           classOf[LineType],
           fail(s"No entry available for class ${classOf[LineType]}")
         )
+        .getOrElse(fail(s"Entry for class ${classOf[LineType]} is empty."))
         .length shouldBe 21
       fieldToValuesMap
         .getOrElse(
           classOf[Line[_ <: LineType]],
           fail(s"No entry available for class ${classOf[Line[_ <: LineType]]}")
+        )
+        .getOrElse(
+          fail(s"Entry for class ${classOf[Line[_ <: LineType]]} is empty.")
         )
         .length shouldBe 1
       fieldToValuesMap
@@ -170,23 +184,29 @@ class SimbenchReaderSpec extends UnitSpec with SimbenchReaderTestData {
           classOf[Load],
           fail(s"No entry available for class ${classOf[Load]}")
         )
+        .getOrElse(fail(s"Entry for class ${classOf[Load]} is empty."))
         .length shouldBe 1
       fieldToValuesMap
         .getOrElse(
           classOf[Node],
           fail(s"No entry available for class ${classOf[Node]}")
         )
+        .getOrElse(fail(s"Entry for class ${classOf[Node]} is empty."))
         .length shouldBe 3
       fieldToValuesMap
         .getOrElse(
           classOf[RES],
           fail(s"No entry available for class ${classOf[RES]}")
         )
+        .getOrElse(fail(s"Entry for class ${classOf[RES]} is empty."))
         .length shouldBe 1
       fieldToValuesMap
         .getOrElse(
           classOf[Transformer2WType],
           fail(s"No entry available for class ${classOf[Transformer2WType]}")
+        )
+        .getOrElse(
+          fail(s"Entry for class ${classOf[Transformer2WType]} is empty.")
         )
         .length shouldBe 12
       fieldToValuesMap
@@ -194,6 +214,7 @@ class SimbenchReaderSpec extends UnitSpec with SimbenchReaderTestData {
           classOf[Transformer2W],
           fail(s"No entry available for class ${classOf[Transformer2W]}")
         )
+        .getOrElse(fail(s"Entry for class ${classOf[Transformer2W]} is empty."))
         .length shouldBe 1
     }
 

@@ -10,12 +10,19 @@ import edu.ie3.datamodel.models.StandardUnits.{
   IMPEDANCE_PER_LENGTH,
   RATED_VOLTAGE_MAGNITUDE
 }
-import edu.ie3.datamodel.models.input.connector.SwitchInput
+import edu.ie3.datamodel.models.input.connector.{
+  LineInput,
+  SwitchInput,
+  Transformer2WInput
+}
 import edu.ie3.datamodel.models.input.connector.`type`.{
   LineTypeInput,
   Transformer2WTypeInput
 }
-import edu.ie3.datamodel.models.input.system.characteristic.CosPhiFixed
+import edu.ie3.datamodel.models.input.system.characteristic.{
+  CosPhiFixed,
+  OlmCharacteristicInput
+}
 import edu.ie3.datamodel.models.input.system.{FixedFeedInInput, LoadInput}
 import edu.ie3.datamodel.models.input.{
   MeasurementUnitInput,
@@ -29,7 +36,9 @@ import edu.ie3.datamodel.models.voltagelevels.GermanVoltageLevelUtils.{
   MV_20KV
 }
 import edu.ie3.datamodel.models.{OperationTime, UniqueEntity}
+import edu.ie3.datamodel.utils.GridAndGeoUtils
 import edu.ie3.simbench.exception.TestingException
+import edu.ie3.simbench.model.datamodel.Line.ACLine
 import edu.ie3.simbench.model.datamodel.Measurement.{
   LineMeasurement,
   NodeMeasurement,
@@ -434,6 +443,53 @@ trait ConverterTestData extends MockitoSugar {
       )
       .getPair
 
+  val lines = Map(
+    "ac line" -> ConversionPair(
+      ACLine(
+        "ac line",
+        getNodePair("slack_node_0")._1,
+        getNodePair("node_0")._1,
+        getLineTypePair("NAYY 4x150SE 0.6/1kV")._1 match {
+          case acLineType: ACLineType => acLineType
+          case dcLineType: DCLineType =>
+            throw TestingException(
+              s"Found DC line type '$dcLineType' instead of AC line type"
+            )
+        },
+        BigDecimal("100"),
+        BigDecimal("120"),
+        "subnet 1",
+        7
+      ),
+      new LineInput(
+        UUID.randomUUID(),
+        "ac line",
+        OperatorInput.NO_OPERATOR_ASSIGNED,
+        OperationTime.notLimited(),
+        getNodePair("slack_node_0")._2,
+        getNodePair("node_0")._2,
+        1,
+        getLineTypePair("NAYY 4x150SE 0.6/1kV")._2,
+        Quantities.getQuantity(100d, KILOMETRE),
+        GridAndGeoUtils.buildSafeLineStringBetweenNodes(
+          getNodePair("slack_node_0")._2,
+          getNodePair("node_0")._2
+        ),
+        OlmCharacteristicInput.CONSTANT_CHARACTERISTIC
+      )
+    )
+  )
+
+  def getLinePair(key: String): (Line[_ <: LineType], LineInput) =
+    lines
+      .getOrElse(
+        key,
+        throw TestingException(
+          s"Cannot find input / result pair for ${Line.getClass.getSimpleName} $key."
+        )
+      )
+      .getPair
+
   val transformerTypes = Map(
     "test type" -> ConversionPair(
       Transformer2WType(
@@ -484,6 +540,48 @@ trait ConverterTestData extends MockitoSugar {
         key,
         throw TestingException(
           s"Cannot find input / result pair for ${Transformer2WType.getClass.getSimpleName} $key."
+        )
+      )
+      .getPair
+
+  val transformers2w = Map(
+    "MV1.101-LV1.101-Trafo 1" -> ConversionPair(
+      Transformer2W(
+        "MV1.101-LV1.101-Trafo 1",
+        getNodePair("MV1.101 Bus 4")._1,
+        getNodePair("LV1.101 Bus 4")._1,
+        getTransformer2WTypePair("test type")._1,
+        10,
+        autoTap = true,
+        Some(HV),
+        BigDecimal("100"),
+        None,
+        "LV1.101",
+        6
+      ),
+      new Transformer2WInput(
+        UUID.randomUUID(),
+        "MV1.101-LV1.101-Trafo 1",
+        OperatorInput.NO_OPERATOR_ASSIGNED,
+        OperationTime.notLimited(),
+        getNodePair("MV1.101 Bus 4")._2,
+        getNodePair("LV1.101 Bus 4")._2,
+        1,
+        getTransformer2WTypePair("test type")._2,
+        10,
+        true
+      )
+    )
+  )
+
+  def getTransformer2WPair(
+      key: String
+  ): (Transformer2W, Transformer2WInput) =
+    transformers2w
+      .getOrElse(
+        key,
+        throw TestingException(
+          s"Cannot find input / result pair for ${Transformer2W.getClass.getSimpleName} $key."
         )
       )
       .getPair
@@ -618,11 +716,25 @@ trait ConverterTestData extends MockitoSugar {
       )
     ),
     "MV1.102 Measurement 3" -> ConversionPair(
-      mock[LineMeasurement],
+      LineMeasurement(
+        "ac line measurement",
+        getLinePair("ac line")._1,
+        getNodePair("slack_node_0")._1,
+        MeasurementVariable.ActivePower,
+        "subnet 1",
+        7
+      ),
       null
     ),
     "MV1.102 Measurement 28" -> ConversionPair(
-      mock[TransformerMeasurement],
+      TransformerMeasurement(
+        "MV1.101-LV1.101-Trafo 1 measurement",
+        getTransformer2WPair("MV1.101-LV1.101-Trafo 1")._1,
+        getNodePair("LV1.101 Bus 4")._1,
+        MeasurementVariable.Current,
+        "LV1.101",
+        6
+      ),
       null
     )
   )
@@ -724,7 +836,7 @@ trait ConverterTestData extends MockitoSugar {
       ),
       new FixedFeedInInput(
         UUID.randomUUID(),
-        "MV1.101 SGen 2_lvres",
+        "MV1.101 SGen 2_lv_res",
         OperatorInput.NO_OPERATOR_ASSIGNED,
         OperationTime.notLimited(),
         getNodePair("MV1.101 Bus 4")._2,

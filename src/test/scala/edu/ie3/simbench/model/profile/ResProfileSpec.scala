@@ -4,15 +4,9 @@ import edu.ie3.simbench.exception.io.SimbenchDataModelException
 import edu.ie3.simbench.model.RawModelData
 import edu.ie3.simbench.model.datamodel.profiles.{ResProfile, ResProfileType}
 import edu.ie3.test.common.UnitSpec
-import edu.ie3.util.{TimeTools, TimeUtil}
+import edu.ie3.util.TimeUtil
 
 class ResProfileSpec extends UnitSpec {
-  TimeTools.initialize(
-    TimeTools.DEFAULT_ZONE_ID,
-    TimeTools.DEFAULT_LOCALE,
-    "dd.MM.yyyy HH:mm"
-  )
-
   val rawData = Vector(
     RawModelData(
       classOf[ResProfile],

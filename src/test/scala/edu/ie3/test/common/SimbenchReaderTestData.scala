@@ -8,14 +8,9 @@ import edu.ie3.simbench.model.datamodel.profiles.LoadProfileType._
 import edu.ie3.simbench.model.datamodel.profiles._
 import edu.ie3.simbench.model.datamodel.types.LineType.ACLineType
 import edu.ie3.simbench.model.datamodel.types.Transformer2WType
-import edu.ie3.util.{TimeTools, TimeUtil}
+import edu.ie3.util.TimeUtil
 
 trait SimbenchReaderTestData {
-  TimeTools.initialize(
-    TimeTools.DEFAULT_ZONE_ID,
-    TimeTools.DEFAULT_LOCALE,
-    "dd.MM.yyyy HH:mm"
-  )
 
   val studyCases = Vector(
     StudyCase(
@@ -194,7 +189,7 @@ trait SimbenchReaderTestData {
       0,
       autoTap = false,
       None,
-      BigDecimal(100),
+      BigDecimal("100"),
       None,
       "LV1.101",
       6
@@ -321,9 +316,9 @@ trait SimbenchReaderTestData {
       PowerPlantProfileType.PowerPlantProfile16,
       Map(
         TimeUtil.withDefaults
-          .toZonedDateTime("2016-01-01 00:00:00") -> BigDecimal(0.7),
+          .toZonedDateTime("2016-01-01 00:00:00") -> BigDecimal("0.7"),
         TimeUtil.withDefaults
-          .toZonedDateTime("2016-01-01 00:15:00") -> BigDecimal(0.7)
+          .toZonedDateTime("2016-01-01 00:15:00") -> BigDecimal("0.7")
       )
     ),
     PowerPlantProfile(
@@ -331,9 +326,9 @@ trait SimbenchReaderTestData {
       PowerPlantProfileType.PowerPlantProfile17,
       Map(
         TimeUtil.withDefaults
-          .toZonedDateTime("2016-01-01 00:00:00") -> BigDecimal(0.7),
+          .toZonedDateTime("2016-01-01 00:00:00") -> BigDecimal("0.7"),
         TimeUtil.withDefaults
-          .toZonedDateTime("2016-01-01 00:15:00") -> BigDecimal(0.7)
+          .toZonedDateTime("2016-01-01 00:15:00") -> BigDecimal("0.7")
       )
     )
   )

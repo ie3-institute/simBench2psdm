@@ -39,10 +39,10 @@ object NodeType {
   @throws[SimbenchDataModelException]
   def apply(typeString: String): NodeType =
     typeString.toLowerCase.replaceAll("[_]*", "") match {
-      case "busbar"       => BusBar
-      case "doublebusbar" => DoubleBusBar
-      case "node"         => Node
-      case "auxiliary"    => Auxiliary
+      case "busbar"        => BusBar
+      case "double busbar" => DoubleBusBar
+      case "node"          => Node
+      case "auxiliary"     => Auxiliary
       case whatever =>
         throw SimbenchDataModelException(
           s"I cannot handle the node type $whatever"

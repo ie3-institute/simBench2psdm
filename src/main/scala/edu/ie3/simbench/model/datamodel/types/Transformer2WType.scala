@@ -27,7 +27,7 @@ import edu.ie3.simbench.model.datamodel.enums.BranchElementPort
   * @param tapMin Minimum permissible tap position
   * @param tapMax Maximum permissible tap position
   */
-case class Transformer2WType(
+final case class Transformer2WType(
     id: String,
     sR: BigDecimal,
     vmHV: BigDecimal,

@@ -1,38 +1,14 @@
 package edu.ie3.simbench.model
 
 import edu.ie3.simbench.exception.io.SimbenchDataModelException
-import edu.ie3.simbench.model.datamodel.enums.{
-  CalculationType,
-  NodeType,
-  ResType
-}
+import edu.ie3.simbench.model.datamodel.RES
+import edu.ie3.simbench.model.datamodel.enums.{CalculationType, ResType}
 import edu.ie3.simbench.model.datamodel.profiles.ResProfileType
-import edu.ie3.simbench.model.datamodel.{Coordinate, Node, RES}
-import edu.ie3.test.common.UnitSpec
+import edu.ie3.test.common.{ConverterTestData, UnitSpec}
 
-class RESSpec extends UnitSpec {
-  val nodes = Map(
-    "LV1.101 Bus 4" -> Node(
-      "LV1.101 Bus 4",
-      NodeType.BusBar,
-      None,
-      None,
-      BigDecimal("0.4"),
-      BigDecimal("0.9"),
-      BigDecimal("1.1"),
-      None,
-      Some(
-        Coordinate(
-          "coord_14",
-          BigDecimal("11.4097"),
-          BigDecimal("53.6413"),
-          "MV1.101_LV1.101_Feeder1",
-          5
-        )
-      ),
-      "LV1.101",
-      7
-    )
+class RESSpec extends UnitSpec with ConverterTestData {
+  val nodeMapping = Map(
+    "LV1.101 Bus 4" -> getNodePair("LV1.101 Bus 4")._1
   )
 
   val rawData = Vector(
@@ -56,7 +32,7 @@ class RESSpec extends UnitSpec {
       Map(
         "id" -> "LV1.101 SGen 4",
         "node" -> "LV1.101 Bus 4",
-        "type" -> "WindMV",
+        "type" -> "Wind_MV",
         "profile" -> "WP4",
         "calc_type" -> "vavm",
         "pRES" -> "0.023",
@@ -71,27 +47,7 @@ class RESSpec extends UnitSpec {
   val expected = Vector(
     RES(
       "LV1.101 SGen 3",
-      Node(
-        "LV1.101 Bus 4",
-        NodeType.BusBar,
-        None,
-        None,
-        BigDecimal("0.4"),
-        BigDecimal("0.9"),
-        BigDecimal("1.1"),
-        None,
-        Some(
-          Coordinate(
-            "coord_14",
-            BigDecimal("11.4097"),
-            BigDecimal("53.6413"),
-            "MV1.101_LV1.101_Feeder1",
-            5
-          )
-        ),
-        "LV1.101",
-        7
-      ),
+      getNodePair("LV1.101 Bus 4")._1,
       ResType.PV,
       ResProfileType.PV5,
       CalculationType.PQ,
@@ -103,27 +59,7 @@ class RESSpec extends UnitSpec {
     ),
     RES(
       "LV1.101 SGen 4",
-      Node(
-        "LV1.101 Bus 4",
-        NodeType.BusBar,
-        None,
-        None,
-        BigDecimal("0.4"),
-        BigDecimal("0.9"),
-        BigDecimal("1.1"),
-        None,
-        Some(
-          Coordinate(
-            "coord_14",
-            BigDecimal("11.4097"),
-            BigDecimal("53.6413"),
-            "MV1.101_LV1.101_Feeder1",
-            5
-          )
-        ),
-        "LV1.101",
-        7
-      ),
+      getNodePair("LV1.101 Bus 4")._1,
       ResType.WindMv,
       ResProfileType.WP4,
       CalculationType.VaVm,
@@ -151,7 +87,7 @@ class RESSpec extends UnitSpec {
     "build the correct single model" in {
       val actual = RES.buildModel(
         rawData(0),
-        nodes.getOrElse(
+        nodeMapping.getOrElse(
           "LV1.101 Bus 4",
           throw SimbenchDataModelException(
             "Ooops. This is not supposed to happen"
@@ -163,7 +99,7 @@ class RESSpec extends UnitSpec {
 
     "build a correct vector of models" in {
       val actual =
-        RES.buildModels(rawData, nodes)
+        RES.buildModels(rawData, nodeMapping)
       actual shouldBe expected
     }
   }

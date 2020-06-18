@@ -24,7 +24,7 @@ import edu.ie3.simbench.model.datamodel.enums.NodeType
   * @param subnet Subnet it belongs to
   * @param voltLvl Voltage level
   */
-case class Node(
+final case class Node(
     id: String,
     nodeType: NodeType,
     vmSetp: Option[BigDecimal] = None,
@@ -150,5 +150,5 @@ case object Node extends EntityModelCompanionObject[Node] {
     * @param subnet   Subnet description
     * @param voltLvl  Voltage level
     */
-  case class NodeKey(id: String, subnet: String, voltLvl: Int)
+  final case class NodeKey(id: String, subnet: String, voltLvl: Int)
 }

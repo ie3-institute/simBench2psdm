@@ -12,7 +12,7 @@ import edu.ie3.simbench.model.datamodel.EntityModel.EntityModelCompanionObject
   * @param subnet Subnet it belongs to
   * @param voltLvl Voltage level
   */
-case class Substation(id: String, subnet: String, voltLvl: Int)
+final case class Substation(id: String, subnet: String, voltLvl: Int)
     extends EntityModel
 
 case object Substation extends EntityModelCompanionObject[Substation] {

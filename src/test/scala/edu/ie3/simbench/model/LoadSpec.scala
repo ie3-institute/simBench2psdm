@@ -1,34 +1,13 @@
 package edu.ie3.simbench.model
 
 import edu.ie3.simbench.exception.io.SimbenchDataModelException
-import edu.ie3.simbench.model.datamodel.enums.NodeType
+import edu.ie3.simbench.model.datamodel.Load
 import edu.ie3.simbench.model.datamodel.profiles.LoadProfileType
-import edu.ie3.simbench.model.datamodel.{Coordinate, Load, Node}
-import edu.ie3.test.common.UnitSpec
+import edu.ie3.test.common.{ConverterTestData, UnitSpec}
 
-class LoadSpec extends UnitSpec {
-  val nodes = Map(
-    "LV1.101 Bus 1" -> Node(
-      "LV1.101 Bus 1",
-      NodeType.BusBar,
-      None,
-      None,
-      BigDecimal("0.4"),
-      BigDecimal("0.9"),
-      BigDecimal("1.1"),
-      None,
-      Some(
-        Coordinate(
-          "coord_0",
-          BigDecimal("11.411"),
-          BigDecimal("53.6407"),
-          "LV1.101",
-          7
-        )
-      ),
-      "LV1.101",
-      7
-    )
+class LoadSpec extends UnitSpec with ConverterTestData {
+  val nodeMapping = Map(
+    "LV1.101 Bus 1" -> getNodePair("LV1.101 Bus 1")._1
   )
 
   val rawData = Vector(
@@ -63,27 +42,7 @@ class LoadSpec extends UnitSpec {
   val expected = Vector(
     Load(
       "LV1.101 Load 8",
-      Node(
-        "LV1.101 Bus 1",
-        NodeType.BusBar,
-        None,
-        None,
-        BigDecimal("0.4"),
-        BigDecimal("0.9"),
-        BigDecimal("1.1"),
-        None,
-        Some(
-          Coordinate(
-            "coord_0",
-            BigDecimal("11.411"),
-            BigDecimal("53.6407"),
-            "LV1.101",
-            7
-          )
-        ),
-        "LV1.101",
-        7
-      ),
+      getNodePair("LV1.101 Bus 1")._1,
       LoadProfileType.L2A,
       BigDecimal("0.014"),
       BigDecimal("0.005533"),
@@ -93,27 +52,7 @@ class LoadSpec extends UnitSpec {
     ),
     Load(
       "LV1.101 Load 9",
-      Node(
-        "LV1.101 Bus 1",
-        NodeType.BusBar,
-        None,
-        None,
-        BigDecimal("0.4"),
-        BigDecimal("0.9"),
-        BigDecimal("1.1"),
-        None,
-        Some(
-          Coordinate(
-            "coord_0",
-            BigDecimal("11.411"),
-            BigDecimal("53.6407"),
-            "LV1.101",
-            7
-          )
-        ),
-        "LV1.101",
-        7
-      ),
+      getNodePair("LV1.101 Bus 1")._1,
       LoadProfileType.H0G,
       BigDecimal("0.014"),
       BigDecimal("0.005533"),
@@ -139,7 +78,7 @@ class LoadSpec extends UnitSpec {
     "build the correct single model" in {
       val actual = Load.buildModel(
         rawData(0),
-        nodes.getOrElse(
+        nodeMapping.getOrElse(
           "LV1.101 Bus 1",
           throw SimbenchDataModelException(
             "Ooops. This is not supposed to happen"
@@ -151,7 +90,7 @@ class LoadSpec extends UnitSpec {
 
     "build a correct vector of models" in {
       val actual =
-        Load.buildModels(rawData, nodes)
+        Load.buildModels(rawData, nodeMapping)
       actual shouldBe expected
     }
   }

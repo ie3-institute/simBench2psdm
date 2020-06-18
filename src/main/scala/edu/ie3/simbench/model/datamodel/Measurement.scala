@@ -21,7 +21,7 @@ object Measurement extends EntityModelCompanionObject[Measurement] {
     * @param subnet   Subnet it belongs to
     * @param voltLvl  Voltage level
     */
-  case class NodeMeasurement(
+  final case class NodeMeasurement(
       id: String,
       node: Node,
       variable: MeasurementVariable,
@@ -39,7 +39,7 @@ object Measurement extends EntityModelCompanionObject[Measurement] {
     * @param subnet   Subnet it belongs to
     * @param voltLvl  Voltage level
     */
-  case class LineMeasurement(
+  final case class LineMeasurement(
       id: String,
       line: Line[_ <: LineType],
       node: Node,
@@ -58,7 +58,7 @@ object Measurement extends EntityModelCompanionObject[Measurement] {
     * @param subnet         Subnet it belongs to
     * @param voltLvl        Voltage level
     */
-  case class TransformerMeasurement(
+  final case class TransformerMeasurement(
       id: String,
       transformer2W: Transformer2W,
       node: Node,

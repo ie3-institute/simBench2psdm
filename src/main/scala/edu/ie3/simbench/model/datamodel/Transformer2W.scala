@@ -23,7 +23,7 @@ import edu.ie3.simbench.model.datamodel.types.Transformer2WType
   * @param subnet Subnet it belongs to
   * @param voltLvl Voltage level
   */
-case class Transformer2W(
+final case class Transformer2W(
     id: String,
     nodeHV: Node,
     nodeLV: Node,

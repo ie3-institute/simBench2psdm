@@ -16,7 +16,7 @@ import edu.ie3.util.TimeUtil
   * @param profileType  The type of the profile
   * @param profile      The actual profile as scaling factor in p.u.
   */
-case class ResProfile(
+final case class ResProfile(
     id: String,
     profileType: ResProfileType,
     profile: Map[ZonedDateTime, BigDecimal]

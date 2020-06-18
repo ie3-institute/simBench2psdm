@@ -12,7 +12,7 @@ package edu.ie3.simbench.model.datamodel
   * @param subnet Subnet it belongs to
   * @param voltLvl Voltage level
   */
-case class Shunt(
+final case class Shunt(
     id: String,
     node: Node,
     p0: BigDecimal,

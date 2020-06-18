@@ -47,7 +47,7 @@ trait IoUtils {
     */
   val getFileExtensionWithoutDot: String => String =
     (fullyQualifiedPath: String) =>
-      (singleStringRegex + "|" + "(?<=\\.)\\w+$").r
+      (singleStringRegex.pattern.toString + "|" + "(?<=\\.)\\w+$").r
         .findFirstIn(fullyQualifiedPath) match {
         case Some(endingWithoutDot) => endingWithoutDot
         case None =>
@@ -61,7 +61,7 @@ trait IoUtils {
     * The dot is added automatically
     */
   val fileNameRegex: String => Regex = (fileEnding: String) =>
-    (singleStringRegex + "|" + everythingExceptSeparatorRegex + "(?=\\." + getFileExtensionWithoutDot(
+    (singleStringRegex.pattern.toString + "|" + everythingExceptSeparatorRegex.pattern.toString + "(?=\\." + getFileExtensionWithoutDot(
       fileEnding
     ) + "$)").r
 
@@ -70,7 +70,7 @@ trait IoUtils {
     * The dot is added automatically
     */
   val fileNameRegexWithEnding: String => Regex = (fileEnding: String) =>
-    (singleStringRegex + "|" + everythingExceptSeparatorRegex + "\\." + getFileExtensionWithoutDot(
+    (singleStringRegex.pattern.toString + "|" + everythingExceptSeparatorRegex.pattern.toString + "\\." + getFileExtensionWithoutDot(
       fileEnding
     ) + "$").r
 
@@ -78,41 +78,44 @@ trait IoUtils {
     * Regex to filter all file names without any ending
     */
   val fileNameRegexWithoutAnyEnding: Regex =
-    (singleStringRegex + "|" + everythingExceptSeparatorRegex + "(?=\\.\\w+$)").r
+    (singleStringRegex.pattern.toString + "|" + everythingExceptSeparatorRegex.pattern.toString + "(?=\\.\\w+$)").r
 
   /**
     * Regex to filter all file names with ending, including any extension
     */
   val fileNameRegexWithAnyEnding: Regex =
-    (singleStringRegex + "|" + everythingExceptSeparatorRegex + "\\.\\w+$").r
+    (singleStringRegex.pattern.toString + "|" + everythingExceptSeparatorRegex.pattern.toString + "\\.\\w+$").r
+
+  val folderNameRegex: Regex = "[\\w@.-]+".r
 
   /**
     * Regex to detect a fully qualified path consisting of a folder path followed by a file name with extension
     */
   val fullyQualifiedPathRegex: Regex =
-    ("^(?:\\w\\:" + fileSeparatorRegex + "+|" + fileSeparatorRegex + ")(?:[\\w@\\.-]+" + fileSeparatorRegex + ")*(?:\\w+\\.\\w+)$").r
+    ("^(?:\\w\\:" + fileSeparatorRegex.pattern.toString + "+|" + fileSeparatorRegex.pattern.toString + ")(?:" + folderNameRegex.pattern.toString + fileSeparatorRegex.pattern.toString + ")*(?:\\w+\\.\\w+)$").r
 
   /**
     * Identifying a path pointing to a folder and not to a specific file. It consists of three non-capturing groups (?:):
     * 1) Start of a valid folder string ("C:", "/" or a simple word)
     * 2) Any allowed intermediate string (including "@", "." and "-" to allow urls in the name) followed by a file
     *    separator
-    * 3) A simple word at the end
+    * 3) A simple word at the end (including "@", "." and "-" to allow urls in the name)
     */
   val folderPathWithoutLastSeparator: Regex =
-    ("^(?:\\w\\:" + fileSeparatorRegex + "+|" + fileSeparatorRegex + ")(?:[\\w@\\.-]+" + fileSeparatorRegex + ")*(?:\\w+)$").r
+    ("^(?:\\w\\:" + fileSeparatorRegex.pattern.toString + "+|" + fileSeparatorRegex.pattern.toString + ")(?:" + folderNameRegex.pattern.toString + fileSeparatorRegex.pattern.toString + ")*(?:" + folderNameRegex.pattern.toString + ")$").r
 
   /**
     * Removes a leading file separator at a fully qualified windows file path (e.g. "/C:" to "C:")
     */
   val trimFirstSeparatorInWindowsPath: String => String = (path: String) =>
-    ("^" + fileSeparatorRegex + "(?=\\w+:)").r.replaceAllIn(path, "")
+    ("^" + fileSeparatorRegex.pattern.toString + "(?=\\w+:)").r
+      .replaceAllIn(path, "")
 
   /**
     * Removes a file separator at the very end of the path string
     */
   val trimLastSeparator: String => String = (path: String) =>
-    (fileNameRegex + "$").r.replaceAllIn(path, "")
+    (fileSeparatorRegex.pattern.toString + "$").r.replaceAllIn(path, "")
 
   /**
     * Removes the last file separator, harmonizes all remaining file separators and checks the conformity of the string

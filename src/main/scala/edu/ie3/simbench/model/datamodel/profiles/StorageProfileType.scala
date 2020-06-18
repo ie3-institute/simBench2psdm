@@ -5,3 +5,6 @@ package edu.ie3.simbench.model.datamodel.profiles
   * empty trait, yet.
   */
 sealed trait StorageProfileType extends ProfileType
+case object StorageProfileType {
+  case object DummyStorageProfileType extends StorageProfileType
+}

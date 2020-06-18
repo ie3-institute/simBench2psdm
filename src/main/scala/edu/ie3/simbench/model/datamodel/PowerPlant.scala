@@ -27,7 +27,7 @@ import edu.ie3.simbench.model.datamodel.profiles.PowerPlantProfileType
   * @param subnet Subnet it belongs to
   * @param voltLvl Voltage level
   */
-case class PowerPlant(
+final case class PowerPlant(
     id: String,
     node: Node,
     powerPlantType: PowerPlantType,

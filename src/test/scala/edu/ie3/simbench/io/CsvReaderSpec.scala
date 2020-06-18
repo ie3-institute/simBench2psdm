@@ -29,21 +29,23 @@ class CsvReaderSpec extends UnitSpec {
     val separator = ";"
 
     "be instantiated correctly with valid file path" in {
-      val csvReader = CsvReader(classOf[Load], validCsvFilePath, separator)
-      csvReader.filePath shouldBe validCsvFilePath
-      csvReader.separator shouldBe separator
-      csvReader.fileEnding shouldBe ".csv"
-      csvReader.fileEncoding shouldBe "UTF-8"
+      CsvReader(classOf[Load], validCsvFilePath, separator) match {
+        case Some(reader) =>
+          reader.filePath shouldBe validCsvFilePath
+          reader.separator shouldBe separator
+          reader.fileEnding shouldBe ".csv"
+          reader.fileEncoding shouldBe "UTF-8"
+        case None =>
+          fail("Expected to get a valid instance of CsvReader")
+      }
     }
 
-    "throw an IoException when instantiated with an invalid file path" in {
-      val thrown = intercept[IoException](
-        CsvReader(classOf[Load], invalidFilePath, separator)
-      )
-      thrown.getMessage.endsWith("Only .csv is supported (case sensitive).") shouldBe true
+    "return None when instantiated with an invalid file path" in {
+      CsvReader(classOf[Load], invalidFilePath, separator) shouldBe None
     }
 
     val csvReader = CsvReader(classOf[Load], validCsvFilePath, separator)
+      .getOrElse(fail("Expected to get an actual instance of CsvReader."))
     val mapFieldsMethod = PrivateMethod[Map[String, Int]](Symbol("mapFields"))
 
     "correctly map the desired field ids of a valid headline" in {
@@ -210,39 +212,43 @@ class CsvReaderSpec extends UnitSpec {
     }
 
     "read the valid file correctly" in {
-      val csvReader = CsvReader(classOf[Load], validCsvFilePath, separator)
-      val result = csvReader.read(validFields)
+      CsvReader(classOf[Load], validCsvFilePath, separator) match {
+        case Some(csvReader) =>
+          val result = csvReader.read(validFields)
 
-      val expected = Vector(
-        RawModelData(
-          classOf[Load],
-          Map(
-            "id" -> "LV1.101 Load 1",
-            "node" -> "LV1.101 Bus 10",
-            "profile" -> "L2-A",
-            "pLoad" -> "0.006",
-            "qLoad" -> "0.002371",
-            "sR" -> "0.00645161",
-            "subnet" -> "LV1.101",
-            "voltLvl" -> "7"
+          val expected = Vector(
+            RawModelData(
+              classOf[Load],
+              Map(
+                "id" -> "LV1.101 Load 1",
+                "node" -> "LV1.101 Bus 10",
+                "profile" -> "L2-A",
+                "pLoad" -> "0.006",
+                "qLoad" -> "0.002371",
+                "sR" -> "0.00645161",
+                "subnet" -> "LV1.101",
+                "voltLvl" -> "7"
+              )
+            ),
+            RawModelData(
+              classOf[Load],
+              Map(
+                "id" -> "LV1.101 Load 2",
+                "node" -> "LV1.101 Bus 8",
+                "profile" -> "H0-C",
+                "pLoad" -> "0.003",
+                "qLoad" -> "0.001186",
+                "sR" -> "0.00322581",
+                "subnet" -> "LV1.101",
+                "voltLvl" -> "7"
+              )
+            )
           )
-        ),
-        RawModelData(
-          classOf[Load],
-          Map(
-            "id" -> "LV1.101 Load 2",
-            "node" -> "LV1.101 Bus 8",
-            "profile" -> "H0-C",
-            "pLoad" -> "0.003",
-            "qLoad" -> "0.001186",
-            "sR" -> "0.00322581",
-            "subnet" -> "LV1.101",
-            "voltLvl" -> "7"
-          )
-        )
-      )
 
-      result shouldBe expected
+          result shouldBe expected
+        case None =>
+          fail("Expected to get a valid instance of CsvReader")
+      }
     }
   }
 }

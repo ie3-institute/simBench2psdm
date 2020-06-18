@@ -12,7 +12,7 @@ import org.apache.commons.compress.archivers.zip.ZipFile
 import scala.language.postfixOps
 import scala.sys.process._
 
-case class Downloader(downloadFolder: String, baseUrl: String)
+final case class Downloader(downloadFolder: String, baseUrl: String)
 
 case object Downloader extends IoUtils with LazyLogging {
 

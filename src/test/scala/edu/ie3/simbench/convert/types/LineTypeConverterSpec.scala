@@ -3,7 +3,7 @@ package edu.ie3.simbench.convert.types
 import java.util.UUID
 
 import edu.ie3.datamodel.models.StandardUnits
-import edu.ie3.simbench.exception.ConversionException
+import edu.ie3.simbench.exception.{ConversionException, TestingException}
 import edu.ie3.simbench.exception.io.SimbenchDataModelException
 import edu.ie3.simbench.model.datamodel.Line.ACLine
 import edu.ie3.simbench.model.datamodel.types.LineType
@@ -19,19 +19,31 @@ class LineTypeConverterSpec extends UnitSpec with ConverterTestData {
     "LV1.101 Line 10",
     getNodePair("LV1.101 Bus 4")._1,
     getNodePair("LV1.101 Bus 1")._1.copy(vmR = BigDecimal("10")),
-    getLineTypePair("NAYY 4x150SE 0.6/1kV")._1.asInstanceOf[ACLineType],
+    getLineTypePair("NAYY 4x150SE 0.6/1kV")._1 match {
+      case acLineType: ACLineType => acLineType
+      case dcLineType: DCLineType =>
+        throw TestingException(
+          s"Found DC line type '$dcLineType' instead of AC line type"
+        )
+    },
     BigDecimal("0.132499"),
     BigDecimal("100"),
     "LV1.101",
     7
   )
 
-  val lines = Vector(
+  val lineVec = Vector(
     ACLine(
       "LV1.101 Line 10",
       getNodePair("LV1.101 Bus 4")._1,
       getNodePair("LV1.101 Bus 1")._1,
-      getLineTypePair("NAYY 4x150SE 0.6/1kV")._1.asInstanceOf[ACLineType],
+      getLineTypePair("NAYY 4x150SE 0.6/1kV")._1 match {
+        case acLineType: ACLineType => acLineType
+        case dcLineType: DCLineType =>
+          throw TestingException(
+            s"Found DC line type '$dcLineType' instead of AC line type"
+          )
+      },
       BigDecimal("0.132499"),
       BigDecimal("100"),
       "LV1.101",
@@ -41,7 +53,13 @@ class LineTypeConverterSpec extends UnitSpec with ConverterTestData {
       "LV1.101 Line 11",
       getNodePair("LV1.101 Bus 4")._1,
       getNodePair("LV1.101 Bus 1")._1,
-      getLineTypePair("NAYY 4x150SE 0.6/1kV")._1.asInstanceOf[ACLineType],
+      getLineTypePair("NAYY 4x150SE 0.6/1kV")._1 match {
+        case acLineType: ACLineType => acLineType
+        case dcLineType: DCLineType =>
+          throw TestingException(
+            s"Found DC line type '$dcLineType' instead of AC line type"
+          )
+      },
       BigDecimal("0.132499"),
       BigDecimal("100"),
       "LV1.101",
@@ -51,7 +69,13 @@ class LineTypeConverterSpec extends UnitSpec with ConverterTestData {
       "LV1.101 Line 10",
       getNodePair("LV1.101 Bus 1")._1,
       getNodePair("LV1.101 Bus 4")._1,
-      getLineTypePair("24-AL1/4-ST1A 20.0")._1.asInstanceOf[ACLineType],
+      getLineTypePair("24-AL1/4-ST1A 20.0")._1 match {
+        case acLineType: ACLineType => acLineType
+        case dcLineType: DCLineType =>
+          throw TestingException(
+            s"Found DC line type '$dcLineType' instead of AC line type"
+          )
+      },
       BigDecimal("0.132499"),
       BigDecimal("100"),
       "LV1.101",
@@ -61,8 +85,13 @@ class LineTypeConverterSpec extends UnitSpec with ConverterTestData {
 
   val uuid: UUID = UUID.randomUUID()
 
-  val invalidInput: DCLineType = getLineTypePair("dc line type")._1
-    .asInstanceOf[DCLineType]
+  val invalidInput: DCLineType = getLineTypePair("dc line type")._1 match {
+    case acLineType: ACLineType =>
+      throw TestingException(
+        s"Found AC line type '$acLineType' instead of DC line type"
+      )
+    case dCLineType: DCLineType => dCLineType
+  }
 
   "The line type converter" should {
     val determineRatedVoltageMethod =
@@ -71,10 +100,15 @@ class LineTypeConverterSpec extends UnitSpec with ConverterTestData {
       )
     "extract the rated voltage of one line correctly" in {
       val actual = LineTypeConverter invokePrivate determineRatedVoltageMethod(
-        lines(0)
+        lineVec(0)
       )
-      actual shouldBe (getLineTypePair("NAYY 4x150SE 0.6/1kV")._1
-        .asInstanceOf[ACLineType], Quantities.getQuantity(0.4, KILOVOLT))
+      actual shouldBe (getLineTypePair("NAYY 4x150SE 0.6/1kV")._1 match {
+        case acLineType: ACLineType => acLineType
+        case dcLineType: DCLineType =>
+          throw TestingException(
+            s"Found DC line type '$dcLineType' instead of AC line type"
+          )
+      }, Quantities.getQuantity(0.4, KILOVOLT))
     }
 
     "throw an exception, if the rated voltage is ambiguous" in {
@@ -86,12 +120,22 @@ class LineTypeConverterSpec extends UnitSpec with ConverterTestData {
     }
 
     "build line type to rated voltage mapping correctly" in {
-      val actual = LineTypeConverter.getRatedVoltages(lines)
+      val actual = LineTypeConverter.getRatedVoltages(lineVec)
       val expected = Map(
-        getLineTypePair("NAYY 4x150SE 0.6/1kV")._1
-          .asInstanceOf[ACLineType] -> Quantities.getQuantity(0.4, KILOVOLT),
-        getLineTypePair("24-AL1/4-ST1A 20.0")._1
-          .asInstanceOf[ACLineType] -> Quantities.getQuantity(0.4, KILOVOLT)
+        (getLineTypePair("NAYY 4x150SE 0.6/1kV")._1 match {
+          case acLineType: ACLineType => acLineType
+          case dcLineType: DCLineType =>
+            throw TestingException(
+              s"Found DC line type '$dcLineType' instead of AC line type"
+            )
+        }) -> Quantities.getQuantity(0.4, KILOVOLT),
+        (getLineTypePair("24-AL1/4-ST1A 20.0")._1 match {
+          case acLineType: ACLineType => acLineType
+          case dcLineType: DCLineType =>
+            throw TestingException(
+              s"Found DC line type '$dcLineType' instead of AC line type"
+            )
+        }) -> Quantities.getQuantity(0.4, KILOVOLT)
       )
       actual.toSet shouldBe expected.toSet
     }
@@ -99,7 +143,13 @@ class LineTypeConverterSpec extends UnitSpec with ConverterTestData {
     "convert a valid input correctly" in {
       val actual =
         LineTypeConverter.convert(
-          getLineTypePair("NAYY 4x150SE 0.6/1kV")._1.asInstanceOf[ACLineType],
+          getLineTypePair("NAYY 4x150SE 0.6/1kV")._1 match {
+            case acLineType: ACLineType => acLineType
+            case dcLineType: DCLineType =>
+              throw TestingException(
+                s"Found DC line type '$dcLineType' instead of AC line type"
+              )
+          },
           Quantities.getQuantity(0.4, KILOVOLT),
           uuid
         )

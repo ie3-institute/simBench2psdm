@@ -6,7 +6,7 @@ package edu.ie3.simbench.convert
   *
   * @param simbenchSubnets Vector of known Simbench sub nets
   */
-case class SubnetConverter(simbenchSubnets: Vector[String]) {
+final case class SubnetConverter(simbenchSubnets: Vector[String]) {
   val mapping: Map[String, Int] =
     simbenchSubnets.distinct.sorted.zipWithIndex.map {
       case (simBenchSubnetString, simBenchSubGridId) =>
