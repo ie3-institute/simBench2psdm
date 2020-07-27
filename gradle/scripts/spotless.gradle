@@ -1,5 +1,3 @@
-// spotless is a code formatter
-
 spotless {
 	def ie3LicHead = '/*\n' +
 			' * © $YEAR. TU Dortmund University,\n' +

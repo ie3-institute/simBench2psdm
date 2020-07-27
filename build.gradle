@@ -18,7 +18,7 @@ ext {
 
 	unitsOfMeasurementVersion = '1.0.10'
 	scalaVersion = '2.13'
-	tscfgVersion = '0.9.96'
+	tscfgVersion = '0.9.98'
 	slf4jVersion = '1.7.26'
 
 	scriptsLocation = 'gradle' + File.separator + 'scripts' + File.separator //location of script plugins
@@ -74,9 +74,11 @@ dependencies {
 	compile "org.scala-lang:scala-library:${scalaVersion}+"
 
 	// TEST Scala //
-	testCompile "org.scalatest:scalatest_${scalaVersion}:3.0.8"
+	testCompile "org.scalatest:scalatest_${scalaVersion}:3.2.0"
+	testCompile 'com.vladsch.flexmark:flexmark:0.35.6' // FIXME: Obviously some missing dependency
+	testCompile 'com.vladsch.flexmark:flexmark-profile-pegdown:0.35.6' // FIXME: Obviously some missing dependency
 	testRuntime "org.pegdown:pegdown:1.6.0" // HTML report for scalatest
-	compile 'org.mockito:mockito-core:+' // mocking framework
+	compile 'org.mockito:mockito-core:3.4.4' // mocking framework
 	scoverage "org.scoverage:scalac-scoverage-plugin_${scalaVersion}:1.4.1"
 	scoverage "org.scoverage:scalac-scoverage-runtime_${scalaVersion}:1.4.1"
 

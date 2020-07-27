@@ -66,12 +66,11 @@ import org.locationtech.jts.geom.{
   Point,
   Coordinate => JTSCoordinate
 }
-import org.scalatestplus.mockito.MockitoSugar
 import tec.uom.se.quantity.Quantities
 import tec.uom.se.unit.MetricPrefix
 import tec.uom.se.unit.Units.{OHM, PERCENT, SIEMENS}
 
-trait ConverterTestData extends MockitoSugar {
+trait ConverterTestData {
 
   protected val simbenchTimeUtil =
     new TimeUtil(ZoneId.of("UTC"), Locale.GERMANY, "dd.MM.yyyy HH:mm")
