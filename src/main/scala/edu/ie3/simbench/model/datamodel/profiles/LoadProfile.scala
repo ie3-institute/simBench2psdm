@@ -51,6 +51,8 @@ case object LoadProfile
     "L2-A",
     "L2-M",
     "WB-H",
+    "Soil_Alternative_1",
+    "Soil_Alternative_2",
     "lv_rural1",
     "lv_rural2",
     "lv_rural3",

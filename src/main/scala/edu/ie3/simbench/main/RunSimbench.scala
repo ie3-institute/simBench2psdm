@@ -19,45 +19,44 @@ object RunSimbench extends SimbenchHelper {
     val (_, config) = prepareConfig(args)
     val simbenchConfig = SimbenchConfig(config)
 
-    simbenchConfig.io.simbenchCodes.foreach {
-      simbenchCode =>
-        logger.info(s"Downloading data set '$simbenchCode' from SimBench website")
-        val downloader =
-          Downloader(simbenchConfig.io.downloadFolder, simbenchConfig.io.baseUrl)
-        val downloadedFile =
-          Downloader.download(
-            downloader,
-            SimbenchCode(simbenchCode).getOrElse(
-              throw CodeValidationException(
-                s"'$simbenchCode' is no valid SimBench code."
-              )
+    simbenchConfig.io.simbenchCodes.foreach { simbenchCode =>
+      logger.info(s"Downloading data set '$simbenchCode' from SimBench website")
+      val downloader =
+        Downloader(simbenchConfig.io.downloadFolder, simbenchConfig.io.baseUrl)
+      val downloadedFile =
+        Downloader.download(
+          downloader,
+          SimbenchCode(simbenchCode).getOrElse(
+            throw CodeValidationException(
+              s"'$simbenchCode' is no valid SimBench code."
             )
           )
-        val dataFolder =
-          Downloader.unzip(downloader, downloadedFile, flattenDirectories = true)
-
-        logger.info(s"Reading in the SimBench data set '$simbenchCode'")
-        val simbenchReader = SimbenchReader(
-          dataFolder,
-          simbenchConfig.io.input.csv.separator,
-          simbenchConfig.io.input.csv.fileEnding,
-          simbenchConfig.io.input.csv.fileEncoding
         )
-        val simbenchModel = simbenchReader.readGrid()
+      val dataFolder =
+        Downloader.unzip(downloader, downloadedFile, flattenDirectories = true)
 
-        logger.info(s"Converting '$simbenchCode' to PowerSystemDataModel")
-        val (jointGridContainer, timeSeries) =
-          GridConverter.convert(simbenchCode, simbenchModel)
+      logger.info(s"Reading in the SimBench data set '$simbenchCode'")
+      val simbenchReader = SimbenchReader(
+        dataFolder,
+        simbenchConfig.io.input.csv.separator,
+        simbenchConfig.io.input.csv.fileEnding,
+        simbenchConfig.io.input.csv.fileEncoding
+      )
+      val simbenchModel = simbenchReader.readGrid()
 
-        logger.info(s"Writing converted data set '$simbenchCode' to files")
-        val csvSink = new CsvFileSink(
-          simbenchConfig.io.output.targetFolder,
-          new FileNamingStrategy(),
-          false,
-          simbenchConfig.io.output.csv.separator
-        )
-        csvSink.persistAll(jointGridContainer.allEntitiesAsList())
-        timeSeries.foreach(csvSink.persistTimeSeries(_))
+      logger.info(s"Converting '$simbenchCode' to PowerSystemDataModel")
+      val (jointGridContainer, timeSeries) =
+        GridConverter.convert(simbenchCode, simbenchModel)
+
+      logger.info(s"Writing converted data set '$simbenchCode' to files")
+      val csvSink = new CsvFileSink(
+        simbenchConfig.io.output.targetFolder,
+        new FileNamingStrategy(),
+        false,
+        simbenchConfig.io.output.csv.separator
+      )
+      csvSink.persistAll(jointGridContainer.allEntitiesAsList())
+      timeSeries.foreach(csvSink.persistTimeSeries(_))
     }
   }
 }

@@ -30,6 +30,7 @@ case object ResType extends ParsableEnumeration {
   val MvRural: Value = Value("mv_rural")
   val MvSemiurb: Value = Value("mv_semiurb")
   val MvUrban: Value = Value("mv_urban")
+  val Mixed: Value = Value("mixed")
 
   /**
     * Hands back a suitable [[ResType]] based on the entries given in SimBench csv files

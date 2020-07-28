@@ -25,6 +25,8 @@ case object ResProfileType {
   case object MvRural extends ResProfileType
   case object MvSemiurb extends ResProfileType
   case object MvUrban extends ResProfileType
+  case object HvMixed extends ResProfileType
+  case object HvUrban extends ResProfileType
   case object PV1 extends ResProfileType
   case object PV2 extends ResProfileType
   case object PV3 extends ResProfileType
@@ -77,6 +79,8 @@ case object ResProfileType {
       case "mvrural"    => MvRural
       case "mvsemiurb"  => MvSemiurb
       case "mvurban"    => MvUrban
+      case "hvmixed"    => HvMixed
+      case "hvurban"    => HvUrban
       case "pv1"        => PV1
       case "pv2"        => PV2
       case "pv3"        => PV3
