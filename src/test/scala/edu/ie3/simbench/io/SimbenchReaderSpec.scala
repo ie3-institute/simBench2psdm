@@ -115,7 +115,7 @@ class SimbenchReaderSpec extends UnitSpec with SimbenchReaderTestData {
       ](Symbol("getFieldToValueMaps"))
       val fieldToValuesMap = reader invokePrivate fieldToValuesMethod()
 
-      fieldToValuesMap.keySet.size shouldBe 13
+      fieldToValuesMap.keySet.size shouldBe 14
 
       /* profiles */
       fieldToValuesMap
