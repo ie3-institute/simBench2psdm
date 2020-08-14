@@ -2,7 +2,7 @@ package edu.ie3.simbench.io
 
 import java.nio.file.{Files, Path, Paths}
 
-import edu.ie3.simbench.exception.io.DownloaderException
+import edu.ie3.simbench.exception.io.{DownloaderException, IoException}
 import edu.ie3.test.common.UnitSpec
 import edu.ie3.util.io.FileIOUtils
 import org.scalatest.BeforeAndAfterEach
@@ -24,6 +24,38 @@ class UnzippingSpec extends UnitSpec with IoUtils with BeforeAndAfterEach {
     Paths.get(s"${extractionBasePath.toAbsolutePath}/1-LV-rural1--0-no_sw")
 
   "The unzipping" should {
+    "throw an exception, if the questioned zip archive is not apparent" in {
+      val path = Paths.get("totally/random/non/exsisting/file.zip")
+      val thrown = intercept[IoException] {
+        Downloader.unzip(downloader, path)
+      }
+
+      thrown.getMessage == "The file totally/random/non/exsisting/file.zip cannot be unzipped, as it does not exist."
+    }
+
+    "throw an exception, if the unzip routine is pointed to a directory" in {
+      val path = Paths.get("inputData/download")
+      val thrown = intercept[IoException] {
+        Downloader.unzip(downloader, path)
+      }
+
+      thrown.getMessage == "The file inputData/download cannot be unzipped, as it is a directory."
+    }
+
+    "throw an exception, if the file is not a zip archive" in {
+      Files.createDirectories(Paths.get(pwd, s"${downloader.downloadFolder}"))
+      val filePath = Files.createFile(
+        Paths.get(pwd, s"${downloader.downloadFolder}/test.txt")
+      )
+
+      intercept[IoException] {
+        Downloader.unzip(downloader, filePath)
+      }
+      /* Message cannot be tested, as the path is dependent of the location of the code. */
+
+      Files.deleteIfExists(filePath)
+    }
+
     "throw an exception, if the target folder exists and is a file" in {
       val filePath =
         Paths.get(
