@@ -74,14 +74,12 @@ class UnzippingSpec extends UnitSpec with IoUtils with BeforeAndAfterEach {
       } catch {
         case e: Throwable =>
           /* Tidy up all the temporary files, when an exception occurs */
-          FileIOUtils.deleteRecursively(archiveFilePath)
           FileIOUtils.deleteRecursively(extractionBasePath)
           logger.debug("Successfully tidied up the extraction base path")
           throw e
       }
 
       /* Tidy up all the temporary files */
-      FileIOUtils.deleteRecursively(archiveFilePath)
       FileIOUtils.deleteRecursively(extractionBasePath)
     }
 
@@ -123,14 +121,12 @@ class UnzippingSpec extends UnitSpec with IoUtils with BeforeAndAfterEach {
       } catch {
         case e: Throwable =>
           /* Tidy up all the temporary files, when an exception occurs */
-          FileIOUtils.deleteRecursively(archiveFilePath)
           FileIOUtils.deleteRecursively(extractionBasePath)
           logger.debug("Successfully tidied up the extraction base path")
           throw e
       }
 
       /* Tidy up all the temporary files */
-      FileIOUtils.deleteRecursively(archiveFilePath)
       FileIOUtils.deleteRecursively(extractionBasePath)
     }
   }
