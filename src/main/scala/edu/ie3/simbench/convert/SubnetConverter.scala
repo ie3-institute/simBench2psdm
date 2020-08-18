@@ -1,6 +1,7 @@
 package edu.ie3.simbench.convert
 
 import edu.ie3.simbench.convert.SubnetConverter.RatedVoltId
+import edu.ie3.simbench.exception.ConversionException
 
 import scala.util.matching.Regex
 
@@ -23,28 +24,60 @@ import scala.util.matching.Regex
   * @param ratedVoltageIdPairs Vector of known combinations of rated voltage and subnet id
   */
 final case class SubnetConverter(ratedVoltageIdPairs: Vector[RatedVoltId]) {
-  val mapping: Map[RatedVoltId, Int] =
-    ratedVoltageIdPairs.distinct
-      .filter {
-        /* Remove those id's, that are part of a substation (underscore within the id) */
-        case (_, id) =>
-          !SubnetConverter.transformationVoltLvlIdRegex.matches(id)
-      }
-      .sortWith {
-        /* Sort the input descending in rated voltage and ascending in id */
-        case ((thisRatedVolt, thisId), (thatRatedVolt, thatId)) =>
-          thisRatedVolt.compareTo(thatRatedVolt) match {
-            case 1  => true
-            case -1 => false
-            case 0  => thisId < thatId
-          }
-      }
-      .zipWithIndex
-      .map {
-        case (simBenchSubnetString, simBenchSubGridId) =>
-          simBenchSubnetString -> (simBenchSubGridId + 1)
-      }
-      .toMap
+  val mapping: Map[RatedVoltId, Int] = ratedVoltageIdPairs.distinct
+    .map {
+      case (
+          ratedVoltage,
+          SubnetConverter.transformationVoltLvlIdRegex(
+            firstVoltLvl @ SubnetConverter.voltLvlIdentifierRegex(
+              firstVoltLvlId
+            ),
+            secondVoltLvl @ SubnetConverter.voltLvlIdentifierRegex(
+              secondVoltLvlId
+            )
+          )
+          ) =>
+        SubnetConverter.permissibleRatedVoltages.getOrElse(
+          firstVoltLvlId.toLowerCase,
+          throw ConversionException(
+            s"'$firstVoltLvl' is no known voltage level."
+          )
+        ) match {
+          case (lb, ub) if ratedVoltage > lb && ratedVoltage <= ub =>
+            (ratedVoltage, firstVoltLvl)
+          case _ =>
+            SubnetConverter.permissibleRatedVoltages.getOrElse(
+              secondVoltLvlId.toLowerCase,
+              throw ConversionException(
+                s"'$secondVoltLvl' is no known voltage level."
+              )
+            ) match {
+              case (lb, ub) if ratedVoltage > lb && ratedVoltage <= ub =>
+                (ratedVoltage, secondVoltLvl)
+              case _ =>
+                throw ConversionException(
+                  s"Neither '$firstVoltLvl', nor '$secondVoltLvl' fit the given rated voltage $ratedVoltage kV."
+                )
+            }
+        }
+      case other => other
+    }
+    .distinct
+    .sortWith {
+      /* Sort the input descending in rated voltage and ascending in id */
+      case ((thisRatedVolt, thisId), (thatRatedVolt, thatId)) =>
+        thisRatedVolt.compareTo(thatRatedVolt) match {
+          case 1  => true
+          case -1 => false
+          case 0  => thisId < thatId
+        }
+    }
+    .zipWithIndex
+    .map {
+      case (ratedVoltIdPair, subGridId) =>
+        ratedVoltIdPair -> (subGridId + 1)
+    }
+    .toMap
 
   /**
     * Get the converted subnet as Int
@@ -78,5 +111,15 @@ final case class SubnetConverter(ratedVoltageIdPairs: Vector[RatedVoltId]) {
 case object SubnetConverter {
   type RatedVoltId = (BigDecimal, String)
 
-  val transformationVoltLvlIdRegex: Regex = "(.+)_(.+)".r
+  val transformationVoltLvlIdRegex: Regex =
+    "([a-zA-Z]{1,3}[.\\d]+)_([a-zA-Z]{1,3}[.\\d]+).*".r
+
+  val voltLvlIdentifierRegex: Regex = "([a-zA-Z]{1,3})[.\\d]+".r
+
+  val permissibleRatedVoltages = Map(
+    "ehv" -> (BigDecimal("110"), BigDecimal("420")),
+    "hv" -> (BigDecimal("30"), BigDecimal("110")),
+    "mv" -> (BigDecimal("10"), BigDecimal("30")),
+    "lv" -> (BigDecimal("0"), BigDecimal("10"))
+  )
 }

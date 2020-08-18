@@ -235,21 +235,6 @@ case object GridConverter extends LazyLogging {
       junctions: Vector[Node],
       relevantSubnet: Int
   ): Map[Node, NodeInput] = {
-    /* Copy new node and add it to the mapping */
-    val updatedNode = initialNodeConversion
-      .getOrElse(
-        startNode,
-        throw ConversionException(
-          s"Cannot update the subnet of conversion of '$startNode', as its conversion cannot be found."
-        )
-      )
-      .copy()
-      .subnet(relevantSubnet)
-      .build()
-    val updatedConversion = initialNodeConversion + (startNode -> updatedNode)
-
-    val newJunctions = junctions.appended(startNode)
-
     /* Get the switch, that is connected to the starting node and determine the next node */
     val nextSwitches = switches.filter {
       case Switch(_, nodeA, nodeB, _, _, _, _, _) =>
@@ -258,8 +243,22 @@ case object GridConverter extends LazyLogging {
 
     if (nextSwitches.isEmpty) {
       /* There is no further switch, therefore the end is reached -> return the new mapping */
-      updatedConversion
+      initialNodeConversion
     } else {
+      /* Copy new node and add it to the mapping */
+      val updatedNode = initialNodeConversion
+        .getOrElse(
+          startNode,
+          throw ConversionException(
+            s"Cannot update the subnet of conversion of '$startNode', as its conversion cannot be found."
+          )
+        )
+        .copy()
+        .subnet(relevantSubnet)
+        .build()
+      val updatedConversion = initialNodeConversion + (startNode -> updatedNode)
+      val newJunctions = junctions.appended(startNode)
+
       /* For all possible next upcoming switches -> Traverse along each branch (depth first search) */
       nextSwitches.foldLeft(updatedConversion) {
         case (conversion, switch) =>
