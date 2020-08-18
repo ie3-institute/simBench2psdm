@@ -70,7 +70,7 @@ case object GridConverter extends LazyLogging {
       gridInput: GridModel
   ): (RawGridElements, Map[Node, NodeInput]) = {
     /* Set up a sub net converter, by crawling all nodes */
-    val subnetConverter = SubnetConverter(gridInput.nodes.map(_.subnet))
+    val subnetConverter = SubnetConverter(gridInput.nodes.map(node => (node.vmR, node.subnet)))
 
     val nodeConversion = convertNodes(gridInput, subnetConverter)
     val lines = convertLines(gridInput, nodeConversion).toSet.asJava
