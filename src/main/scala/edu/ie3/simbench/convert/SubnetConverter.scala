@@ -28,42 +28,49 @@ final case class SubnetConverter(ratedVoltageIdPairs: Vector[RatedVoltId]) {
     .map {
       case (
           ratedVoltage,
-          SubnetConverter.transformationVoltLvlIdRegex(
-            firstVoltLvl @ SubnetConverter.voltLvlIdentifierRegex(
-              firstVoltLvlId
-            ),
-            secondVoltLvl @ SubnetConverter.voltLvlIdentifierRegex(
-              secondVoltLvlId
-            )
+          SubnetConverter.validSimbenchSubnetId(
+            firstSubnetId,
+            firstVoltLvl,
+            maybeSecondSubnetId,
+            maybeSecondVoltLvl,
+            _
           )
           ) =>
-        SubnetConverter.permissibleRatedVoltages.getOrElse(
-          firstVoltLvlId.toLowerCase,
-          throw ConversionException(
-            s"'$firstVoltLvl' is no known voltage level."
-          )
-        ) match {
-          case (lb, ub) if ratedVoltage > lb && ratedVoltage <= ub =>
-            (ratedVoltage, firstVoltLvl)
-          case _ =>
+        (Option(maybeSecondSubnetId), Option(maybeSecondVoltLvl)) match {
+          case (Some(secondSubnetId), Some(secondVoltLvl)) =>
+            /* The id refers to a transformer level subnet --> Split up according to the rated voltage and the fitting
+             * part of the id */
             SubnetConverter.permissibleRatedVoltages.getOrElse(
-              secondVoltLvlId.toLowerCase,
+              firstVoltLvl.toLowerCase,
               throw ConversionException(
-                s"'$secondVoltLvl' is no known voltage level."
+                s"'$firstVoltLvl' is no known voltage level."
               )
             ) match {
               case (lb, ub) if ratedVoltage > lb && ratedVoltage <= ub =>
-                (ratedVoltage, secondVoltLvl)
+                (ratedVoltage, firstSubnetId)
               case _ =>
-                throw ConversionException(
-                  s"Neither '$firstVoltLvl', nor '$secondVoltLvl' fit the given rated voltage $ratedVoltage kV."
-                )
+                SubnetConverter.permissibleRatedVoltages.getOrElse(
+                  secondVoltLvl.toLowerCase,
+                  throw ConversionException(
+                    s"'$maybeSecondVoltLvl' is no known voltage level."
+                  )
+                ) match {
+                  case (lb, ub) if ratedVoltage > lb && ratedVoltage <= ub =>
+                    (ratedVoltage, secondSubnetId)
+                  case _ =>
+                    throw ConversionException(
+                      s"Neither '$firstVoltLvl', nor '$maybeSecondVoltLvl' fit the given rated voltage $ratedVoltage kV."
+                    )
+                }
             }
+          case (Some(secondSubnetId), None) =>
+            throw new IllegalArgumentException(
+              s"Cannot handle subnet id '$secondSubnetId', as it does not contain voltage level information"
+            )
+          case _ =>
+            /* Use the original information, but without feeder information */
+            (ratedVoltage, firstSubnetId)
         }
-      case (ratedVolt, SubnetConverter.removeFeederRegex(actualId)) =>
-        /* Remove the feeder information from id (e.g. 'MV4.101_Feeder5' is transformed to 'MV4.101') */
-        (ratedVolt, actualId)
-      case other => other
     }
     .distinct
     .sortWith {
@@ -89,51 +96,64 @@ final case class SubnetConverter(ratedVoltageIdPairs: Vector[RatedVoltId]) {
     * @param id           Identifier of the subnet
     * @return Int representation of the SimBench sub net
     */
-  def convert(ratedVoltage: BigDecimal, id: String): Int =
+  def convert(ratedVoltage: BigDecimal, id: String): Int = {
     id match {
-      case SubnetConverter.transformationVoltLvlIdRegex(firstId, secondId) =>
-        mapping.getOrElse(
-          (ratedVoltage, firstId),
-          mapping.getOrElse(
-            (ratedVoltage, secondId),
-            throw new IllegalArgumentException(
-              s"The SimBench subnet '$id' with rated voltage $ratedVoltage kV has not been initialized with the converter."
+      case SubnetConverter.validSimbenchSubnetId(
+          firstSubnetId,
+          _,
+          maybeSecondSubnetId,
+          _,
+          _
+          ) =>
+        Option(maybeSecondSubnetId) match {
+          case Some(secondSubnetId) =>
+            /* The id refers to a transformer level subnet --> Split up according to the rated voltage and the fitting
+             * part of the id */
+            mapping.getOrElse(
+              (ratedVoltage, firstSubnetId),
+              mapping.getOrElse(
+                (ratedVoltage, secondSubnetId),
+                throw new IllegalArgumentException(
+                  s"The SimBench subnet '$id' with rated voltage $ratedVoltage kV has not been initialized with the converter."
+                )
+              )
             )
-          )
-        )
-      case SubnetConverter.removeFeederRegex(actualId) =>
-        /* Take care of removing the feeder information */
-        mapping.getOrElse(
-          (ratedVoltage, actualId),
-          throw new IllegalArgumentException(
-            s"The SimBench subnet '$id' with rated voltage $ratedVoltage kV has not been initialized with the converter."
-          )
-        )
+          case None =>
+            mapping.getOrElse(
+              (ratedVoltage, firstSubnetId),
+              throw new IllegalArgumentException(
+                s"The SimBench subnet '$id' with rated voltage $ratedVoltage kV has not been initialized with the converter."
+              )
+            )
+        }
       case malformedId =>
         throw new IllegalArgumentException(
           s"The provided id '$malformedId' is no valid subnet identifier."
         )
     }
+  }
 }
 
 case object SubnetConverter {
   type RatedVoltId = (BigDecimal, String)
 
   /**
-    * Splitting up combined transformation voltage level information into actual ids and ignoring the rest
+    * Valid subnet ids are of one of the following forms:
+    *  - MV4.101_LV4.101_Feeder5
+    *  - MV4.101_LV4.101
+    *  - MV4.101_Feeder5
+    *  - MV4.101
+    *  - HV1
+    *
+    *  The capturing groups catch
+    *    1) The full first subnet identifier (e.g. MV4.101)
+    *    2) The volt level information of the first subnet (e.g. MV)
+    *    3) The full second subnet identifier (e.g. LV4.101)
+    *    4) The volt level information of the second subnet (e.g. LV)
+    *    5) The feeder number (e.g. 5)
     */
-  val transformationVoltLvlIdRegex: Regex =
-    "([a-zA-Z]{1,3}[.\\d]*)_([a-zA-Z]{1,3}[.\\d]*).*".r
-
-  /**
-    * Extracts the voltage level information from subnet id (e.g. 'MV')' from 'MV1.101')
-    */
-  val voltLvlIdentifierRegex: Regex = "([a-zA-Z]{1,3})[.\\d]*".r
-
-  /**
-    * Extracts the actual subnet id from combined subnet and feeder information id (e.g. 'MV4.101' from 'MV4.101_Feeder5')
-    */
-  val removeFeederRegex: Regex = "([a-zA-Z]{1,3}[.\\d]*)(?:_Feeder\\d+)?".r
+  val validSimbenchSubnetId: Regex =
+    "^(([a-zA-Z]{1,3})[.\\d]*)(?:_(([a-zA-Z]{1,3})[.\\d]*))?(?:_Feeder(\\d+))?".r
 
   val permissibleRatedVoltages = Map(
     "ehv" -> (BigDecimal("110"), BigDecimal("420")),
