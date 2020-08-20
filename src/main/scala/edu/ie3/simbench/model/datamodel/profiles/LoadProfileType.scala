@@ -81,6 +81,25 @@ object LoadProfileType {
   case object HS27 extends LoadProfileType
   case object HsExp0 extends LoadProfileType
   case object HsExp1 extends LoadProfileType
+  case object APLSA37 extends LoadProfileType
+  case object APLSA110 extends LoadProfileType
+  case object APLSA220 extends LoadProfileType
+  case object APLSA500 extends LoadProfileType
+  case object APLSB37 extends LoadProfileType
+  case object APLSB110 extends LoadProfileType
+  case object APLSB220 extends LoadProfileType
+  case object HLSA37 extends LoadProfileType
+  case object HLSA110 extends LoadProfileType
+  case object HLSA220 extends LoadProfileType
+  case object HLSB37 extends LoadProfileType
+  case object HLSB110 extends LoadProfileType
+  case object HLSC37 extends LoadProfileType
+  case object AirAlternative1 extends LoadProfileType
+  case object AirAlternative2 extends LoadProfileType
+  case object AirParallel1 extends LoadProfileType
+  case object AirParallel2 extends LoadProfileType
+  case object AirSemiParallel1 extends LoadProfileType
+  case object AirSemiParallel2 extends LoadProfileType
 
   /**
     * Hands back a suitable [[LoadProfileType]] based on the entries given in SimBench csv files
@@ -91,7 +110,7 @@ object LoadProfileType {
     */
   @throws[SimbenchDataModelException]
   def apply(typeString: String): LoadProfileType =
-    "[-_]+".r.replaceAllIn(stripSuffix(typeString), "").toLowerCase match {
+    "[-_.]+".r.replaceAllIn(stripSuffix(typeString), "").toLowerCase match {
       case "blh"              => BLH
       case "g0a"              => G0A
       case "g0m"              => G0M
@@ -165,6 +184,25 @@ object LoadProfileType {
       case "hs27"             => HS27
       case "hsexp0"           => HsExp0
       case "hsexp1"           => HsExp1
+      case "aplsa37"          => APLSA37
+      case "aplsa110"         => APLSA110
+      case "aplsa220"         => APLSA220
+      case "aplsa500"         => APLSA500
+      case "aplsb37"          => APLSB37
+      case "aplsb110"         => APLSB110
+      case "aplsb220"         => APLSB220
+      case "hlsa37"           => HLSA37
+      case "hlsa110"          => HLSA110
+      case "hlsa220"          => HLSA220
+      case "hlsb37"           => HLSB37
+      case "hlsb110"          => HLSB110
+      case "hlsc37"           => HLSB37
+      case "airalternative1"  => AirAlternative1
+      case "airalternative2"  => AirAlternative2
+      case "airparallel1"     => AirParallel1
+      case "airparallel2"     => AirParallel2
+      case "airsemiparallel1" => AirSemiParallel1
+      case "airsemiparallel2" => AirSemiParallel2
       case whatever =>
         throw SimbenchDataModelException(
           s"I cannot handle the load profile id $whatever"

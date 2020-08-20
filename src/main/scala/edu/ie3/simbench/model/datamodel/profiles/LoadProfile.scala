@@ -98,7 +98,26 @@ case object LoadProfile
     "HS26",
     "HS27",
     "HSexp0",
-    "HSexp1"
+    "HSexp1",
+    "APLS_A_3.7",
+    "APLS_A_11.0",
+    "APLS_A_22.0",
+    "APLS_A_50.0",
+    "APLS_B_3.7",
+    "APLS_B_11.0",
+    "APLS_B_22.0",
+    "HLS_A_3.7",
+    "HLS_A_11.0",
+    "HLS_A_22.0",
+    "HLS_B_3.7",
+    "HLS_B_11.0",
+    "HLS_C_3.7",
+    "Air_Alternative_1",
+    "Air_Alternative_2",
+    "Air_Parallel_1",
+    "Air_Parallel_2",
+    "Air_Semi-Parallel_1",
+    "Air_Semi-Parallel_2"
   )
 
   /**
