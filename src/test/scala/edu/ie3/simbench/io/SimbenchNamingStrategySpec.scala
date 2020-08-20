@@ -31,7 +31,7 @@ class SimbenchNamingStrategySpec extends UnitSpec {
       (classOf[ACLine], "Line"),
       (classOf[DCLine], "Line"),
       (classOf[ACLineType], "LineType"),
-      (classOf[DCLineType], "LineType"),
+      (classOf[DCLineType], "DCLineType"),
       (classOf[Load], "Load"),
       (classOf[Node], "Node"),
       (classOf[RES], "RES"),

@@ -13,6 +13,7 @@ import edu.ie3.simbench.model.datamodel.profiles.{
   ResProfile,
   StorageProfile
 }
+import edu.ie3.simbench.model.datamodel.types.LineType.{ACLineType, DCLineType}
 import edu.ie3.simbench.model.datamodel.types.{LineType, Transformer2WType}
 
 import scala.concurrent.duration.Duration
@@ -56,7 +57,8 @@ final case class SimbenchReader(
     (classOf[StudyCase], StudyCase.getFields),
     (classOf[Coordinate], Coordinate.getFields),
     (classOf[ExternalNet], ExternalNet.getFields),
-    (classOf[LineType], LineType.getFields),
+    (classOf[ACLineType], ACLineType.getFields),
+    (classOf[DCLineType], DCLineType.getFields),
     (classOf[Line[_ <: LineType]], Line.getFields),
     (classOf[Load], Load.getFields),
     (classOf[Node], Node.getFields),
@@ -96,9 +98,12 @@ final case class SimbenchReader(
     val studyCases = buildModels(modelClassToRawData, StudyCase)
 
     /* Extracting all types */
-    val lineTypes = buildModels(modelClassToRawData, LineType, optional = false)
-      .map(lineType => lineType.id -> lineType)
-      .toMap
+    val lineTypes =
+      (buildModels(modelClassToRawData, ACLineType, optional = false)
+        .map(lineType => lineType.id -> lineType) ++ buildModels(
+        modelClassToRawData,
+        DCLineType
+      ).map(lineType => lineType.id -> lineType)).toMap
     val transformer2WTypes =
       buildModels(modelClassToRawData, Transformer2WType, optional = false)
         .map(transformer2WType => transformer2WType.id -> transformer2WType)
