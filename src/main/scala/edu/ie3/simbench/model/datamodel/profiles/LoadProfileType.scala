@@ -88,6 +88,9 @@ object LoadProfileType {
   case object APLSB37 extends LoadProfileType
   case object APLSB110 extends LoadProfileType
   case object APLSB220 extends LoadProfileType
+  case object APLS01014 extends LoadProfileType
+  case object APLS0033 extends LoadProfileType
+  case object APLS05202 extends LoadProfileType
   case object HLSA37 extends LoadProfileType
   case object HLSA110 extends LoadProfileType
   case object HLSA220 extends LoadProfileType
@@ -191,6 +194,9 @@ object LoadProfileType {
       case "aplsb37"          => APLSB37
       case "aplsb110"         => APLSB110
       case "aplsb220"         => APLSB220
+      case "apls0033"         => APLS0033
+      case "apls01014"        => APLS01014
+      case "apls05202"        => APLS05202
       case "hlsa37"           => HLSA37
       case "hlsa110"          => HLSA110
       case "hlsa220"          => HLSA220
