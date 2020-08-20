@@ -143,7 +143,7 @@ trait ConverterTestData {
         BigDecimal("1.05"),
         None,
         Some(getCoordinatePair("random coordinate")._1),
-        "subnet_1",
+        "MV0",
         5
       ),
       new NodeInput(
@@ -169,7 +169,7 @@ trait ConverterTestData {
         BigDecimal("1.05"),
         None,
         None,
-        "subnet_2",
+        "MV1",
         5
       ),
       new NodeInput(
