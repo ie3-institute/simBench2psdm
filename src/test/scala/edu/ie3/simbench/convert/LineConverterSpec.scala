@@ -6,7 +6,6 @@ import edu.ie3.datamodel.models.input.connector.`type`.LineTypeInput
 import edu.ie3.simbench.exception.{ConversionException, TestingException}
 import edu.ie3.simbench.model.datamodel.Line.DCLine
 import edu.ie3.simbench.model.datamodel.types.LineType
-import edu.ie3.simbench.model.datamodel.types.LineType.DCLineType
 import edu.ie3.test.common.{ConverterTestData, UnitSpec}
 
 class LineConverterSpec extends UnitSpec with ConverterTestData {

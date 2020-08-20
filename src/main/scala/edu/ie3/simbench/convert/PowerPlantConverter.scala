@@ -23,7 +23,7 @@ import tec.uom.se.quantity.Quantities
 
 import scala.math._
 
-case object PowerPlantConverter {
+case object PowerPlantConverter extends ShuntConverter {
 
   /**
     * Convert a full set of power plants
@@ -67,11 +67,9 @@ case object PowerPlantConverter {
       case Some(value) => Quantities.getQuantity(value, MEGAVAR)
       case None        => Quantities.getQuantity(0d, MEGAVAR)
     }
-    val cosPhi = round(
-      cos(atan(q.getValue.doubleValue() / p.getValue.doubleValue())) * 100
-    ) / 100d
+    val cosphi = cosPhi(p.getValue.doubleValue(), q.getValue.doubleValue())
     val varCharacteristicString =
-      "cosPhiFixed:{(0.0,%#.2f)}".formatLocal(Locale.ENGLISH, cosPhi)
+      "cosPhiFixed:{(0.0,%#.2f)}".formatLocal(Locale.ENGLISH, cosphi)
     val sRated = Quantities.getQuantity(input.sR, MEGAVOLTAMPERE)
 
     val timeSeries = PowerProfileConverter.convert(profile, p)
@@ -84,7 +82,7 @@ case object PowerPlantConverter {
       node,
       new CosPhiFixed(varCharacteristicString),
       sRated,
-      cosPhi
+      cosphi
     ) -> timeSeries
   }
 }

@@ -8,6 +8,7 @@ import edu.ie3.datamodel.models.input.system.characteristic.CosPhiFixed
 import edu.ie3.datamodel.models.input.{NodeInput, OperatorInput}
 import edu.ie3.datamodel.models.timeseries.individual.IndividualTimeSeries
 import edu.ie3.datamodel.models.value.PValue
+import edu.ie3.simbench.convert.PowerPlantConverter.cosPhi
 import edu.ie3.simbench.convert.profiles.PowerProfileConverter
 import edu.ie3.simbench.model.datamodel.profiles.{ResProfile, ResProfileType}
 import edu.ie3.simbench.model.datamodel.{Node, RES}
@@ -20,7 +21,7 @@ import tec.uom.se.quantity.Quantities
 
 import scala.math.{atan, cos, round}
 
-case object ResConverter {
+case object ResConverter extends ShuntConverter {
 
   /**
     * Convert a full set of renewable energy source system
@@ -61,11 +62,9 @@ case object ResConverter {
   ): (FixedFeedInInput, IndividualTimeSeries[PValue]) = {
     val p = Quantities.getQuantity(input.p, MEGAWATT)
     val q = Quantities.getQuantity(input.q, MEGAVAR)
-    val cosPhi = round(
-      cos(atan(q.getValue.doubleValue() / p.getValue.doubleValue())) * 100
-    ) / 100d
+    val cosphi = cosPhi(p.getValue.doubleValue(), q.getValue.doubleValue())
     val varCharacteristicString =
-      "cosPhiFixed:{(0.0,%#.2f)}".formatLocal(Locale.ENGLISH, cosPhi)
+      "cosPhiFixed:{(0.0,%#.2f)}".formatLocal(Locale.ENGLISH, cosphi)
     val sRated = Quantities.getQuantity(input.sR, MEGAVOLTAMPERE)
 
     val timeSeries = PowerProfileConverter.convert(profile, p)
@@ -78,7 +77,7 @@ case object ResConverter {
       node,
       new CosPhiFixed(varCharacteristicString),
       sRated,
-      cosPhi
+      cosphi
     ) -> timeSeries
   }
 }
