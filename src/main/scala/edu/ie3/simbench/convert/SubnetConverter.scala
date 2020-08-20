@@ -60,6 +60,9 @@ final case class SubnetConverter(ratedVoltageIdPairs: Vector[RatedVoltId]) {
                 )
             }
         }
+      case (ratedVolt, SubnetConverter.removeFeederRegex(actualId)) =>
+        /* Remove the feeder information from id (e.g. 'MV4.101_Feeder5' is transformed to 'MV4.101') */
+        (ratedVolt, actualId)
       case other => other
     }
     .distinct
@@ -98,12 +101,17 @@ final case class SubnetConverter(ratedVoltageIdPairs: Vector[RatedVoltId]) {
             )
           )
         )
-      case _ =>
+      case SubnetConverter.removeFeederRegex(actualId) =>
+        /* Take care of removing the feeder information */
         mapping.getOrElse(
-          (ratedVoltage, id),
+          (ratedVoltage, actualId),
           throw new IllegalArgumentException(
             s"The SimBench subnet '$id' with rated voltage $ratedVoltage kV has not been initialized with the converter."
           )
+        )
+      case malformedId =>
+        throw new IllegalArgumentException(
+          s"The provided id '$malformedId' is no valid subnet identifier."
         )
     }
 }
@@ -111,10 +119,21 @@ final case class SubnetConverter(ratedVoltageIdPairs: Vector[RatedVoltId]) {
 case object SubnetConverter {
   type RatedVoltId = (BigDecimal, String)
 
+  /**
+    * Splitting up combined transformation voltage level information into actual ids and ignoring the rest
+    */
   val transformationVoltLvlIdRegex: Regex =
-    "([a-zA-Z]{1,3}[.\\d]+)_([a-zA-Z]{1,3}[.\\d]+).*".r
+    "([a-zA-Z]{1,3}[.\\d]*)_([a-zA-Z]{1,3}[.\\d]*).*".r
 
-  val voltLvlIdentifierRegex: Regex = "([a-zA-Z]{1,3})[.\\d]+".r
+  /**
+    * Extracts the voltage level information from subnet id (e.g. 'MV')' from 'MV1.101')
+    */
+  val voltLvlIdentifierRegex: Regex = "([a-zA-Z]{1,3})[.\\d]*".r
+
+  /**
+    * Extracts the actual subnet id from combined subnet and feeder information id (e.g. 'MV4.101' from 'MV4.101_Feeder5')
+    */
+  val removeFeederRegex: Regex = "([a-zA-Z]{1,3}[.\\d]*)(?:_Feeder\\d+)?".r
 
   val permissibleRatedVoltages = Map(
     "ehv" -> (BigDecimal("110"), BigDecimal("420")),

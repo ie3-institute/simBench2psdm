@@ -35,8 +35,7 @@ class SubnetConverterSpec extends UnitSpec with TableDrivenPropertyChecks {
       val thrown = intercept[IllegalArgumentException](
         converter.convert(BigDecimal("110"), "totally random String")
       )
-      thrown.getMessage shouldBe "The SimBench subnet 'totally random String' with rated voltage 110 kV has not been " +
-        "initialized with the converter."
+      thrown.getMessage shouldBe "The provided id 'totally random String' is no valid subnet identifier."
     }
 
     "be able to provide the correct converted subnet id" in {
