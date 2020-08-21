@@ -9,6 +9,7 @@ import org.scalatest.BeforeAndAfterEach
 
 import scala.jdk.StreamConverters._
 import scala.language.postfixOps
+import scala.util.{Failure, Success, Try}
 
 class UnzippingSpec extends UnitSpec with IoUtils with BeforeAndAfterEach {
   val downloader: Downloader = Downloader(
@@ -101,18 +102,16 @@ class UnzippingSpec extends UnitSpec with IoUtils with BeforeAndAfterEach {
         .toVector
       files.close()
 
-      try {
-        actualContent shouldBe expectedContent
-      } catch {
-        case e: Throwable =>
+      Try(actualContent shouldBe expectedContent) match {
+        case Failure(exception) =>
           /* Tidy up all the temporary files, when an exception occurs */
           FileIOUtils.deleteRecursively(extractionBasePath)
           logger.debug("Successfully tidied up the extraction base path")
-          throw e
+          throw exception
+        case Success(_) =>
+          /* Tidy up all the temporary files */
+          FileIOUtils.deleteRecursively(extractionBasePath)
       }
-
-      /* Tidy up all the temporary files */
-      FileIOUtils.deleteRecursively(extractionBasePath)
     }
 
     "unzip the data and flatten the directory structure correctly" in {
