@@ -1,9 +1,15 @@
 package edu.ie3.simbench.main
 
+import edu.ie3.datamodel.io.FileNamingStrategy
+import edu.ie3.datamodel.io.extractor.{Extractor, NestedEntity}
+import edu.ie3.datamodel.io.sink.CsvFileSink
 import edu.ie3.simbench.config.SimbenchConfig
+import edu.ie3.simbench.convert.GridConverter
 import edu.ie3.simbench.exception.CodeValidationException
-import edu.ie3.simbench.io.{Downloader, SimbenchReader}
+import edu.ie3.simbench.io.{Downloader, IoUtils, SimbenchReader}
 import edu.ie3.simbench.model.SimbenchCode
+
+import scala.jdk.CollectionConverters.CollectionHasAsScala
 
 /**
   * This is not meant to be final production code. It is more a place for "testing" the full method stack.
@@ -12,28 +18,53 @@ object RunSimbench extends SimbenchHelper {
   def main(args: Array[String]): Unit = {
     printOpener()
 
+    logger.info("Parsing the config")
     val (_, config) = prepareConfig(args)
     val simbenchConfig = SimbenchConfig(config)
 
-    val downloader =
-      Downloader(simbenchConfig.io.downloadFolder, simbenchConfig.io.baseUrl)
-    val downloadedFile =
-      Downloader.download(
-        downloader,
-        SimbenchCode("1-EHVHVMVLV-mixed-all-0-sw").getOrElse(
-          throw CodeValidationException(
-            "'1-EHVHVMVLV-mixed-all-0-sw' is no valid SimBench code."
+    simbenchConfig.io.simbenchCodes.foreach { simbenchCode =>
+      logger.info(s"Downloading data set '$simbenchCode' from SimBench website")
+      val downloader =
+        Downloader(simbenchConfig.io.downloadFolder, simbenchConfig.io.baseUrl)
+      val downloadedFile =
+        Downloader.download(
+          downloader,
+          SimbenchCode(simbenchCode).getOrElse(
+            throw CodeValidationException(
+              s"'$simbenchCode' is no valid SimBench code."
+            )
           )
         )
+      val dataFolder =
+        Downloader.unzip(downloader, downloadedFile, flattenDirectories = true)
+
+      logger.info(s"Reading in the SimBench data set '$simbenchCode'")
+      val simbenchReader = SimbenchReader(
+        dataFolder,
+        simbenchConfig.io.input.csv.separator,
+        simbenchConfig.io.input.csv.fileEnding,
+        simbenchConfig.io.input.csv.fileEncoding
       )
-    val dataFolder =
-      Downloader.unzip(downloader, downloadedFile, flattenDirectories = true)
-    val simbenchReader = SimbenchReader(
-      dataFolder,
-      simbenchConfig.io.csv.separator,
-      simbenchConfig.io.csv.fileEnding,
-      simbenchConfig.io.csv.fileEncoding
-    )
-    val model = simbenchReader.readGrid()
+      val simbenchModel = simbenchReader.readGrid()
+
+      logger.info(s"Converting '$simbenchCode' to PowerSystemDataModel")
+      val (jointGridContainer, timeSeries) =
+        GridConverter.convert(simbenchCode, simbenchModel)
+
+      logger.info(s"Writing converted data set '$simbenchCode' to files")
+      val targetFolderPath = "[/\\\\]$|(?<![/\\\\])$".r.replaceAllIn(
+        IoUtils.harmonizeFileSeparator(simbenchConfig.io.output.targetFolder),
+        "/" + simbenchCode
+      )
+
+      val csvSink = new CsvFileSink(
+        targetFolderPath,
+        new FileNamingStrategy(),
+        false,
+        simbenchConfig.io.output.csv.separator
+      )
+      csvSink.persistAll(jointGridContainer.allEntitiesAsList())
+      timeSeries.foreach(csvSink.persistTimeSeries(_))
+    }
   }
 }

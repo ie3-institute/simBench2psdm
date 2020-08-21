@@ -39,6 +39,7 @@ case object SimbenchFileNamingStrategy {
       classOf[Node] -> "Node",
       classOf[RES] -> "RES",
       classOf[StudyCase] -> "StudyCases",
+      classOf[Switch] -> "Switch",
       classOf[Transformer2W] -> "Transformer",
       classOf[Transformer2WType] -> "TransformerType",
       classOf[Transformer3W] -> "Transformer3W",

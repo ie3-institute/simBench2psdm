@@ -62,7 +62,8 @@ final case class SimbenchReader(
     (classOf[Node], Node.getFields),
     (classOf[RES], RES.getFields),
     (classOf[Transformer2WType], Transformer2WType.getFields),
-    (classOf[Transformer2W], Transformer2W.getFields)
+    (classOf[Transformer2W], Transformer2W.getFields),
+    (classOf[Switch], Switch.getFields)
   )
 
   /**

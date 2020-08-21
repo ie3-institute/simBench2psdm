@@ -10,6 +10,7 @@ import edu.ie3.simbench.model.datamodel.enums.MeasurementVariable.{
   Voltage
 }
 import edu.ie3.test.common.{ConverterTestData, UnitSpec}
+import org.mockito.Mockito.mock
 
 class MeasurementConverterSpec extends UnitSpec with ConverterTestData {
   "The measurement unit converter" should {
@@ -32,14 +33,14 @@ class MeasurementConverterSpec extends UnitSpec with ConverterTestData {
 
     "convert a valid line measurement model correctly" in {
       val (input, expected) = getMeasurementPair("MV1.102 Measurement 3")
-      val node = mock[NodeInput]
+      val node = mock(classOf[NodeInput])
 
       MeasurementConverter.convert(input, node) shouldBe Option(expected)
     }
 
     "convert a valid transformer measurement model correctly" in {
       val (input, expected) = getMeasurementPair("MV1.102 Measurement 28")
-      val node = mock[NodeInput]
+      val node = mock(classOf[NodeInput])
 
       MeasurementConverter.convert(input, node) shouldBe Option(expected)
     }

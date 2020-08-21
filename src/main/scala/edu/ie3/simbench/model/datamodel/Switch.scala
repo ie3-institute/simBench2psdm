@@ -43,9 +43,10 @@ case object Switch extends EntityModelCompanionObject[Switch] {
     * @return Array of table headings
     */
   override def getFields: Array[HeadLineField] =
-    Array(ID, NODE_A, NODE_B, SWITCH_TYPE, COND, SUBNET, VOLT_LVL).map(
-      id => MandatoryField(id)
-    )
+    Array(ID, NODE_A, NODE_B, SWITCH_TYPE, COND, SUBSTATION, SUBNET, VOLT_LVL)
+      .map(
+        id => MandatoryField(id)
+      )
 
   /**
     * Factory method to build one model from a mapping from field id to value
