@@ -60,6 +60,7 @@ final case class SimbenchReader(
     (classOf[Line[_ <: LineType]], Line.getFields),
     (classOf[Load], Load.getFields),
     (classOf[Node], Node.getFields),
+    (classOf[NodePFResult], NodePFResult.getFields),
     (classOf[RES], RES.getFields),
     (classOf[Transformer2WType], Transformer2WType.getFields),
     (classOf[Transformer2W], Transformer2W.getFields),

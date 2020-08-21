@@ -109,13 +109,65 @@ class SimbenchReaderSpec extends UnitSpec with SimbenchReaderTestData {
       }
     }
 
+    "read the nodal power flow results correctly" in {
+      val expected = classOf[NodePFResult] -> Some(
+        Vector(
+          RawModelData(
+            classOf[NodePFResult],
+            Map(
+              "node" -> "LV1.101 Bus 1",
+              "vm" -> "1.02203",
+              "va" -> "1.17226",
+              "substation" -> "NULL",
+              "subnet" -> "LV1.101",
+              "voltLvl" -> "7"
+            )
+          ),
+          RawModelData(
+            classOf[NodePFResult],
+            Map(
+              "node" -> "LV1.101 Bus 1",
+              "vm" -> "1.02474",
+              "va" -> "1.17148",
+              "substation" -> "NULL",
+              "subnet" -> "LV1.101",
+              "voltLvl" -> "7"
+            )
+          ),
+          RawModelData(
+            classOf[NodePFResult],
+            Map(
+              "node" -> "MV1.101 Bus 4",
+              "vm" -> "1.025",
+              "va" -> "0",
+              "substation" -> "NULL",
+              "subnet" -> "MV1.101_LV1.101_Feeder1",
+              "voltLvl" -> "5"
+            )
+          )
+        )
+      )
+
+      reader invokePrivate readModelClassMethod(
+        classOf[NodePFResult],
+        Coordinate.getFields
+      ) onComplete {
+        case Success(classToCoordinates) => classToCoordinates shouldBe expected
+        case Failure(exception) =>
+          fail(
+            "Future was not meant to fail. Failed due to the following exception.",
+            exception
+          )
+      }
+    }
+
     "get the field to value maps correctly" in {
       val fieldToValuesMethod = PrivateMethod[
         Map[Class[_], Option[Vector[RawModelData]]]
       ](Symbol("getFieldToValueMaps"))
       val fieldToValuesMap = reader invokePrivate fieldToValuesMethod()
 
-      fieldToValuesMap.keySet.size shouldBe 14
+      fieldToValuesMap.keySet.size shouldBe 15
 
       /* profiles */
       fieldToValuesMap
@@ -192,6 +244,13 @@ class SimbenchReaderSpec extends UnitSpec with SimbenchReaderTestData {
           fail(s"No entry available for class ${classOf[Node]}")
         )
         .getOrElse(fail(s"Entry for class ${classOf[Node]} is empty."))
+        .length shouldBe 3
+      fieldToValuesMap
+        .getOrElse(
+          classOf[NodePFResult],
+          fail(s"No entry available for class ${classOf[NodePFResult]}")
+        )
+        .getOrElse(fail(s"Entry for class ${classOf[NodePFResult]} is empty."))
         .length shouldBe 3
       fieldToValuesMap
         .getOrElse(
