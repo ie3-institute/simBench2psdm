@@ -48,7 +48,7 @@ case object NodeConverter {
       slackNodeKeys.contains(input.getKey)
     val geoPosition = CoordinateConverter.convert(input.coordinate)
     val voltLvl = VoltLvlConverter.convert(input.voltLvl, vRated)
-    val subnet = subnetConverter.convert(input.subnet)
+    val subnet = subnetConverter.convert(input.vmR, input.subnet)
 
     new NodeInput(
       uuid,

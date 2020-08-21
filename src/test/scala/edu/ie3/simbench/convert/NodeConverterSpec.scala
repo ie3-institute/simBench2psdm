@@ -20,7 +20,7 @@ class NodeConverterSpec extends UnitSpec with ConverterTestData {
   val uuid: UUID = UUID.randomUUID()
 
   val subnetConverter: SubnetConverter = SubnetConverter(
-    Vector("subnet_1", "subnet_2")
+    Vector((BigDecimal("10.0"), "MV0"), (BigDecimal("10.0"), "MV1"))
   )
 
   val (slackNode, slackNodeExpected) = getNodePair("slack_node_0")
