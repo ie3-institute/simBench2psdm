@@ -37,6 +37,7 @@ case object SimbenchFileNamingStrategy {
       classOf[DCLineType] -> "DCLineType",
       classOf[Load] -> "Load",
       classOf[Node] -> "Node",
+      classOf[NodePFResult] -> "NodePFResult",
       classOf[RES] -> "RES",
       classOf[StudyCase] -> "StudyCases",
       classOf[Switch] -> "Switch",

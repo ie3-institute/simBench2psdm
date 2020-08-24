@@ -34,6 +34,7 @@ class SimbenchNamingStrategySpec extends UnitSpec {
       (classOf[DCLineType], "DCLineType"),
       (classOf[Load], "Load"),
       (classOf[Node], "Node"),
+      (classOf[NodePFResult], "NodePFResult"),
       (classOf[RES], "RES"),
       (classOf[StudyCase], "StudyCases"),
       (classOf[Transformer2W], "Transformer"),
@@ -44,7 +45,6 @@ class SimbenchNamingStrategySpec extends UnitSpec {
       (classOf[ResProfile], "RESProfile"),
       (classOf[PowerPlantProfile], "PowerPlantProfile")
     )
-    // TODO: Test naming strategy for NodePFResult when implemented
 
     "provide correct file namings" in {
       forAll(validNamings)(

@@ -1,6 +1,6 @@
 package edu.ie3.test.common
 
-import java.time.ZoneId
+import java.time.{ZoneId, ZonedDateTime}
 import java.util.{Locale, UUID}
 
 import edu.ie3.datamodel.models.StandardLoadProfile.DefaultLoadProfiles
@@ -29,6 +29,7 @@ import edu.ie3.datamodel.models.input.{
   NodeInput,
   OperatorInput
 }
+import edu.ie3.datamodel.models.result.NodeResult
 import edu.ie3.datamodel.models.voltagelevels.GermanVoltageLevelUtils
 import edu.ie3.datamodel.models.voltagelevels.GermanVoltageLevelUtils.{
   LV,
@@ -348,6 +349,53 @@ trait ConverterTestData {
         key,
         throw TestingException(
           s"Cannot find input / result pair for ${Node.getClass.getSimpleName} $key."
+        )
+      )
+      .getPair
+
+  val nodeResults = Map(
+    "0" -> ConversionPair(
+      NodePFResult(
+        getNodePair("LV1.101 Bus 1")._1,
+        BigDecimal("1.04913"),
+        BigDecimal("-144.292"),
+        Some(Substation("substation_1", "LV1.101", 7)),
+        "LV1.101",
+        7
+      ),
+      new NodeResult(
+        UUID.randomUUID(),
+        ZonedDateTime.parse("1970-01-01T00:00:00Z"),
+        getNodePair("LV1.101 Bus 1")._2.getUuid,
+        Quantities.getQuantity(1.04913, PU),
+        Quantities.getQuantity(-144.292, DEGREE_GEOM)
+      )
+    ),
+    "1" -> ConversionPair(
+      NodePFResult(
+        getNodePair("LV1.101 Bus 1")._1,
+        BigDecimal("1.04729"),
+        BigDecimal("-144.168"),
+        None,
+        "LV1.101",
+        7
+      ),
+      new NodeResult(
+        UUID.randomUUID(),
+        ZonedDateTime.parse("1970-01-01T00:00:00Z"),
+        getNodePair("LV1.101 Bus 1")._2.getUuid,
+        Quantities.getQuantity(1.04729, PU),
+        Quantities.getQuantity(-144.168, DEGREE_GEOM)
+      )
+    )
+  )
+
+  def getNodeResultPair(key: String): (NodePFResult, NodeResult) =
+    nodeResults
+      .getOrElse(
+        key,
+        throw TestingException(
+          s"Cannot find input / result pair for ${NodePFResult.getClass.getSimpleName} $key."
         )
       )
       .getPair
