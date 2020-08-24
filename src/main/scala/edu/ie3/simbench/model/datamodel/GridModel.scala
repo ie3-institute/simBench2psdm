@@ -15,6 +15,7 @@ final case class GridModel(
     loadProfiles: Vector[LoadProfile],
     measurements: Vector[Measurement],
     nodes: Vector[Node],
+    nodePFResults: Vector[NodePFResult],
     powerPlants: Vector[PowerPlant],
     powerPlantProfiles: Vector[PowerPlantProfile],
     res: Vector[RES],

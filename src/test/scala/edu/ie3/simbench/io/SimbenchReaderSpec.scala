@@ -287,6 +287,7 @@ class SimbenchReaderSpec extends UnitSpec with SimbenchReaderTestData {
             loadProfiles,
             measurements,
             nodes,
+            nodePFResults,
             powerPlants,
             powerPlantProfiles,
             res,
@@ -306,6 +307,7 @@ class SimbenchReaderSpec extends UnitSpec with SimbenchReaderTestData {
           loadProfiles.toSet shouldBe expectedGridModel.loadProfiles.toSet
           measurements shouldBe expectedGridModel.measurements
           nodes shouldBe expectedGridModel.nodes
+          nodePFResults shouldBe expectedGridModel.nodePFResults
           powerPlants shouldBe expectedGridModel.powerPlants
           powerPlantProfiles.toSet shouldBe expectedGridModel.powerPlantProfiles.toSet
           res shouldBe expectedGridModel.res

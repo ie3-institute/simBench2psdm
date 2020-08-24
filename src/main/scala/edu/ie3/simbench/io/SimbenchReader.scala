@@ -228,6 +228,18 @@ final case class SimbenchReader(
         case None => Vector.empty[Transformer3W]
       }
 
+    /* Create the nodal power flow results */
+    val powerFlowResults =
+      modelClassToRawData.getOrElse(classOf[NodePFResult], None) match {
+        case Some(rawData) =>
+          NodePFResult.buildModels(rawData, nodes, substations)
+        case None =>
+          logger.debug(
+            s"No information available for ${classOf[NodePFResult].getSimpleName}"
+          )
+          Vector.empty[NodePFResult]
+      }
+
     /* Create grid model */
     GridModel(
       externalNets,
@@ -236,6 +248,7 @@ final case class SimbenchReader(
       loadProfiles,
       measurements,
       nodes.values.toVector,
+      powerFlowResults,
       powerPlants,
       powerPlantProfiles,
       res,

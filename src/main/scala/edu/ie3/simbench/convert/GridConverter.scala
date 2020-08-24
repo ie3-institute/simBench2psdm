@@ -18,6 +18,7 @@ import edu.ie3.datamodel.models.input.graphics.{
 }
 import edu.ie3.datamodel.models.input.system._
 import edu.ie3.datamodel.models.input.NodeInput
+import edu.ie3.datamodel.models.result.NodeResult
 import edu.ie3.datamodel.models.timeseries.individual.IndividualTimeSeries
 import edu.ie3.datamodel.models.value.{PValue, SValue}
 import edu.ie3.simbench.convert.types.{
@@ -25,7 +26,7 @@ import edu.ie3.simbench.convert.types.{
   Transformer2wTypeConverter
 }
 import edu.ie3.simbench.exception.ConversionException
-import edu.ie3.simbench.model.datamodel.{GridModel, Node, Switch}
+import edu.ie3.simbench.model.datamodel.{GridModel, Node, NodePFResult, Switch}
 
 import scala.jdk.CollectionConverters._
 
@@ -37,15 +38,21 @@ case object GridConverter extends LazyLogging {
     *
     * @param simbenchCode Simbench code, that is used as identifier for the grid
     * @param gridInput    Total grid input model to be converted
-    * @return A converted [[JointGridContainer]]
+    * @return A converted [[JointGridContainer]], a [[Vector]] of [[IndividualTimeSeries]] as well as a [[Vector]] of [[NodeResult]]s
     */
   def convert(
       simbenchCode: String,
       gridInput: GridModel
-  ): (JointGridContainer, Vector[IndividualTimeSeries[_ <: PValue]]) = {
+  ): (
+      JointGridContainer,
+      Vector[IndividualTimeSeries[_ <: PValue]],
+      Vector[NodeResult]
+  ) = {
     val (rawGridElements, nodeConversion) = convertGridElements(gridInput)
     val (systemParticipants, timeSeries) =
       convertParticipants(gridInput, nodeConversion)
+    val powerFlowResults =
+      convertNodeResults(gridInput.nodePFResults, nodeConversion)
 
     (
       new JointGridContainer(
@@ -57,7 +64,8 @@ case object GridConverter extends LazyLogging {
           Set.empty[LineGraphicInput].asJava
         )
       ),
-      timeSeries
+      timeSeries,
+      powerFlowResults
     )
   }
 
@@ -134,6 +142,26 @@ case object GridConverter extends LazyLogging {
           node -> NodeConverter.convert(node, slackNodeKeys, subnetConverter)
       )
       .toMap
+  }
+
+  /**
+    * Convert the given [[NodePFResult]]s with the help of yet known conversion mapping of nodes
+    *
+    * @param input          Vector of [[NodePFResult]] to convert
+    * @param nodeConversion Mapping from SimBench to psdm node model
+    * @return A [[Vector]] of converted [[NodeResult]]
+    */
+  private def convertNodeResults(
+      input: Vector[NodePFResult],
+      nodeConversion: Map[Node, NodeInput]
+  ): Vector[NodeResult] = input.map { nodePfResult =>
+    val node = nodeConversion.getOrElse(
+      nodePfResult.node,
+      throw ConversionException(
+        s"Cannot convert power flow result for node ${nodePfResult.node}, as the needed node conversion cannot be found."
+      )
+    )
+    NodePFResultConverter.convert(nodePfResult, node)
   }
 
   /**
