@@ -1,7 +1,6 @@
 package edu.ie3.simbench.main
 
 import edu.ie3.datamodel.io.FileNamingStrategy
-import edu.ie3.datamodel.io.extractor.{Extractor, NestedEntity}
 import edu.ie3.datamodel.io.sink.CsvFileSink
 import edu.ie3.simbench.config.SimbenchConfig
 import edu.ie3.simbench.convert.GridConverter
@@ -9,7 +8,7 @@ import edu.ie3.simbench.exception.CodeValidationException
 import edu.ie3.simbench.io.{Downloader, IoUtils, SimbenchReader}
 import edu.ie3.simbench.model.SimbenchCode
 
-import scala.jdk.CollectionConverters.CollectionHasAsScala
+import scala.jdk.CollectionConverters._
 
 /**
   * This is not meant to be final production code. It is more a place for "testing" the full method stack.
@@ -48,7 +47,7 @@ object RunSimbench extends SimbenchHelper {
       val simbenchModel = simbenchReader.readGrid()
 
       logger.info(s"Converting '$simbenchCode' to PowerSystemDataModel")
-      val (jointGridContainer, timeSeries) =
+      val (jointGridContainer, timeSeries, powerFlowResults) =
         GridConverter.convert(simbenchCode, simbenchModel)
 
       logger.info(s"Writing converted data set '$simbenchCode' to files")
@@ -63,8 +62,9 @@ object RunSimbench extends SimbenchHelper {
         false,
         simbenchConfig.io.output.csv.separator
       )
-      csvSink.persistAll(jointGridContainer.allEntitiesAsList())
+      csvSink.persistJointGrid(jointGridContainer)
       timeSeries.foreach(csvSink.persistTimeSeries(_))
+      csvSink.persistAll(powerFlowResults.asJava)
     }
   }
 }

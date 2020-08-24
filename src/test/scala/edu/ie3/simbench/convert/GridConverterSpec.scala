@@ -24,7 +24,7 @@ class GridConverterSpec extends UnitSpec {
     "bring the correct amount of converted models" in {
       val actual = GridConverter.convert("1-LV-rural1--0-no_sw", input)
       inside(actual) {
-        case (gridContainer, timeSeries) =>
+        case (gridContainer, timeSeries, powerFlowResults) =>
           /* Evaluate the correctness of the container by counting the occurrence of models (the correct conversion is
            * tested in separate unit tests */
           gridContainer.getGridName shouldBe "1-LV-rural1--0-no_sw"
@@ -44,6 +44,9 @@ class GridConverterSpec extends UnitSpec {
 
           /* Evaluate the correctness of the time series by counting the occurrence of models */
           timeSeries.size shouldBe 17
+
+          /* Evaluate the amount of converted power flow results */
+          powerFlowResults.size shouldBe 15
       }
     }
   }

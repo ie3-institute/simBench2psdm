@@ -167,6 +167,33 @@ trait SimbenchReaderTestData {
     )
   )
 
+  val powerFlowResults = Vector(
+    NodePFResult(
+      nodes(1),
+      BigDecimal("1.02203"),
+      BigDecimal("1.17226"),
+      None,
+      "LV1.101",
+      7
+    ),
+    NodePFResult(
+      nodes(2),
+      BigDecimal("1.02474"),
+      BigDecimal("1.17148"),
+      None,
+      "LV1.101",
+      7
+    ),
+    NodePFResult(
+      nodes(0),
+      BigDecimal("1.025"),
+      BigDecimal("0"),
+      None,
+      "MV1.101_LV1.101_Feeder1",
+      5
+    )
+  )
+
   val lines = Vector(
     ACLine(
       "LV1.101 Line 10",
@@ -365,6 +392,7 @@ trait SimbenchReaderTestData {
     loadProfiles,
     Vector.empty[Measurement],
     nodes,
+    powerFlowResults,
     Vector.empty[PowerPlant],
     powerPlantProfiles,
     res,
