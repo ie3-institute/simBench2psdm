@@ -43,7 +43,9 @@ case object NodePFResult extends EntityModelCompanionObject[NodePFResult] {
     * @return Array of table headings
     */
   override def getFields: Array[HeadLineField] =
-    Array(NODE, V_M, V_A).map(id => MandatoryField(id)) ++ Array[HeadLineField](
+    Array(NODE, V_M, V_A, SUBNET, VOLT_LVL).map(MandatoryField) ++ Array[
+      HeadLineField
+    ](
       OptionalField(
         SUBSTATION
       )

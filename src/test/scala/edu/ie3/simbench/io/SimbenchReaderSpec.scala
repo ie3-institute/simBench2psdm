@@ -126,7 +126,7 @@ class SimbenchReaderSpec extends UnitSpec with SimbenchReaderTestData {
           RawModelData(
             classOf[NodePFResult],
             Map(
-              "node" -> "LV1.101 Bus 1",
+              "node" -> "LV1.101 Bus 4",
               "vm" -> "1.02474",
               "va" -> "1.17148",
               "substation" -> "NULL",
@@ -150,7 +150,7 @@ class SimbenchReaderSpec extends UnitSpec with SimbenchReaderTestData {
 
       reader invokePrivate readModelClassMethod(
         classOf[NodePFResult],
-        Coordinate.getFields
+        NodePFResult.getFields
       ) onComplete {
         case Success(classToCoordinates) => classToCoordinates shouldBe expected
         case Failure(exception) =>
