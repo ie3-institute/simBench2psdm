@@ -48,9 +48,18 @@ case object GridConverter extends LazyLogging {
       Vector[IndividualTimeSeries[_ <: PValue]],
       Vector[NodeResult]
   ) = {
+    logger.debug(s"Converting raw grid elements of '${gridInput.simbenchCode}'")
     val (rawGridElements, nodeConversion) = convertGridElements(gridInput)
+
+    logger.debug(
+      s"Converting system participants and their time series of '${gridInput.simbenchCode}'"
+    )
     val (systemParticipants, timeSeries) =
       convertParticipants(gridInput, nodeConversion)
+
+    logger.debug(
+      s"Converting power flow results of '${gridInput.simbenchCode}'"
+    )
     val powerFlowResults =
       convertNodeResults(gridInput.nodePFResults, nodeConversion)
 
@@ -363,9 +372,22 @@ case object GridConverter extends LazyLogging {
       nodeConversion: Map[Node, NodeInput]
   ): (SystemParticipants, Vector[IndividualTimeSeries[_ <: PValue]]) = {
     /* Convert all participant groups */
+    logger.debug(
+      s"Participants to convert:\n\tLoads: ${gridInput.loads.size}" +
+        s"\n\tPower Plants: ${gridInput.powerPlants.size}\n\tRES: ${gridInput.res.size}"
+    )
     val loadsToTimeSeries = convertLoads(gridInput, nodeConversion)
+    logger.debug(
+      s"Done converting ${gridInput.loads.size} loads including time series"
+    )
     val powerPlantsToTimeSeries = convertPowerPlants(gridInput, nodeConversion)
+    logger.debug(
+      s"Done converting ${gridInput.powerPlants.size} power plants including time series"
+    )
     val resToTimeSeries = convertRes(gridInput, nodeConversion)
+    logger.debug(
+      s"Done converting ${gridInput.res.size} RES including time series"
+    )
 
     /* Collect all their time series */
     val timeSeries = loadsToTimeSeries.values.toVector ++ powerPlantsToTimeSeries.values.toVector ++ resToTimeSeries.values

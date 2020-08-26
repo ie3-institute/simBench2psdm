@@ -29,12 +29,14 @@ import scala.util.{Failure, Success}
 /**
   * Reading all simbench models from a given data set
   *
+  * @param simbenchCode   Identifier of the SimBench model to read in
   * @param folderPath     Path to the folder, where the de-compressed files do lay
   * @param separator      Separator used in the files
   * @param fileExtension  Extension of the files
   * @param fileEncoding   Encoding of the files
   */
 final case class SimbenchReader(
+    simbenchCode: String,
     folderPath: Path,
     separator: String = ";",
     fileExtension: String = "csv",
@@ -247,6 +249,7 @@ final case class SimbenchReader(
 
     /* Create grid model */
     GridModel(
+      simbenchCode,
       externalNets,
       lines,
       loads,

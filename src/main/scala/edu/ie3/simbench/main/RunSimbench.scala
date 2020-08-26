@@ -39,6 +39,7 @@ object RunSimbench extends SimbenchHelper {
 
       logger.info(s"Reading in the SimBench data set '$simbenchCode'")
       val simbenchReader = SimbenchReader(
+        simbenchCode,
         dataFolder,
         simbenchConfig.io.input.csv.separator,
         simbenchConfig.io.input.csv.fileEnding,

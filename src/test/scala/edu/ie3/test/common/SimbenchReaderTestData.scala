@@ -386,6 +386,7 @@ trait SimbenchReaderTestData {
   )
 
   val expectedGridModel: GridModel = GridModel(
+    "simpleDataset",
     externalNets,
     lines,
     loads,

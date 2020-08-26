@@ -26,7 +26,8 @@ class SimbenchReaderSpec extends UnitSpec with SimbenchReaderTestData {
   val checkedFolderPath: String = IoUtils.trimFirstSeparatorInWindowsPath(
     classLoader.getResource("io/csv/simpleDataset").getPath
   )
-  val reader: SimbenchReader = SimbenchReader(Paths.get(checkedFolderPath))
+  val reader: SimbenchReader =
+    SimbenchReader("simpleDataset", Paths.get(checkedFolderPath))
   val readModelClassMethod: PrivateMethod[
     Future[(Class[_ <: SimbenchModel], Vector[Map[String, String]])]
   ] =
@@ -282,6 +283,7 @@ class SimbenchReaderSpec extends UnitSpec with SimbenchReaderTestData {
       val actual = reader.readGrid()
       inside(actual) {
         case GridModel(
+            simbenchCode,
             externalNets,
             lines,
             loads,
@@ -302,6 +304,7 @@ class SimbenchReaderSpec extends UnitSpec with SimbenchReaderTestData {
             transofmers2w,
             transformers3w
             ) =>
+          simbenchCode shouldBe expectedGridModel.simbenchCode
           externalNets shouldBe expectedGridModel.externalNets
           lines shouldBe expectedGridModel.lines
           loads shouldBe expectedGridModel.loads

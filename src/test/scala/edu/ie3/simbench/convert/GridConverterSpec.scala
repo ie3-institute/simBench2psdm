@@ -16,6 +16,7 @@ import scala.jdk.CollectionConverters._
 
 class GridConverterSpec extends UnitSpec {
   val simbenchReader: SimbenchReader = SimbenchReader(
+    "1-LV-rural1--0-no_sw",
     Paths.get("src/test/resources/gridData/1-LV-rural1--0-no_sw")
   )
   val input: GridModel = simbenchReader.readGrid()
