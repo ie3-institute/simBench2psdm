@@ -14,7 +14,7 @@ import edu.ie3.simbench.model.datamodel.profiles.{
   PowerPlantProfileType
 }
 import edu.ie3.simbench.model.datamodel.{Node, PowerPlant}
-import edu.ie3.util.quantities.PowerSystemUnits.{
+import edu.ie3.util.quantities.dep.PowerSystemUnits.{
   MEGAVAR,
   MEGAVOLTAMPERE,
   MEGAWATT

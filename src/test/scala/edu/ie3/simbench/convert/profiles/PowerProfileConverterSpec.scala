@@ -10,7 +10,7 @@ import edu.ie3.simbench.model.datamodel.profiles.{
 }
 import edu.ie3.test.common.UnitSpec
 import edu.ie3.util.TimeUtil
-import edu.ie3.util.quantities.PowerSystemUnits.{KILOVAR, KILOWATT}
+import edu.ie3.util.quantities.dep.PowerSystemUnits.{KILOVAR, KILOWATT}
 import tec.uom.se.quantity.Quantities
 
 import scala.jdk.OptionConverters._

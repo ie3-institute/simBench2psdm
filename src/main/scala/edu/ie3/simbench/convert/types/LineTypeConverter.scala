@@ -8,7 +8,7 @@ import edu.ie3.simbench.exception.ConversionException
 import edu.ie3.simbench.exception.io.SimbenchDataModelException
 import edu.ie3.simbench.model.datamodel.Line
 import edu.ie3.simbench.model.datamodel.types.LineType
-import edu.ie3.util.quantities.PowerSystemUnits.{
+import edu.ie3.util.quantities.dep.PowerSystemUnits.{
   KILOVOLT,
   OHM_PER_KILOMETRE,
   SIEMENS_PER_KILOMETRE
