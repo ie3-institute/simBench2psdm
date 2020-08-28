@@ -15,8 +15,6 @@ import scala.jdk.CollectionConverters._
   */
 object RunSimbench extends SimbenchHelper {
   def main(args: Array[String]): Unit = {
-    printOpener()
-
     logger.info("Parsing the config")
     val (_, config) = prepareConfig(args)
     val simbenchConfig = SimbenchConfig(config)
