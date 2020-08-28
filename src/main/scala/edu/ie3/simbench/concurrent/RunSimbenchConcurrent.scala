@@ -1,14 +1,17 @@
+/*
+ * © 2020. TU Dortmund University,
+ * Institute of Energy Systems, Energy Efficiency and Energy Economics,
+ * Research group Distribution grid planning and operation
+*/
 package edu.ie3.simbench.concurrent
 
 import akka.{Done, NotUsed}
 import akka.actor.ActorSystem
-import akka.stream.OverflowStrategy.backpressure
 import akka.stream.scaladsl.Source
 import edu.ie3.simbench.config.SimbenchConfig
 import edu.ie3.simbench.convert.GridConverter
 import edu.ie3.simbench.exception.CodeValidationException
-import edu.ie3.simbench.io.{Downloader, IoUtils, SimbenchReader}
-import edu.ie3.simbench.main.RunSimbench.logger
+import edu.ie3.simbench.io.{Downloader, SimbenchReader}
 import edu.ie3.simbench.main.SimbenchHelper
 import edu.ie3.simbench.model.SimbenchCode
 
@@ -37,8 +40,8 @@ object RunSimbenchConcurrent extends App with SimbenchHelper {
     source
     /* Buffer, that only some elements are in the buffer, put backpressure, if consumer is not fast enough */
 //      .buffer(10, backpressure)
-      /* Download files */
-      .mapAsyncUnordered (10) { simbenchCode =>
+    /* Download files */
+      .mapAsyncUnordered(10) { simbenchCode =>
         Future {
           logger.info(
             s"$simbenchCode - Downloading data set from SimBench website"
@@ -81,8 +84,7 @@ object RunSimbenchConcurrent extends App with SimbenchHelper {
       .runForeach {
         case (jointGridContainer, timeSeries, powerFlowResults) =>
           println(
-            s"Converted data set with ${jointGridContainer.getRawGrid.getNodes
-              .size} nodes, ${timeSeries.size} individual time series and ${powerFlowResults.size}"
+            s"Converted data set with ${jointGridContainer.getRawGrid.getNodes.size} nodes, ${timeSeries.size} individual time series and ${powerFlowResults.size}"
           )
       }
 
