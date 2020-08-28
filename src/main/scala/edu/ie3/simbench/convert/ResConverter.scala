@@ -12,7 +12,7 @@ import edu.ie3.simbench.convert.PowerPlantConverter.cosPhi
 import edu.ie3.simbench.convert.profiles.PowerProfileConverter
 import edu.ie3.simbench.model.datamodel.profiles.{ResProfile, ResProfileType}
 import edu.ie3.simbench.model.datamodel.{Node, RES}
-import edu.ie3.util.quantities.PowerSystemUnits.{
+import edu.ie3.util.quantities.dep.PowerSystemUnits.{
   MEGAVAR,
   MEGAVOLTAMPERE,
   MEGAWATT

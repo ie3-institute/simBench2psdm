@@ -61,7 +61,7 @@ import edu.ie3.simbench.model.datamodel.profiles.{
 import edu.ie3.simbench.model.datamodel.types.LineType.{ACLineType, DCLineType}
 import edu.ie3.simbench.model.datamodel.types.{LineType, Transformer2WType}
 import edu.ie3.util.TimeUtil
-import edu.ie3.util.quantities.PowerSystemUnits._
+import edu.ie3.util.quantities.dep.PowerSystemUnits._
 import org.locationtech.jts.geom.{
   GeometryFactory,
   Point,

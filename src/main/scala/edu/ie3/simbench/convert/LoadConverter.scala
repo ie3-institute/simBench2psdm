@@ -12,7 +12,7 @@ import edu.ie3.datamodel.models.value.SValue
 import edu.ie3.simbench.convert.profiles.PowerProfileConverter
 import edu.ie3.simbench.model.datamodel.profiles.{LoadProfile, LoadProfileType}
 import edu.ie3.simbench.model.datamodel.{Load, Node}
-import edu.ie3.util.quantities.PowerSystemUnits.{
+import edu.ie3.util.quantities.dep.PowerSystemUnits.{
   KILOWATTHOUR,
   MEGAVAR,
   MEGAVOLTAMPERE,

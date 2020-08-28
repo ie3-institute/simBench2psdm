@@ -3,7 +3,7 @@ package edu.ie3.simbench.convert
 import edu.ie3.datamodel.exceptions.VoltageLevelException
 import edu.ie3.datamodel.models.voltagelevels.GermanVoltageLevelUtils
 import edu.ie3.test.common.UnitSpec
-import edu.ie3.util.quantities.PowerSystemUnits.KILOVOLT
+import edu.ie3.util.quantities.dep.PowerSystemUnits.KILOVOLT
 import tec.uom.se.quantity.Quantities
 
 class VoltLvlConverterSpec extends UnitSpec {
