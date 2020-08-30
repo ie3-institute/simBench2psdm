@@ -54,13 +54,9 @@ class LoadProfileSpec extends UnitSpec {
       H0A,
       Map(
         TimeUtil.withDefaults
-          .toZonedDateTime("2016-01-01 00:00:00") -> (BigDecimal(
-          "0.276685"
-        ), BigDecimal("-0.067519")),
+          .toZonedDateTime("2016-01-01 00:00:00") -> (0.276685, -0.067519),
         TimeUtil.withDefaults
-          .toZonedDateTime("2016-01-01 00:15:00") -> (BigDecimal(
-          "0.066011"
-        ), BigDecimal("0.060412"))
+          .toZonedDateTime("2016-01-01 00:15:00") -> (0.066011, 0.060412)
       )
     ),
     LoadProfile(
@@ -68,13 +64,9 @@ class LoadProfileSpec extends UnitSpec {
       H0B,
       Map(
         TimeUtil.withDefaults
-          .toZonedDateTime("2016-01-01 00:00:00") -> (BigDecimal(
-          "0.065826"
-        ), BigDecimal("-0.014175")),
+          .toZonedDateTime("2016-01-01 00:00:00") -> (0.065826, -0.014175),
         TimeUtil.withDefaults
-          .toZonedDateTime("2016-01-01 00:15:00") -> (BigDecimal(
-          "0.190476"
-        ), BigDecimal("0.212622"))
+          .toZonedDateTime("2016-01-01 00:15:00") -> (0.190476, 0.212622)
       )
     ),
     LoadProfile(
@@ -82,13 +74,9 @@ class LoadProfileSpec extends UnitSpec {
       H0C,
       Map(
         TimeUtil.withDefaults
-          .toZonedDateTime("2016-01-01 00:00:00") -> (BigDecimal(
-          "0.237082"
-        ), BigDecimal("0.242253")),
+          .toZonedDateTime("2016-01-01 00:00:00") -> (0.237082, 0.242253),
         TimeUtil.withDefaults
-          .toZonedDateTime("2016-01-01 00:15:00") -> (BigDecimal(
-          "0.066869"
-        ), BigDecimal("0.007691"))
+          .toZonedDateTime("2016-01-01 00:15:00") -> (0.066869, 0.007691)
       )
     ),
     LoadProfile(
@@ -96,13 +84,9 @@ class LoadProfileSpec extends UnitSpec {
       L1A,
       Map(
         TimeUtil.withDefaults
-          .toZonedDateTime("2016-01-01 00:00:00") -> (BigDecimal(
-          "0.144231"
-        ), BigDecimal("0.125501")),
+          .toZonedDateTime("2016-01-01 00:00:00") -> (0.144231, 0.125501),
         TimeUtil.withDefaults
-          .toZonedDateTime("2016-01-01 00:15:00") -> (BigDecimal(
-          "0.416628"
-        ), BigDecimal("0.587453"))
+          .toZonedDateTime("2016-01-01 00:15:00") -> (0.416628, 0.587453)
       )
     ),
     LoadProfile(
@@ -110,13 +94,9 @@ class LoadProfileSpec extends UnitSpec {
       L2A,
       Map(
         TimeUtil.withDefaults
-          .toZonedDateTime("2016-01-01 00:00:00") -> (BigDecimal(
-          "0.321053"
-        ), BigDecimal("0.326352")),
+          .toZonedDateTime("2016-01-01 00:00:00") -> (0.321053, 0.326352),
         TimeUtil.withDefaults
-          .toZonedDateTime("2016-01-01 00:15:00") -> (BigDecimal(
-          "0.317544"
-        ), BigDecimal("0.346238"))
+          .toZonedDateTime("2016-01-01 00:15:00") -> (0.317544, 0.346238)
       )
     )
   )

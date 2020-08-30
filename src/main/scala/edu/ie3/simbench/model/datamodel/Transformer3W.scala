@@ -41,7 +41,7 @@ final case class Transformer3W(
     tapPosLV: Int,
     autoTap: Boolean,
     autoTapSide: BranchElementPort,
-    loadingMax: BigDecimal,
+    loadingMax: Double,
     substation: Substation,
     subnet: String,
     voltLvl: Int

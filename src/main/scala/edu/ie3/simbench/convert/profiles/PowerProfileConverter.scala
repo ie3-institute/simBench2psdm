@@ -32,7 +32,7 @@ case object PowerProfileConverter {
     * @return         A [[IndividualTimeSeries]] with [[SValue]] (active and reactive power) for each time step
     */
   def convert(
-      profileModel: ProfileModel[_ <: ProfileType, (BigDecimal, BigDecimal)],
+      profileModel: ProfileModel[_ <: ProfileType, (Double, Double)],
       pRated: ComparableQuantity[Power],
       qRated: ComparableQuantity[Power]
   ): IndividualTimeSeries[SValue] = {
@@ -56,7 +56,7 @@ case object PowerProfileConverter {
     * @return         A [[IndividualTimeSeries]] with active and reactive power for each time step
     */
   def convert(
-      profileModel: ProfileModel[_ <: ProfileType, BigDecimal],
+      profileModel: ProfileModel[_ <: ProfileType, Double],
       pRated: ComparableQuantity[Power]
   ): IndividualTimeSeries[PValue] = {
     val values = profileModel.profile.map {

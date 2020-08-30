@@ -54,33 +54,33 @@ final case class RawModelData(
     get(field) == "1" || get(field).toLowerCase == "true"
 
   /**
-    * Getting BigDecimal entry from field
+    * Getting Double entry from field
     *
     * @param field  Field to extract
-    * @return       Actual information as BigDecimal
+    * @return       Actual information as Double
     */
-  def getBigDecimal(field: String): BigDecimal = {
+  def getDouble(field: String): Double = {
     val entry = get(field)
-    Try(BigDecimal(entry)) match {
+    Try(entry.toDouble) match {
       case Success(value) => value
       case Failure(exception) =>
         throw IoException(
-          s"Cannot build BigDecimal from $field, as the underlying entry $entry cannot be converted to BigDecimal.",
+          s"Cannot build Double from $field, as the underlying entry $entry cannot be converted to Double.",
           exception
         )
     }
   }
 
   /**
-    * Get an option to the entry and convert it to BigDecimal if possible
+    * Get an option to the entry and convert it to Double if possible
     *
     * @param field  Field to extract
     * @return       Option to the actual information
     */
-  def getBigDecimalOption(field: String): Option[BigDecimal] =
+  def getDoubleOption(field: String): Option[Double] =
     get(field) match {
       case "NULL" => None
       case ""     => None
-      case _      => Some(getBigDecimal(field))
+      case _      => Some(getDouble(field))
     }
 }

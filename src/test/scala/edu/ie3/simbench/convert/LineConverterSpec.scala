@@ -27,8 +27,8 @@ class LineConverterSpec extends UnitSpec with ConverterTestData {
     nodeAIn,
     nodeBIn,
     getDCLineTypes("dc line type")._1,
-    BigDecimal("100"),
-    BigDecimal("100"),
+    100,
+    100,
     "subnet 1",
     7
   )

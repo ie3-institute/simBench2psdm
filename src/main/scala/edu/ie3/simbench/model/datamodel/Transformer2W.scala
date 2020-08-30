@@ -36,7 +36,7 @@ final case class Transformer2W(
     tappos: Int,
     autoTap: Boolean,
     autoTapSide: Option[BranchElementPort],
-    loadingMax: BigDecimal,
+    loadingMax: Double,
     substation: Option[Substation],
     subnet: String,
     voltLvl: Int
@@ -136,7 +136,7 @@ case object Transformer2W extends EntityModelCompanionObject[Transformer2W] {
       case "lv" => Some(BranchElementPort.LV)
       case _    => None
     }
-    val loadingMax = rawData.getBigDecimal(LOADING_MAX)
+    val loadingMax = rawData.getDouble(LOADING_MAX)
 
     Transformer2W(
       id,

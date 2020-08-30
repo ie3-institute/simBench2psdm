@@ -35,9 +35,9 @@ final case class RES(
     resType: ResType.Value,
     profile: ResProfileType,
     calculationType: CalculationType,
-    p: BigDecimal,
-    q: BigDecimal,
-    sR: BigDecimal,
+    p: Double,
+    q: Double,
+    sR: Double,
     subnet: String,
     voltLvl: Int
 ) extends ShuntModel
@@ -106,9 +106,9 @@ case object RES extends EntityModelCompanionObject[RES] {
     }
     val profile = ResProfileType(rawData.get(PROFILE))
     val calcType = CalculationType(rawData.get(CALC_TYPE))
-    val p = rawData.getBigDecimal(P)
-    val q = rawData.getBigDecimal(Q)
-    val sRated = rawData.getBigDecimal(S_RATED)
+    val p = rawData.getDouble(P)
+    val q = rawData.getDouble(Q)
+    val sRated = rawData.getDouble(S_RATED)
 
     RES(id, node, resType, profile, calcType, p, q, sRated, subnet, voltLvl)
   }

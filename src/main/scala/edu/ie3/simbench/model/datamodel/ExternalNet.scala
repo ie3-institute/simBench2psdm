@@ -17,9 +17,9 @@ import edu.ie3.simbench.model.datamodel.enums.CalculationType
   */
 sealed trait ExternalNet extends ShuntModel {
   val calculationType: CalculationType
-  val dspf: BigDecimal
-  val pExt: Option[BigDecimal]
-  val qExt: Option[BigDecimal]
+  val dspf: Double
+  val pExt: Option[Double]
+  val qExt: Option[Double]
 }
 
 object ExternalNet extends EntityModelCompanionObject[ExternalNet] {
@@ -40,9 +40,9 @@ object ExternalNet extends EntityModelCompanionObject[ExternalNet] {
       id: String,
       node: Node,
       calculationType: CalculationType,
-      dspf: BigDecimal,
-      pExt: Option[BigDecimal],
-      qExt: Option[BigDecimal],
+      dspf: Double,
+      pExt: Option[Double],
+      qExt: Option[Double],
       subnet: String,
       voltLvl: Int
   ) extends ExternalNet
@@ -63,11 +63,11 @@ object ExternalNet extends EntityModelCompanionObject[ExternalNet] {
   final case class Ward(
       id: String,
       node: Node,
-      dspf: BigDecimal,
-      pExt: Option[BigDecimal],
-      qExt: Option[BigDecimal],
-      pWard: BigDecimal,
-      qWard: BigDecimal,
+      dspf: Double,
+      pExt: Option[Double],
+      qExt: Option[Double],
+      pWard: Double,
+      qWard: Double,
       subnet: String,
       voltLvl: Int
   ) extends ExternalNet {
@@ -91,12 +91,12 @@ object ExternalNet extends EntityModelCompanionObject[ExternalNet] {
   final case class WardExtended(
       id: String,
       node: Node,
-      dspf: BigDecimal,
-      pExt: Option[BigDecimal],
-      qExt: Option[BigDecimal],
-      rWardExtended: BigDecimal,
-      xWardExtended: BigDecimal,
-      vmWardExtended: BigDecimal,
+      dspf: Double,
+      pExt: Option[Double],
+      qExt: Option[Double],
+      rWardExtended: Double,
+      xWardExtended: Double,
+      vmWardExtended: Double,
       subnet: String,
       voltLvl: Int
   ) extends ExternalNet {
@@ -173,20 +173,20 @@ object ExternalNet extends EntityModelCompanionObject[ExternalNet] {
   def buildModel(rawData: RawModelData, node: Node): ExternalNet = {
     val (id, subnet, voltLvl) = getBaseInformation(rawData)
     val calculationType = CalculationType(rawData.get(CALC_TYPE))
-    val dspf = rawData.getBigDecimal(DSPF)
-    val pExt = rawData.getBigDecimalOption(P_EXT_NET)
-    val qExt = rawData.getBigDecimalOption(Q_EXT_NET)
+    val dspf = rawData.getDouble(DSPF)
+    val pExt = rawData.getDoubleOption(P_EXT_NET)
+    val qExt = rawData.getDoubleOption(Q_EXT_NET)
     calculationType match {
       case CalculationType.PQ | CalculationType.PVm | CalculationType.VaVm =>
         Simple(id, node, calculationType, dspf, pExt, qExt, subnet, voltLvl)
       case CalculationType.Ward =>
-        val pWard = rawData.getBigDecimal(P_WARD_SHUNT)
-        val qWard = rawData.getBigDecimal(Q_WARD_SHUNT)
+        val pWard = rawData.getDouble(P_WARD_SHUNT)
+        val qWard = rawData.getDouble(Q_WARD_SHUNT)
         Ward(id, node, dspf, pExt, qExt, pWard, qWard, subnet, voltLvl)
       case CalculationType.WardExtended =>
-        val rWard = rawData.getBigDecimal(R_X_WARD)
-        val xWard = rawData.getBigDecimal(X_X_WARD)
-        val vWard = rawData.getBigDecimal(V_M_X_WARD)
+        val rWard = rawData.getDouble(R_X_WARD)
+        val xWard = rawData.getDouble(X_X_WARD)
+        val vWard = rawData.getDouble(V_M_X_WARD)
         WardExtended(
           id,
           node,

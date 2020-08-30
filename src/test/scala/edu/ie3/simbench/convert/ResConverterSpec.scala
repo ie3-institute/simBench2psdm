@@ -19,18 +19,10 @@ class ResConverterSpec extends UnitSpec with ConverterTestData {
         "test profile",
         ResProfileType.LvRural1,
         Map(
-          simbenchTimeUtil.toZonedDateTime("01.01.1990 00:00") -> BigDecimal(
-            "0.75"
-          ),
-          simbenchTimeUtil.toZonedDateTime("01.01.1990 00:15") -> BigDecimal(
-            "0.55"
-          ),
-          simbenchTimeUtil.toZonedDateTime("01.01.1990 00:30") -> BigDecimal(
-            "0.35"
-          ),
-          simbenchTimeUtil.toZonedDateTime("01.01.1990 00:45") -> BigDecimal(
-            "0.15"
-          )
+          simbenchTimeUtil.toZonedDateTime("01.01.1990 00:00") -> 0.75,
+          simbenchTimeUtil.toZonedDateTime("01.01.1990 00:15") -> 0.55,
+          simbenchTimeUtil.toZonedDateTime("01.01.1990 00:30") -> 0.35,
+          simbenchTimeUtil.toZonedDateTime("01.01.1990 00:45") -> 0.15
         )
       )
 

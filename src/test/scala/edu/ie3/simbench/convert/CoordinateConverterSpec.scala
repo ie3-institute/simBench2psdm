@@ -18,8 +18,8 @@ class CoordinateConverterSpec extends UnitSpec {
       val input = Some(
         Coordinate(
           "random coordinate",
-          BigDecimal("7.412262"),
-          BigDecimal("51.492689"),
+          7.412262,
+          51.492689,
           "subnet_1",
           7
         )

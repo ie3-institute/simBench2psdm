@@ -32,11 +32,11 @@ import edu.ie3.simbench.model.datamodel.enums.NodeType
 final case class Node(
     id: String,
     nodeType: NodeType,
-    vmSetp: Option[BigDecimal] = None,
-    vaSetp: Option[BigDecimal] = None,
-    vmR: BigDecimal,
-    vmMin: BigDecimal,
-    vmMax: BigDecimal,
+    vmSetp: Option[Double] = None,
+    vaSetp: Option[Double] = None,
+    vmR: Double,
+    vmMin: Double,
+    vmMax: Double,
     substation: Option[Substation] = None,
     coordinate: Option[Coordinate] = None,
     subnet: String,
@@ -116,11 +116,11 @@ case object Node extends EntityModelCompanionObject[Node] {
   ): Node = {
     val (id, subnet, voltLvl) = getBaseInformation(rawData)
     val nodeType = NodeType(rawData.get(NODE_TYPE))
-    val vmSetp = rawData.getBigDecimalOption(VM_SETP)
-    val vaSetp = rawData.getBigDecimalOption(VA_SETP)
-    val vmR = rawData.getBigDecimal(VMR)
-    val vmMin = rawData.getBigDecimal(V_M_MIN)
-    val vmMax = rawData.getBigDecimal(V_M_MAX)
+    val vmSetp = rawData.getDoubleOption(VM_SETP)
+    val vaSetp = rawData.getDoubleOption(VA_SETP)
+    val vmR = rawData.getDouble(VMR)
+    val vmMin = rawData.getDouble(V_M_MIN)
+    val vmMax = rawData.getDouble(V_M_MAX)
 
     Node(
       id,

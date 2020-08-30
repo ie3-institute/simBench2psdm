@@ -38,14 +38,14 @@ final case class PowerPlant(
     powerPlantType: PowerPlantType,
     profile: PowerPlantProfileType,
     calculationType: CalculationType,
-    dspf: BigDecimal,
-    p: BigDecimal,
-    q: Option[BigDecimal],
-    sR: BigDecimal,
-    pMin: BigDecimal,
-    pMax: BigDecimal,
-    qMin: BigDecimal,
-    qMax: BigDecimal,
+    dspf: Double,
+    p: Double,
+    q: Option[Double],
+    sR: Double,
+    pMin: Double,
+    pMax: Double,
+    qMin: Double,
+    qMax: Double,
     subnet: String,
     voltLvl: Int
 ) extends ShuntModel
@@ -127,14 +127,14 @@ case object PowerPlant extends EntityModelCompanionObject[PowerPlant] {
     val plantType = PowerPlantType(rawData.get(PLANT_TYPE))
     val profileType = PowerPlantProfileType(rawData.get(PROFILE_TYPE))
     val calcType = CalculationType(rawData.get(CALC_TYPE))
-    val dspf = rawData.getBigDecimal(DSPF)
-    val p = rawData.getBigDecimal(P)
-    val q = rawData.getBigDecimalOption(Q)
-    val sRated = rawData.getBigDecimal(S_RATED)
-    val pMin = rawData.getBigDecimal(P_MIN)
-    val pMax = rawData.getBigDecimal(P_MAX)
-    val qMin = rawData.getBigDecimal(Q_MIN)
-    val qMax = rawData.getBigDecimal(Q_MAX)
+    val dspf = rawData.getDouble(DSPF)
+    val p = rawData.getDouble(P)
+    val q = rawData.getDoubleOption(Q)
+    val sRated = rawData.getDouble(S_RATED)
+    val pMin = rawData.getDouble(P_MIN)
+    val pMax = rawData.getDouble(P_MAX)
+    val qMin = rawData.getDouble(Q_MIN)
+    val qMax = rawData.getDouble(Q_MAX)
 
     PowerPlant(
       id,

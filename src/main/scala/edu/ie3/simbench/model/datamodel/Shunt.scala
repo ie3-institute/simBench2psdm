@@ -20,9 +20,9 @@ package edu.ie3.simbench.model.datamodel
 final case class Shunt(
     id: String,
     node: Node,
-    p0: BigDecimal,
-    q0: BigDecimal,
-    vmR: BigDecimal,
+    p0: Double,
+    q0: Double,
+    vmR: Double,
     step: Int,
     subnet: String,
     voltLvl: Int

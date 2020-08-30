@@ -39,21 +39,21 @@ class StudyCaseSpec extends UnitSpec {
   val expected = Vector(
     StudyCase(
       "hW",
-      BigDecimal("1"),
-      BigDecimal("1"),
-      BigDecimal("1"),
-      BigDecimal("0.8"),
-      BigDecimal("1"),
-      BigDecimal("0.965")
+      1,
+      1,
+      1,
+      0.8,
+      1,
+      0.965
     ),
     StudyCase(
       "hPV",
-      BigDecimal("1"),
-      BigDecimal("1"),
-      BigDecimal("0.85"),
-      BigDecimal("0.95"),
-      BigDecimal("1"),
-      BigDecimal("0.965")
+      1,
+      1,
+      0.85,
+      0.95,
+      1,
+      0.965
     )
   )
 

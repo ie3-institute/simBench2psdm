@@ -17,8 +17,8 @@ sealed trait Line[T <: LineType] extends EntityModel {
   val nodeA: Node
   val nodeB: Node
   val lineType: T
-  val length: BigDecimal
-  val loadingMax: BigDecimal
+  val length: Double
+  val loadingMax: Double
 }
 
 object Line extends EntityModelCompanionObject[Line[_ <: LineType]] {
@@ -40,8 +40,8 @@ object Line extends EntityModelCompanionObject[Line[_ <: LineType]] {
       nodeA: Node,
       nodeB: Node,
       lineType: ACLineType,
-      length: BigDecimal,
-      loadingMax: BigDecimal,
+      length: Double,
+      loadingMax: Double,
       subnet: String,
       voltLvl: Int
   ) extends Line[ACLineType]
@@ -63,8 +63,8 @@ object Line extends EntityModelCompanionObject[Line[_ <: LineType]] {
       nodeA: Node,
       nodeB: Node,
       lineType: DCLineType,
-      length: BigDecimal,
-      loadingMax: BigDecimal,
+      length: Double,
+      loadingMax: Double,
       subnet: String,
       voltLvl: Int
   ) extends Line[DCLineType]
@@ -137,8 +137,8 @@ object Line extends EntityModelCompanionObject[Line[_ <: LineType]] {
       lineType: LineType
   ): Line[_ <: LineType] = {
     val (id, subnet, voltLvl) = getBaseInformation(rawData)
-    val length = rawData.getBigDecimal(LENGTH)
-    val loadingMax = rawData.getBigDecimal(LOADING_MAX)
+    val length = rawData.getDouble(LENGTH)
+    val loadingMax = rawData.getDouble(LOADING_MAX)
 
     lineType match {
       case acLineType: ACLineType =>

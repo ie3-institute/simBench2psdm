@@ -23,8 +23,8 @@ import edu.ie3.simbench.model.datamodel.EntityModel.EntityModelCompanionObject
   */
 final case class NodePFResult(
     node: Node,
-    vm: BigDecimal,
-    va: BigDecimal,
+    vm: Double,
+    va: Double,
     maybeSubstation: Option[Substation],
     subnet: String,
     voltLvl: Int
@@ -100,8 +100,8 @@ case object NodePFResult extends EntityModelCompanionObject[NodePFResult] {
       node: Node,
       maybeSubstation: Option[Substation]
   ): NodePFResult = {
-    val vm = rawData.getBigDecimal(V_M)
-    val va = rawData.getBigDecimal(V_A)
+    val vm = rawData.getDouble(V_M)
+    val va = rawData.getDouble(V_A)
     val subnet = rawData.get(SUBNET)
     val voltLvl = rawData.getInt(VOLT_LVL)
 

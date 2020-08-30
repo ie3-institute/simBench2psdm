@@ -28,10 +28,10 @@ object LineType {
     */
   final case class ACLineType(
       id: String,
-      r: BigDecimal,
-      x: BigDecimal,
-      b: BigDecimal,
-      iMax: BigDecimal,
+      r: Double,
+      x: Double,
+      b: Double,
+      iMax: Double,
       style: LineStyle
   ) extends LineType
 
@@ -58,10 +58,10 @@ object LineType {
       */
     override def apply(rawData: RawModelData): ACLineType = {
       val id = rawData.get(ID)
-      val r = rawData.getBigDecimal(R)
-      val x = rawData.getBigDecimal(X)
-      val b = rawData.getBigDecimal(B)
-      val iMax = rawData.getBigDecimal(I_MAX)
+      val r = rawData.getDouble(R)
+      val x = rawData.getDouble(X)
+      val b = rawData.getDouble(B)
+      val iMax = rawData.getDouble(I_MAX)
       val lineStyle = LineStyle(rawData.get(LINE_TYPE))
 
       ACLineType(id, r, x, b, iMax, lineStyle)
@@ -83,14 +83,14 @@ object LineType {
     */
   final case class DCLineType(
       id: String,
-      p: BigDecimal,
-      relPLoss: BigDecimal,
-      fixPLoss: BigDecimal,
-      pMax: Option[BigDecimal] = None,
-      qMinA: Option[BigDecimal] = None,
-      qMaxA: Option[BigDecimal] = None,
-      qMinB: Option[BigDecimal] = None,
-      qMaxB: Option[BigDecimal] = None
+      p: Double,
+      relPLoss: Double,
+      fixPLoss: Double,
+      pMax: Option[Double] = None,
+      qMinA: Option[Double] = None,
+      qMaxA: Option[Double] = None,
+      qMinB: Option[Double] = None,
+      qMaxB: Option[Double] = None
   ) extends LineType
 
   case object DCLineType extends SimbenchCompanionObject[DCLineType] {
@@ -129,14 +129,14 @@ object LineType {
       */
     override def apply(rawData: RawModelData): DCLineType = {
       val id = rawData.get(ID)
-      val p = rawData.getBigDecimal(P)
-      val relPLoss = rawData.getBigDecimal(REL_P_LOSS)
-      val fixPLoss = rawData.getBigDecimal(FIX_P_LOSS)
-      val pMax = rawData.getBigDecimalOption(P_MAX)
-      val qMinA = rawData.getBigDecimalOption(Q_MIN_A)
-      val qMaxA = rawData.getBigDecimalOption(Q_MAX_A)
-      val qMinB = rawData.getBigDecimalOption(Q_MIN_B)
-      val qMaxB = rawData.getBigDecimalOption(Q_MAX_B)
+      val p = rawData.getDouble(P)
+      val relPLoss = rawData.getDouble(REL_P_LOSS)
+      val fixPLoss = rawData.getDouble(FIX_P_LOSS)
+      val pMax = rawData.getDoubleOption(P_MAX)
+      val qMinA = rawData.getDoubleOption(Q_MIN_A)
+      val qMaxA = rawData.getDoubleOption(Q_MAX_A)
+      val qMinB = rawData.getDoubleOption(Q_MIN_B)
+      val qMaxB = rawData.getDoubleOption(Q_MAX_B)
 
       DCLineType(id, p, relPLoss, fixPLoss, pMax, qMinA, qMaxA, qMinB, qMaxB)
     }

@@ -16,5 +16,5 @@ import java.time.ZonedDateTime
 final case class StorageProfile(
     id: String,
     profileType: StorageProfileType,
-    profile: Map[ZonedDateTime, (BigDecimal, BigDecimal)]
-) extends ProfileModel[StorageProfileType, (BigDecimal, BigDecimal)]
+    profile: Map[ZonedDateTime, (Double, Double)]
+) extends ProfileModel[StorageProfileType, (Double, Double)]

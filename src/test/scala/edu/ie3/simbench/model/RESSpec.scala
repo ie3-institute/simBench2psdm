@@ -56,9 +56,9 @@ class RESSpec extends UnitSpec with ConverterTestData {
       ResType.PV,
       ResProfileType.PV5,
       CalculationType.PQ,
-      BigDecimal("0.023"),
-      BigDecimal("0"),
-      BigDecimal("0.023"),
+      0.023,
+      0,
+      0.023,
       "LV1.101",
       7
     ),
@@ -68,9 +68,9 @@ class RESSpec extends UnitSpec with ConverterTestData {
       ResType.WindMv,
       ResProfileType.WP4,
       CalculationType.VaVm,
-      BigDecimal("0.023"),
-      BigDecimal("0"),
-      BigDecimal("0.023"),
+      0.023,
+      0,
+      0.023,
       "LV1.101",
       7
     )

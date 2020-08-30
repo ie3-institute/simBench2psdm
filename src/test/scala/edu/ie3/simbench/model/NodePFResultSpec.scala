@@ -47,16 +47,16 @@ class NodePFResultSpec extends UnitSpec with ConverterTestData {
   val expected = Vector(
     NodePFResult(
       getNodePair("LV1.101 Bus 1")._1,
-      BigDecimal("1.04913"),
-      BigDecimal("-144.292"),
+      1.04913,
+      -144.292,
       Some(Substation("substation_1", "LV1.101", 7)),
       "LV1.101",
       7
     ),
     NodePFResult(
       getNodePair("LV1.101 Bus 1")._1,
-      BigDecimal("1.04729"),
-      BigDecimal("-144.168"),
+      1.04729,
+      -144.168,
       None,
       "LV1.101",
       7

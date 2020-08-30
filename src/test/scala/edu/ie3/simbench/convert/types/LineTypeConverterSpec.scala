@@ -23,10 +23,10 @@ class LineTypeConverterSpec extends UnitSpec with ConverterTestData {
   val invalidLine: ACLine = ACLine(
     "LV1.101 Line 10",
     getNodePair("LV1.101 Bus 4")._1,
-    getNodePair("LV1.101 Bus 1")._1.copy(vmR = BigDecimal("10")),
+    getNodePair("LV1.101 Bus 1")._1.copy(vmR = 10),
     getACLineTypes("NAYY 4x150SE 0.6/1kV")._1,
-    BigDecimal("0.132499"),
-    BigDecimal("100"),
+    0.132499,
+    100,
     "LV1.101",
     7
   )
@@ -37,8 +37,8 @@ class LineTypeConverterSpec extends UnitSpec with ConverterTestData {
       getNodePair("LV1.101 Bus 4")._1,
       getNodePair("LV1.101 Bus 1")._1,
       getACLineTypes("NAYY 4x150SE 0.6/1kV")._1,
-      BigDecimal("0.132499"),
-      BigDecimal("100"),
+      0.132499,
+      100,
       "LV1.101",
       7
     ),
@@ -47,8 +47,8 @@ class LineTypeConverterSpec extends UnitSpec with ConverterTestData {
       getNodePair("LV1.101 Bus 4")._1,
       getNodePair("LV1.101 Bus 1")._1,
       getACLineTypes("NAYY 4x150SE 0.6/1kV")._1,
-      BigDecimal("0.132499"),
-      BigDecimal("100"),
+      0.132499,
+      100,
       "LV1.101",
       7
     ),
@@ -57,8 +57,8 @@ class LineTypeConverterSpec extends UnitSpec with ConverterTestData {
       getNodePair("LV1.101 Bus 1")._1,
       getNodePair("LV1.101 Bus 4")._1,
       getACLineTypes("24-AL1/4-ST1A 20.0")._1,
-      BigDecimal("0.132499"),
-      BigDecimal("100"),
+      0.132499,
+      100,
       "LV1.101",
       7
     )

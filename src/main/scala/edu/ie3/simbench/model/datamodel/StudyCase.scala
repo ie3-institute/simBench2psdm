@@ -23,12 +23,12 @@ import edu.ie3.simbench.model.datamodel.SimbenchModel.SimbenchCompanionObject
   */
 final case class StudyCase(
     id: String,
-    pLoad: BigDecimal,
-    qLoad: BigDecimal,
-    pWind: BigDecimal,
-    pPv: BigDecimal,
-    pRes: BigDecimal,
-    vMSlack: BigDecimal
+    pLoad: Double,
+    qLoad: Double,
+    pWind: Double,
+    pPv: Double,
+    pRes: Double,
+    vMSlack: Double
 ) extends SimbenchModel
 
 case object StudyCase extends SimbenchCompanionObject[StudyCase] {
@@ -58,12 +58,12 @@ case object StudyCase extends SimbenchCompanionObject[StudyCase] {
     */
   override def apply(rawData: RawModelData): StudyCase = {
     val id = rawData.get(ID)
-    val pLoad = rawData.getBigDecimal(P_LOAD)
-    val qLoad = rawData.getBigDecimal(Q_LOAD)
-    val pWind = rawData.getBigDecimal(P_WIND)
-    val pPv = rawData.getBigDecimal(P_PV)
-    val pRes = rawData.getBigDecimal(P_RES)
-    val vMSlack = rawData.getBigDecimal(VM_SLACK)
+    val pLoad = rawData.getDouble(P_LOAD)
+    val qLoad = rawData.getDouble(Q_LOAD)
+    val pWind = rawData.getDouble(P_WIND)
+    val pPv = rawData.getDouble(P_PV)
+    val pRes = rawData.getDouble(P_RES)
+    val vMSlack = rawData.getDouble(VM_SLACK)
 
     StudyCase(id, pLoad, qLoad, pWind, pPv, pRes, vMSlack)
   }

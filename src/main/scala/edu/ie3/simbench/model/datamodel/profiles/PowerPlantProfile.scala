@@ -22,11 +22,11 @@ import edu.ie3.simbench.model.datamodel.profiles.ProfileModel.ProfileCompanionOb
 final case class PowerPlantProfile(
     id: String,
     profileType: PowerPlantProfileType,
-    profile: Map[ZonedDateTime, BigDecimal]
-) extends ProfileModel[PowerPlantProfileType, BigDecimal]
+    profile: Map[ZonedDateTime, Double]
+) extends ProfileModel[PowerPlantProfileType, Double]
 
 case object PowerPlantProfile
-    extends ProfileCompanionObject[PowerPlantProfile, BigDecimal] {
+    extends ProfileCompanionObject[PowerPlantProfile, Double] {
 
   /**
     * Get an Array of table fields denoting the mapping to the model's attributes
@@ -58,23 +58,25 @@ case object PowerPlantProfile
       /* Get the active and reactive power for each available load profile */
       for (typeString <- profileTypeStrings) yield {
         val profileType = PowerPlantProfileType(typeString)
-        val factor = BigDecimal(rawTableLine.get(typeString))
+        val factor = rawTableLine.get(typeString).toDouble
         (profileType, time, factor)
       }
     }).flatten /* Flatten everything to have Vector((profileType, time, factor)) */
       .groupBy(collectionEntry => collectionEntry._1) /* Build a Map(profileType -> (profileType, time, factor)) */
-      .map(profileEntry => {
+      .map {
         /* Extract the needed information to build a LoadProfile for each profile type */
-        val profileType = profileEntry._1
-        val profileValues =
-          profileEntry._2.map(entry => entry._2 -> entry._3).toMap
+        case (profileType, profileEntry) =>
+          val profileValues =
+            profileEntry.map {
+              case (_, time, factor) => time -> factor
+            }.toMap
 
-        PowerPlantProfile(
-          "\\$$".r.replaceAllIn(profileType.getClass.getSimpleName, ""),
-          profileType,
-          profileValues
-        )
-      })
+          PowerPlantProfile(
+            "\\$$".r.replaceAllIn(profileType.getClass.getSimpleName, ""),
+            profileType,
+            profileValues
+          )
+      }
       .toVector /* Finally build the Vector(PowerPlantProfile) */
   }
 }

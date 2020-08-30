@@ -21,8 +21,8 @@ import edu.ie3.simbench.model.datamodel.EntityModel.EntityModelCompanionObject
   */
 final case class Coordinate(
     id: String,
-    x: BigDecimal,
-    y: BigDecimal,
+    x: Double,
+    y: Double,
     subnet: String,
     voltLvl: Int
 ) extends EntityModel
@@ -48,8 +48,8 @@ case object Coordinate extends EntityModelCompanionObject[Coordinate] {
     */
   override def apply(rawData: RawModelData): Coordinate = {
     val (id, subnet, voltLvl) = getBaseInformation(rawData)
-    val x = rawData.getBigDecimal(X)
-    val y = rawData.getBigDecimal(Y)
+    val x = rawData.getDouble(X)
+    val y = rawData.getDouble(Y)
 
     Coordinate(id, x, y, subnet, voltLvl)
   }

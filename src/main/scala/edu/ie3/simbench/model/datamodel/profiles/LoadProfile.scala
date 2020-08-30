@@ -22,11 +22,11 @@ import edu.ie3.simbench.model.datamodel.profiles.ProfileModel.ProfileCompanionOb
 final case class LoadProfile(
     id: String,
     profileType: LoadProfileType,
-    profile: Map[ZonedDateTime, (BigDecimal, BigDecimal)]
-) extends ProfileModel[LoadProfileType, (BigDecimal, BigDecimal)]
+    profile: Map[ZonedDateTime, (Double, Double)]
+) extends ProfileModel[LoadProfileType, (Double, Double)]
 
 case object LoadProfile
-    extends ProfileCompanionObject[LoadProfile, (BigDecimal, BigDecimal)] {
+    extends ProfileCompanionObject[LoadProfile, (Double, Double)] {
   private val activePowerSuffix = "_pload"
   private val reactivePowerSuffix = "_qload"
 
@@ -168,24 +168,26 @@ case object LoadProfile
       /* Get the active and reactive power for each available load profile */
       for (typeString <- profileTypeStrings) yield {
         val profileType = LoadProfileType(typeString)
-        val p = BigDecimal(rawTableLine.get(typeString + activePowerSuffix))
-        val q = BigDecimal(rawTableLine.get(typeString + reactivePowerSuffix))
+        val p = rawTableLine.get(typeString + activePowerSuffix).toDouble
+        val q = rawTableLine.get(typeString + reactivePowerSuffix).toDouble
         (profileType, time, p, q)
       }
     }).flatten /* Flatten everything to have Vector((profileType, time, p, q)) */
       .groupBy(collectionEntry => collectionEntry._1) /* Build a Map(profileType -> (profileType, time, p, q)) */
-      .map(profileEntry => {
+      .map {
         /* Extract the needed information to build a LoadProfile for each profile type */
-        val profileType = profileEntry._1
-        val profileValues =
-          profileEntry._2.map(entry => entry._2 -> (entry._3, entry._4)).toMap
+        case (profileType, profileEntry) =>
+          val profileValues =
+            profileEntry.map {
+              case (_, time, p, q) => time -> (p, q)
+            }.toMap
 
-        LoadProfile(
-          "\\$$".r.replaceAllIn(profileType.getClass.getSimpleName, ""),
-          profileType,
-          profileValues
-        )
-      })
+          LoadProfile(
+            "\\$$".r.replaceAllIn(profileType.getClass.getSimpleName, ""),
+            profileType,
+            profileValues
+          )
+      }
       .toVector /* Finally build the Vector(LoadProfile) */
   }
 }

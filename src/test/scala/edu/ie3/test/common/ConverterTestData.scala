@@ -101,8 +101,8 @@ trait ConverterTestData {
     "random coordinate" -> (
       Coordinate(
         "random coordinate",
-        BigDecimal("7.412262"),
-        BigDecimal("51.492689"),
+        7.412262,
+        51.492689,
         "subnet_1",
         5
       ),
@@ -111,8 +111,8 @@ trait ConverterTestData {
     "coordinate_14" -> (
       Coordinate(
         "coordinate_14",
-        BigDecimal("11.4097"),
-        BigDecimal("53.6413"),
+        11.4097,
+        53.6413,
         "MV1.101_LV1.101_Feeder1",
         5
       ),
@@ -120,8 +120,8 @@ trait ConverterTestData {
     ),
     "coordinate_2" -> (Coordinate(
       "coordinate_2",
-      BigDecimal("11.411"),
-      BigDecimal("53.6407"),
+      11.411,
+      53.6407,
       "LV1.101",
       7
     ),
@@ -142,11 +142,11 @@ trait ConverterTestData {
       Node(
         "slack_node_0",
         BusBar,
-        Some(BigDecimal("1.3")),
+        Some(1.3),
         None,
-        BigDecimal("10.0"),
-        BigDecimal("0.95"),
-        BigDecimal("1.05"),
+        10.0,
+        0.95,
+        1.05,
         None,
         Some(getCoordinatePair("random coordinate")._1),
         "MV0",
@@ -170,9 +170,9 @@ trait ConverterTestData {
         NodeType.Node,
         None,
         None,
-        BigDecimal("10.0"),
-        BigDecimal("0.95"),
-        BigDecimal("1.05"),
+        10.0,
+        0.95,
+        1.05,
         None,
         None,
         "MV1",
@@ -194,11 +194,11 @@ trait ConverterTestData {
       Node(
         "EHV Bus 177",
         DoubleBusBar,
-        Some(BigDecimal("1.092")),
+        Some(1.092),
         None,
-        BigDecimal("380"),
-        BigDecimal("0.9"),
-        BigDecimal("1.1"),
+        380,
+        0.9,
+        1.1,
         None,
         None,
         "EHV1",
@@ -220,11 +220,11 @@ trait ConverterTestData {
       Node(
         "HV1 Bus 30",
         BusBar,
-        Some(BigDecimal("1.025")),
-        Some(BigDecimal("0.0")),
-        BigDecimal("110"),
-        BigDecimal("0.9"),
-        BigDecimal("1.1"),
+        Some(1.025),
+        Some(0.0),
+        110,
+        0.9,
+        1.1,
         None,
         None,
         "HV1_MV1.102",
@@ -246,11 +246,11 @@ trait ConverterTestData {
       Node(
         "MV1.101 Bus 4",
         NodeType.BusBar,
-        Some(BigDecimal("1.025")),
-        Some(BigDecimal("0.0")),
-        BigDecimal("20"),
-        BigDecimal("0.965"),
-        BigDecimal("1.055"),
+        Some(1.025),
+        Some(0.0),
+        20,
+        0.965,
+        1.055,
         Some(Substation("substation_1", "LV1.101", 7)),
         Some(getCoordinatePair("coordinate_14")._1),
         "MV1.101_LV1.101_Feeder1",
@@ -272,11 +272,11 @@ trait ConverterTestData {
       Node(
         "MV1.101 Bus 5",
         NodeType.BusBar,
-        Some(BigDecimal("1.025")),
-        Some(BigDecimal("0.0")),
-        BigDecimal("20"),
-        BigDecimal("0.965"),
-        BigDecimal("1.055"),
+        Some(1.025),
+        Some(0.0),
+        20,
+        0.965,
+        1.055,
         Some(Substation("substation_1", "LV1.101", 7)),
         Some(getCoordinatePair("coordinate_14")._1),
         "MV1.101_LV1.101_Feeder1",
@@ -300,9 +300,9 @@ trait ConverterTestData {
         NodeType.BusBar,
         None,
         None,
-        BigDecimal("0.4"),
-        BigDecimal("0.9"),
-        BigDecimal("1.1"),
+        0.4,
+        0.9,
+        1.1,
         None,
         Some(getCoordinatePair("coordinate_14")._1),
         "LV1.101",
@@ -326,9 +326,9 @@ trait ConverterTestData {
         NodeType.BusBar,
         None,
         None,
-        BigDecimal("0.4"),
-        BigDecimal("0.9"),
-        BigDecimal("1.1"),
+        0.4,
+        0.9,
+        1.1,
         None,
         Some(getCoordinatePair("coordinate_2")._1),
         "LV1.101",
@@ -362,8 +362,8 @@ trait ConverterTestData {
     "0" -> ConversionPair(
       NodePFResult(
         getNodePair("LV1.101 Bus 1")._1,
-        BigDecimal("1.04913"),
-        BigDecimal("-144.292"),
+        1.04913,
+        -144.292,
         Some(Substation("substation_1", "LV1.101", 7)),
         "LV1.101",
         7
@@ -379,8 +379,8 @@ trait ConverterTestData {
     "1" -> ConversionPair(
       NodePFResult(
         getNodePair("LV1.101 Bus 1")._1,
-        BigDecimal("1.04729"),
-        BigDecimal("-144.168"),
+        1.04729,
+        -144.168,
         None,
         "LV1.101",
         7
@@ -409,10 +409,10 @@ trait ConverterTestData {
     "NAYY 4x150SE 0.6/1kV" -> ConversionPair(
       ACLineType(
         "NAYY 4x150SE 0.6/1kV",
-        BigDecimal("0.2067"),
-        BigDecimal("0.0804248"),
-        BigDecimal("260.752"),
-        BigDecimal("270"),
+        0.2067,
+        0.0804248,
+        260.752,
+        270,
         LineStyle.Cable
       ),
       new LineTypeInput(
@@ -430,10 +430,10 @@ trait ConverterTestData {
     "24-AL1/4-ST1A 20.0" -> ConversionPair(
       ACLineType(
         "24-AL1/4-ST1A 20.0",
-        BigDecimal("1.2012"),
-        BigDecimal("0.394"),
-        BigDecimal("3.53429"),
-        BigDecimal("140"),
+        1.2012,
+        0.394,
+        3.53429,
+        140,
         LineStyle.OverheadLine
       ),
       new LineTypeInput(
@@ -451,10 +451,10 @@ trait ConverterTestData {
     "1x630_RM/50" -> ConversionPair(
       ACLineType(
         "1x630_RM/50",
-        BigDecimal("0.122"),
-        BigDecimal("0.122522"),
-        BigDecimal("58.7478"),
-        BigDecimal("652"),
+        0.122,
+        0.122522,
+        58.7478,
+        652,
         LineStyle.Cable
       ),
       new LineTypeInput(
@@ -475,23 +475,23 @@ trait ConverterTestData {
     "dc line type" -> ConversionPair(
       DCLineType(
         "dc line type",
-        BigDecimal("0"),
-        BigDecimal("0"),
-        BigDecimal("0"),
-        Some(BigDecimal("0")),
-        Some(BigDecimal("0")),
-        Some(BigDecimal("0")),
-        Some(BigDecimal("0")),
-        Some(BigDecimal("0"))
+        0,
+        0,
+        0,
+        Some(0),
+        Some(0),
+        Some(0),
+        Some(0),
+        Some(0)
       ),
       null
     ),
     "dcline 1_type" -> ConversionPair(
       DCLineType(
         "dcline 1_type",
-        BigDecimal("0"),
-        BigDecimal("1.2"),
-        BigDecimal("0"),
+        0,
+        1.2,
+        0,
         None,
         None,
         None,
@@ -503,14 +503,14 @@ trait ConverterTestData {
     "dcline 2_type" -> ConversionPair(
       DCLineType(
         "dcline 2_type",
-        BigDecimal("0"),
-        BigDecimal("1.2"),
-        BigDecimal("0"),
-        Some(BigDecimal("100.1")),
-        Some(BigDecimal("-50.5")),
-        Some(BigDecimal("50.5")),
-        Some(BigDecimal("-25.6")),
-        Some(BigDecimal("25.6"))
+        0,
+        1.2,
+        0,
+        Some(100.1),
+        Some(-50.5),
+        Some(50.5),
+        Some(-25.6),
+        Some(25.6)
       ),
       null
     )
@@ -543,8 +543,8 @@ trait ConverterTestData {
         getNodePair("slack_node_0")._1,
         getNodePair("node_0")._1,
         getACLineTypes("NAYY 4x150SE 0.6/1kV")._1,
-        BigDecimal("100"),
-        BigDecimal("120"),
+        100,
+        120,
         "subnet 1",
         7
       ),
@@ -581,18 +581,18 @@ trait ConverterTestData {
     "test type" -> ConversionPair(
       Transformer2WType(
         "test type",
-        BigDecimal("40"),
-        BigDecimal("110"),
-        BigDecimal("10"),
-        BigDecimal("150"),
-        BigDecimal("5"),
-        BigDecimal("6"),
-        BigDecimal("10"),
-        BigDecimal("1"),
+        40,
+        110,
+        10,
+        150,
+        5,
+        6,
+        10,
+        1,
         tapable = true,
         HV,
-        BigDecimal("0.025"),
-        BigDecimal("5"),
+        0.025,
+        5,
         0,
         -10,
         10
@@ -641,7 +641,7 @@ trait ConverterTestData {
         10,
         autoTap = true,
         Some(HV),
-        BigDecimal("100"),
+        100,
         None,
         "LV1.101",
         6
@@ -714,21 +714,13 @@ trait ConverterTestData {
         LoadProfileType.L2A,
         Map(
           TimeUtil.withDefaults
-            .toZonedDateTime("1990-01-01 00:00:00") -> (BigDecimal("0.75"), BigDecimal(
-            "0.85"
-          )),
+            .toZonedDateTime("1990-01-01 00:00:00") -> (0.75, 0.85),
           TimeUtil.withDefaults
-            .toZonedDateTime("1990-01-01 00:15:00") -> (BigDecimal("0.55"), BigDecimal(
-            "0.75"
-          )),
+            .toZonedDateTime("1990-01-01 00:15:00") -> (0.55, 0.75),
           TimeUtil.withDefaults
-            .toZonedDateTime("1990-01-01 00:30:00") -> (BigDecimal("0.35"), BigDecimal(
-            "0.65"
-          )),
+            .toZonedDateTime("1990-01-01 00:30:00") -> (0.35, 0.65),
           TimeUtil.withDefaults
-            .toZonedDateTime("1990-01-01 00:45:00") -> (BigDecimal("0.15"), BigDecimal(
-            "0.55"
-          ))
+            .toZonedDateTime("1990-01-01 00:45:00") -> (0.15, 0.55)
         )
       )
   )
@@ -748,9 +740,9 @@ trait ConverterTestData {
         "LV1.101 Load 8",
         getNodePair("LV1.101 Bus 1")._1,
         LoadProfileType.L2A,
-        BigDecimal("0.014"),
-        BigDecimal("0.005533"),
-        BigDecimal("0.0150538"), // cosphi = 0.93
+        0.014,
+        0.005533,
+        0.0150538, // cosphi = 0.93
         "LV1.101",
         7
       ),
@@ -844,14 +836,14 @@ trait ConverterTestData {
         Lignite,
         PowerPlantProfile1,
         PVm,
-        BigDecimal("1"),
-        BigDecimal("297"),
+        1,
+        297,
         None,
-        BigDecimal("312.632"),
-        BigDecimal("50"),
-        BigDecimal("297"),
-        BigDecimal("-97.6192"),
-        BigDecimal("97.6192"),
+        312.632,
+        50,
+        297,
+        -97.6192,
+        97.6192,
         "EHV1",
         1
       ),
@@ -873,14 +865,14 @@ trait ConverterTestData {
         Lignite,
         PowerPlantProfile1,
         PVm,
-        BigDecimal("1"),
-        BigDecimal("297"),
-        Some(BigDecimal("97.61")),
-        BigDecimal("312.632"),
-        BigDecimal("50"),
-        BigDecimal("297"),
-        BigDecimal("-97.6192"),
-        BigDecimal("97.6192"),
+        1,
+        297,
+        Some(97.61),
+        312.632,
+        50,
+        297,
+        -97.6192,
+        97.6192,
         "EHV1",
         1
       ),
@@ -915,9 +907,9 @@ trait ConverterTestData {
         ResType.LvRes,
         ResProfileType.LvRural1,
         CalculationType.PQ,
-        BigDecimal("0.16"),
-        BigDecimal("0.0"),
-        BigDecimal("0.16"),
+        0.16,
+        0.0,
+        0.16,
         "MV1.101_LV1.101_eq",
         5
       ),

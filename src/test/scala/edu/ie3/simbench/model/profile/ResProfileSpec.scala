@@ -37,9 +37,9 @@ class ResProfileSpec extends UnitSpec {
       ResProfileType.PV6,
       Map(
         TimeUtil.withDefaults
-          .toZonedDateTime("2016-01-02 10:15:00") -> BigDecimal("0.078013"),
+          .toZonedDateTime("2016-01-02 10:15:00") -> 0.078013,
         TimeUtil.withDefaults
-          .toZonedDateTime("2016-01-02 10:30:00") -> BigDecimal("0.0770834")
+          .toZonedDateTime("2016-01-02 10:30:00") -> 0.0770834
       )
     ),
     ResProfile(
@@ -47,11 +47,9 @@ class ResProfileSpec extends UnitSpec {
       ResProfileType.PV8,
       Map(
         TimeUtil.withDefaults
-          .toZonedDateTime("2016-01-02 10:15:00") -> BigDecimal(
-          "0.0550869"
-        ),
+          .toZonedDateTime("2016-01-02 10:15:00") -> 0.0550869,
         TimeUtil.withDefaults
-          .toZonedDateTime("2016-01-02 10:30:00") -> BigDecimal("0.055754")
+          .toZonedDateTime("2016-01-02 10:30:00") -> 0.055754
       )
     )
   )

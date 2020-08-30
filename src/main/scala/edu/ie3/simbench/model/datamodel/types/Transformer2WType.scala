@@ -34,18 +34,18 @@ import edu.ie3.simbench.model.datamodel.enums.BranchElementPort
   */
 final case class Transformer2WType(
     id: String,
-    sR: BigDecimal,
-    vmHV: BigDecimal,
-    vmLV: BigDecimal,
-    va0: BigDecimal,
-    vmImp: BigDecimal,
-    pCu: BigDecimal,
-    pFe: BigDecimal,
-    iNoLoad: BigDecimal,
+    sR: Double,
+    vmHV: Double,
+    vmLV: Double,
+    va0: Double,
+    vmImp: Double,
+    pCu: Double,
+    pFe: Double,
+    iNoLoad: Double,
     tapable: Boolean,
     tapside: BranchElementPort,
-    dVm: BigDecimal,
-    dVa: BigDecimal,
+    dVm: Double,
+    dVa: Double,
     tapNeutr: Int,
     tapMin: Int,
     tapMax: Int
@@ -102,18 +102,18 @@ case object Transformer2WType
     */
   override def apply(rawData: RawModelData): Transformer2WType = {
     val id = rawData.get(ID)
-    val sRated = rawData.getBigDecimal(S_RATED)
-    val vMHv = rawData.getBigDecimal(V_M_HV)
-    val vMLv = rawData.getBigDecimal(V_M_LV)
-    val vA0 = rawData.getBigDecimal(V_A_0)
-    val vMImp = rawData.getBigDecimal(V_M_IMP)
-    val pCu = rawData.getBigDecimal(P_CU)
-    val pFe = rawData.getBigDecimal(P_FE)
-    val iNoLoad = rawData.getBigDecimal(I_NO_LOAD)
+    val sRated = rawData.getDouble(S_RATED)
+    val vMHv = rawData.getDouble(V_M_HV)
+    val vMLv = rawData.getDouble(V_M_LV)
+    val vA0 = rawData.getDouble(V_A_0)
+    val vMImp = rawData.getDouble(V_M_IMP)
+    val pCu = rawData.getDouble(P_CU)
+    val pFe = rawData.getDouble(P_FE)
+    val iNoLoad = rawData.getDouble(I_NO_LOAD)
     val tappable = rawData.getBoolean(TAPPABLE)
     val tapSide = BranchElementPort(rawData.get(TAP_SIDE))
-    val dVm = rawData.getBigDecimal(D_V_M)
-    val dVa = rawData.getBigDecimal(D_V_A)
+    val dVm = rawData.getDouble(D_V_M)
+    val dVa = rawData.getDouble(D_V_A)
     val tapNeutr = rawData.getInt(TAP_NEUTR)
     val tapMin = rawData.getInt(TAP_MIN)
     val tapMax = rawData.getInt(TAP_MAX)

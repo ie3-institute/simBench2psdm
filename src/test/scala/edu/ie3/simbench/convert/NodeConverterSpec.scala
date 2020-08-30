@@ -25,7 +25,7 @@ class NodeConverterSpec extends UnitSpec with ConverterTestData {
   val uuid: UUID = UUID.randomUUID()
 
   val subnetConverter: SubnetConverter = SubnetConverter(
-    Vector((BigDecimal("10.0"), "MV0"), (BigDecimal("10.0"), "MV1"))
+    Vector((10.0, "MV0"), (10.0, "MV1"))
   )
 
   val (slackNode, slackNodeExpected) = getNodePair("slack_node_0")
@@ -38,7 +38,7 @@ class NodeConverterSpec extends UnitSpec with ConverterTestData {
       "MV1.101 grid at LV1.101",
       getNodePair("MV1.101 Bus 4")._1,
       CalculationType.VaVm,
-      BigDecimal("1"),
+      1,
       None,
       None,
       "LV1.101_MV1.101_eq",
@@ -47,12 +47,12 @@ class NodeConverterSpec extends UnitSpec with ConverterTestData {
     WardExtended(
       "MV1.101 grid at LV1.101",
       getNodePair("MV1.101 Bus 5")._1,
-      BigDecimal("1"),
+      1,
       None,
       None,
-      BigDecimal("1.0"),
-      BigDecimal("2.0"),
-      BigDecimal("3.0"),
+      1.0,
+      2.0,
+      3.0,
       "LV1.101_MV1.101_eq",
       5
     )
@@ -65,14 +65,14 @@ class NodeConverterSpec extends UnitSpec with ConverterTestData {
       PowerPlantType("hard coal"),
       PowerPlantProfileType("pp_75"),
       CalculationType.VaVm,
-      BigDecimal("1"),
-      BigDecimal("778"),
+      1,
+      778,
       None,
-      BigDecimal("818.947"),
-      BigDecimal("50"),
-      BigDecimal("778"),
-      BigDecimal("-255.716"),
-      BigDecimal("255.716"),
+      818.947,
+      50,
+      778,
+      -255.716,
+      255.716,
       "EHV1",
       1
     ),
@@ -82,14 +82,14 @@ class NodeConverterSpec extends UnitSpec with ConverterTestData {
       PowerPlantType("hard coal"),
       PowerPlantProfileType("pp_76"),
       CalculationType.PVm,
-      BigDecimal("1"),
-      BigDecimal("449"),
-      Some(BigDecimal("-42")),
-      BigDecimal("472.632"),
-      BigDecimal("50"),
-      BigDecimal("449"),
-      BigDecimal("-147.579"),
-      BigDecimal("147.579"),
+      1,
+      449,
+      Some(-42),
+      472.632,
+      50,
+      449,
+      -147.579,
+      147.579,
       "EHV1",
       1
     )
@@ -102,9 +102,9 @@ class NodeConverterSpec extends UnitSpec with ConverterTestData {
       ResType.PV,
       ResProfileType.PV5,
       CalculationType.PQ,
-      BigDecimal("0.023"),
-      BigDecimal("0"),
-      BigDecimal("0.023"),
+      0.023,
+      0,
+      0.023,
       "LV1.101",
       7
     ),
@@ -114,9 +114,9 @@ class NodeConverterSpec extends UnitSpec with ConverterTestData {
       ResType.WindMv,
       ResProfileType.WP4,
       CalculationType.VaVm,
-      BigDecimal("0.023"),
-      BigDecimal("0"),
-      BigDecimal("0.023"),
+      0.023,
+      0,
+      0.023,
       "LV1.101",
       7
     )
