@@ -5,7 +5,7 @@ import edu.ie3.datamodel.io.sink.CsvFileSink
 import edu.ie3.simbench.config.SimbenchConfig
 import edu.ie3.simbench.convert.GridConverter
 import edu.ie3.simbench.exception.CodeValidationException
-import edu.ie3.simbench.io.{Downloader, IoUtils, SimbenchReader}
+import edu.ie3.simbench.io.{Downloader, IoUtils, SimbenchReader, Zipper}
 import edu.ie3.simbench.model.SimbenchCode
 
 import scala.jdk.CollectionConverters._
@@ -30,8 +30,7 @@ object RunSimbench extends SimbenchHelper {
           simbenchConfig.io.input.download.failOnExistingFiles
         )
       val downloadedFile =
-        Downloader.download(
-          downloader,
+        downloader.download(
           SimbenchCode(simbenchCode).getOrElse(
             throw CodeValidationException(
               s"'$simbenchCode' is no valid SimBench code."
@@ -39,7 +38,12 @@ object RunSimbench extends SimbenchHelper {
           )
         )
       val dataFolder =
-        Downloader.unzip(downloader, downloadedFile, flattenDirectories = true)
+        Zipper.unzip(
+          downloadedFile,
+          downloader.downloadFolder,
+          simbenchConfig.io.input.download.failOnExistingFiles,
+          flattenDirectories = true
+        )
 
       logger.info(s"Reading in the SimBench data set '$simbenchCode'")
       val simbenchReader = SimbenchReader(

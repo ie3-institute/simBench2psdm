@@ -1,15 +1,14 @@
 package edu.ie3.simbench.io
 
 import java.io.File
-import java.nio.file.{Files, Paths}
+import java.nio.file.Paths
 
 import edu.ie3.simbench.exception.CodeValidationException
-import edu.ie3.simbench.exception.io.{DownloaderException, IoException}
+import edu.ie3.simbench.exception.io.DownloaderException
 import edu.ie3.simbench.model.SimbenchCode
 import edu.ie3.test.common.UnitSpec
 import edu.ie3.util.io.FileIOUtils
 
-import scala.jdk.StreamConverters._
 import scala.language.postfixOps
 import scala.util.{Failure, Success, Try}
 
@@ -32,7 +31,7 @@ class DownloaderSpec extends UnitSpec with IoUtils {
         s"${downloadFolderPath.getAbsolutePath}/${targetSimbenchCode.code}.zip"
       )
 
-      val actualFile = Downloader.download(downloader, targetSimbenchCode)
+      val actualFile = downloader.download(targetSimbenchCode)
       actualFile shouldBe expectedPath
 
       FileIOUtils.deleteRecursively(actualFile)
@@ -55,12 +54,12 @@ class DownloaderSpec extends UnitSpec with IoUtils {
         s"${downloadFolderPath.getAbsolutePath}/${targetSimbenchCode.code}.zip"
       )
 
-      val actualFile = Downloader.download(downloader, targetSimbenchCode)
+      val actualFile = downloader.download(targetSimbenchCode)
       actualFile shouldBe expectedPath
 
       Try(
         intercept[DownloaderException] {
-          Downloader.download(downloader, targetSimbenchCode)
+          downloader.download(targetSimbenchCode)
         }.getMessage shouldBe "Cannot download to file '1-LV-urban6--0-sw.zip', as it already exists"
       ) match {
         case Success(assertion) =>
@@ -83,11 +82,11 @@ class DownloaderSpec extends UnitSpec with IoUtils {
         s"${downloadFolderPath.getAbsolutePath}/${targetSimbenchCode.code}.zip"
       )
 
-      val actualFile = Downloader.download(downloader, targetSimbenchCode)
+      val actualFile = downloader.download(targetSimbenchCode)
       actualFile shouldBe expectedPath
 
       Try {
-        val actualFile = Downloader.download(downloader, targetSimbenchCode)
+        val actualFile = downloader.download(targetSimbenchCode)
         actualFile shouldBe expectedPath
       } match {
         case Success(assertion) =>
