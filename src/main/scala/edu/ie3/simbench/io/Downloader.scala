@@ -5,14 +5,19 @@ import java.net.URL
 import java.nio.file.{Files, Path, Paths}
 
 import com.typesafe.scalalogging.LazyLogging
-import edu.ie3.simbench.exception.io.DownloaderException
+import edu.ie3.simbench.exception.io.{DownloaderException, IoException}
 import edu.ie3.simbench.model.SimbenchCode
+import edu.ie3.util.io.FileIOUtils
 import org.apache.commons.compress.archivers.zip.ZipFile
 
 import scala.language.postfixOps
 import scala.sys.process._
 
-final case class Downloader(downloadFolder: String, baseUrl: String)
+final case class Downloader(
+    downloadFolder: String,
+    baseUrl: String,
+    failOnExistingFiles: Boolean
+)
 
 case object Downloader extends IoUtils with LazyLogging {
 
@@ -31,7 +36,12 @@ case object Downloader extends IoUtils with LazyLogging {
     if (downloadFolderPath.mkdirs()) {
       logger.debug("Created all non existing folders")
     }
-    if (downloadFile.createNewFile()) {
+
+    if (downloader.failOnExistingFiles && downloadFile.exists())
+      throw DownloaderException(
+        s"Cannot download to file '${downloadFile.getName}', as it already exists"
+      )
+    else if (downloadFile.createNewFile()) {
       logger.debug(s"Created new empty file ${downloadFile.getName}")
     } else {
       logger.debug(s"Overwrite existing file ${downloadFile.getName}")
@@ -80,10 +90,19 @@ case object Downloader extends IoUtils with LazyLogging {
       )
     } else {
       /* Check if the folder is not empty */
-      val folderStream =
-        Files.newDirectoryStream(targetFolder.toAbsolutePath)
-      if (folderStream.iterator().hasNext) {
-        logger.warn(s"The target directory $targetFolder is not empty!")
+      val folderStream = Files.newDirectoryStream(targetFolder.toAbsolutePath)
+      val folderEntryIterator = folderStream.iterator()
+      if (folderEntryIterator.hasNext) {
+        if (downloader.failOnExistingFiles)
+          throw DownloaderException(
+            s"Cannot unzip '${zipArchive.getFileName}', as it's target folder '$targetFolder' is not empty"
+          )
+        else {
+          logger.warn(
+            s"The target directory $targetFolder is not empty! Deleting the files."
+          )
+          folderEntryIterator.forEachRemaining(FileIOUtils.deleteRecursively(_))
+        }
       }
     }
 

@@ -24,7 +24,11 @@ object RunSimbench extends SimbenchHelper {
     simbenchConfig.io.simbenchCodes.foreach { simbenchCode =>
       logger.info(s"Downloading data set '$simbenchCode' from SimBench website")
       val downloader =
-        Downloader(simbenchConfig.io.downloadFolder, simbenchConfig.io.baseUrl)
+        Downloader(
+          simbenchConfig.io.downloadFolder,
+          simbenchConfig.io.baseUrl,
+          simbenchConfig.io.input.download.failOnExistingFiles
+        )
       val downloadedFile =
         Downloader.download(
           downloader,
