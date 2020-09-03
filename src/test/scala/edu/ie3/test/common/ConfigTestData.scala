@@ -2,10 +2,12 @@ package edu.ie3.test.common
 
 import edu.ie3.simbench.config
 import edu.ie3.simbench.config.SimbenchConfig
+import edu.ie3.simbench.config.SimbenchConfig.Io.Input
 
 trait ConfigTestData {
   val validIoInputConfig = new SimbenchConfig.Io.Input(
-    new SimbenchConfig.CsvConfig("UTF-8", ".csv", ";")
+    new SimbenchConfig.CsvConfig("UTF-8", ".csv", ";"),
+    new Input.Download(false, "testData/download/")
   )
   val validIoOutputConfig = new SimbenchConfig.Io.Output(
     new config.SimbenchConfig.CsvConfig("UTF-8", ".csv", ";"),
