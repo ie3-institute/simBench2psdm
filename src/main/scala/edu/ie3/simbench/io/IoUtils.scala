@@ -43,6 +43,18 @@ trait IoUtils {
     pathString.replaceAll(fileSeparatorRegex.toString(), "/")
 
   /**
+    * Harmonizes the file separators and ensures, that the last character is a file separator
+    */
+  val ensureHarmonizedAndTerminatingFileSeparator: String => String =
+    (path: String) => {
+      val harmonizedInput = harmonizeFileSeparator(path)
+      if (harmonizedInput.endsWith("/"))
+        harmonizedInput
+      else
+        harmonizedInput + "/"
+    }
+
+  /**
     * Removes the dot from a file provided file ending string
     */
   val getFileExtensionWithoutDot: String => String =

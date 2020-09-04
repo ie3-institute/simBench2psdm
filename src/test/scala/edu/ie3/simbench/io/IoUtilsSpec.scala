@@ -13,6 +13,16 @@ class IoUtilsSpec extends UnitSpec {
       IoUtils.harmonizeFileSeparator("bla\\foo/test.ext") shouldBe "bla/foo/test.ext"
     }
 
+    "ensure appended file separator" in {
+      IoUtils.ensureHarmonizedAndTerminatingFileSeparator("bla/foo/test/ext") shouldBe "bla/foo/test/ext/"
+      IoUtils.ensureHarmonizedAndTerminatingFileSeparator("bla/foo/test/ext/") shouldBe "bla/foo/test/ext/"
+      IoUtils.ensureHarmonizedAndTerminatingFileSeparator("bla\\foo\\test\\ext") shouldBe "bla/foo/test/ext/"
+      IoUtils.ensureHarmonizedAndTerminatingFileSeparator(
+        "bla\\foo\\test\\ext\\"
+      ) shouldBe "bla/foo/test/ext/"
+      IoUtils.ensureHarmonizedAndTerminatingFileSeparator("bla\\foo/test\\ext/") shouldBe "bla/foo/test/ext/"
+    }
+
     "extract file endings correctly" in {
       IoUtils.getFileExtensionWithoutDot("test.ext") shouldBe "ext"
       IoUtils.getFileExtensionWithoutDot("bla/foo/test.ext") shouldBe "ext"

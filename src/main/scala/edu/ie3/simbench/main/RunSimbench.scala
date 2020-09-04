@@ -59,10 +59,10 @@ object RunSimbench extends SimbenchHelper {
         GridConverter.convert(simbenchCode, simbenchModel)
 
       logger.info(s"Writing converted data set '$simbenchCode' to files")
-      val targetFolderPath = "[/\\\\]$|(?<![/\\\\])$".r.replaceAllIn(
-        IoUtils.harmonizeFileSeparator(simbenchConfig.io.output.targetFolder),
-        "/" + simbenchCode
-      )
+      val targetFolderPath =
+        IoUtils.ensureHarmonizedAndTerminatingFileSeparator(
+          simbenchConfig.io.output.targetFolder
+        ) + simbenchCode
 
       val csvSink = new CsvFileSink(
         targetFolderPath,
