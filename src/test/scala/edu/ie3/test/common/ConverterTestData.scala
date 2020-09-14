@@ -61,7 +61,7 @@ import edu.ie3.simbench.model.datamodel.profiles.{
 import edu.ie3.simbench.model.datamodel.types.LineType.{ACLineType, DCLineType}
 import edu.ie3.simbench.model.datamodel.types.{LineType, Transformer2WType}
 import edu.ie3.util.TimeUtil
-import edu.ie3.util.quantities.PowerSystemUnits._
+import edu.ie3.util.quantities.dep.PowerSystemUnits._
 import org.locationtech.jts.geom.{
   GeometryFactory,
   Point,
@@ -400,7 +400,7 @@ trait ConverterTestData {
       )
       .getPair
 
-  val lineTypes = Map(
+  val acLineTypes = Map(
     "NAYY 4x150SE 0.6/1kV" -> ConversionPair(
       ACLineType(
         "NAYY 4x150SE 0.6/1kV",
@@ -463,29 +463,70 @@ trait ConverterTestData {
         Quantities.getQuantity(652d, ELECTRIC_CURRENT_MAGNITUDE),
         Quantities.getQuantity(20d, RATED_VOLTAGE_MAGNITUDE)
       )
-    ),
+    )
+  )
+
+  val dcLineTypes = Map(
     "dc line type" -> ConversionPair(
       DCLineType(
         "dc line type",
         BigDecimal("0"),
         BigDecimal("0"),
         BigDecimal("0"),
+        Some(BigDecimal("0")),
+        Some(BigDecimal("0")),
+        Some(BigDecimal("0")),
+        Some(BigDecimal("0")),
+        Some(BigDecimal("0"))
+      ),
+      null
+    ),
+    "dcline 1_type" -> ConversionPair(
+      DCLineType(
+        "dcline 1_type",
         BigDecimal("0"),
+        BigDecimal("1.2"),
         BigDecimal("0"),
+        None,
+        None,
+        None,
+        None,
+        None
+      ),
+      null
+    ),
+    "dcline 2_type" -> ConversionPair(
+      DCLineType(
+        "dcline 2_type",
         BigDecimal("0"),
+        BigDecimal("1.2"),
         BigDecimal("0"),
-        BigDecimal("0")
+        Some(BigDecimal("100.1")),
+        Some(BigDecimal("-50.5")),
+        Some(BigDecimal("50.5")),
+        Some(BigDecimal("-25.6")),
+        Some(BigDecimal("25.6"))
       ),
       null
     )
   )
 
-  def getLineTypePair(key: String): (LineType, LineTypeInput) =
-    lineTypes
+  def getACLineTypes(key: String): (ACLineType, LineTypeInput) =
+    acLineTypes
       .getOrElse(
         key,
         throw TestingException(
-          s"Cannot find input / result pair for ${LineType.getClass.getSimpleName} $key."
+          s"Cannot find input / result pair for ${ACLineType.getClass.getSimpleName} $key."
+        )
+      )
+      .getPair
+
+  def getDCLineTypes(key: String): (DCLineType, LineTypeInput) =
+    dcLineTypes
+      .getOrElse(
+        key,
+        throw TestingException(
+          s"Cannot find input / result pair for ${DCLineType.getClass.getSimpleName} $key."
         )
       )
       .getPair
@@ -496,13 +537,7 @@ trait ConverterTestData {
         "ac line",
         getNodePair("slack_node_0")._1,
         getNodePair("node_0")._1,
-        getLineTypePair("NAYY 4x150SE 0.6/1kV")._1 match {
-          case acLineType: ACLineType => acLineType
-          case dcLineType: DCLineType =>
-            throw TestingException(
-              s"Found DC line type '$dcLineType' instead of AC line type"
-            )
-        },
+        getACLineTypes("NAYY 4x150SE 0.6/1kV")._1,
         BigDecimal("100"),
         BigDecimal("120"),
         "subnet 1",
@@ -516,7 +551,7 @@ trait ConverterTestData {
         getNodePair("slack_node_0")._2,
         getNodePair("node_0")._2,
         1,
-        getLineTypePair("NAYY 4x150SE 0.6/1kV")._2,
+        getACLineTypes("NAYY 4x150SE 0.6/1kV")._2,
         Quantities.getQuantity(100d, KILOMETRE),
         GridAndGeoUtils.buildSafeLineStringBetweenNodes(
           getNodePair("slack_node_0")._2,

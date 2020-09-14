@@ -6,14 +6,13 @@ import edu.ie3.datamodel.models.input.connector.`type`.LineTypeInput
 import edu.ie3.simbench.exception.{ConversionException, TestingException}
 import edu.ie3.simbench.model.datamodel.Line.DCLine
 import edu.ie3.simbench.model.datamodel.types.LineType
-import edu.ie3.simbench.model.datamodel.types.LineType.DCLineType
 import edu.ie3.test.common.{ConverterTestData, UnitSpec}
 
 class LineConverterSpec extends UnitSpec with ConverterTestData {
   val (nodeAIn, nodeA) = getNodePair("slack_node_0")
   val (nodeBIn, nodeB) = getNodePair("node_0")
 
-  val (lineTypeIn, lineType) = getLineTypePair("NAYY 4x150SE 0.6/1kV")
+  val (lineTypeIn, lineType) = getACLineTypes("NAYY 4x150SE 0.6/1kV")
   val lineTypeMapping: Map[LineType, LineTypeInput] = Map(
     lineTypeIn -> lineType
   )
@@ -22,13 +21,7 @@ class LineConverterSpec extends UnitSpec with ConverterTestData {
     "dc line",
     nodeAIn,
     nodeBIn,
-    getLineTypePair("dc line type")._1 match {
-      case dcLineType: DCLineType => dcLineType
-      case acLineType: LineType.ACLineType =>
-        throw TestingException(
-          s"Found AC line type '$acLineType' instead of DC line type"
-        )
-    },
+    getDCLineTypes("dc line type")._1,
     BigDecimal("100"),
     BigDecimal("100"),
     "subnet 1",

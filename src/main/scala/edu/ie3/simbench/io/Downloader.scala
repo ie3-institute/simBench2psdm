@@ -11,6 +11,7 @@ import org.apache.commons.compress.archivers.zip.ZipFile
 
 import scala.language.postfixOps
 import scala.sys.process._
+import scala.util.{Failure, Success, Try}
 
 final case class Downloader(downloadFolder: String, baseUrl: String)
 
@@ -87,7 +88,14 @@ case object Downloader extends IoUtils with LazyLogging {
       }
     }
 
-    val zipFile = new ZipFile(zipArchive.toFile)
+    val zipFile = Try(new ZipFile(zipArchive.toFile)) match {
+      case Failure(exception) =>
+        throw DownloaderException(
+          s"Cannot extract file '${zipArchive.toString}'.",
+          exception
+        )
+      case Success(value) => value
+    }
     val entries = zipFile.getEntries()
     while (entries.hasMoreElements) {
       val entry = entries.nextElement()
