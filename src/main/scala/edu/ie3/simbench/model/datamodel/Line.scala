@@ -109,7 +109,7 @@ object Line extends EntityModelCompanionObject[Line[_ <: LineType]] {
       val lineType = lineTypes.getOrElse(
         entry.get(LINE_TYPE),
         throw SimbenchDataModelException(
-          s"Cannot build ${this.getClass.getSimpleName}, as suitable reference to $LINE_TYPE cannot be found."
+          s"Cannot build ${this.getClass.getSimpleName} '${entry.get("id")}', as suitable reference to $LINE_TYPE cannot be found."
         )
       )
 
