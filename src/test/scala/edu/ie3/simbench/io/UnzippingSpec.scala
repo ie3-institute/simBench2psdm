@@ -8,13 +8,14 @@ import edu.ie3.util.io.FileIOUtils
 import org.scalatest.BeforeAndAfterEach
 
 import scala.jdk.StreamConverters._
-import scala.language.postfixOps
+import scala.language.{existentials, postfixOps}
 import scala.util.{Failure, Success, Try}
 
 class UnzippingSpec extends UnitSpec with IoUtils with BeforeAndAfterEach {
   val downloader: Downloader = Downloader(
     "testData/download/",
-    "http://141.51.193.167/simbench/gui/usecase/download"
+    "http://141.51.193.167/simbench/gui/usecase/download",
+    failOnExistingFiles = false
   )
 
   private val archiveFilePath: Path =
@@ -159,6 +160,50 @@ class UnzippingSpec extends UnitSpec with IoUtils with BeforeAndAfterEach {
 
       /* Tidy up all the temporary files */
       FileIOUtils.deleteRecursively(extractionBasePath)
+    }
+
+    "throw an exception, if the target folder exists and contains files" in {
+      val downloader: Downloader = Downloader(
+        "testData/download/",
+        "http://141.51.193.167/simbench/gui/usecase/download",
+        failOnExistingFiles = true
+      )
+      val targetFolderPath =
+        Downloader.unzip(downloader, archiveFilePath, flattenDirectories = true)
+      Try(
+        intercept[DownloaderException] {
+          Downloader.unzip(downloader, archiveFilePath)
+        }.getMessage == "Cannot unzip '${zipArchive.getFileName}', as it's target folder '$targetFolder' is not empty"
+      ) match {
+        case Success(assertion) =>
+          FileIOUtils.deleteRecursively(targetFolderPath)
+          assertion
+        case Failure(exception) =>
+          FileIOUtils.deleteRecursively(targetFolderPath)
+          throw exception
+      }
+    }
+
+    "throw no exception, if the target folder exists and contains files" in {
+      val downloader: Downloader = Downloader(
+        "testData/download/",
+        "http://141.51.193.167/simbench/gui/usecase/download",
+        failOnExistingFiles = false
+      )
+      val targetFolderPath =
+        Downloader.unzip(downloader, archiveFilePath, flattenDirectories = true)
+      Try(
+        noException shouldBe thrownBy {
+          Downloader.unzip(downloader, archiveFilePath)
+        }
+      ) match {
+        case Success(assertion) =>
+          FileIOUtils.deleteRecursively(targetFolderPath)
+          assertion
+        case Failure(exception) =>
+          FileIOUtils.deleteRecursively(targetFolderPath)
+          throw exception
+      }
     }
   }
 }

@@ -3,17 +3,24 @@ package edu.ie3.simbench.io
 import java.io.{File, FileOutputStream}
 import java.net.URL
 import java.nio.file.{Files, Path, Paths}
+import java.util.zip.ZipEntry
 
 import com.typesafe.scalalogging.LazyLogging
-import edu.ie3.simbench.exception.io.DownloaderException
+import edu.ie3.simbench.exception.io.{DownloaderException, IoException}
 import edu.ie3.simbench.model.SimbenchCode
-import org.apache.commons.compress.archivers.zip.ZipFile
+import edu.ie3.util.io.FileIOUtils
+import org.apache.commons.compress.archivers.zip.{ZipArchiveEntry, ZipFile}
 
 import scala.language.postfixOps
+import scala.reflect.io.ZipArchive
 import scala.sys.process._
 import scala.util.{Failure, Success, Try}
 
-final case class Downloader(downloadFolder: String, baseUrl: String)
+final case class Downloader(
+    downloadFolder: String,
+    baseUrl: String,
+    failOnExistingFiles: Boolean = true
+)
 
 case object Downloader extends IoUtils with LazyLogging {
 
@@ -32,7 +39,12 @@ case object Downloader extends IoUtils with LazyLogging {
     if (downloadFolderPath.mkdirs()) {
       logger.debug("Created all non existing folders")
     }
-    if (downloadFile.createNewFile()) {
+
+    if (downloader.failOnExistingFiles && downloadFile.exists())
+      throw DownloaderException(
+        s"Cannot download to file '${downloadFile.getName}', as it already exists"
+      )
+    else if (downloadFile.createNewFile()) {
       logger.debug(s"Created new empty file ${downloadFile.getName}")
     } else {
       logger.debug(s"Overwrite existing file ${downloadFile.getName}")
@@ -72,21 +84,7 @@ case object Downloader extends IoUtils with LazyLogging {
         )
       )
     val targetFolder = Paths.get(s"${downloader.downloadFolder}$archiveName/")
-    if (!Files.exists(targetFolder)) {
-      Files.createDirectories(targetFolder)
-    } else if (!Files.isDirectory(targetFolder)) {
-      throw DownloaderException(
-        s"The target directory to unzip $zipArchive already exists, but is not a " +
-          s"directory"
-      )
-    } else {
-      /* Check if the folder is not empty */
-      val folderStream =
-        Files.newDirectoryStream(targetFolder.toAbsolutePath)
-      if (folderStream.iterator().hasNext) {
-        logger.warn(s"The target directory $targetFolder is not empty!")
-      }
-    }
+    prepareFolder(targetFolder, downloader.failOnExistingFiles)
 
     val zipFile = Try(new ZipFile(zipArchive.toFile)) match {
       case Failure(exception) =>
@@ -98,52 +96,109 @@ case object Downloader extends IoUtils with LazyLogging {
     }
     val entries = zipFile.getEntries()
     while (entries.hasMoreElements) {
-      val entry = entries.nextElement()
-      logger.debug(s"Unzipping ${entry.getName} (${entry.getSize} bytes)")
-      (entry.isDirectory, flattenDirectories) match {
-        case (true, true) =>
-          /* Flatten everything, that is in this directory */
-          logger.debug(
-            s"I will flatten all entries, that are in the directory ${entry.getName}"
-          )
-        case (true, false) =>
-          /* Create the subfolder */
-          val subfolder = Paths.get(
-            s"${targetFolder.toAbsolutePath.toString}/${entry.getName}"
-          )
-          Files.createDirectories(subfolder)
-        case (false, _) =>
-          val entryName = if (flattenDirectories) {
-            fileNameRegexWithAnyEnding
-              .findFirstIn(entry.getName)
-              .getOrElse(
-                throw DownloaderException(
-                  s"Cannot extract the flattened file name of ${entry.getName}"
-                )
-              )
-          } else {
-            entry.getName
-          }
-          val forseenTagetFilePath =
-            Paths.get(s"${targetFolder.toAbsolutePath.toString}/$entryName")
-          if (Files.exists(forseenTagetFilePath)) {
-            logger.warn(s"Target file $forseenTagetFilePath already exists")
-          }
-          val targetFilePath = Files.createFile(forseenTagetFilePath)
-
-          val entryInputStream = zipFile.getInputStream(entry)
-          val outputStream = new FileOutputStream(targetFilePath.toFile, false)
-          val outputBuffer = new Array[Byte](1024)
-          LazyList
-            .continually(entryInputStream.read(outputBuffer))
-            .takeWhile(_ != -1)
-            .foreach(outputStream.write(outputBuffer, 0, _))
-          entryInputStream.close()
-          outputStream.close()
-      }
+      handleZipEntry(
+        entries.nextElement(),
+        zipFile,
+        targetFolder,
+        flattenDirectories
+      )
     }
     zipFile.close()
 
     targetFolder
+  }
+
+  /**
+    * Prepares the folder by creating it, if it not exists. If it is existent and no directory, throw an exception. If
+    * it is not empty, either delete the content or throw an exception, depending on what is requested.
+    *
+    * @param folderPath           Path to the folder, that is meant to be prepared
+    * @param failOnNonEmptyFolder Throws an Exception, when true and the folder already has files in it
+    */
+  private def prepareFolder(
+      folderPath: Path,
+      failOnNonEmptyFolder: Boolean = true
+  ): Unit = {
+    if (!Files.exists(folderPath)) {
+      Files.createDirectories(folderPath)
+    } else if (!Files.isDirectory(folderPath)) {
+      throw DownloaderException(
+        s"'$folderPath' already exists, but is not a directory"
+      )
+    } else {
+      /* Check if the folder is not empty */
+      val folderStream = Files.newDirectoryStream(folderPath.toAbsolutePath)
+      val folderEntryIterator = folderStream.iterator()
+      if (folderEntryIterator.hasNext) {
+        if (failOnNonEmptyFolder)
+          throw DownloaderException(
+            s"Directory '$folderPath' is not empty"
+          )
+        else {
+          logger.warn(
+            s"The target directory $folderPath is not empty! Deleting the files."
+          )
+          folderEntryIterator.forEachRemaining(FileIOUtils.deleteRecursively(_))
+        }
+      }
+    }
+  }
+
+  /**
+    * Extracting the single entries from zip file. Enclosed directories are flattened, if requested to do so.
+    *
+    * @param entry              Actual entry to treat
+    * @param zipFile            Archive to extract information from
+    * @param targetFolder       Target folder path
+    * @param flattenDirectories true, when enclosed directories may be flattened
+    */
+  private def handleZipEntry(
+      entry: ZipArchiveEntry,
+      zipFile: ZipFile,
+      targetFolder: Path,
+      flattenDirectories: Boolean
+  ): Unit = {
+    logger.debug(s"Unzipping ${entry.getName} (${entry.getSize} bytes)")
+    (entry.isDirectory, flattenDirectories) match {
+      case (true, true) =>
+        /* Flatten everything, that is in this directory */
+        logger.debug(
+          s"I will flatten all entries, that are in the directory ${entry.getName}"
+        )
+      case (true, false) =>
+        /* Create the subfolder */
+        val subfolder = Paths.get(
+          s"${targetFolder.toAbsolutePath.toString}/${entry.getName}"
+        )
+        Files.createDirectories(subfolder)
+      case (false, _) =>
+        val entryName = if (flattenDirectories) {
+          fileNameRegexWithAnyEnding
+            .findFirstIn(entry.getName)
+            .getOrElse(
+              throw DownloaderException(
+                s"Cannot extract the flattened file name of ${entry.getName}"
+              )
+            )
+        } else {
+          entry.getName
+        }
+        val forseenTagetFilePath =
+          Paths.get(s"${targetFolder.toAbsolutePath.toString}/$entryName")
+        if (Files.exists(forseenTagetFilePath)) {
+          logger.warn(s"Target file $forseenTagetFilePath already exists")
+        }
+        val targetFilePath = Files.createFile(forseenTagetFilePath)
+
+        val entryInputStream = zipFile.getInputStream(entry)
+        val outputStream = new FileOutputStream(targetFilePath.toFile, false)
+        val outputBuffer = new Array[Byte](1024)
+        LazyList
+          .continually(entryInputStream.read(outputBuffer))
+          .takeWhile(_ != -1)
+          .foreach(outputStream.write(outputBuffer, 0, _))
+        entryInputStream.close()
+        outputStream.close()
+    }
   }
 }
