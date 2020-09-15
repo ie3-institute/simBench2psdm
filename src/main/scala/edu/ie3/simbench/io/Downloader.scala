@@ -19,7 +19,7 @@ import scala.util.{Failure, Success, Try}
 final case class Downloader(
     downloadFolder: String,
     baseUrl: String,
-    failOnExistingFiles: Boolean
+    failOnExistingFiles: Boolean = true
 )
 
 case object Downloader extends IoUtils with LazyLogging {
@@ -117,7 +117,7 @@ case object Downloader extends IoUtils with LazyLogging {
     */
   private def prepareFolder(
       folderPath: Path,
-      failOnNonEmptyFolder: Boolean
+      failOnNonEmptyFolder: Boolean = true
   ): Unit = {
     if (!Files.exists(folderPath)) {
       Files.createDirectories(folderPath)
