@@ -10,6 +10,7 @@ import edu.ie3.simbench.model.datamodel.profiles.{
   PowerPlantProfile,
   ResProfile
 }
+import edu.ie3.simbench.model.datamodel.types.LineType.{ACLineType, DCLineType}
 import edu.ie3.simbench.model.datamodel.types.{LineType, Transformer2WType}
 import edu.ie3.test.common.{SimbenchReaderTestData, UnitSpec}
 import org.scalatest.Inside._
@@ -25,7 +26,8 @@ class SimbenchReaderSpec extends UnitSpec with SimbenchReaderTestData {
   val checkedFolderPath: String = IoUtils.trimFirstSeparatorInWindowsPath(
     classLoader.getResource("io/csv/simpleDataset").getPath
   )
-  val reader: SimbenchReader = SimbenchReader(Paths.get(checkedFolderPath))
+  val reader: SimbenchReader =
+    SimbenchReader("simpleDataset", Paths.get(checkedFolderPath))
   val readModelClassMethod: PrivateMethod[
     Future[(Class[_ <: SimbenchModel], Vector[Map[String, String]])]
   ] =
@@ -167,7 +169,7 @@ class SimbenchReaderSpec extends UnitSpec with SimbenchReaderTestData {
       ](Symbol("getFieldToValueMaps"))
       val fieldToValuesMap = reader invokePrivate fieldToValuesMethod()
 
-      fieldToValuesMap.keySet.size shouldBe 15
+      fieldToValuesMap.keySet.size shouldBe 16
 
       /* profiles */
       fieldToValuesMap
@@ -217,10 +219,10 @@ class SimbenchReaderSpec extends UnitSpec with SimbenchReaderTestData {
         .length shouldBe 1
       fieldToValuesMap
         .getOrElse(
-          classOf[LineType],
-          fail(s"No entry available for class ${classOf[LineType]}")
+          classOf[ACLineType],
+          fail(s"No entry available for class ${classOf[ACLineType]}")
         )
-        .getOrElse(fail(s"Entry for class ${classOf[LineType]} is empty."))
+        .getOrElse(fail(s"Entry for class ${classOf[ACLineType]} is empty."))
         .length shouldBe 21
       fieldToValuesMap
         .getOrElse(
@@ -281,6 +283,7 @@ class SimbenchReaderSpec extends UnitSpec with SimbenchReaderTestData {
       val actual = reader.readGrid()
       inside(actual) {
         case GridModel(
+            simbenchCode,
             externalNets,
             lines,
             loads,
@@ -301,6 +304,7 @@ class SimbenchReaderSpec extends UnitSpec with SimbenchReaderTestData {
             transofmers2w,
             transformers3w
             ) =>
+          simbenchCode shouldBe expectedGridModel.simbenchCode
           externalNets shouldBe expectedGridModel.externalNets
           lines shouldBe expectedGridModel.lines
           loads shouldBe expectedGridModel.loads

@@ -15,7 +15,7 @@ final String rocketChatChannel = "jenkins"
 //// but if this projects depends on some of our other projects, you have to *build the dependencies first*!
 //// *IMPORTANT:* you *MUST* use exact repo names as this will used for checkout!
 //// *IMPORTANT2:* you must provide exact 4 elements!
-projects = ['simbench4ie3']
+projects = ['simBench2psdm']
 
 orgNames = ['ie3-institute']
 urls = ['git@github.com:' + orgNames.get(0)]

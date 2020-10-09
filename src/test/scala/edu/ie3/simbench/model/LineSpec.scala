@@ -1,10 +1,8 @@
 package edu.ie3.simbench.model
 
-import edu.ie3.simbench.exception.TestingException
 import edu.ie3.simbench.exception.io.SimbenchDataModelException
 import edu.ie3.simbench.model.datamodel.Line
 import edu.ie3.simbench.model.datamodel.Line.ACLine
-import edu.ie3.simbench.model.datamodel.types.LineType.{ACLineType, DCLineType}
 import edu.ie3.test.common.{ConverterTestData, UnitSpec}
 
 class LineSpec extends UnitSpec with ConverterTestData {
@@ -14,20 +12,8 @@ class LineSpec extends UnitSpec with ConverterTestData {
   )
 
   val lineTypeMapping = Map(
-    "NAYY 4x150SE 0.6/1kV" -> (getLineTypePair("NAYY 4x150SE 0.6/1kV")._1 match {
-      case acLineType: ACLineType => acLineType
-      case dcLineType: DCLineType =>
-        throw TestingException(
-          s"Found DC line type '$dcLineType' instead of AC line type"
-        )
-    }),
-    "24-AL1/4-ST1A 20.0" -> (getLineTypePair("24-AL1/4-ST1A 20.0")._1 match {
-      case acLineType: ACLineType => acLineType
-      case dcLineType: DCLineType =>
-        throw TestingException(
-          s"Found DC line type '$dcLineType' instead of AC line type"
-        )
-    })
+    "NAYY 4x150SE 0.6/1kV" -> getACLineTypes("NAYY 4x150SE 0.6/1kV")._1,
+    "24-AL1/4-ST1A 20.0" -> getACLineTypes("24-AL1/4-ST1A 20.0")._1
   )
 
   val rawData = Vector(
@@ -64,13 +50,7 @@ class LineSpec extends UnitSpec with ConverterTestData {
       "LV1.101 Line 10",
       getNodePair("LV1.101 Bus 4")._1,
       getNodePair("LV1.101 Bus 1")._1,
-      getLineTypePair("NAYY 4x150SE 0.6/1kV")._1 match {
-        case acLineType: ACLineType => acLineType
-        case dcLineType: DCLineType =>
-          throw TestingException(
-            s"Found DC line type '$dcLineType' instead of AC line type"
-          )
-      },
+      getACLineTypes("NAYY 4x150SE 0.6/1kV")._1,
       BigDecimal("0.132499"),
       BigDecimal("100"),
       "LV1.101",
@@ -80,13 +60,7 @@ class LineSpec extends UnitSpec with ConverterTestData {
       "LV1.101 Line 10",
       getNodePair("LV1.101 Bus 1")._1,
       getNodePair("LV1.101 Bus 4")._1,
-      getLineTypePair("24-AL1/4-ST1A 20.0")._1 match {
-        case acLineType: ACLineType => acLineType
-        case dcLineType: DCLineType =>
-          throw TestingException(
-            s"Found DC line type '$dcLineType' instead of AC line type"
-          )
-      },
+      getACLineTypes("24-AL1/4-ST1A 20.0")._1,
       BigDecimal("0.132499"),
       BigDecimal("100"),
       "LV1.101",

@@ -20,9 +20,7 @@ import edu.ie3.util.quantities.dep.PowerSystemUnits.{
 }
 import tec.uom.se.quantity.Quantities
 
-import scala.math.{atan, cos}
-
-case object LoadConverter {
+case object LoadConverter extends ShuntConverter {
   def convert(
       loads: Vector[Load],
       nodes: Map[Node, NodeInput],
@@ -53,7 +51,7 @@ case object LoadConverter {
       uuid: UUID = UUID.randomUUID()
   ): (LoadInput, IndividualTimeSeries[SValue]) = {
     val id = input.id
-    val cosphi = cos(atan((input.qLoad / input.pLoad).doubleValue))
+    val cosphi = cosPhi(input.pLoad, input.qLoad)
     val varCharacteristicString =
       "cosPhiFixed:{(0.0,%#.2f)}".formatLocal(Locale.ENGLISH, cosphi)
     val eCons = Quantities.getQuantity(0d, KILOWATTHOUR)

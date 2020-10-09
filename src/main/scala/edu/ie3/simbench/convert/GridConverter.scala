@@ -26,7 +26,14 @@ import edu.ie3.simbench.convert.types.{
   Transformer2wTypeConverter
 }
 import edu.ie3.simbench.exception.ConversionException
-import edu.ie3.simbench.model.datamodel.{GridModel, Node, NodePFResult, Switch}
+import edu.ie3.simbench.model.datamodel.{
+  GridModel,
+  Node,
+  NodePFResult,
+  Switch,
+  Transformer2W,
+  Transformer3W
+}
 
 import scala.jdk.CollectionConverters._
 
@@ -48,9 +55,18 @@ case object GridConverter extends LazyLogging {
       Vector[IndividualTimeSeries[_ <: PValue]],
       Vector[NodeResult]
   ) = {
+    logger.debug(s"Converting raw grid elements of '${gridInput.simbenchCode}'")
     val (rawGridElements, nodeConversion) = convertGridElements(gridInput)
+
+    logger.debug(
+      s"Converting system participants and their time series of '${gridInput.simbenchCode}'"
+    )
     val (systemParticipants, timeSeries) =
       convertParticipants(gridInput, nodeConversion)
+
+    logger.debug(
+      s"Converting power flow results of '${gridInput.simbenchCode}'"
+    )
     val powerFlowResults =
       convertNodeResults(gridInput.nodePFResults, nodeConversion)
 
@@ -188,7 +204,7 @@ case object GridConverter extends LazyLogging {
 
           updateAlongSwitchChain(
             conversion,
-            transformer.nodeHV,
+            transformer,
             gridModel,
             relevantSubnet
           )
@@ -203,7 +219,7 @@ case object GridConverter extends LazyLogging {
 
         updateAlongSwitchChain(
           conversion,
-          transformer.nodeHV,
+          transformer,
           gridModel,
           relevantSubnet
         )
@@ -216,22 +232,25 @@ case object GridConverter extends LazyLogging {
     * is updated to the relevant subnet and the mapping from SimBench to psdm is updated as well.
     *
     * @param initialNodeConversion Mapping from SimBench to psdm model that needs update
-    * @param startNode             Start node from which the travel is supposed to start
+    * @param startTransformer      Transformer from whose high voltage node the travel is supposed to start
     * @param gridModel             Model of the grid to take information about lines and transformers from
     * @param relevantSubnet        The subnet id to set
     * @return updated mapping from SimBench to psdm node model
     */
   private def updateAlongSwitchChain(
       initialNodeConversion: Map[Node, NodeInput],
-      startNode: Node,
+      startTransformer: Transformer2W,
       gridModel: GridModel,
       relevantSubnet: Int
   ): Map[Node, NodeInput] = {
+    val startNode = startTransformer.nodeHV
     val junctions = (gridModel.lines.flatMap(
       line => Vector(line.nodeA, line.nodeB)
-    ) ++ gridModel.transformers2w.flatMap(
-      transformer => Vector(transformer.nodeHV, transformer.nodeLV)
-    ) ++ gridModel.transformers3w.flatMap(
+    ) ++ gridModel.transformers2w
+      .filter(_ != startTransformer)
+      .flatMap(
+        transformer => Vector(transformer.nodeHV, transformer.nodeLV)
+      ) ++ gridModel.transformers3w.flatMap(
       transformer =>
         Vector(transformer.nodeHV, transformer.nodeLV, transformer.nodeMV)
     )).distinct
@@ -246,8 +265,47 @@ case object GridConverter extends LazyLogging {
 
   /**
     * Traveling along a switch chain starting from a starting node and stopping at dead ends and those nodes, that are
+    * directly related to lines or transformers (read: not only switches). During this travel, every node we come along
+    * is updated to the relevant subnet and the mapping from SimBench to psdm is updated as well.
+    *
+    * @param initialNodeConversion Mapping from SimBench to psdm model that needs update
+    * @param startTransformer      Transformer from whose high voltage node the travel is supposed to start
+    * @param gridModel             Model of the grid to take information about lines and transformers from
+    * @param relevantSubnet        The subnet id to set
+    * @return updated mapping from SimBench to psdm node model
+    */
+  private def updateAlongSwitchChain(
+      initialNodeConversion: Map[Node, NodeInput],
+      startTransformer: Transformer3W,
+      gridModel: GridModel,
+      relevantSubnet: Int
+  ): Map[Node, NodeInput] = {
+    val startNode = startTransformer.nodeHV
+    val junctions = (gridModel.lines.flatMap(
+      line => Vector(line.nodeA, line.nodeB)
+    ) ++ gridModel.transformers2w.flatMap(
+      transformer => Vector(transformer.nodeHV, transformer.nodeLV)
+    ) ++ gridModel.transformers3w
+      .filter(_ != startTransformer)
+      .flatMap(
+        transformer =>
+          Vector(transformer.nodeHV, transformer.nodeLV, transformer.nodeMV)
+      )).distinct
+    updateAlongSwitchChain(
+      initialNodeConversion,
+      startNode,
+      gridModel.switches,
+      junctions,
+      relevantSubnet
+    )
+  }
+
+  /**
+    * Traveling along a switch chain starting from a starting node and stopping at dead ends and those nodes, that are
     * marked explicitly as junctions. During this travel, every node we come along is updated to the relevant subnet and
-    * the mapping from SimBench to psdm is updated as well.
+    * the mapping from SimBench to psdm is updated as well. Adding the traveled nodes to the list of junctions, prevents
+    * from running in circles forever. Pay attention, that when starting from the hv node ovf a transformer, it may not
+    * be included in the set of junction nodes, if it is not part of any other junction.
     *
     * @param initialNodeConversion Mapping from SimBench to psdm model that needs update
     * @param startNode             Start node from which the travel is supposed to start
@@ -263,6 +321,11 @@ case object GridConverter extends LazyLogging {
       junctions: Vector[Node],
       relevantSubnet: Int
   ): Map[Node, NodeInput] = {
+    /* If the start node is among the junctions, do not travel further (Attention: Start node should not be among
+     * junctions when the traversing starts, otherwise nothing will happen at all.) */
+    if (junctions.contains(startNode))
+      return initialNodeConversion
+
     /* Get the switch, that is connected to the starting node and determine the next node */
     val nextSwitches = switches.filter {
       case Switch(_, nodeA, nodeB, _, _, _, _, _) =>
@@ -363,9 +426,22 @@ case object GridConverter extends LazyLogging {
       nodeConversion: Map[Node, NodeInput]
   ): (SystemParticipants, Vector[IndividualTimeSeries[_ <: PValue]]) = {
     /* Convert all participant groups */
+    logger.debug(
+      s"Participants to convert:\n\tLoads: ${gridInput.loads.size}" +
+        s"\n\tPower Plants: ${gridInput.powerPlants.size}\n\tRES: ${gridInput.res.size}"
+    )
     val loadsToTimeSeries = convertLoads(gridInput, nodeConversion)
+    logger.debug(
+      s"Done converting ${gridInput.loads.size} loads including time series"
+    )
     val powerPlantsToTimeSeries = convertPowerPlants(gridInput, nodeConversion)
+    logger.debug(
+      s"Done converting ${gridInput.powerPlants.size} power plants including time series"
+    )
     val resToTimeSeries = convertRes(gridInput, nodeConversion)
+    logger.debug(
+      s"Done converting ${gridInput.res.size} RES including time series"
+    )
 
     /* Collect all their time series */
     val timeSeries = loadsToTimeSeries.values.toVector ++ powerPlantsToTimeSeries.values.toVector ++ resToTimeSeries.values
