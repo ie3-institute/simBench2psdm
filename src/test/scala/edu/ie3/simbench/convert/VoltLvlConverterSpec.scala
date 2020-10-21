@@ -3,8 +3,8 @@ package edu.ie3.simbench.convert
 import edu.ie3.datamodel.exceptions.VoltageLevelException
 import edu.ie3.datamodel.models.voltagelevels.GermanVoltageLevelUtils
 import edu.ie3.test.common.UnitSpec
-import edu.ie3.util.quantities.dep.PowerSystemUnits.KILOVOLT
-import tec.uom.se.quantity.Quantities
+import edu.ie3.util.quantities.PowerSystemUnits.KILOVOLT
+import tech.units.indriya.quantity.Quantities
 
 class VoltLvlConverterSpec extends UnitSpec {
   "The voltage level converter" should {

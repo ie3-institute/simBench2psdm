@@ -61,15 +61,15 @@ import edu.ie3.simbench.model.datamodel.profiles.{
 import edu.ie3.simbench.model.datamodel.types.LineType.{ACLineType, DCLineType}
 import edu.ie3.simbench.model.datamodel.types.{LineType, Transformer2WType}
 import edu.ie3.util.TimeUtil
-import edu.ie3.util.quantities.dep.PowerSystemUnits._
+import edu.ie3.util.quantities.PowerSystemUnits._
+import javax.measure.MetricPrefix
 import org.locationtech.jts.geom.{
   GeometryFactory,
   Point,
   Coordinate => JTSCoordinate
 }
-import tec.uom.se.quantity.Quantities
-import tec.uom.se.unit.MetricPrefix
-import tec.uom.se.unit.Units.{OHM, PERCENT, SIEMENS}
+import tech.units.indriya.quantity.Quantities
+import tech.units.indriya.unit.Units._
 
 trait ConverterTestData {
 

@@ -6,13 +6,9 @@ import edu.ie3.datamodel.models.input.connector.`type`.Transformer2WTypeInput
 import edu.ie3.simbench.exception.ConversionException
 import edu.ie3.simbench.model.datamodel.enums.BranchElementPort.LV
 import edu.ie3.simbench.model.datamodel.types.Transformer2WType
-import edu.ie3.util.quantities.dep.PowerSystemUnits.{
-  DEGREE_GEOM,
-  PU,
-  VOLTAMPERE
-}
-import tec.uom.se.quantity.Quantities
-import tec.uom.se.unit.Units.{OHM, SIEMENS, VOLT}
+import edu.ie3.util.quantities.PowerSystemUnits.{DEGREE_GEOM, PU, VOLTAMPERE}
+import tech.units.indriya.quantity.Quantities
+import tech.units.indriya.unit.Units.{OHM, SIEMENS, VOLT}
 
 import scala.math.sqrt
 

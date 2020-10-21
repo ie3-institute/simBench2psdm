@@ -6,8 +6,8 @@ import java.util.UUID
 import edu.ie3.datamodel.models.input.NodeInput
 import edu.ie3.datamodel.models.result.NodeResult
 import edu.ie3.simbench.model.datamodel.NodePFResult
-import edu.ie3.util.quantities.dep.PowerSystemUnits.{PU, DEGREE_GEOM}
-import tec.uom.se.quantity.Quantities
+import edu.ie3.util.quantities.PowerSystemUnits.{PU, DEGREE_GEOM}
+import tech.units.indriya.quantity.Quantities
 
 /**
   * Converts [[NodePFResult]] to [[NodeResult]]

@@ -4,8 +4,8 @@ import edu.ie3.datamodel.models.StandardUnits
 import edu.ie3.datamodel.models.input.NodeInput
 import edu.ie3.simbench.model.datamodel.profiles.LoadProfile
 import edu.ie3.test.common.{ConverterTestData, UnitSpec}
-import edu.ie3.util.quantities.dep.PowerSystemUnits.KILOWATTHOUR
-import tec.uom.se.quantity.Quantities
+import edu.ie3.util.quantities.PowerSystemUnits.KILOWATTHOUR
+import tech.units.indriya.quantity.Quantities
 
 import scala.math.abs
 

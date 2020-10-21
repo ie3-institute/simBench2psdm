@@ -16,7 +16,6 @@ ext {
 	//version (changing these should be considered thoroughly!)
 	javaVersion = JavaVersion.VERSION_1_8
 
-	unitsOfMeasurementVersion = '1.0.10'
 	scalaVersion = '2.13'
 	tscfgVersion = '0.9.98'
 	slf4jVersion = '1.7.26'
@@ -59,7 +58,7 @@ dependencies {
 
 	compile 'org.codehaus.groovy:groovy:3.0.3'
 
-	compile "tec.uom:uom-se:$unitsOfMeasurementVersion"
+	implementation 'tech.units:indriya:2.0.4'
 
 	// logging
 	compile 'org.apache.logging.log4j:log4j-api:+' // log4j
