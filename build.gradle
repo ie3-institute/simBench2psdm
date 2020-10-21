@@ -44,7 +44,7 @@ repositories {
 
 dependencies {
 	/* PowerSystemDataModel */
-	compile ('com.github.ie3-institute:PowerSystemDataModel:1.1-SNAPSHOT') {
+	compile ('com.github.ie3-institute:PowerSystemDataModel:2.0-SNAPSHOT') {
 		/* Exclude nested logging and ie3 related dependencies */
 		exclude group: 'org.slf4j', module: 'slf4j-api'
 		exclude group: 'com.github.ie3-institute'
