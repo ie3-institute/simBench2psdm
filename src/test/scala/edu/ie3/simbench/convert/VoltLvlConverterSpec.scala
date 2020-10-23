@@ -29,8 +29,8 @@ class VoltLvlConverterSpec extends UnitSpec {
 
     "throw exceptions, when the voltage level is not a known german one" in {
       val actual2expected = Map(
-        (2, Quantities.getQuantity(295d, KILOVOLT)) -> "The id ehv2hv in combination with the rated voltage 295.0 kV is not covered by none of the commonly known german voltage levels.",
-        (4, Quantities.getQuantity(60d, KILOVOLT)) -> "The id hv2mv in combination with the rated voltage 60.0 kV is not covered by none of the commonly known german voltage levels.",
+        (2, Quantities.getQuantity(295d, KILOVOLT)) -> "The id ehv2hv in combination with the rated voltage 295 kV is not covered by none of the commonly known german voltage levels.",
+        (4, Quantities.getQuantity(60d, KILOVOLT)) -> "The id hv2mv in combination with the rated voltage 60 kV is not covered by none of the commonly known german voltage levels.",
         (6, Quantities.getQuantity(5.2, KILOVOLT)) -> "The id mv2lv in combination with the rated voltage 5.2 kV is not covered by none of the commonly known german voltage levels."
       )
 
