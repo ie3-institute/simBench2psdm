@@ -5,14 +5,14 @@ import java.util.UUID
 import edu.ie3.simbench.exception.ConversionException
 import edu.ie3.simbench.model.datamodel.types.Transformer2WType
 import edu.ie3.test.common.{ConverterTestData, UnitSpec}
-import edu.ie3.util.quantities.dep.PowerSystemUnits.{
+import edu.ie3.util.quantities.PowerSystemUnits.{
   DEGREE_GEOM,
   KILOVOLT,
   KILOVOLTAMPERE
 }
-import tec.uom.se.quantity.Quantities
-import tec.uom.se.unit.MetricPrefix
-import tec.uom.se.unit.Units.{OHM, PERCENT, SIEMENS}
+import tech.units.indriya.quantity.Quantities
+import javax.measure.MetricPrefix
+import tech.units.indriya.unit.Units.{OHM, PERCENT, SIEMENS}
 
 class Transformer2wTypeConverterSpec extends UnitSpec with ConverterTestData {
   val testingTolerance = 1e-3

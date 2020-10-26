@@ -10,7 +10,7 @@ import edu.ie3.datamodel.models.value.{PValue, SValue}
 import edu.ie3.simbench.exception.ConversionException
 import edu.ie3.simbench.model.datamodel.profiles.{ProfileModel, ProfileType}
 import javax.measure.quantity.Power
-import tec.uom.se.ComparableQuantity
+import tech.units.indriya.ComparableQuantity
 
 import scala.jdk.CollectionConverters._
 

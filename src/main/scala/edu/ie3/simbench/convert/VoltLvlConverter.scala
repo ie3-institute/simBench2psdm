@@ -5,7 +5,7 @@ import edu.ie3.datamodel.models.voltagelevels.{
   VoltageLevel
 }
 import javax.measure.quantity.ElectricPotential
-import tec.uom.se.ComparableQuantity
+import tech.units.indriya.ComparableQuantity
 
 case object VoltLvlConverter {
   val mapping: Map[Int, String] = Map(

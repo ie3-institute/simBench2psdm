@@ -5,8 +5,15 @@ import com.typesafe.scalalogging.LazyLogging
 import edu.ie3.simbench.config.ArgsParser
 import edu.ie3.simbench.config.ArgsParser.Arguments
 import edu.ie3.simbench.exception.io.SimbenchConfigException
+import edu.ie3.util.quantities.QuantityAdjustments
 
 trait SimbenchHelper extends LazyLogging {
+
+  /**
+    * Adjust the quantity library to be able to "understand" the Scala number system
+    */
+  QuantityAdjustments.adjust()
+
   def prepareConfig(args: Array[String]): (Arguments, TypesafeConfig) = {
 
     val parsedArgs = ArgsParser.parse(args) match {
