@@ -303,9 +303,10 @@ case object GridConverter extends LazyLogging {
   /**
     * Traveling along a switch chain starting from a starting node and stopping at dead ends and those nodes, that are
     * marked explicitly as junctions. During this travel, every node we come along is updated to the relevant subnet and
-    * the mapping from SimBench to psdm is updated as well. Adding the traveled nodes to the list of junctions, prevents
-    * from running in circles forever. Pay attention, that when starting from the hv node ovf a transformer, it may not
-    * be included in the set of junction nodes, if it is not part of any other junction.
+    * the mapping from SimBench to psdm is updated as well. The subnet at junctions and dead ends is not altered. Adding
+    * the traveled nodes to the list of junctions, prevents from running in circles forever. Pay attention, that when
+    * starting from the hv node of a transformer, it may not be included in the set of junction nodes, if it is not part
+    * of any other junction.
     *
     * @param initialNodeConversion Mapping from SimBench to psdm model that needs update
     * @param startNode             Start node from which the travel is supposed to start
@@ -326,14 +327,19 @@ case object GridConverter extends LazyLogging {
     if (junctions.contains(startNode))
       return initialNodeConversion
 
-    /* Get the switch, that is connected to the starting node and determine the next node */
+    /* Get all switches, that are connected to the current starting point. If the other end of the switch is a junction,
+     * don't follow this path, as the other side wouldn't be touched anyways. */
     val nextSwitches = switches.filter {
-      case Switch(_, nodeA, nodeB, _, _, _, _, _) =>
-        nodeA == startNode || nodeB == startNode
+      case Switch(_, nodeA, nodeB, _, _, _, _, _) if nodeA == startNode =>
+        !junctions.contains(nodeB)
+      case Switch(_, nodeA, nodeB, _, _, _, _, _) if nodeB == startNode =>
+        !junctions.contains(nodeA)
+      case _ => false
     }
 
     if (nextSwitches.isEmpty) {
-      /* There is no further switch, therefore the end is reached -> return the new mapping */
+      /* There is no further switch, therefore the end is reached -> return the new mapping. Please note, as the subnet
+       * of the current node is only altered, if there is a next switch available, dead end nodes are not altered. */
       initialNodeConversion
     } else {
       /* Copy new node and add it to the mapping */
@@ -363,17 +369,13 @@ case object GridConverter extends LazyLogging {
                 )
             }
 
-          /* If there is a junction at the end of the chain -> don't touch anything */
-          if (newJunctions.contains(nextNode))
-            return conversion
-          else
-            return updateAlongSwitchChain(
-              conversion,
-              nextNode,
-              switches,
-              newJunctions,
-              relevantSubnet
-            )
+          return updateAlongSwitchChain(
+            conversion,
+            nextNode,
+            switches,
+            newJunctions,
+            relevantSubnet
+          )
       }
     }
   }
