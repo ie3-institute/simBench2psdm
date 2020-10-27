@@ -1,6 +1,6 @@
 package edu.ie3.simbench.main
 
-import edu.ie3.datamodel.io.FileNamingStrategy
+import edu.ie3.datamodel.io.csv.FileNamingStrategy
 import edu.ie3.datamodel.io.sink.CsvFileSink
 import edu.ie3.simbench.config.SimbenchConfig
 import edu.ie3.simbench.convert.GridConverter

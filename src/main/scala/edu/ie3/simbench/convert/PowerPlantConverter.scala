@@ -14,12 +14,12 @@ import edu.ie3.simbench.model.datamodel.profiles.{
   PowerPlantProfileType
 }
 import edu.ie3.simbench.model.datamodel.{Node, PowerPlant}
-import edu.ie3.util.quantities.dep.PowerSystemUnits.{
+import edu.ie3.util.quantities.PowerSystemUnits.{
   MEGAVAR,
   MEGAVOLTAMPERE,
   MEGAWATT
 }
-import tec.uom.se.quantity.Quantities
+import tech.units.indriya.quantity.Quantities
 
 import scala.math._
 

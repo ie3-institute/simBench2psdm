@@ -12,9 +12,8 @@ import edu.ie3.datamodel.utils.GridAndGeoUtils
 import edu.ie3.simbench.exception.ConversionException
 import edu.ie3.simbench.model.datamodel.types.LineType
 import edu.ie3.simbench.model.datamodel.{Line, Node}
-import edu.ie3.util.quantities.dep.PowerSystemUnits.KILOMETRE
-import org.locationtech.jts.geom.GeometryFactory
-import tec.uom.se.quantity.Quantities
+import edu.ie3.util.quantities.PowerSystemUnits.KILOMETRE
+import tech.units.indriya.quantity.Quantities
 
 case object LineConverter extends LazyLogging {
 

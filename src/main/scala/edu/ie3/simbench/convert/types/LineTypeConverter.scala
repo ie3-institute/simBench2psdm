@@ -8,16 +8,16 @@ import edu.ie3.simbench.exception.ConversionException
 import edu.ie3.simbench.exception.io.SimbenchDataModelException
 import edu.ie3.simbench.model.datamodel.Line
 import edu.ie3.simbench.model.datamodel.types.LineType
-import edu.ie3.util.quantities.dep.PowerSystemUnits.{
+import edu.ie3.util.quantities.PowerSystemUnits.{
   KILOVOLT,
   OHM_PER_KILOMETRE,
   SIEMENS_PER_KILOMETRE
 }
+import javax.measure.MetricPrefix
 import javax.measure.quantity.ElectricPotential
-import tec.uom.se.ComparableQuantity
-import tec.uom.se.quantity.Quantities
-import tec.uom.se.unit.MetricPrefix
-import tec.uom.se.unit.Units.AMPERE
+import tech.units.indriya.ComparableQuantity
+import tech.units.indriya.quantity.Quantities
+import tech.units.indriya.unit.Units.AMPERE
 
 /**
   * Currently not supported by ie3's data model:
