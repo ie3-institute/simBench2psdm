@@ -1,16 +1,17 @@
 package edu.ie3.simbench.main
 
-import edu.ie3.datamodel.io.csv.{
-  DefaultInputHierarchy,
-  FileNamingStrategy,
-  HierarchicFileNamingStrategy
-}
+import java.nio.file.Paths
+
+import edu.ie3.datamodel.io.TarballUtils
+import edu.ie3.datamodel.io.csv.{DefaultInputHierarchy, FileNamingStrategy, HierarchicFileNamingStrategy}
 import edu.ie3.datamodel.io.sink.CsvFileSink
 import edu.ie3.simbench.config.SimbenchConfig
 import edu.ie3.simbench.convert.GridConverter
 import edu.ie3.simbench.exception.CodeValidationException
 import edu.ie3.simbench.io.{Downloader, IoUtils, SimbenchReader, Zipper}
 import edu.ie3.simbench.model.SimbenchCode
+import edu.ie3.util.io.FileIOUtils
+import org.apache.commons.io.FilenameUtils
 
 import scala.jdk.CollectionConverters._
 
@@ -26,7 +27,7 @@ object RunSimbench extends SimbenchHelper {
     val simbenchConfig = SimbenchConfig(config)
 
     simbenchConfig.io.simbenchCodes.foreach { simbenchCode =>
-      logger.info(s"Downloading data set '$simbenchCode' from SimBench website")
+      logger.info(s"$simbenchCode - Downloading data set from SimBench website")
       val downloader =
         Downloader(
           simbenchConfig.io.input.download.folder,
@@ -49,7 +50,7 @@ object RunSimbench extends SimbenchHelper {
           flattenDirectories = true
         )
 
-      logger.info(s"Reading in the SimBench data set '$simbenchCode'")
+      logger.info(s"$simbenchCode - Reading in the SimBench data set")
       val simbenchReader = SimbenchReader(
         simbenchCode,
         dataFolder,
@@ -59,11 +60,11 @@ object RunSimbench extends SimbenchHelper {
       )
       val simbenchModel = simbenchReader.readGrid()
 
-      logger.info(s"Converting '$simbenchCode' to PowerSystemDataModel")
+      logger.info(s"$simbenchCode - Converting to PowerSystemDataModel")
       val (jointGridContainer, timeSeries, powerFlowResults) =
         GridConverter.convert(simbenchCode, simbenchModel)
 
-      logger.info(s"Writing converted data set '$simbenchCode' to files")
+      logger.info(s"$simbenchCode - Writing converted data set to files")
       /* Check, if a directory hierarchy is needed or not */
       val baseTargetDirectory =
         IoUtils.ensureHarmonizedAndTerminatingFileSeparator(
@@ -90,6 +91,15 @@ object RunSimbench extends SimbenchHelper {
       csvSink.persistJointGrid(jointGridContainer)
       timeSeries.foreach(csvSink.persistTimeSeries(_))
       csvSink.persistAll(powerFlowResults.asJava)
+
+      if(simbenchConfig.io.output.compress) {
+        logger.info(s"$simbenchCode - Adding files to compressed archive")
+        val rawOutputPath = Paths.get(baseTargetDirectory + simbenchCode)
+        val archivePath = Paths.get(FilenameUtils.concat(baseTargetDirectory, simbenchCode + ".tar.gz"))
+        TarballUtils.compress(rawOutputPath, archivePath)
+
+        FileIOUtils.deleteRecursively(rawOutputPath)
+      }
     }
   }
 }
