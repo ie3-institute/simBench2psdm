@@ -3,7 +3,11 @@ package edu.ie3.simbench.main
 import java.nio.file.Paths
 
 import edu.ie3.datamodel.io.TarballUtils
-import edu.ie3.datamodel.io.csv.{DefaultInputHierarchy, FileNamingStrategy, HierarchicFileNamingStrategy}
+import edu.ie3.datamodel.io.csv.{
+  DefaultInputHierarchy,
+  FileNamingStrategy,
+  HierarchicFileNamingStrategy
+}
 import edu.ie3.datamodel.io.sink.CsvFileSink
 import edu.ie3.simbench.config.SimbenchConfig
 import edu.ie3.simbench.convert.GridConverter
@@ -92,10 +96,12 @@ object RunSimbench extends SimbenchHelper {
       timeSeries.foreach(csvSink.persistTimeSeries(_))
       csvSink.persistAll(powerFlowResults.asJava)
 
-      if(simbenchConfig.io.output.compress) {
+      if (simbenchConfig.io.output.compress) {
         logger.info(s"$simbenchCode - Adding files to compressed archive")
         val rawOutputPath = Paths.get(baseTargetDirectory + simbenchCode)
-        val archivePath = Paths.get(FilenameUtils.concat(baseTargetDirectory, simbenchCode + ".tar.gz"))
+        val archivePath = Paths.get(
+          FilenameUtils.concat(baseTargetDirectory, simbenchCode + ".tar.gz")
+        )
         TarballUtils.compress(rawOutputPath, archivePath)
 
         FileIOUtils.deleteRecursively(rawOutputPath)
