@@ -1,6 +1,10 @@
 package edu.ie3.simbench.main
 
-import edu.ie3.datamodel.io.csv.FileNamingStrategy
+import edu.ie3.datamodel.io.csv.{
+  DefaultInputHierarchy,
+  FileNamingStrategy,
+  HierarchicFileNamingStrategy
+}
 import edu.ie3.datamodel.io.sink.CsvFileSink
 import edu.ie3.simbench.config.SimbenchConfig
 import edu.ie3.simbench.convert.GridConverter
@@ -60,17 +64,29 @@ object RunSimbench extends SimbenchHelper {
         GridConverter.convert(simbenchCode, simbenchModel)
 
       logger.info(s"Writing converted data set '$simbenchCode' to files")
-      val targetFolderPath =
+      /* Check, if a directory hierarchy is needed or not */
+      val baseTargetDirectory =
         IoUtils.ensureHarmonizedAndTerminatingFileSeparator(
           simbenchConfig.io.output.targetFolder
-        ) + simbenchCode
+        )
+      val csvSink = if (simbenchConfig.io.output.csv.directoryHierarchy) {
+        new CsvFileSink(
+          baseTargetDirectory,
+          new HierarchicFileNamingStrategy(
+            new DefaultInputHierarchy(baseTargetDirectory, simbenchCode)
+          ),
+          false,
+          simbenchConfig.io.output.csv.separator
+        )
+      } else {
+        new CsvFileSink(
+          baseTargetDirectory + simbenchCode,
+          new FileNamingStrategy(),
+          false,
+          simbenchConfig.io.output.csv.separator
+        )
+      }
 
-      val csvSink = new CsvFileSink(
-        targetFolderPath,
-        new FileNamingStrategy(),
-        false,
-        simbenchConfig.io.output.csv.separator
-      )
       csvSink.persistJointGrid(jointGridContainer)
       timeSeries.foreach(csvSink.persistTimeSeries(_))
       csvSink.persistAll(powerFlowResults.asJava)
