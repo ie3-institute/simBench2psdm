@@ -20,7 +20,8 @@ import edu.ie3.datamodel.models.input.system._
 import edu.ie3.datamodel.models.input.NodeInput
 import edu.ie3.datamodel.models.result.NodeResult
 import edu.ie3.datamodel.models.timeseries.individual.IndividualTimeSeries
-import edu.ie3.datamodel.models.value.{PValue, SValue}
+import edu.ie3.datamodel.models.timeseries.mapping.TimeSeriesMapping
+import edu.ie3.datamodel.models.value.{PValue, SValue, Value}
 import edu.ie3.simbench.convert.types.{
   LineTypeConverter,
   Transformer2wTypeConverter
@@ -53,6 +54,7 @@ case object GridConverter extends LazyLogging {
   ): (
       JointGridContainer,
       Vector[IndividualTimeSeries[_ <: PValue]],
+      TimeSeriesMapping,
       Vector[NodeResult]
   ) = {
     logger.debug(s"Converting raw grid elements of '${gridInput.simbenchCode}'")
@@ -61,7 +63,7 @@ case object GridConverter extends LazyLogging {
     logger.debug(
       s"Converting system participants and their time series of '${gridInput.simbenchCode}'"
     )
-    val (systemParticipants, timeSeries) =
+    val (systemParticipants, timeSeries, timeSeriesMapping) =
       convertParticipants(gridInput, nodeConversion)
 
     logger.debug(
@@ -81,6 +83,7 @@ case object GridConverter extends LazyLogging {
         )
       ),
       timeSeries,
+      timeSeriesMapping,
       powerFlowResults
     )
   }
@@ -426,7 +429,11 @@ case object GridConverter extends LazyLogging {
   def convertParticipants(
       gridInput: GridModel,
       nodeConversion: Map[Node, NodeInput]
-  ): (SystemParticipants, Vector[IndividualTimeSeries[_ <: PValue]]) = {
+  ): (
+      SystemParticipants,
+      Vector[IndividualTimeSeries[_ <: PValue]],
+      TimeSeriesMapping
+  ) = {
     /* Convert all participant groups */
     logger.debug(
       s"Participants to convert:\n\tLoads: ${gridInput.loads.size}" +
@@ -445,9 +452,13 @@ case object GridConverter extends LazyLogging {
       s"Done converting ${gridInput.res.size} RES including time series"
     )
 
-    /* Collect all their time series */
-    val timeSeries = loadsToTimeSeries.values.toVector ++ powerPlantsToTimeSeries.values.toVector ++ resToTimeSeries.values
-      .toVector
+    /* Map participant uuid onto time series */
+    val mapping =
+      (loadsToTimeSeries ++ powerPlantsToTimeSeries ++ resToTimeSeries).map {
+        case (model, timeSeries) => model.getUuid -> timeSeries
+      }.toMap
+    val timeSeries: Vector[IndividualTimeSeries[_ >: SValue <: PValue]] =
+      mapping.values.toVector
 
     (
       new SystemParticipants(
@@ -462,7 +473,11 @@ case object GridConverter extends LazyLogging {
         Set.empty[StorageInput].asJava,
         Set.empty[WecInput].asJava
       ),
-      timeSeries
+      timeSeries,
+      new TimeSeriesMapping(mapping.map {
+        case (uuid, value) =>
+          uuid -> value.asInstanceOf[IndividualTimeSeries[Value]]
+      }.asJava)
     )
   }
 
