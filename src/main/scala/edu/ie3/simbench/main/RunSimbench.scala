@@ -65,7 +65,12 @@ object RunSimbench extends SimbenchHelper {
       val simbenchModel = simbenchReader.readGrid()
 
       logger.info(s"$simbenchCode - Converting to PowerSystemDataModel")
-      val (jointGridContainer, timeSeries, powerFlowResults) =
+      val (
+        jointGridContainer,
+        timeSeries,
+        timeSeriesMapping,
+        powerFlowResults
+      ) =
         GridConverter.convert(simbenchCode, simbenchModel)
 
       logger.info(s"$simbenchCode - Writing converted data set to files")
@@ -94,6 +99,7 @@ object RunSimbench extends SimbenchHelper {
 
       csvSink.persistJointGrid(jointGridContainer)
       timeSeries.foreach(csvSink.persistTimeSeries(_))
+      csvSink.persistAllIgnoreNested(timeSeriesMapping.buildEntries())
       csvSink.persistAll(powerFlowResults.asJava)
 
       if (simbenchConfig.io.output.compress) {

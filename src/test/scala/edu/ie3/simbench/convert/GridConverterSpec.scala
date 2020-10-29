@@ -25,7 +25,7 @@ class GridConverterSpec extends UnitSpec {
     "bring the correct amount of converted models" in {
       val actual = GridConverter.convert("1-LV-rural1--0-no_sw", input)
       inside(actual) {
-        case (gridContainer, timeSeries, powerFlowResults) =>
+        case (gridContainer, timeSeries, timeSeriesMapping, powerFlowResults) =>
           /* Evaluate the correctness of the container by counting the occurrence of models (the correct conversion is
            * tested in separate unit tests */
           gridContainer.getGridName shouldBe "1-LV-rural1--0-no_sw"
@@ -45,6 +45,19 @@ class GridConverterSpec extends UnitSpec {
 
           /* Evaluate the correctness of the time series by counting the occurrence of models */
           timeSeries.size shouldBe 17
+
+          /* Evaluate the existence of time series mappings for all participants */
+          val mappingEntries = timeSeriesMapping.buildEntries()
+          mappingEntries.size shouldBe 17
+          val participantUuids = gridContainer.getSystemParticipants
+            .allEntitiesAsList()
+            .asScala
+            .map(_.getUuid)
+            .toVector
+          /* There is no participant uuid in mapping, that is not among participants */
+          mappingEntries.asScala.exists(
+            entry => participantUuids.contains(entry.getUuid)
+          ) shouldBe false
 
           /* Evaluate the amount of converted power flow results */
           powerFlowResults.size shouldBe 15
