@@ -4,7 +4,7 @@ import java.nio.file.Paths
 
 import edu.ie3.datamodel.io.TarballUtils
 import edu.ie3.datamodel.io.csv.{
-  DefaultInputHierarchy,
+  DefaultDirectoryHierarchy,
   FileNamingStrategy,
   HierarchicFileNamingStrategy
 }
@@ -83,7 +83,7 @@ object RunSimbench extends SimbenchHelper {
         new CsvFileSink(
           baseTargetDirectory,
           new HierarchicFileNamingStrategy(
-            new DefaultInputHierarchy(baseTargetDirectory, simbenchCode)
+            new DefaultDirectoryHierarchy(baseTargetDirectory, simbenchCode)
           ),
           false,
           simbenchConfig.io.output.csv.separator
