@@ -2,7 +2,7 @@ package edu.ie3.simbench.io
 
 import java.nio.file.{Files, Path, Paths}
 
-import edu.ie3.simbench.exception.io.{DownloaderException, IoException}
+import edu.ie3.simbench.exception.io.{ZipperException, IoException}
 import edu.ie3.test.common.UnitSpec
 import edu.ie3.util.io.FileIOUtils
 import org.scalatest.BeforeAndAfterEach
@@ -29,7 +29,11 @@ class UnzippingSpec extends UnitSpec with IoUtils with BeforeAndAfterEach {
     "throw an exception, if the questioned zip archive is not apparent" in {
       val path = Paths.get("totally/random/non/exsisting/file.zip")
       val thrown = intercept[IoException] {
-        Downloader.unzip(downloader, path)
+        Zipper.unzip(
+          path,
+          downloader.downloadFolder,
+          downloader.failOnExistingFiles
+        )
       }
 
       thrown.getMessage == "The file totally/random/non/exsisting/file.zip cannot be unzipped, as it does not exist."
@@ -38,7 +42,11 @@ class UnzippingSpec extends UnitSpec with IoUtils with BeforeAndAfterEach {
     "throw an exception, if the unzip routine is pointed to a directory" in {
       val path = Paths.get("inputData/download")
       val thrown = intercept[IoException] {
-        Downloader.unzip(downloader, path)
+        Zipper.unzip(
+          path,
+          downloader.downloadFolder,
+          downloader.failOnExistingFiles
+        )
       }
 
       thrown.getMessage == "The file inputData/download cannot be unzipped, as it is a directory."
@@ -51,7 +59,11 @@ class UnzippingSpec extends UnitSpec with IoUtils with BeforeAndAfterEach {
       )
 
       intercept[IoException] {
-        Downloader.unzip(downloader, filePath)
+        Zipper.unzip(
+          filePath,
+          downloader.downloadFolder,
+          downloader.failOnExistingFiles
+        )
       }
       /* Message cannot be tested, as the path is dependent of the location of the code. */
 
@@ -63,14 +75,22 @@ class UnzippingSpec extends UnitSpec with IoUtils with BeforeAndAfterEach {
         Paths.get(
           s"${downloader.downloadFolder}targetFolderExistsAndIsFile.zip"
         )
-      val thrown = intercept[DownloaderException] {
-        Downloader.unzip(downloader, filePath)
+      val thrown = intercept[ZipperException] {
+        Zipper.unzip(
+          filePath,
+          downloader.downloadFolder,
+          downloader.failOnExistingFiles
+        )
       }
       thrown.getMessage == "The target directory to unzip testData/download/targetFolderExistsAndIsFile.zip already exists, but is not a directory"
     }
 
     "unzip the data without flattening the directory structure correctly" in {
-      val actualBasePath = Downloader.unzip(downloader, archiveFilePath)
+      val actualBasePath = Zipper.unzip(
+        archiveFilePath,
+        downloader.downloadFolder,
+        downloader.failOnExistingFiles
+      )
       actualBasePath.toAbsolutePath shouldBe extractionBasePath.toAbsolutePath
       Files.exists(extractionBasePath) shouldBe true
       Files.isDirectory(extractionBasePath) shouldBe true
@@ -117,7 +137,12 @@ class UnzippingSpec extends UnitSpec with IoUtils with BeforeAndAfterEach {
 
     "unzip the data and flatten the directory structure correctly" in {
       val actualBasePath =
-        Downloader.unzip(downloader, archiveFilePath, flattenDirectories = true)
+        Zipper.unzip(
+          archiveFilePath,
+          downloader.downloadFolder,
+          downloader.failOnExistingFiles,
+          flattenDirectories = true
+        )
       actualBasePath.toAbsolutePath shouldBe extractionBasePath.toAbsolutePath
       Files.exists(extractionBasePath) shouldBe true
       Files.isDirectory(extractionBasePath) shouldBe true
@@ -163,16 +188,21 @@ class UnzippingSpec extends UnitSpec with IoUtils with BeforeAndAfterEach {
     }
 
     "throw an exception, if the target folder exists and contains files" in {
-      val downloader: Downloader = Downloader(
-        "testData/download/",
-        "http://141.51.193.167/simbench/gui/usecase/download",
-        failOnExistingFiles = true
-      )
       val targetFolderPath =
-        Downloader.unzip(downloader, archiveFilePath, flattenDirectories = true)
+        Zipper.unzip(
+          archiveFilePath,
+          downloader.downloadFolder,
+          failOnExistingFiles = false,
+          flattenDirectories = true
+        )
       Try(
-        intercept[DownloaderException] {
-          Downloader.unzip(downloader, archiveFilePath)
+        intercept[ZipperException] {
+          Zipper.unzip(
+            archiveFilePath,
+            downloader.downloadFolder,
+            failOnExistingFiles = true,
+            flattenDirectories = true
+          )
         }.getMessage == "Cannot unzip '${zipArchive.getFileName}', as it's target folder '$targetFolder' is not empty"
       ) match {
         case Success(assertion) =>
@@ -185,16 +215,21 @@ class UnzippingSpec extends UnitSpec with IoUtils with BeforeAndAfterEach {
     }
 
     "throw no exception, if the target folder exists and contains files" in {
-      val downloader: Downloader = Downloader(
-        "testData/download/",
-        "http://141.51.193.167/simbench/gui/usecase/download",
-        failOnExistingFiles = false
-      )
       val targetFolderPath =
-        Downloader.unzip(downloader, archiveFilePath, flattenDirectories = true)
+        Zipper.unzip(
+          archiveFilePath,
+          downloader.downloadFolder,
+          failOnExistingFiles = false,
+          flattenDirectories = true
+        )
       Try(
         noException shouldBe thrownBy {
-          Downloader.unzip(downloader, archiveFilePath)
+          Zipper.unzip(
+            archiveFilePath,
+            downloader.downloadFolder,
+            failOnExistingFiles = false,
+            flattenDirectories = true
+          )
         }
       ) match {
         case Success(assertion) =>
