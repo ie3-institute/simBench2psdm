@@ -86,6 +86,8 @@ case object Transformer2wTypeConverter {
       Quantities.getQuantity(vmLV, VOLT),
       Quantities.getQuantity(gNoLoad, SIEMENS),
       Quantities.getQuantity(bNoLoad, SIEMENS),
+      /* ATTENTION: The unit differs from that in official documentation, as it also does in the actual SimBench data
+       * sets. p.u./tap is promissed, but %/tap is delivered */
       Quantities.getQuantity(dV, PERCENT),
       Quantities.getQuantity(dPhi, DEGREE_GEOM),
       tapSide,
