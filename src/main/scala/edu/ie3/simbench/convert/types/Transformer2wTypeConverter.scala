@@ -1,14 +1,13 @@
 package edu.ie3.simbench.convert.types
 
 import java.util.UUID
-
 import edu.ie3.datamodel.models.input.connector.`type`.Transformer2WTypeInput
 import edu.ie3.simbench.exception.ConversionException
 import edu.ie3.simbench.model.datamodel.enums.BranchElementPort.LV
 import edu.ie3.simbench.model.datamodel.types.Transformer2WType
 import edu.ie3.util.quantities.PowerSystemUnits.{DEGREE_GEOM, PU, VOLTAMPERE}
 import tech.units.indriya.quantity.Quantities
-import tech.units.indriya.unit.Units.{OHM, SIEMENS, VOLT}
+import tech.units.indriya.unit.Units.{OHM, PERCENT, SIEMENS, VOLT}
 
 import scala.math.sqrt
 
@@ -87,7 +86,9 @@ case object Transformer2wTypeConverter {
       Quantities.getQuantity(vmLV, VOLT),
       Quantities.getQuantity(gNoLoad, SIEMENS),
       Quantities.getQuantity(bNoLoad, SIEMENS),
-      Quantities.getQuantity(dV, PU),
+      /* ATTENTION: The unit differs from that in official documentation, as it also does in the actual SimBench data
+       * sets. p.u./tap is promissed, but %/tap is delivered */
+      Quantities.getQuantity(dV, PERCENT),
       Quantities.getQuantity(dPhi, DEGREE_GEOM),
       tapSide,
       tapNeutr,
