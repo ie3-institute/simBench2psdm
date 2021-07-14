@@ -1,12 +1,10 @@
 package edu.ie3.simbench.main
 
 import java.nio.file.Paths
-
-import edu.ie3.datamodel.io.TarballUtils
-import edu.ie3.datamodel.io.csv.{
+import edu.ie3.datamodel.io.naming.{
   DefaultDirectoryHierarchy,
-  FileNamingStrategy,
-  HierarchicFileNamingStrategy
+  EntityPersistenceNamingStrategy,
+  FileNamingStrategy
 }
 import edu.ie3.datamodel.io.sink.CsvFileSink
 import edu.ie3.simbench.config.SimbenchConfig
@@ -82,7 +80,8 @@ object RunSimbench extends SimbenchHelper {
       val csvSink = if (simbenchConfig.io.output.csv.directoryHierarchy) {
         new CsvFileSink(
           baseTargetDirectory,
-          new HierarchicFileNamingStrategy(
+          new FileNamingStrategy(
+            new EntityPersistenceNamingStrategy(),
             new DefaultDirectoryHierarchy(baseTargetDirectory, simbenchCode)
           ),
           false,
@@ -99,7 +98,7 @@ object RunSimbench extends SimbenchHelper {
 
       csvSink.persistJointGrid(jointGridContainer)
       timeSeries.foreach(csvSink.persistTimeSeries(_))
-      csvSink.persistAllIgnoreNested(timeSeriesMapping.buildEntries())
+      csvSink.persistAllIgnoreNested(timeSeriesMapping.asJava)
       csvSink.persistAll(powerFlowResults.asJava)
 
       if (simbenchConfig.io.output.compress) {
@@ -108,7 +107,7 @@ object RunSimbench extends SimbenchHelper {
         val archivePath = Paths.get(
           FilenameUtils.concat(baseTargetDirectory, simbenchCode + ".tar.gz")
         )
-        TarballUtils.compress(rawOutputPath, archivePath)
+        FileIOUtils.compressDir(rawOutputPath, archivePath)
 
         FileIOUtils.deleteRecursively(rawOutputPath)
       }

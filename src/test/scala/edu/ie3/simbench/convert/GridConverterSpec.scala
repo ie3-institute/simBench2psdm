@@ -47,16 +47,15 @@ class GridConverterSpec extends UnitSpec {
           timeSeries.size shouldBe 17
 
           /* Evaluate the existence of time series mappings for all participants */
-          val mappingEntries = timeSeriesMapping.buildEntries()
-          mappingEntries.size shouldBe 17
+          timeSeriesMapping.size shouldBe 17
           val participantUuids = gridContainer.getSystemParticipants
             .allEntitiesAsList()
             .asScala
             .map(_.getUuid)
             .toVector
           /* There is no participant uuid in mapping, that is not among participants */
-          mappingEntries.asScala.exists(
-            entry => participantUuids.contains(entry.getUuid)
+          timeSeriesMapping.exists(
+            entry => !participantUuids.contains(entry.getParticipant)
           ) shouldBe false
 
           /* Evaluate the amount of converted power flow results */
