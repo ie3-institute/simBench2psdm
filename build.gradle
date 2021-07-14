@@ -34,7 +34,7 @@ apply from: scriptsLocation + 'tscfg.gradle' // config tasks
 apply from: scriptsLocation + 'scoverage.gradle'
 
 repositories {
-	jcenter() //searches in bintray's repository 'jCenter', which contains Maven Central
+	mavenCentral()
 	maven { url 'https://www.jitpack.io' } // allows github repos as dependencies
 
 	// sonatype snapshots repo // todo remove
@@ -43,57 +43,57 @@ repositories {
 
 dependencies {
 	/* PowerSystemDataModel */
-	compile ('com.github.ie3-institute:PowerSystemDataModel:2.0-SNAPSHOT') {
+	implementation ('com.github.ie3-institute:PowerSystemDataModel:2.0.1') {
 		/* Exclude nested logging and ie3 related dependencies */
 		exclude group: 'org.slf4j', module: 'slf4j-api'
 		exclude group: 'com.github.ie3-institute'
 	}
 
 	/* util functions */
-	compile ('com.github.ie3-institute:PowerSystemUtils:1.4') {
+	implementation ('com.github.ie3-institute:PowerSystemUtils:1.5.3') {
 		/* Exclude nested logging and ie3 related dependencies */
 		exclude group: 'org.slf4j', module: 'slf4j-api'
 		exclude group: 'com.github.ie3-institute'
 	}
 
-	compile 'org.codehaus.groovy:groovy:3.0.3'
+	implementation 'org.codehaus.groovy:groovy:3.0.3'
 
 	implementation 'tech.units:indriya:2.0.4'
 
 	// logging
-	compile 'org.apache.logging.log4j:log4j-api:+' // log4j
-	compile 'org.apache.logging.log4j:log4j-core:+' // log4j
-	compile 'org.apache.logging.log4j:log4j-slf4j-impl:+' // log4j -> slf4j
+	implementation 'org.apache.logging.log4j:log4j-api:+' // log4j
+	implementation 'org.apache.logging.log4j:log4j-core:+' // log4j
+	implementation 'org.apache.logging.log4j:log4j-slf4j-impl:+' // log4j -> slf4j
 
-	compile "com.typesafe.scala-logging:scala-logging_${scalaVersion}:+" // akka scala logging
-	compile "org.slf4j:log4j-over-slf4j:${slf4jVersion}" // slf4j -> log4j
+	implementation "com.typesafe.scala-logging:scala-logging_${scalaVersion}:+" // akka scala logging
+	implementation "org.slf4j:log4j-over-slf4j:${slf4jVersion}" // slf4j -> log4j
 
 	// NEW scala libs //
 	// CORE Scala //
-	compile "org.scala-lang:scala-library:${scalaVersion}+"
+	implementation "org.scala-lang:scala-library:${scalaVersion}+"
 
 	// TEST Scala //
-	testCompile "org.scalatest:scalatest_${scalaVersion}:3.2.0"
-	testCompile 'com.vladsch.flexmark:flexmark:0.35.6' // FIXME: Obviously some missing dependency
-	testCompile 'com.vladsch.flexmark:flexmark-profile-pegdown:0.35.6' // FIXME: Obviously some missing dependency
-	testRuntime "org.pegdown:pegdown:1.6.0" // HTML report for scalatest
-	compile 'org.mockito:mockito-core:3.4.4' // mocking framework
+	testImplementation "org.scalatest:scalatest_${scalaVersion}:3.2.0"
+	testImplementation 'com.vladsch.flexmark:flexmark:0.35.6' // FIXME: Obviously some missing dependency
+	testImplementation 'com.vladsch.flexmark:flexmark-profile-pegdown:0.35.6' // FIXME: Obviously some missing dependency
+	testImplementation "org.pegdown:pegdown:1.6.0" // HTML report for scalatest
+	implementation 'org.mockito:mockito-core:3.4.4' // mocking framework
 	scoverage "org.scoverage:scalac-scoverage-plugin_${scalaVersion}:1.4.1"
 	scoverage "org.scoverage:scalac-scoverage-runtime_${scalaVersion}:1.4.1"
 
 	// config //
 	implementation 'com.typesafe:config:+'
-	compile "com.github.carueda:tscfg_2.13:${tscfgVersion}"
+	implementation "com.github.carueda:tscfg_2.13:${tscfgVersion}"
 
 	// cmd args parser //
-	compile "com.github.scopt:scopt_${scalaVersion}:+"
+	implementation "com.github.scopt:scopt_${scalaVersion}:+"
 
 	/* Handling compressed archives */
-	compile "org.apache.commons:commons-compress:+"
+	implementation "org.apache.commons:commons-compress:+"
 }
 
 wrapper {
-	gradleVersion = '6.4.1'
+	gradleVersion = '7.1.1'
 }
 
 tasks.withType(JavaCompile) {
