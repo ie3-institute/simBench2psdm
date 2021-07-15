@@ -3,8 +3,8 @@
  * https://github.com/scoverage/gradle-scoverage/issues/109 for details
  */
 scoverage {
-	scoverageVersion = '1.4.1'
-	scoverageScalaVersion = '2.13.1'
+	scoverageVersion = '1.4.8'
+	scoverageScalaVersion = scalaBinaryVersion
 	coverageOutputHTML = false
 	coverageOutputXML = true
 	coverageOutputCobertura = false

@@ -1,15 +1,15 @@
 plugins {
-	id "com.jfrog.artifactory" version "4.13.0"
+	id "com.jfrog.artifactory" version "4.21.0"
 	id 'groovy' // groovy support
 	id 'java' // java support
 	id 'scala' // scala support
 	id 'pmd' // code check, working on source code
-	id 'com.diffplug.gradle.spotless' version '4.3.1'// code format
-	id "de.undercouch.download" version "3.4.3" // downloads plugin
+	id 'com.diffplug.spotless' version '5.14.1'// code format
+	id "de.undercouch.download" version "4.1.2" // downloads plugin
 	id 'jacoco' // java code coverage plugin
-	id "org.sonarqube" version "2.8" // sonarqube
-	id 'org.scoverage' version '4.0.2' // Code coverage plugin for scala
-	id "com.github.maiflai.scalatest" version "0.26" // run scalatest without specific task
+	id "org.sonarqube" version "3.3" // sonarqube
+	id 'org.scoverage' version '6.0.0' // Code coverage plugin for scala
+	id "com.github.maiflai.scalatest" version "0.31" // run scalatest without specific task
 }
 
 ext {
@@ -17,6 +17,7 @@ ext {
 	javaVersion = JavaVersion.VERSION_1_8
 
 	scalaVersion = '2.13'
+	scalaBinaryVersion = '2.13.6'
 	tscfgVersion = '0.9.98'
 	slf4jVersion = '1.7.26'
 
@@ -70,7 +71,7 @@ dependencies {
 
 	// NEW scala libs //
 	// CORE Scala //
-	implementation "org.scala-lang:scala-library:${scalaVersion}+"
+	implementation "org.scala-lang:scala-library:$scalaBinaryVersion"
 
 	// TEST Scala //
 	testImplementation "org.scalatest:scalatest_${scalaVersion}:3.2.0"
@@ -78,8 +79,6 @@ dependencies {
 	testImplementation 'com.vladsch.flexmark:flexmark-profile-pegdown:0.35.6' // FIXME: Obviously some missing dependency
 	testImplementation "org.pegdown:pegdown:1.6.0" // HTML report for scalatest
 	implementation 'org.mockito:mockito-core:3.4.4' // mocking framework
-	scoverage "org.scoverage:scalac-scoverage-plugin_${scalaVersion}:1.4.1"
-	scoverage "org.scoverage:scalac-scoverage-runtime_${scalaVersion}:1.4.1"
 
 	// config //
 	implementation 'com.typesafe:config:+'
