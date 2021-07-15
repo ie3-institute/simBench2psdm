@@ -1,15 +1,15 @@
 plugins {
-	id "com.jfrog.artifactory" version "4.13.0"
+	id "com.jfrog.artifactory" version "4.21.0"
 	id 'groovy' // groovy support
 	id 'java' // java support
 	id 'scala' // scala support
 	id 'pmd' // code check, working on source code
-	id 'com.diffplug.gradle.spotless' version '4.3.1'// code format
-	id "de.undercouch.download" version "3.4.3" // downloads plugin
+	id 'com.diffplug.spotless' version '5.14.1'// code format
+	id "de.undercouch.download" version "4.1.2" // downloads plugin
 	id 'jacoco' // java code coverage plugin
-	id "org.sonarqube" version "2.8" // sonarqube
-	id 'org.scoverage' version '4.0.2' // Code coverage plugin for scala
-	id "com.github.maiflai.scalatest" version "0.26" // run scalatest without specific task
+	id "org.sonarqube" version "3.3" // sonarqube
+	id 'org.scoverage' version '6.0.0' // Code coverage plugin for scala
+	id "com.github.maiflai.scalatest" version "0.31" // run scalatest without specific task
 }
 
 ext {
@@ -17,6 +17,7 @@ ext {
 	javaVersion = JavaVersion.VERSION_1_8
 
 	scalaVersion = '2.13'
+	scalaBinaryVersion = '2.13.6'
 	tscfgVersion = '0.9.98'
 	slf4jVersion = '1.7.26'
 
@@ -34,7 +35,7 @@ apply from: scriptsLocation + 'tscfg.gradle' // config tasks
 apply from: scriptsLocation + 'scoverage.gradle'
 
 repositories {
-	jcenter() //searches in bintray's repository 'jCenter', which contains Maven Central
+	mavenCentral()
 	maven { url 'https://www.jitpack.io' } // allows github repos as dependencies
 
 	// sonatype snapshots repo // todo remove
@@ -43,57 +44,55 @@ repositories {
 
 dependencies {
 	/* PowerSystemDataModel */
-	compile ('com.github.ie3-institute:PowerSystemDataModel:2.0-SNAPSHOT') {
+	implementation ('com.github.ie3-institute:PowerSystemDataModel:2.1-SNAPSHOT') {
 		/* Exclude nested logging and ie3 related dependencies */
 		exclude group: 'org.slf4j', module: 'slf4j-api'
 		exclude group: 'com.github.ie3-institute'
 	}
 
 	/* util functions */
-	compile ('com.github.ie3-institute:PowerSystemUtils:1.4') {
+	implementation ('com.github.ie3-institute:PowerSystemUtils:1.5.3') {
 		/* Exclude nested logging and ie3 related dependencies */
 		exclude group: 'org.slf4j', module: 'slf4j-api'
 		exclude group: 'com.github.ie3-institute'
 	}
 
-	compile 'org.codehaus.groovy:groovy:3.0.3'
+	implementation 'org.codehaus.groovy:groovy:3.0.3'
 
 	implementation 'tech.units:indriya:2.0.4'
 
 	// logging
-	compile 'org.apache.logging.log4j:log4j-api:+' // log4j
-	compile 'org.apache.logging.log4j:log4j-core:+' // log4j
-	compile 'org.apache.logging.log4j:log4j-slf4j-impl:+' // log4j -> slf4j
+	implementation 'org.apache.logging.log4j:log4j-api:+' // log4j
+	implementation 'org.apache.logging.log4j:log4j-core:+' // log4j
+	implementation 'org.apache.logging.log4j:log4j-slf4j-impl:+' // log4j -> slf4j
 
-	compile "com.typesafe.scala-logging:scala-logging_${scalaVersion}:+" // akka scala logging
-	compile "org.slf4j:log4j-over-slf4j:${slf4jVersion}" // slf4j -> log4j
+	implementation "com.typesafe.scala-logging:scala-logging_${scalaVersion}:+" // akka scala logging
+	implementation "org.slf4j:log4j-over-slf4j:${slf4jVersion}" // slf4j -> log4j
 
 	// NEW scala libs //
 	// CORE Scala //
-	compile "org.scala-lang:scala-library:${scalaVersion}+"
+	implementation "org.scala-lang:scala-library:$scalaBinaryVersion"
 
 	// TEST Scala //
-	testCompile "org.scalatest:scalatest_${scalaVersion}:3.2.0"
-	testCompile 'com.vladsch.flexmark:flexmark:0.35.6' // FIXME: Obviously some missing dependency
-	testCompile 'com.vladsch.flexmark:flexmark-profile-pegdown:0.35.6' // FIXME: Obviously some missing dependency
-	testRuntime "org.pegdown:pegdown:1.6.0" // HTML report for scalatest
-	compile 'org.mockito:mockito-core:3.4.4' // mocking framework
-	scoverage "org.scoverage:scalac-scoverage-plugin_${scalaVersion}:1.4.1"
-	scoverage "org.scoverage:scalac-scoverage-runtime_${scalaVersion}:1.4.1"
+	testImplementation "org.scalatest:scalatest_${scalaVersion}:3.2.0"
+	testImplementation 'com.vladsch.flexmark:flexmark:0.35.6' // FIXME: Obviously some missing dependency
+	testImplementation 'com.vladsch.flexmark:flexmark-profile-pegdown:0.35.6' // FIXME: Obviously some missing dependency
+	testImplementation "org.pegdown:pegdown:1.6.0" // HTML report for scalatest
+	implementation 'org.mockito:mockito-core:3.4.4' // mocking framework
 
 	// config //
 	implementation 'com.typesafe:config:+'
-	compile "com.github.carueda:tscfg_2.13:${tscfgVersion}"
+	implementation "com.github.carueda:tscfg_2.13:${tscfgVersion}"
 
 	// cmd args parser //
-	compile "com.github.scopt:scopt_${scalaVersion}:+"
+	implementation "com.github.scopt:scopt_${scalaVersion}:+"
 
 	/* Handling compressed archives */
-	compile "org.apache.commons:commons-compress:+"
+	implementation "org.apache.commons:commons-compress:+"
 }
 
 wrapper {
-	gradleVersion = '6.4.1'
+	gradleVersion = '7.1.1'
 }
 
 tasks.withType(JavaCompile) {
