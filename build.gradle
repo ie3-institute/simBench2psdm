@@ -1,5 +1,5 @@
 plugins {
-	id "com.jfrog.artifactory" version "4.21.0"
+	id "com.jfrog.artifactory" version "4.24.12"
 	id 'groovy' // groovy support
 	id 'java' // java support
 	id 'scala' // scala support
@@ -19,7 +19,7 @@ ext {
 	scalaVersion = '2.13'
 	scalaBinaryVersion = '2.13.6'
 	tscfgVersion = '0.9.98'
-	slf4jVersion = '1.7.26'
+	slf4jVersion = '1.7.31'
 
 	scriptsLocation = 'gradle' + File.separator + 'scripts' + File.separator //location of script plugins
 }
@@ -57,9 +57,9 @@ dependencies {
 		exclude group: 'com.github.ie3-institute'
 	}
 
-	implementation 'org.codehaus.groovy:groovy:3.0.3'
+	implementation 'org.codehaus.groovy:groovy:3.0.8'
 
-	implementation 'tech.units:indriya:2.0.4'
+	implementation 'tech.units:indriya:2.1.2'
 
 	// logging
 	implementation 'org.apache.logging.log4j:log4j-api:+' // log4j
