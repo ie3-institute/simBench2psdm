@@ -18,7 +18,7 @@ ext {
 
 	scalaVersion = '2.13'
 	scalaBinaryVersion = '2.13.6'
-	tscfgVersion = '0.9.98'
+	tscfgVersion = '0.9.986'
 	slf4jVersion = '1.7.31'
 
 	scriptsLocation = 'gradle' + File.separator + 'scripts' + File.separator //location of script plugins
@@ -78,7 +78,7 @@ dependencies {
 	testImplementation 'com.vladsch.flexmark:flexmark:0.35.6' // FIXME: Obviously some missing dependency
 	testImplementation 'com.vladsch.flexmark:flexmark-profile-pegdown:0.35.6' // FIXME: Obviously some missing dependency
 	testImplementation "org.pegdown:pegdown:1.6.0" // HTML report for scalatest
-	implementation 'org.mockito:mockito-core:3.4.4' // mocking framework
+	implementation 'org.mockito:mockito-core:3.11.2' // mocking framework
 
 	// config //
 	implementation 'com.typesafe:config:+'
