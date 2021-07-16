@@ -59,7 +59,7 @@ dependencies {
 
 	implementation 'org.codehaus.groovy:groovy:3.0.8'
 
-	implementation 'tech.units:indriya:2.0.4'
+	implementation 'tech.units:indriya:2.1.2'
 
 	// logging
 	implementation 'org.apache.logging.log4j:log4j-api:+' // log4j
