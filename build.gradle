@@ -74,7 +74,7 @@ dependencies {
 	implementation "org.scala-lang:scala-library:$scalaBinaryVersion"
 
 	// TEST Scala //
-	testImplementation "org.scalatest:scalatest_${scalaVersion}:3.2.0"
+	testImplementation "org.scalatest:scalatest_${scalaVersion}:3.3.0-SNAP3"
 	testImplementation 'com.vladsch.flexmark:flexmark:0.35.6' // FIXME: Obviously some missing dependency
 	testImplementation 'com.vladsch.flexmark:flexmark-profile-pegdown:0.35.6' // FIXME: Obviously some missing dependency
 	testImplementation "org.pegdown:pegdown:1.6.0" // HTML report for scalatest
