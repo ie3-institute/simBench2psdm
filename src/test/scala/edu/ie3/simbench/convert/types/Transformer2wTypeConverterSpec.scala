@@ -1,21 +1,25 @@
 package edu.ie3.simbench.convert.types
 
 import java.util.UUID
-
 import edu.ie3.simbench.exception.ConversionException
 import edu.ie3.simbench.model.datamodel.types.Transformer2WType
 import edu.ie3.test.common.{ConverterTestData, UnitSpec}
+import edu.ie3.test.matchers.QuantityMatchers
 import edu.ie3.util.quantities.PowerSystemUnits.{
   DEGREE_GEOM,
   KILOVOLT,
   KILOVOLTAMPERE
 }
 import tech.units.indriya.quantity.Quantities
+
 import javax.measure.MetricPrefix
 import tech.units.indriya.unit.Units.{OHM, PERCENT, SIEMENS}
 
-class Transformer2wTypeConverterSpec extends UnitSpec with ConverterTestData {
-  val testingTolerance = 1e-3
+class Transformer2wTypeConverterSpec
+    extends UnitSpec
+    with ConverterTestData
+    with QuantityMatchers {
+  implicit val quantityMatchingTolerance: Double = 1e-3
 
   val uuid: UUID = UUID.randomUUID()
   val validInput: Transformer2WType = getTransformer2WTypePair("test type")._1
@@ -26,62 +30,35 @@ class Transformer2wTypeConverterSpec extends UnitSpec with ConverterTestData {
 
       actual.getUuid shouldBe uuid
       actual.getId shouldBe "test type"
-      actual
-        .getrSc()
-        .subtract(Quantities.getQuantity(45.375, MetricPrefix.MILLI(OHM)))
-        .to(MetricPrefix.MILLI(OHM))
-        .getValue
-        .doubleValue() < testingTolerance shouldBe true
-      actual
-        .getxSc()
-        .subtract(Quantities.getQuantity(15.1249319, OHM))
-        .to(OHM)
-        .getValue
-        .doubleValue() < testingTolerance shouldBe true
-      actual
-        .getsRated()
-        .subtract(Quantities.getQuantity(40000d, KILOVOLTAMPERE))
-        .to(KILOVOLTAMPERE)
-        .getValue
-        .doubleValue() < testingTolerance shouldBe true
-      actual
-        .getvRatedA()
-        .subtract(Quantities.getQuantity(110d, KILOVOLT))
-        .to(KILOVOLT)
-        .getValue
-        .doubleValue() < testingTolerance shouldBe true
-      actual
-        .getvRatedB()
-        .subtract(Quantities.getQuantity(10d, KILOVOLT))
-        .to(KILOVOLT)
-        .getValue
-        .doubleValue() < testingTolerance shouldBe true
-      actual
-        .getgM()
-        .subtract(Quantities.getQuantity(2480.5790, MetricPrefix.NANO(SIEMENS)))
-        .to(MetricPrefix.NANO(SIEMENS))
-        .getValue
-        .doubleValue() < testingTolerance shouldBe true
-      actual
-        .getbM()
-        .subtract(
-          Quantities.getQuantity(33047.51904649951, MetricPrefix.NANO(SIEMENS))
-        )
-        .to(MetricPrefix.NANO(SIEMENS))
-        .getValue
-        .doubleValue() < testingTolerance shouldBe true
-      actual
-        .getdV()
-        .subtract(Quantities.getQuantity(2.5, PERCENT))
-        .to(PERCENT)
-        .getValue
-        .doubleValue() < testingTolerance shouldBe true
-      actual
-        .getdPhi()
-        .subtract(Quantities.getQuantity(5d, DEGREE_GEOM))
-        .to(DEGREE_GEOM)
-        .getValue
-        .doubleValue() < testingTolerance shouldBe true
+      actual.getrSc() should equalWithTolerance(
+        Quantities.getQuantity(45.375, MetricPrefix.MILLI(OHM)).to(OHM)
+      )
+      actual.getxSc() should equalWithTolerance(
+        Quantities.getQuantity(15.1249319, OHM)
+      )
+      actual.getsRated() should equalWithTolerance(
+        Quantities.getQuantity(40000d, KILOVOLTAMPERE)
+      )
+      actual.getvRatedA() should equalWithTolerance(
+        Quantities.getQuantity(110d, KILOVOLT)
+      )
+      actual.getvRatedB() should equalWithTolerance(
+        Quantities.getQuantity(10d, KILOVOLT)
+      )
+      actual.getgM() should equalWithTolerance(
+        Quantities.getQuantity(826.44628, MetricPrefix.NANO(SIEMENS))
+      )
+      actual.getbM() should equalWithTolerance(
+        Quantities
+          .getQuantity(33.0475190, MetricPrefix.MICRO(SIEMENS))
+          .to(MetricPrefix.NANO(SIEMENS))
+      )
+      actual.getdV() should equalWithTolerance(
+        Quantities.getQuantity(2.5, PERCENT)
+      )
+      actual.getdPhi() should equalWithTolerance(
+        Quantities.getQuantity(5d, DEGREE_GEOM)
+      )
       actual.isTapSide shouldBe false
       actual.getTapNeutr shouldBe 0
       actual.getTapMin shouldBe -10

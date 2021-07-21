@@ -1,15 +1,11 @@
 package edu.ie3.simbench.convert
 
-import java.util.UUID
-
 import edu.ie3.datamodel.models.OperationTime
 import edu.ie3.datamodel.models.input.connector.`type`.Transformer2WTypeInput
 import edu.ie3.datamodel.models.input.{NodeInput, OperatorInput}
-import edu.ie3.simbench.model.datamodel.enums.BranchElementPort.HV
 import edu.ie3.simbench.model.datamodel.types.Transformer2WType
-import edu.ie3.simbench.model.datamodel.{Node, Transformer2W}
+import edu.ie3.simbench.model.datamodel.Node
 import edu.ie3.test.common.{ConverterTestData, UnitSpec}
-import org.locationtech.jts.geom.{Point, Coordinate => JTSCoordinate}
 
 class Transformer2wConverterSpec extends UnitSpec with ConverterTestData {
   val (inputType, resultType) = getTransformer2WTypePair("test type")
