@@ -16,5 +16,5 @@ updates:
       - dependency-name: org.jgrapht:jgrapht-core
         versions:
           - ">= 1.5.a, < 1.6"
-      - dependency-name: org.scalatest:scalatest_${scalaVersion}
+      - dependency-name: org.scalatest:scalatest_2.13
           - "3.3.0-SNAP3"
