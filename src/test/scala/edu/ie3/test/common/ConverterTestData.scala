@@ -575,22 +575,22 @@ trait ConverterTestData {
   val transformerTypes = Map(
     "test type" -> ConversionPair(
       Transformer2WType(
-        "test type",
-        BigDecimal("40"),
-        BigDecimal("110"),
-        BigDecimal("10"),
-        BigDecimal("150"),
-        BigDecimal("5"),
-        BigDecimal("6"),
-        BigDecimal("10"),
-        BigDecimal("1"),
+        id = "test type",
+        sR = BigDecimal("40"),
+        vmHV = BigDecimal("110"),
+        vmLV = BigDecimal("10"),
+        va0 = BigDecimal("150"),
+        vmImp = BigDecimal("5"),
+        pCu = BigDecimal("6"),
+        pFe = BigDecimal("10"),
+        iNoLoad = BigDecimal("1"),
         tapable = true,
-        HV,
-        BigDecimal("0.025"),
-        BigDecimal("5"),
-        0,
-        -10,
-        10
+        tapside = HV,
+        dVm = BigDecimal("2.5"),
+        dVa = BigDecimal("5"),
+        tapNeutr = 0,
+        tapMin = -10,
+        tapMax = 10
       ),
       new Transformer2WTypeInput(
         UUID.randomUUID(),

@@ -27,6 +27,8 @@ ext {
 group = 'com.github.ie3-institute'
 description = 'simbench4ie3'
 version = '1.0-SNAPSHOT'
+sourceCompatibility = javaVersion
+targetCompatibility = javaVersion
 
 apply from: scriptsLocation + 'pmd.gradle'
 apply from: scriptsLocation + 'spotless.gradle'
