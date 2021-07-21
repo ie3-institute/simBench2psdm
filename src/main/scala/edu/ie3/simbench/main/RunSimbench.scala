@@ -7,7 +7,7 @@ import edu.ie3.datamodel.io.naming.{
   FileNamingStrategy
 }
 import edu.ie3.datamodel.io.sink.CsvFileSink
-import edu.ie3.simbench.config.SimbenchConfig
+import edu.ie3.simbench.config.{ConfigValidator, SimbenchConfig}
 import edu.ie3.simbench.convert.GridConverter
 import edu.ie3.simbench.exception.CodeValidationException
 import edu.ie3.simbench.io.{Downloader, IoUtils, SimbenchReader, Zipper}
@@ -27,6 +27,9 @@ object RunSimbench extends SimbenchHelper {
     logger.info("Parsing the config")
     val (_, config) = prepareConfig(args)
     val simbenchConfig = SimbenchConfig(config)
+
+    /* Validate the config */
+    ConfigValidator.checkValidity(simbenchConfig)
 
     simbenchConfig.io.simbenchCodes.foreach { simbenchCode =>
       logger.info(s"$simbenchCode - Downloading data set from SimBench website")
