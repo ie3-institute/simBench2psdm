@@ -26,7 +26,7 @@ ext {
 
 group = 'com.github.ie3-institute'
 description = 'simbench4ie3'
-version = '1.0-SNAPSHOT'
+version = '1.0'
 sourceCompatibility = javaVersion
 targetCompatibility = javaVersion
 
