@@ -5,6 +5,7 @@ import edu.ie3.datamodel.io.source.TimeSeriesMappingSource
 import edu.ie3.datamodel.io.source.TimeSeriesMappingSource.MappingEntry
 import edu.ie3.datamodel.models.input.connector.{
   LineInput,
+  SwitchInput,
   Transformer2WInput,
   Transformer3WInput
 }
@@ -151,18 +152,24 @@ case object GridConverter extends LazyLogging {
       .toSet
       .asJava
 
-    // TODO: Remove all nodes, that are not connected to any branch element
+    val connectedNodes = filterIsolatedNodes(
+      nodeConversion,
+      lines,
+      transformers2w,
+      transformers3w,
+      switches
+    )
 
     (
       new RawGridElements(
-        nodeConversion.values.toSet.asJava,
+        connectedNodes.values.toSet.asJava,
         lines,
         transformers2w,
         transformers3w,
         switches,
         measurements
       ),
-      nodeConversion
+      connectedNodes
     )
   }
 
@@ -487,6 +494,46 @@ case object GridConverter extends LazyLogging {
       transformerTypes,
       nodeConversion
     )
+  }
+
+  /**
+    * Filter the given node conversion for only those nodes, that are also part of any branch
+    *
+    * @param nodeConversion Mapping from original node to converted model
+    * @param lines          Collection of all lines
+    * @param transformers2w Collection of all two winding transformers
+    * @param transformers3w Collection of all three winding transformers
+    * @param switches       Collection of all switches
+    * @return A mapping, that only contains connected nodes
+    */
+  private def filterIsolatedNodes(
+      nodeConversion: Map[Node, NodeInput],
+      lines: java.util.Set[LineInput],
+      transformers2w: java.util.Set[Transformer2WInput],
+      transformers3w: java.util.Set[Transformer3WInput],
+      switches: java.util.Set[SwitchInput]
+  ): Map[Node, NodeInput] = {
+    val branchNodes = lines.asScala.flatMap(
+      line => Vector(line.getNodeA, line.getNodeB)
+    ) ++ transformers2w.asScala.flatMap(
+      transformer => Vector(transformer.getNodeA, transformer.getNodeB)
+    ) ++ transformers3w.asScala.flatMap(
+      transformer =>
+        Vector(transformer.getNodeA, transformer.getNodeB, transformer.getNodeC)
+    ) ++ switches.asScala.flatMap(
+      switch => Vector(switch.getNodeA, switch.getNodeB)
+    )
+    nodeConversion.partition {
+      case (_, convertedNode) => branchNodes.contains(convertedNode)
+    } match {
+      case (connectedNodes, unconnectedNodes) =>
+        if (unconnectedNodes.nonEmpty)
+          logger.warn(
+            "The nodes with following keys are not part of any branch (aka. isolated) and will be neglected in the sequel.\n\t{}",
+            unconnectedNodes.map(_._1.getKey).mkString("\n\t")
+          )
+        connectedNodes
+    }
   }
 
   /**
