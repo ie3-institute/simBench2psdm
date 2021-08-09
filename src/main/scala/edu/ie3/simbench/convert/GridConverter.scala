@@ -133,7 +133,8 @@ case object GridConverter extends LazyLogging {
         gridInput.nodes,
         slackNodeKeys,
         subnetConverter,
-        subnetOverrides
+        subnetOverrides,
+        joinOverrides
       )
 
     val lines = convertLines(gridInput, nodeConversion).toSet.asJava
@@ -371,18 +372,55 @@ case object GridConverter extends LazyLogging {
     * @param slackNodeKeys   Node identifier for those, that are foreseen to be slack nodes
     * @param subnetConverter Converter holding the mapping information from simbench to power system data model sub grid
     * @param subnetOverrides Collection of explicit subnet assignments
+    * @param joinOverrides   Collection of pairs of nodes, that are meant to be joined
     * @return A map from simbench to power system data model nodes
     */
   private def convertNodes(
       nodes: Vector[Node],
       slackNodeKeys: Vector[Node.NodeKey],
       subnetConverter: SubnetConverter,
-      subnetOverrides: Vector[SubnetOverride]
+      subnetOverrides: Vector[SubnetOverride],
+      joinOverrides: Vector[JoinOverride]
   ): Map[Node, NodeInput] = {
     val nodeToExplicitSubnet = subnetOverrides.map {
       case SubnetOverride(key, subnet) => key -> subnet
     }.toMap
-    nodes
+
+    /* First convert all nodes, that are target of node joins */
+    val nodeToJoinMap = joinOverrides.map {
+      case JoinOverride(key, joinWith) => key -> joinWith
+    }.toMap
+    val targetNodeKeys = nodeToJoinMap.values.toSeq.distinct
+    val (targetNodes, remainingNodes) =
+      nodes.partition(node => targetNodeKeys.contains(node.getKey))
+    val targetConversion = targetNodes
+      .map(
+        node =>
+          node -> NodeConverter.convert(
+            node,
+            slackNodeKeys,
+            subnetConverter,
+            nodeToExplicitSubnet.get(node.getKey)
+          )
+      )
+      .toMap
+
+    /* Then map all nodes to be joined to the converted target nodes */
+    val (nodesToBeJoined, singleNodes) = remainingNodes.partition(
+      node => nodeToJoinMap.keySet.contains(node.getKey)
+    )
+    val conversionWithJoinedNodes = targetConversion ++ nodesToBeJoined.map {
+      node =>
+        node -> targetConversion.getOrElse(
+          node,
+          throw ConversionException(
+            s"The node with key '${node.getKey}' was meant to be joined with another node, but that converted target node is not apparent."
+          )
+        )
+    }.toMap
+
+    /* Finally convert all left over nodes */
+    conversionWithJoinedNodes ++ singleNodes
       .map(
         node =>
           node -> NodeConverter.convert(
