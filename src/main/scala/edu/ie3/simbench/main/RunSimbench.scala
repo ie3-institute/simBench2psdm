@@ -72,7 +72,11 @@ object RunSimbench extends SimbenchHelper {
         timeSeriesMapping,
         powerFlowResults
       ) =
-        GridConverter.convert(simbenchCode, simbenchModel)
+        GridConverter.convert(
+          simbenchCode,
+          simbenchModel,
+          simbenchConfig.conversion.removeSwitches
+        )
 
       logger.info(s"$simbenchCode - Writing converted data set to files")
       /* Check, if a directory hierarchy is needed or not */

@@ -54,13 +54,15 @@ case object GridConverter extends LazyLogging {
     * Converts a full simbench grid into power system data models [[JointGridContainer]]. Additionally, individual time
     * series for all system participants are delivered as well.
     *
-    * @param simbenchCode Simbench code, that is used as identifier for the grid
-    * @param gridInput    Total grid input model to be converted
+    * @param simbenchCode   Simbench code, that is used as identifier for the grid
+    * @param gridInput      Total grid input model to be converted
+    * @param removeSwitches Whether or not to remove switches from the grid structure
     * @return A converted [[JointGridContainer]], a [[Vector]] of [[IndividualTimeSeries]] as well as a [[Vector]] of [[NodeResult]]s
     */
   def convert(
       simbenchCode: String,
-      gridInput: GridModel
+      gridInput: GridModel,
+      removeSwitches: Boolean
   ): (
       JointGridContainer,
       Vector[IndividualTimeSeries[_ <: PValue]],
@@ -68,7 +70,8 @@ case object GridConverter extends LazyLogging {
       Vector[NodeResult]
   ) = {
     logger.debug(s"Converting raw grid elements of '${gridInput.simbenchCode}'")
-    val (rawGridElements, nodeConversion) = convertGridElements(gridInput)
+    val (rawGridElements, nodeConversion) =
+      convertGridElements(gridInput, removeSwitches)
 
     logger.debug(
       s"Converting system participants and their time series of '${gridInput.simbenchCode}'"
@@ -101,11 +104,13 @@ case object GridConverter extends LazyLogging {
   /**
     * Converts all elements that do form the grid itself.
     *
-    * @param gridInput Total grid input model to convert
+    * @param gridInput      Total grid input model to convert
+    * @param removeSwitches Whether or not to remove switches from the grid structure
     * @return All grid elements in converted form + a mapping from old to new node models
     */
   def convertGridElements(
-      gridInput: GridModel
+      gridInput: GridModel,
+      removeSwitches: Boolean
   ): (RawGridElements, Map[Node, NodeInput]) = {
     /* Set up a sub net converter, by crawling all nodes */
     val subnetConverter = SubnetConverter(
@@ -126,8 +131,11 @@ case object GridConverter extends LazyLogging {
       gridInput.lines,
       subnetConverter
     )
-    val joinOverrides =
+    val joinOverrides = if (removeSwitches) {
+      /* If switches are meant to be removed, join all nodes at closed switches */
       determineJoinOverrides(gridInput.switches, slackNodeKeys)
+    } else
+      Vector.empty
 
     val nodeConversion =
       convertNodes(
@@ -146,7 +154,10 @@ case object GridConverter extends LazyLogging {
       "Creation of three winding transformers is not yet implemented."
     )
     val switches =
-      SwitchConverter.convert(gridInput.switches, nodeConversion).toSet.asJava
+      if (!removeSwitches)
+        SwitchConverter.convert(gridInput.switches, nodeConversion).toSet.asJava
+      else
+        Set.empty[SwitchInput].asJava
     val measurements = MeasurementConverter
       .convert(gridInput.measurements, nodeConversion)
       .toSet

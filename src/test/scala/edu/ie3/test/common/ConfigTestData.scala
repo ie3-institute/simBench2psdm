@@ -2,6 +2,7 @@ package edu.ie3.test.common
 
 import edu.ie3.simbench.config
 import edu.ie3.simbench.config.SimbenchConfig
+import edu.ie3.simbench.config.SimbenchConfig.Conversion
 import edu.ie3.simbench.config.SimbenchConfig.Io.Input
 
 trait ConfigTestData {
@@ -31,5 +32,7 @@ trait ConfigTestData {
     List("1-LV-urban6--0-sw", "blabla", "1-EHVHV-mixed-2-0-sw")
   )
 
-  val validConfig = new SimbenchConfig(validIo)
+  val validConversionConfig: Conversion = Conversion(removeSwitches = false)
+
+  val validConfig = new SimbenchConfig(validConversionConfig, validIo)
 }

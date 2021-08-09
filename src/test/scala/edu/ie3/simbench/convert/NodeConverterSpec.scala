@@ -120,7 +120,13 @@ class NodeConverterSpec extends UnitSpec with ConverterTestData {
   "The node converter" should {
     "build a slack node with all possible information given correctly" in {
       val actual =
-        NodeConverter.convert(slackNode, slackNodeKeys, subnetConverter, uuid)
+        NodeConverter.convert(
+          slackNode,
+          slackNodeKeys,
+          subnetConverter,
+          None,
+          uuid
+        )
 
       actual.getId shouldBe slackNodeExpected.getId
       actual.getOperationTime shouldBe slackNodeExpected.getOperationTime
@@ -133,7 +139,13 @@ class NodeConverterSpec extends UnitSpec with ConverterTestData {
 
     "build a normal node with least possible information given correctly" in {
       val actual =
-        NodeConverter.convert(otherNode, slackNodeKeys, subnetConverter, uuid)
+        NodeConverter.convert(
+          otherNode,
+          slackNodeKeys,
+          subnetConverter,
+          None,
+          uuid
+        )
       actual.getId shouldBe otherNodeExpected.getId
       actual.getOperationTime shouldBe otherNodeExpected.getOperationTime
       actual.getOperator shouldBe otherNodeExpected.getOperator
