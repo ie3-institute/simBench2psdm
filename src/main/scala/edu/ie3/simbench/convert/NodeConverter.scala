@@ -150,4 +150,21 @@ case object NodeConverter {
         s"Cannot find conversion result for node ${nodeIn.id}"
       )
     )
+
+  sealed trait AttributeOverride {
+    val key: Node.NodeKey
+  }
+  object AttributeOverride {
+
+    /**
+      * Denote a subnet override for a node conversion
+      *
+      * @param key          Key of the node to consider this override for
+      * @param targetSubnet The target subnet to use
+      */
+    final case class SubnetOverride(
+        override val key: Node.NodeKey,
+        targetSubnet: Int
+    ) extends AttributeOverride
+  }
 }

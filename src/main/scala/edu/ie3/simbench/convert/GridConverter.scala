@@ -23,6 +23,7 @@ import edu.ie3.datamodel.models.input.NodeInput
 import edu.ie3.datamodel.models.result.NodeResult
 import edu.ie3.datamodel.models.timeseries.individual.IndividualTimeSeries
 import edu.ie3.datamodel.models.value.{PValue, SValue, Value}
+import edu.ie3.simbench.convert.NodeConverter.AttributeOverride.SubnetOverride
 import edu.ie3.simbench.convert.types.{
   LineTypeConverter,
   Transformer2wTypeConverter
@@ -30,6 +31,7 @@ import edu.ie3.simbench.convert.types.{
 import edu.ie3.simbench.exception.ConversionException
 import edu.ie3.simbench.model.datamodel.{
   GridModel,
+  Line,
   Node,
   NodePFResult,
   Switch,
@@ -105,14 +107,19 @@ case object GridConverter extends LazyLogging {
       gridInput.nodes.map(node => (node.vmR, node.subnet))
     )
 
-    val firstNodeConversion = convertNodes(gridInput, subnetConverter)
-
-    /* Update the subnet attribute at all nodes within transformer's upstream switchgear */
-    val nodeConversion = updateSubnetInSwitchGears(
-      firstNodeConversion,
-      subnetConverter,
-      gridInput
+    /* Collect overriding attributes for node conversion, based on special constellations within the grid */
+    /* TODO
+     *   2) Overrides based on closed switches */
+    val subnetOverrides = determineSubnetOverrides(
+      gridInput.transformers2w,
+      gridInput.transformers3w,
+      gridInput.switches,
+      gridInput.lines,
+      subnetConverter
     )
+
+    // TODO: Consider overrides in conversion
+    val nodeConversion = convertNodes(gridInput, subnetConverter)
 
     val lines = convertLines(gridInput, nodeConversion).toSet.asJava
     val transformers2w =
@@ -128,6 +135,8 @@ case object GridConverter extends LazyLogging {
       .toSet
       .asJava
 
+    // TODO: Remove all nodes, that are not connected to any branch element
+
     (
       new RawGridElements(
         nodeConversion.values.toSet.asJava,
@@ -139,6 +148,134 @@ case object GridConverter extends LazyLogging {
       ),
       nodeConversion
     )
+  }
+
+  /**
+    * Determine all relevant subnet override information. SimBench has a different notion of where the border of a
+    * subnet is, therefore, for all nodes that are upstream of a transformer's hv node and connected via switches,
+    * explicit subnet numbers are provided.
+    *
+    * @param transformers2w   Collection of two winding transformers
+    * @param transformers3w   Collection of three winding transformers
+    * @param switches         Collection of switches
+    * @param lines            Collection of lines
+    * @param subnetConverter  Converter to determine subnet numbers
+    * @return A collection of [[SubnetOverride]]s
+    */
+  private def determineSubnetOverrides(
+      transformers2w: Vector[Transformer2W],
+      transformers3w: Vector[Transformer3W],
+      switches: Vector[Switch],
+      lines: Vector[Line[_]],
+      subnetConverter: SubnetConverter
+  ): Vector[SubnetOverride] = {
+    /* All nodes, at which a branch element is connected */
+    val junctions = (lines.flatMap(
+      line => Vector(line.nodeA, line.nodeB)
+    ) ++ transformers2w
+      .flatMap(
+        transformer => Vector(transformer.nodeHV, transformer.nodeLV)
+      ) ++ transformers3w.flatMap(
+      transformer =>
+        Vector(transformer.nodeHV, transformer.nodeLV, transformer.nodeMV)
+    )).distinct
+
+    transformers2w.flatMap { transformer =>
+      val relevantSubnet = subnetConverter.convert(
+        transformer.nodeLV.vmR,
+        transformer.nodeLV.subnet
+      )
+      val startNode = transformer.nodeHV
+      determineSubnetOverrides(
+        startNode,
+        switches,
+        junctions.filterNot(_ == startNode),
+        relevantSubnet
+      )
+    } ++ transformers3w.flatMap { transformer =>
+      val relevantSubnet = subnetConverter.convert(
+        transformer.nodeHV.vmR,
+        transformer.nodeHV.subnet
+      )
+      val startNode = transformer.nodeHV
+      determineSubnetOverrides(
+        startNode,
+        switches,
+        junctions.filterNot(_ == startNode),
+        relevantSubnet
+      )
+    }
+  }
+
+  /**
+    * Traveling along a switch chain starting from a starting node and stopping at dead ends and those nodes, that are
+    * marked explicitly as junctions. During this travel, every node we come along gets an [[SubnetOverride]] instance
+    * assigned, marking, that later in node conversion, this explicit subnet number shall be used. The subnet at
+    * junctions and dead ends is not altered. Adding the traveled nodes to the list of junctions, prevents from running
+    * in circles forever. Pay attention, that when starting from the hv node of a transformer, it may not be included
+    * in the set of junction nodes, if it is not part of any other junction.
+    *
+    * @param startNode      Node, where the traversal begins
+    * @param switches       Collection of all switches
+    * @param junctions      Collection of nodes, that are junctions
+    * @param relevantSubnet The explicit subnet number to use later
+    * @param overrides      Current collection of overrides (for recursive usage)
+    * @return A collection of [[SubnetOverride]]s for this traversal
+    */
+  private def determineSubnetOverrides(
+      startNode: Node,
+      switches: Vector[Switch],
+      junctions: Vector[Node],
+      relevantSubnet: Int,
+      overrides: Vector[SubnetOverride] = Vector.empty
+  ): Vector[SubnetOverride] = {
+    /* If the start node is among the junctions, do not travel further (Attention: Start node should not be among
+     * junctions when the traversing starts, otherwise nothing will happen at all.) */
+    if (junctions.contains(startNode))
+      return overrides
+
+    /* Get all switches, that are connected to the current starting point. If the other end of the switch is a junction,
+     * don't follow this path, as the other side wouldn't be touched anyways. */
+    val nextSwitches = switches.filter {
+      case Switch(_, nodeA, nodeB, _, _, _, _, _) if nodeA == startNode =>
+        !junctions.contains(nodeB)
+      case Switch(_, nodeA, nodeB, _, _, _, _, _) if nodeB == startNode =>
+        !junctions.contains(nodeA)
+      case _ => false
+    }
+
+    if (nextSwitches.isEmpty) {
+      /* There is no further switch, therefore the end is reached -> return the new mapping. Please note, as the subnet
+       * of the current node is only altered, if there is a next switch available, dead end nodes are not altered. */
+      overrides
+    } else {
+      /* Copy new node and add it to the mapping */
+      val subnetOverride = SubnetOverride(startNode.getKey, relevantSubnet)
+      val updatedOverrides = overrides :+ subnetOverride
+      val updatedJunctions = junctions.appended(startNode)
+
+      /* For all possible next upcoming switches -> Traverse along each branch (depth first search) */
+      nextSwitches.foldLeft(updatedOverrides) {
+        case (currentOverride, switch) =>
+          /* Determine the next node */
+          val nextNode =
+            Vector(switch.nodeA, switch.nodeB).find(_ != startNode) match {
+              case Some(value) => value
+              case None =>
+                throw ConversionException(
+                  s"Cannot traverse along '$switch', as the next node cannot be determined."
+                )
+            }
+
+          return determineSubnetOverrides(
+            nextNode,
+            switches,
+            updatedJunctions,
+            relevantSubnet,
+            currentOverride
+          )
+      }
+    }
   }
 
   /**
@@ -184,206 +321,6 @@ case object GridConverter extends LazyLogging {
       )
     )
     NodePFResultConverter.convert(nodePfResult, node)
-  }
-
-  /**
-    * Traverse upstream of switch chain at transformer's high voltage nodes to comply the subnet assignment to
-    * conventions found in PowerSystemDataModel: Those nodes will also belong to the inferior sub grid.
-    *
-    * @param initialNodeConversion  Mapping from SimBench to psdm nodes, that needs update
-    * @param subnetConverter        Converter holding information about subnet mapping
-    * @param gridModel              Overall grid model with all needed topological models
-    * @return An updated mapping from SimBench to psdm nodes
-    */
-  def updateSubnetInSwitchGears(
-      initialNodeConversion: Map[Node, NodeInput],
-      subnetConverter: SubnetConverter,
-      gridModel: GridModel
-  ): Map[Node, NodeInput] = {
-    val updatedConversion =
-      gridModel.transformers2w.foldLeft(initialNodeConversion) {
-        case (conversion, transformer) =>
-          val relevantSubnet = subnetConverter.convert(
-            transformer.nodeLV.vmR,
-            transformer.nodeLV.subnet
-          )
-
-          updateAlongSwitchChain(
-            conversion,
-            transformer,
-            gridModel,
-            relevantSubnet
-          )
-      }
-
-    gridModel.transformers3w.foldLeft(updatedConversion) {
-      case (conversion, transformer) =>
-        val relevantSubnet = subnetConverter.convert(
-          transformer.nodeHV.vmR,
-          transformer.nodeHV.subnet
-        )
-
-        updateAlongSwitchChain(
-          conversion,
-          transformer,
-          gridModel,
-          relevantSubnet
-        )
-    }
-  }
-
-  /**
-    * Traveling along a switch chain starting from a starting node and stopping at dead ends and those nodes, that are
-    * directly related to lines or transformers (read: not only switches). During this travel, every node we come along
-    * is updated to the relevant subnet and the mapping from SimBench to psdm is updated as well.
-    *
-    * @param initialNodeConversion Mapping from SimBench to psdm model that needs update
-    * @param startTransformer      Transformer from whose high voltage node the travel is supposed to start
-    * @param gridModel             Model of the grid to take information about lines and transformers from
-    * @param relevantSubnet        The subnet id to set
-    * @return updated mapping from SimBench to psdm node model
-    */
-  private def updateAlongSwitchChain(
-      initialNodeConversion: Map[Node, NodeInput],
-      startTransformer: Transformer2W,
-      gridModel: GridModel,
-      relevantSubnet: Int
-  ): Map[Node, NodeInput] = {
-    val startNode = startTransformer.nodeHV
-    val junctions = (gridModel.lines.flatMap(
-      line => Vector(line.nodeA, line.nodeB)
-    ) ++ gridModel.transformers2w
-      .filter(_ != startTransformer)
-      .flatMap(
-        transformer => Vector(transformer.nodeHV, transformer.nodeLV)
-      ) ++ gridModel.transformers3w.flatMap(
-      transformer =>
-        Vector(transformer.nodeHV, transformer.nodeLV, transformer.nodeMV)
-    )).distinct
-    updateAlongSwitchChain(
-      initialNodeConversion,
-      startNode,
-      gridModel.switches,
-      junctions,
-      relevantSubnet
-    )
-  }
-
-  /**
-    * Traveling along a switch chain starting from a starting node and stopping at dead ends and those nodes, that are
-    * directly related to lines or transformers (read: not only switches). During this travel, every node we come along
-    * is updated to the relevant subnet and the mapping from SimBench to psdm is updated as well.
-    *
-    * @param initialNodeConversion Mapping from SimBench to psdm model that needs update
-    * @param startTransformer      Transformer from whose high voltage node the travel is supposed to start
-    * @param gridModel             Model of the grid to take information about lines and transformers from
-    * @param relevantSubnet        The subnet id to set
-    * @return updated mapping from SimBench to psdm node model
-    */
-  private def updateAlongSwitchChain(
-      initialNodeConversion: Map[Node, NodeInput],
-      startTransformer: Transformer3W,
-      gridModel: GridModel,
-      relevantSubnet: Int
-  ): Map[Node, NodeInput] = {
-    val startNode = startTransformer.nodeHV
-    val junctions = (gridModel.lines.flatMap(
-      line => Vector(line.nodeA, line.nodeB)
-    ) ++ gridModel.transformers2w.flatMap(
-      transformer => Vector(transformer.nodeHV, transformer.nodeLV)
-    ) ++ gridModel.transformers3w
-      .filter(_ != startTransformer)
-      .flatMap(
-        transformer =>
-          Vector(transformer.nodeHV, transformer.nodeLV, transformer.nodeMV)
-      )).distinct
-    updateAlongSwitchChain(
-      initialNodeConversion,
-      startNode,
-      gridModel.switches,
-      junctions,
-      relevantSubnet
-    )
-  }
-
-  /**
-    * Traveling along a switch chain starting from a starting node and stopping at dead ends and those nodes, that are
-    * marked explicitly as junctions. During this travel, every node we come along is updated to the relevant subnet and
-    * the mapping from SimBench to psdm is updated as well. The subnet at junctions and dead ends is not altered. Adding
-    * the traveled nodes to the list of junctions, prevents from running in circles forever. Pay attention, that when
-    * starting from the hv node of a transformer, it may not be included in the set of junction nodes, if it is not part
-    * of any other junction.
-    *
-    * @param initialNodeConversion Mapping from SimBench to psdm model that needs update
-    * @param startNode             Start node from which the travel is supposed to start
-    * @param switches              Collection of all switches to consider
-    * @param junctions             Collection of nodes that are meant to be junctions
-    * @param relevantSubnet        The subnet id to set
-    * @return updated mapping from SimBench to psdm node model
-    */
-  private def updateAlongSwitchChain(
-      initialNodeConversion: Map[Node, NodeInput],
-      startNode: Node,
-      switches: Vector[Switch],
-      junctions: Vector[Node],
-      relevantSubnet: Int
-  ): Map[Node, NodeInput] = {
-    /* If the start node is among the junctions, do not travel further (Attention: Start node should not be among
-     * junctions when the traversing starts, otherwise nothing will happen at all.) */
-    if (junctions.contains(startNode))
-      return initialNodeConversion
-
-    /* Get all switches, that are connected to the current starting point. If the other end of the switch is a junction,
-     * don't follow this path, as the other side wouldn't be touched anyways. */
-    val nextSwitches = switches.filter {
-      case Switch(_, nodeA, nodeB, _, _, _, _, _) if nodeA == startNode =>
-        !junctions.contains(nodeB)
-      case Switch(_, nodeA, nodeB, _, _, _, _, _) if nodeB == startNode =>
-        !junctions.contains(nodeA)
-      case _ => false
-    }
-
-    if (nextSwitches.isEmpty) {
-      /* There is no further switch, therefore the end is reached -> return the new mapping. Please note, as the subnet
-       * of the current node is only altered, if there is a next switch available, dead end nodes are not altered. */
-      initialNodeConversion
-    } else {
-      /* Copy new node and add it to the mapping */
-      val updatedNode = initialNodeConversion
-        .getOrElse(
-          startNode,
-          throw ConversionException(
-            s"Cannot update the subnet of conversion of '$startNode', as its conversion cannot be found."
-          )
-        )
-        .copy()
-        .subnet(relevantSubnet)
-        .build()
-      val updatedConversion = initialNodeConversion + (startNode -> updatedNode)
-      val newJunctions = junctions.appended(startNode)
-
-      /* For all possible next upcoming switches -> Traverse along each branch (depth first search) */
-      nextSwitches.foldLeft(updatedConversion) {
-        case (conversion, switch) =>
-          /* Determine the next node */
-          val nextNode =
-            Vector(switch.nodeA, switch.nodeB).find(_ != startNode) match {
-              case Some(value) => value
-              case None =>
-                throw ConversionException(
-                  s"Cannot traverse along '$switch', as the next node cannot be determined."
-                )
-            }
-
-          return updateAlongSwitchChain(
-            conversion,
-            nextNode,
-            switches,
-            newJunctions,
-            relevantSubnet
-          )
-      }
-    }
   }
 
   /**
