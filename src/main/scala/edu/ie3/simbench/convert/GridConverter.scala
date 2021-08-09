@@ -23,7 +23,10 @@ import edu.ie3.datamodel.models.input.NodeInput
 import edu.ie3.datamodel.models.result.NodeResult
 import edu.ie3.datamodel.models.timeseries.individual.IndividualTimeSeries
 import edu.ie3.datamodel.models.value.{PValue, SValue, Value}
-import edu.ie3.simbench.convert.NodeConverter.AttributeOverride.SubnetOverride
+import edu.ie3.simbench.convert.NodeConverter.AttributeOverride.{
+  JoinOverride,
+  SubnetOverride
+}
 import edu.ie3.simbench.convert.types.{
   LineTypeConverter,
   Transformer2wTypeConverter
@@ -40,6 +43,7 @@ import edu.ie3.simbench.model.datamodel.{
 }
 
 import java.util.UUID
+import scala.annotation.tailrec
 import scala.collection.immutable
 import scala.jdk.CollectionConverters._
 
@@ -107,9 +111,13 @@ case object GridConverter extends LazyLogging {
       gridInput.nodes.map(node => (node.vmR, node.subnet))
     )
 
+    val slackNodeKeys = NodeConverter.getSlackNodeKeys(
+      gridInput.externalNets,
+      gridInput.powerPlants,
+      gridInput.res
+    )
+
     /* Collect overriding attributes for node conversion, based on special constellations within the grid */
-    /* TODO
-     *   2) Overrides based on closed switches */
     val subnetOverrides = determineSubnetOverrides(
       gridInput.transformers2w,
       gridInput.transformers3w,
@@ -117,9 +125,16 @@ case object GridConverter extends LazyLogging {
       gridInput.lines,
       subnetConverter
     )
+    val joinOverrides =
+      determineJoinOverrides(gridInput.switches, slackNodeKeys)
 
     val nodeConversion =
-      convertNodes(gridInput, subnetConverter, subnetOverrides)
+      convertNodes(
+        gridInput.nodes,
+        slackNodeKeys,
+        subnetConverter,
+        subnetOverrides
+      )
 
     val lines = convertLines(gridInput, nodeConversion).toSet.asJava
     val transformers2w =
@@ -279,28 +294,95 @@ case object GridConverter extends LazyLogging {
   }
 
   /**
+    * Determine join overrides for all nodes, that are connected by closed switches
+    *
+    * @param switches       Collection of all (closed) switches
+    * @param slackNodeKeys  Collection of node keys, that are foreseen to be slack nodes
+    * @return A collection of [[JoinOverride]]s
+    */
+  private def determineJoinOverrides(
+      switches: Vector[Switch],
+      slackNodeKeys: Vector[Node.NodeKey]
+  ): Vector[JoinOverride] = {
+    val closedSwitches = switches.filter(_.cond)
+    val switchGroups = determineSwitchGroups(closedSwitches)
+    switchGroups
+      .flatMap(
+        switchGroup =>
+          determineJoinOverridesForSwitchGroup(switchGroup, slackNodeKeys)
+      )
+      .distinct
+  }
+
+  /**
+    * Determine groups of directly connected switches
+    *
+    * @param switches     Collection of switches to group
+    * @param switchGroups Current collection of switch groups (for recursion)
+    * @return A collection of switch collections, that denote groups
+    */
+  @tailrec
+  private def determineSwitchGroups(
+      switches: Vector[Switch],
+      switchGroups: Vector[Vector[Switch]] = Vector.empty
+  ): Vector[Vector[Switch]] = switches.headOption match {
+    case Some(currentSwitch) =>
+      val currentNodes = Vector(currentSwitch.nodeA, currentSwitch.nodeB)
+      val (group, remainingSwitches) = switches.partition { switch =>
+        currentNodes.contains(switch.nodeA) || currentNodes.contains(
+          switch.nodeB
+        )
+      }
+      val updatedGroups = switchGroups :+ group
+      determineSwitchGroups(remainingSwitches, updatedGroups)
+    case None =>
+      switchGroups
+  }
+
+  /**
+    * Determine overrides per switch group
+    *
+    * @param switchGroup    A group of directly connected switches
+    * @param slackNodeKeys  Collection of node keys, that are foreseen to be slack nodes
+    * @return A collection of [[JoinOverride]]s
+    */
+  private def determineJoinOverridesForSwitchGroup(
+      switchGroup: Vector[Switch],
+      slackNodeKeys: Vector[Node.NodeKey]
+  ): Vector[JoinOverride] = {
+    val nodes =
+      switchGroup.flatMap(switch => Vector(switch.nodeA, switch.nodeB)).distinct
+    val leadingNode =
+      nodes.find(node => slackNodeKeys.contains(node.getKey)).getOrElse {
+        /* Get the node with the most occurrences */
+        nodes.groupBy(identity).view.mapValues(_.size).toMap.maxBy(_._2)._1
+      }
+    val leadingNodeKey = leadingNode.getKey
+    nodes
+      .filterNot(_ == leadingNode)
+      .map(node => JoinOverride(node.getKey, leadingNodeKey))
+  }
+
+  /**
     * Converts all apparent nodes to the equivalent power system data model. The slack information is derived from the
     * attributes of external nets, power plants and renewable energy sources.
     *
-    * @param gridInput       Total grid input model to convert
+    * @param nodes           All nodes to convert
+    * @param slackNodeKeys   Node identifier for those, that are foreseen to be slack nodes
     * @param subnetConverter Converter holding the mapping information from simbench to power system data model sub grid
     * @param subnetOverrides Collection of explicit subnet assignments
     * @return A map from simbench to power system data model nodes
     */
   private def convertNodes(
-      gridInput: GridModel,
+      nodes: Vector[Node],
+      slackNodeKeys: Vector[Node.NodeKey],
       subnetConverter: SubnetConverter,
       subnetOverrides: Vector[SubnetOverride]
   ): Map[Node, NodeInput] = {
-    val slackNodeKeys = NodeConverter.getSlackNodeKeys(
-      gridInput.externalNets,
-      gridInput.powerPlants,
-      gridInput.res
-    )
     val nodeToExplicitSubnet = subnetOverrides.map {
       case SubnetOverride(key, subnet) => key -> subnet
     }.toMap
-    gridInput.nodes
+    nodes
       .map(
         node =>
           node -> NodeConverter.convert(

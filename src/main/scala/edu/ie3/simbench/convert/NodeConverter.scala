@@ -170,5 +170,16 @@ case object NodeConverter {
         override val key: Node.NodeKey,
         targetSubnet: Int
     ) extends AttributeOverride
+
+    /**
+      * Denote, that two nodes are foreseen to be joined
+      *
+      * @param key      Key of the node to join
+      * @param joinWith Key of other node to join with
+      */
+    final case class JoinOverride(
+        override val key: Node.NodeKey,
+        joinWith: Node.NodeKey
+    ) extends AttributeOverride
   }
 }
