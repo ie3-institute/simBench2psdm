@@ -8,7 +8,6 @@ import edu.ie3.datamodel.models.input.system.characteristic.CosPhiFixed
 import edu.ie3.datamodel.models.input.{NodeInput, OperatorInput}
 import edu.ie3.datamodel.models.timeseries.individual.IndividualTimeSeries
 import edu.ie3.datamodel.models.value.PValue
-import edu.ie3.simbench.convert.PowerPlantConverter.cosPhi
 import edu.ie3.simbench.convert.profiles.PowerProfileConverter
 import edu.ie3.simbench.model.datamodel.profiles.{ResProfile, ResProfileType}
 import edu.ie3.simbench.model.datamodel.{Node, RES}
@@ -19,7 +18,7 @@ import edu.ie3.util.quantities.PowerSystemUnits.{
 }
 import tech.units.indriya.quantity.Quantities
 
-import scala.math.{atan, cos, round}
+import scala.collection.parallel.CollectionConverters._
 
 case object ResConverter extends ShuntConverter {
 
@@ -35,14 +34,16 @@ case object ResConverter extends ShuntConverter {
       res: Vector[RES],
       nodes: Map[Node, NodeInput],
       profiles: Map[ResProfileType, ResProfile]
-  ): Map[FixedFeedInInput, IndividualTimeSeries[PValue]] = {
-    (for (plant <- res) yield {
-      val node = NodeConverter.getNode(plant.node, nodes)
-      val profile =
-        PowerProfileConverter.getProfile(plant.profile, profiles)
-      convert(plant, node, profile)
-    }).toMap
-  }
+  ): Map[FixedFeedInInput, IndividualTimeSeries[PValue]] =
+    res.par
+      .map { plant =>
+        val node = NodeConverter.getNode(plant.node, nodes)
+        val profile =
+          PowerProfileConverter.getProfile(plant.profile, profiles)
+        convert(plant, node, profile)
+      }
+      .seq
+      .toMap
 
   /**
     * Converts a single renewable energy source system to a fixed feed in model due to lacking information to

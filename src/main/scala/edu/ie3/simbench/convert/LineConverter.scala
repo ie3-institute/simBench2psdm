@@ -15,6 +15,8 @@ import edu.ie3.simbench.model.datamodel.{Line, Node}
 import edu.ie3.util.quantities.PowerSystemUnits.KILOMETRE
 import tech.units.indriya.quantity.Quantities
 
+import scala.collection.parallel.CollectionConverters._
+
 case object LineConverter extends LazyLogging {
 
   /**
@@ -30,7 +32,7 @@ case object LineConverter extends LazyLogging {
       types: Map[LineType, LineTypeInput],
       nodes: Map[Node, NodeInput]
   ): Vector[LineInput] =
-    inputs.flatMap {
+    inputs.par.flatMap {
       case acLine: Line.ACLine =>
         val (nodeA, nodeB) =
           NodeConverter.getNodes(acLine.nodeA, acLine.nodeB, nodes)
@@ -42,7 +44,7 @@ case object LineConverter extends LazyLogging {
         )
         Some(convert(acLine, lineType, nodeA, nodeB))
       case _: Line.DCLine => None
-    }
+    }.seq
 
   /**
     * Converts a single [[Line]] to [[LineInput]]. [[Line.DCLine]] is not converted, as the ie3 data model does not

@@ -45,8 +45,8 @@ import edu.ie3.simbench.model.datamodel.{
 
 import java.util.UUID
 import scala.annotation.tailrec
-import scala.collection.immutable
 import scala.jdk.CollectionConverters._
+import scala.collection.parallel.CollectionConverters._
 
 case object GridConverter extends LazyLogging {
 
@@ -411,7 +411,7 @@ case object GridConverter extends LazyLogging {
     val targetNodeKeys = nodeToJoinMap.values.toSeq.distinct
     val (targetNodes, remainingNodes) =
       nodes.partition(node => targetNodeKeys.contains(node.getKey))
-    val targetConversion = targetNodes
+    val targetConversion = targetNodes.par
       .map(
         node =>
           node -> NodeConverter.convert(
@@ -421,24 +421,27 @@ case object GridConverter extends LazyLogging {
             nodeToExplicitSubnet.get(node.getKey)
           )
       )
+      .seq
       .toMap
 
     /* Then map all nodes to be joined to the converted target nodes */
     val (nodesToBeJoined, singleNodes) = remainingNodes.partition(
       node => nodeToJoinMap.keySet.contains(node.getKey)
     )
-    val conversionWithJoinedNodes = targetConversion ++ nodesToBeJoined.map {
-      node =>
+    val conversionWithJoinedNodes = targetConversion ++ nodesToBeJoined.par
+      .map { node =>
         node -> targetConversion.getOrElse(
           node,
           throw ConversionException(
             s"The node with key '${node.getKey}' was meant to be joined with another node, but that converted target node is not apparent."
           )
         )
-    }.toMap
+      }
+      .seq
+      .toMap
 
     /* Finally convert all left over nodes */
-    conversionWithJoinedNodes ++ singleNodes
+    conversionWithJoinedNodes ++ singleNodes.par
       .map(
         node =>
           node -> NodeConverter.convert(
@@ -448,6 +451,7 @@ case object GridConverter extends LazyLogging {
             nodeToExplicitSubnet.get(node.getKey)
           )
       )
+      .seq
       .toMap
   }
 
@@ -461,15 +465,16 @@ case object GridConverter extends LazyLogging {
   private def convertNodeResults(
       input: Vector[NodePFResult],
       nodeConversion: Map[Node, NodeInput]
-  ): Vector[NodeResult] = input.map { nodePfResult =>
-    val node = nodeConversion.getOrElse(
-      nodePfResult.node,
-      throw ConversionException(
-        s"Cannot convert power flow result for node ${nodePfResult.node}, as the needed node conversion cannot be found."
+  ): Vector[NodeResult] =
+    input.par.map { nodePfResult =>
+      val node = nodeConversion.getOrElse(
+        nodePfResult.node,
+        throw ConversionException(
+          s"Cannot convert power flow result for node ${nodePfResult.node}, as the needed node conversion cannot be found."
+        )
       )
-    )
-    NodePFResultConverter.convert(nodePfResult, node)
-  }
+      NodePFResultConverter.convert(nodePfResult, node)
+    }.seq
 
   /**
     * Converts the given lines.

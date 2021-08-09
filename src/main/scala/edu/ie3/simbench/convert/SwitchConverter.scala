@@ -7,6 +7,8 @@ import edu.ie3.datamodel.models.input.connector.SwitchInput
 import edu.ie3.datamodel.models.input.{NodeInput, OperatorInput}
 import edu.ie3.simbench.model.datamodel.{Node, Switch}
 
+import scala.collection.parallel.CollectionConverters._
+
 case object SwitchConverter {
 
   /**
@@ -20,11 +22,11 @@ case object SwitchConverter {
       switches: Vector[Switch],
       nodes: Map[Node, NodeInput]
   ): Vector[SwitchInput] =
-    for (input <- switches) yield {
+    switches.par.map { input =>
       val (nodeA, nodeB) =
         NodeConverter.getNodes(input.nodeA, input.nodeB, nodes)
       convert(input, nodeA, nodeB)
-    }
+    }.seq
 
   /**
     * Converts a [[Switch]] into ie3's [[SwitchInput]]
