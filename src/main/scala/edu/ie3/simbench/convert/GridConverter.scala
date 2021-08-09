@@ -370,14 +370,14 @@ case object GridConverter extends LazyLogging {
       slackNodeKeys: Vector[Node.NodeKey]
   ): Vector[JoinOverride] = {
     val nodes =
-      switchGroup.flatMap(switch => Vector(switch.nodeA, switch.nodeB)).distinct
+      switchGroup.flatMap(switch => Vector(switch.nodeA, switch.nodeB))
     val leadingNode =
       nodes.find(node => slackNodeKeys.contains(node.getKey)).getOrElse {
         /* Get the node with the most occurrences */
         nodes.groupBy(identity).view.mapValues(_.size).toMap.maxBy(_._2)._1
       }
     val leadingNodeKey = leadingNode.getKey
-    nodes
+    nodes.distinct
       .filterNot(_ == leadingNode)
       .map(node => JoinOverride(node.getKey, leadingNodeKey))
   }
