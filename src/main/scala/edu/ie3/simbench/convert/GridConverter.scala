@@ -118,8 +118,8 @@ case object GridConverter extends LazyLogging {
       subnetConverter
     )
 
-    // TODO: Consider overrides in conversion
-    val nodeConversion = convertNodes(gridInput, subnetConverter)
+    val nodeConversion =
+      convertNodes(gridInput, subnetConverter, subnetOverrides)
 
     val lines = convertLines(gridInput, nodeConversion).toSet.asJava
     val transformers2w =
@@ -284,21 +284,31 @@ case object GridConverter extends LazyLogging {
     *
     * @param gridInput       Total grid input model to convert
     * @param subnetConverter Converter holding the mapping information from simbench to power system data model sub grid
+    * @param subnetOverrides Collection of explicit subnet assignments
     * @return A map from simbench to power system data model nodes
     */
   private def convertNodes(
       gridInput: GridModel,
-      subnetConverter: SubnetConverter
+      subnetConverter: SubnetConverter,
+      subnetOverrides: Vector[SubnetOverride]
   ): Map[Node, NodeInput] = {
     val slackNodeKeys = NodeConverter.getSlackNodeKeys(
       gridInput.externalNets,
       gridInput.powerPlants,
       gridInput.res
     )
+    val nodeToExplicitSubnet = subnetOverrides.map {
+      case SubnetOverride(key, subnet) => key -> subnet
+    }.toMap
     gridInput.nodes
       .map(
         node =>
-          node -> NodeConverter.convert(node, slackNodeKeys, subnetConverter)
+          node -> NodeConverter.convert(
+            node,
+            slackNodeKeys,
+            subnetConverter,
+            nodeToExplicitSubnet.get(node.getKey)
+          )
       )
       .toMap
   }

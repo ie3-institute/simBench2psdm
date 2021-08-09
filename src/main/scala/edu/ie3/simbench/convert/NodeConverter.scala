@@ -27,16 +27,18 @@ case object NodeConverter {
   /**
     * Converts a SimBench node to a PowerSystemDataModel node
     *
-    * @param input            SimBench [[Node]] to convert
-    * @param slackNodeKeys    Vector of keys, undoubtedly identifying slack nodes by (id, subnet, voltLvl)
-    * @param subnetConverter  Subnet converter, that is initialized with the apparent SimBench subnets
-    * @param uuid             UUID to use for the model generation (default: Random UUID)
-    * @return                 A [[NodeInput]]
+    * @param input               SimBench [[Node]] to convert
+    * @param slackNodeKeys       Vector of keys, undoubtedly identifying slack nodes by (id, subnet, voltLvl)
+    * @param subnetConverter     Subnet converter, that is initialized with the apparent SimBench subnets
+    * @param maybeExplicitSubnet Optional explicit subnet number to assign
+    * @param uuid                UUID to use for the model generation (default: Random UUID)
+    * @return A [[NodeInput]]
     */
   def convert(
       input: Node,
       slackNodeKeys: Vector[NodeKey],
       subnetConverter: SubnetConverter,
+      maybeExplicitSubnet: Option[Int],
       uuid: UUID = UUID.randomUUID()
   ): NodeInput = {
     val vTarget = input.vmSetp match {
@@ -48,7 +50,9 @@ case object NodeConverter {
       slackNodeKeys.contains(input.getKey)
     val geoPosition = CoordinateConverter.convert(input.coordinate)
     val voltLvl = VoltLvlConverter.convert(input.voltLvl, vRated)
-    val subnet = subnetConverter.convert(input.vmR, input.subnet)
+    val subnet = maybeExplicitSubnet.getOrElse(
+      subnetConverter.convert(input.vmR, input.subnet)
+    )
 
     new NodeInput(
       uuid,
