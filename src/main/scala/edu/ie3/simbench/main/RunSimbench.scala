@@ -15,7 +15,12 @@ import edu.ie3.simbench.model.SimbenchCode
 import edu.ie3.util.io.FileIOUtils
 import org.apache.commons.io.FilenameUtils
 
+import scala.concurrent.Await
+import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.duration.Duration
 import scala.jdk.CollectionConverters._
+import scala.jdk.FutureConverters.CompletionStageOps
+import scala.util.{Failure, Success}
 
 /**
   * This is not meant to be final production code. It is more a place for "testing" the full method stack.
@@ -114,9 +119,19 @@ object RunSimbench extends SimbenchHelper {
         val archivePath = Paths.get(
           FilenameUtils.concat(baseTargetDirectory, simbenchCode + ".tar.gz")
         )
-        FileIOUtils.compressDir(rawOutputPath, archivePath)
+        val compressFuture =
+          FileIOUtils.compressDir(rawOutputPath, archivePath).asScala
+        compressFuture.onComplete {
+          case Success(_) =>
+            FileIOUtils.deleteRecursively(rawOutputPath)
+          case Failure(exception) =>
+            logger.error(
+              s"Compression of output files to '$archivePath' has failed. Keep raw data.",
+              exception
+            )
+        }
 
-        FileIOUtils.deleteRecursively(rawOutputPath)
+        Await.ready(compressFuture, Duration("30s"))
       }
     }
   }
