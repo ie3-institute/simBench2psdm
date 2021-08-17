@@ -53,13 +53,13 @@ class ResConverterSpec
     "lead to the correct time series" in {
       val expected = Map(
         simbenchTimeUtil.toZonedDateTime("01.01.1990 00:00") -> Quantities
-          .getQuantity(-0.12, StandardUnits.ACTIVE_POWER_RESULT),
+          .getQuantity(-120.0, StandardUnits.ACTIVE_POWER_IN),
         simbenchTimeUtil.toZonedDateTime("01.01.1990 00:15") -> Quantities
-          .getQuantity(-0.088, StandardUnits.ACTIVE_POWER_RESULT),
+          .getQuantity(-88.0, StandardUnits.ACTIVE_POWER_IN),
         simbenchTimeUtil.toZonedDateTime("01.01.1990 00:30") -> Quantities
-          .getQuantity(-0.056, StandardUnits.ACTIVE_POWER_RESULT),
+          .getQuantity(-56.0, StandardUnits.ACTIVE_POWER_IN),
         simbenchTimeUtil.toZonedDateTime("01.01.1990 00:45") -> Quantities
-          .getQuantity(-0.024, StandardUnits.ACTIVE_POWER_RESULT)
+          .getQuantity(-24.0, StandardUnits.ACTIVE_POWER_IN)
       )
 
       actualTimeSeries.getEntries.forEach { timeBasedValue =>

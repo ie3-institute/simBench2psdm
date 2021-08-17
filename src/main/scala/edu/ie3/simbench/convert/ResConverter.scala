@@ -67,7 +67,8 @@ case object ResConverter extends ShuntConverter {
       "cosPhiFixed:{(0.0,%#.2f)}".formatLocal(Locale.ENGLISH, cosphi)
     val sRated = Quantities.getQuantity(input.sR, MEGAVOLTAMPERE)
 
-    val timeSeries = PowerProfileConverter.convert(profile, p)
+    /* Flip the sign, as infeed is negative in PowerSystemDataModel */
+    val timeSeries = PowerProfileConverter.convert(profile, p.multiply(-1))
 
     new FixedFeedInInput(
       uuid.getOrElse(UUID.randomUUID()),

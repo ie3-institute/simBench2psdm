@@ -52,13 +52,13 @@ class PowerPlantConverterSpec
       "lead to the correct time series" in {
         val expected = Map(
           simbenchTimeUtil.toZonedDateTime("01.01.1990 00:00") -> Quantities
-            .getQuantity(-234.474, StandardUnits.ACTIVE_POWER_RESULT),
+            .getQuantity(-222750.0, StandardUnits.ACTIVE_POWER_IN),
           simbenchTimeUtil.toZonedDateTime("01.01.1990 00:15") -> Quantities
-            .getQuantity(-171.9476, StandardUnits.ACTIVE_POWER_RESULT),
+            .getQuantity(-163350.0, StandardUnits.ACTIVE_POWER_IN),
           simbenchTimeUtil.toZonedDateTime("01.01.1990 00:30") -> Quantities
-            .getQuantity(-109.4212, StandardUnits.ACTIVE_POWER_RESULT),
+            .getQuantity(-103950.0, StandardUnits.ACTIVE_POWER_IN),
           simbenchTimeUtil.toZonedDateTime("01.01.1990 00:45") -> Quantities
-            .getQuantity(-46.8948, StandardUnits.ACTIVE_POWER_RESULT)
+            .getQuantity(-44550.0, StandardUnits.ACTIVE_POWER_IN)
         )
 
         actualTimeSeries.getEntries.forEach { timeBasedValue =>
@@ -115,13 +115,13 @@ class PowerPlantConverterSpec
       "lead to the correct time series" in {
         val expected = Map(
           simbenchTimeUtil.toZonedDateTime("01.01.1990 00:00") -> Quantities
-            .getQuantity(-234.474, StandardUnits.ACTIVE_POWER_RESULT),
+            .getQuantity(-222750.0, StandardUnits.ACTIVE_POWER_IN),
           simbenchTimeUtil.toZonedDateTime("01.01.1990 00:15") -> Quantities
-            .getQuantity(-171.9476, StandardUnits.ACTIVE_POWER_RESULT),
+            .getQuantity(-163350.0, StandardUnits.ACTIVE_POWER_IN),
           simbenchTimeUtil.toZonedDateTime("01.01.1990 00:30") -> Quantities
-            .getQuantity(-109.4212, StandardUnits.ACTIVE_POWER_RESULT),
+            .getQuantity(-103950.0, StandardUnits.ACTIVE_POWER_IN),
           simbenchTimeUtil.toZonedDateTime("01.01.1990 00:45") -> Quantities
-            .getQuantity(-46.8948, StandardUnits.ACTIVE_POWER_RESULT)
+            .getQuantity(-44550.0, StandardUnits.ACTIVE_POWER_IN)
         )
 
         actualTimeSeries.getEntries.forEach { timeBasedValue =>
