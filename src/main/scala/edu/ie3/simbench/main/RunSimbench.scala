@@ -131,7 +131,7 @@ object RunSimbench extends SimbenchHelper {
             )
         }
 
-        Await.ready(compressFuture, Duration("30s"))
+        Await.ready(compressFuture, Duration("180s"))
       }
     }
   }

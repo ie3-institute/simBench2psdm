@@ -53,7 +53,7 @@ dependencies {
 	}
 
 	/* util functions */
-	implementation ('com.github.ie3-institute:PowerSystemUtils:1.5.3') {
+	implementation ('com.github.ie3-institute:PowerSystemUtils:1.6-SNAPSHOT') {
 		/* Exclude nested logging and ie3 related dependencies */
 		exclude group: 'org.slf4j', module: 'slf4j-api'
 		exclude group: 'com.github.ie3-institute'
