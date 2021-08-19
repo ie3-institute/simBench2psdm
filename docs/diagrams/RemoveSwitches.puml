@@ -2,7 +2,7 @@
 
 (*) --> "Choose all closed switches"
 --> "Identify switch groups"
-note right: By iterating over all existing switches\nand building bags of connected nodes.\nIf a node of a following switch is already\nin a bag, then add the switch to this\nswitch group.
+note right: By iterating over all existing switches\nand building bags of nodes, that are\ndirectly connected via switches.If a node\n of a following switch is already in a bag,\nthen add the switch to thisswitch group.
 --> "Take the next switch group"
 --> "Identify main node"
 note left: By counting the occurrences of\nthis node within all nodes of\nthat switch group. If all nodes\noccur only once, take the first\none.

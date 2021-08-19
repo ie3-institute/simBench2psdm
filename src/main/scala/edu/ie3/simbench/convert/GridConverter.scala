@@ -186,8 +186,11 @@ case object GridConverter extends LazyLogging {
 
   /**
     * Determine all relevant subnet override information. SimBench has a different notion of where the border of a
-    * subnet is, therefore, for all nodes that are upstream of a transformer's hv node and connected via switches,
-    * explicit subnet numbers are provided.
+    * subnet is. This is especially the case, if there is switch gear "upstream" of a transformer. For SimBench all
+    * nodes upstream of the transformer belong to the higher grid. However, for PowerSystemDataModel we expect the
+    * switch gear to belong to the lower grid (the transformer is in), as in a partitioned simulation, one most likely
+    * will control the switches in a manner, that the lower grid needs for. Therefore, for all nodes that are upstream
+    * of a transformer's hv node and connected via switches, explicit subnet numbers are provided.
     *
     * @param transformers2w   Collection of two winding transformers
     * @param transformers3w   Collection of three winding transformers
@@ -243,7 +246,7 @@ case object GridConverter extends LazyLogging {
 
   /**
     * Traveling along a switch chain starting from a starting node and stopping at dead ends and those nodes, that are
-    * marked explicitly as junctions. During this travel, every node we come along gets an [[SubnetOverride]] instance
+    * marked explicitly as junctions. During this travel, every node we come along gets a [[SubnetOverride]] instance
     * assigned, marking, that later in node conversion, this explicit subnet number shall be used. The subnet at
     * junctions and dead ends is not altered. Adding the traveled nodes to the list of junctions, prevents from running
     * in circles forever. Pay attention, that when starting from the hv node of a transformer, it may not be included
@@ -408,10 +411,10 @@ case object GridConverter extends LazyLogging {
     val nodeToJoinMap = joinOverrides.map {
       case JoinOverride(key, joinWith) => key -> joinWith
     }.toMap
-    val targetNodeKeys = nodeToJoinMap.values.toSeq.distinct
-    val (targetNodes, remainingNodes) =
-      nodes.partition(node => targetNodeKeys.contains(node.getKey))
-    val targetConversion = targetNodes.par
+    val joinTargetNodeKeys = nodeToJoinMap.values.toSeq.distinct
+    val (joinTargetNodes, remainingNodes) =
+      nodes.partition(node => joinTargetNodeKeys.contains(node.getKey))
+    val joinTargetConversion = joinTargetNodes.par
       .map(
         node =>
           node -> NodeConverter.convert(
@@ -428,9 +431,9 @@ case object GridConverter extends LazyLogging {
     val (nodesToBeJoined, singleNodes) = remainingNodes.partition(
       node => nodeToJoinMap.keySet.contains(node.getKey)
     )
-    val conversionWithJoinedNodes = targetConversion ++ nodesToBeJoined.par
+    val conversionWithJoinedNodes = joinTargetConversion ++ nodesToBeJoined.par
       .map { node =>
-        node -> targetConversion.getOrElse(
+        node -> joinTargetConversion.getOrElse(
           node,
           throw ConversionException(
             s"The node with key '${node.getKey}' was meant to be joined with another node, but that converted target node is not apparent."

@@ -96,7 +96,7 @@ class GridConverterSpec extends UnitSpec with SwitchTestingData {
             group.contains(switchDF) shouldBe true
             group.contains(switchDG) shouldBe true
           } else {
-            group.contains(switchHI)
+            group.contains(switchHI) shouldBe true
           }
         }
       }
