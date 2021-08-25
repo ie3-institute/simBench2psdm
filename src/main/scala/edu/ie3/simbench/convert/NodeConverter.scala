@@ -27,16 +27,18 @@ case object NodeConverter {
   /**
     * Converts a SimBench node to a PowerSystemDataModel node
     *
-    * @param input            SimBench [[Node]] to convert
-    * @param slackNodeKeys    Vector of keys, undoubtedly identifying slack nodes by (id, subnet, voltLvl)
-    * @param subnetConverter  Subnet converter, that is initialized with the apparent SimBench subnets
-    * @param uuid             UUID to use for the model generation (default: Random UUID)
-    * @return                 A [[NodeInput]]
+    * @param input               SimBench [[Node]] to convert
+    * @param slackNodeKeys       Vector of keys, undoubtedly identifying slack nodes by (id, subnet, voltLvl)
+    * @param subnetConverter     Subnet converter, that is initialized with the apparent SimBench subnets
+    * @param maybeExplicitSubnet Optional explicit subnet number to assign
+    * @param uuid                UUID to use for the model generation (default: Random UUID)
+    * @return A [[NodeInput]]
     */
   def convert(
       input: Node,
       slackNodeKeys: Vector[NodeKey],
       subnetConverter: SubnetConverter,
+      maybeExplicitSubnet: Option[Int],
       uuid: UUID = UUID.randomUUID()
   ): NodeInput = {
     val vTarget = input.vmSetp match {
@@ -48,7 +50,9 @@ case object NodeConverter {
       slackNodeKeys.contains(input.getKey)
     val geoPosition = CoordinateConverter.convert(input.coordinate)
     val voltLvl = VoltLvlConverter.convert(input.voltLvl, vRated)
-    val subnet = subnetConverter.convert(input.vmR, input.subnet)
+    val subnet = maybeExplicitSubnet.getOrElse(
+      subnetConverter.convert(input.vmR, input.subnet)
+    )
 
     new NodeInput(
       uuid,
@@ -150,4 +154,32 @@ case object NodeConverter {
         s"Cannot find conversion result for node ${nodeIn.id}"
       )
     )
+
+  sealed trait AttributeOverride {
+    val key: Node.NodeKey
+  }
+  object AttributeOverride {
+
+    /**
+      * Denote a subnet override for a node conversion
+      *
+      * @param key          Key of the node to consider this override for
+      * @param targetSubnet The target subnet to use
+      */
+    final case class SubnetOverride(
+        override val key: Node.NodeKey,
+        targetSubnet: Int
+    ) extends AttributeOverride
+
+    /**
+      * Denote, that two nodes are foreseen to be joined
+      *
+      * @param key      Key of the node to join
+      * @param joinWith Key of other node to join with
+      */
+    final case class JoinOverride(
+        override val key: Node.NodeKey,
+        joinWith: Node.NodeKey
+    ) extends AttributeOverride
+  }
 }

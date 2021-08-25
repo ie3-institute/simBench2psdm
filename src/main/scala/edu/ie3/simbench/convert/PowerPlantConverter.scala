@@ -21,7 +21,7 @@ import edu.ie3.util.quantities.PowerSystemUnits.{
 }
 import tech.units.indriya.quantity.Quantities
 
-import scala.math._
+import scala.collection.parallel.CollectionConverters._
 
 case object PowerPlantConverter extends ShuntConverter {
 
@@ -37,14 +37,16 @@ case object PowerPlantConverter extends ShuntConverter {
       powerPlants: Vector[PowerPlant],
       nodes: Map[Node, NodeInput],
       profiles: Map[PowerPlantProfileType, PowerPlantProfile]
-  ): Map[FixedFeedInInput, IndividualTimeSeries[PValue]] = {
-    (for (powerPlant <- powerPlants) yield {
-      val node = NodeConverter.getNode(powerPlant.node, nodes)
-      val profile =
-        PowerProfileConverter.getProfile(powerPlant.profile, profiles)
-      convert(powerPlant, node, profile)
-    }).toMap
-  }
+  ): Map[FixedFeedInInput, IndividualTimeSeries[PValue]] =
+    powerPlants.par
+      .map { powerPlant =>
+        val node = NodeConverter.getNode(powerPlant.node, nodes)
+        val profile =
+          PowerProfileConverter.getProfile(powerPlant.profile, profiles)
+        convert(powerPlant, node, profile)
+      }
+      .seq
+      .toMap
 
   /**
     * Converts a single power plant model to a fixed feed in model, as the power system data model does not reflect

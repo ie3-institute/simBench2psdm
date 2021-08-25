@@ -5,6 +5,7 @@ import edu.ie3.datamodel.io.source.TimeSeriesMappingSource
 import edu.ie3.datamodel.io.source.TimeSeriesMappingSource.MappingEntry
 import edu.ie3.datamodel.models.input.connector.{
   LineInput,
+  SwitchInput,
   Transformer2WInput,
   Transformer3WInput
 }
@@ -23,6 +24,10 @@ import edu.ie3.datamodel.models.input.NodeInput
 import edu.ie3.datamodel.models.result.NodeResult
 import edu.ie3.datamodel.models.timeseries.individual.IndividualTimeSeries
 import edu.ie3.datamodel.models.value.{PValue, SValue, Value}
+import edu.ie3.simbench.convert.NodeConverter.AttributeOverride.{
+  JoinOverride,
+  SubnetOverride
+}
 import edu.ie3.simbench.convert.types.{
   LineTypeConverter,
   Transformer2wTypeConverter
@@ -30,6 +35,7 @@ import edu.ie3.simbench.convert.types.{
 import edu.ie3.simbench.exception.ConversionException
 import edu.ie3.simbench.model.datamodel.{
   GridModel,
+  Line,
   Node,
   NodePFResult,
   Switch,
@@ -38,8 +44,9 @@ import edu.ie3.simbench.model.datamodel.{
 }
 
 import java.util.UUID
-import scala.collection.immutable
+import scala.annotation.tailrec
 import scala.jdk.CollectionConverters._
+import scala.collection.parallel.CollectionConverters._
 
 case object GridConverter extends LazyLogging {
 
@@ -47,13 +54,15 @@ case object GridConverter extends LazyLogging {
     * Converts a full simbench grid into power system data models [[JointGridContainer]]. Additionally, individual time
     * series for all system participants are delivered as well.
     *
-    * @param simbenchCode Simbench code, that is used as identifier for the grid
-    * @param gridInput    Total grid input model to be converted
+    * @param simbenchCode   Simbench code, that is used as identifier for the grid
+    * @param gridInput      Total grid input model to be converted
+    * @param removeSwitches Whether or not to remove switches from the grid structure
     * @return A converted [[JointGridContainer]], a [[Vector]] of [[IndividualTimeSeries]] as well as a [[Vector]] of [[NodeResult]]s
     */
   def convert(
       simbenchCode: String,
-      gridInput: GridModel
+      gridInput: GridModel,
+      removeSwitches: Boolean
   ): (
       JointGridContainer,
       Vector[IndividualTimeSeries[_ <: PValue]],
@@ -61,7 +70,8 @@ case object GridConverter extends LazyLogging {
       Vector[NodeResult]
   ) = {
     logger.debug(s"Converting raw grid elements of '${gridInput.simbenchCode}'")
-    val (rawGridElements, nodeConversion) = convertGridElements(gridInput)
+    val (rawGridElements, nodeConversion) =
+      convertGridElements(gridInput, removeSwitches)
 
     logger.debug(
       s"Converting system participants and their time series of '${gridInput.simbenchCode}'"
@@ -94,25 +104,47 @@ case object GridConverter extends LazyLogging {
   /**
     * Converts all elements that do form the grid itself.
     *
-    * @param gridInput Total grid input model to convert
+    * @param gridInput      Total grid input model to convert
+    * @param removeSwitches Whether or not to remove switches from the grid structure
     * @return All grid elements in converted form + a mapping from old to new node models
     */
   def convertGridElements(
-      gridInput: GridModel
+      gridInput: GridModel,
+      removeSwitches: Boolean
   ): (RawGridElements, Map[Node, NodeInput]) = {
     /* Set up a sub net converter, by crawling all nodes */
     val subnetConverter = SubnetConverter(
       gridInput.nodes.map(node => (node.vmR, node.subnet))
     )
 
-    val firstNodeConversion = convertNodes(gridInput, subnetConverter)
-
-    /* Update the subnet attribute at all nodes within transformer's upstream switchgear */
-    val nodeConversion = updateSubnetInSwitchGears(
-      firstNodeConversion,
-      subnetConverter,
-      gridInput
+    val slackNodeKeys = NodeConverter.getSlackNodeKeys(
+      gridInput.externalNets,
+      gridInput.powerPlants,
+      gridInput.res
     )
+
+    /* Collect overriding attributes for node conversion, based on special constellations within the grid */
+    val subnetOverrides = determineSubnetOverrides(
+      gridInput.transformers2w,
+      gridInput.transformers3w,
+      gridInput.switches,
+      gridInput.lines,
+      subnetConverter
+    )
+    val joinOverrides = if (removeSwitches) {
+      /* If switches are meant to be removed, join all nodes at closed switches */
+      determineJoinOverrides(gridInput.switches, slackNodeKeys)
+    } else
+      Vector.empty
+
+    val nodeConversion =
+      convertNodes(
+        gridInput.nodes,
+        slackNodeKeys,
+        subnetConverter,
+        subnetOverrides,
+        joinOverrides
+      )
 
     val lines = convertLines(gridInput, nodeConversion).toSet.asJava
     val transformers2w =
@@ -122,216 +154,122 @@ case object GridConverter extends LazyLogging {
       "Creation of three winding transformers is not yet implemented."
     )
     val switches =
-      SwitchConverter.convert(gridInput.switches, nodeConversion).toSet.asJava
+      if (!removeSwitches)
+        SwitchConverter.convert(gridInput.switches, nodeConversion).toSet.asJava
+      else
+        Set.empty[SwitchInput].asJava
     val measurements = MeasurementConverter
       .convert(gridInput.measurements, nodeConversion)
       .toSet
       .asJava
 
+    val connectedNodes = filterIsolatedNodes(
+      nodeConversion,
+      lines,
+      transformers2w,
+      transformers3w,
+      switches
+    )
+
     (
       new RawGridElements(
-        nodeConversion.values.toSet.asJava,
+        connectedNodes.values.toSet.asJava,
         lines,
         transformers2w,
         transformers3w,
         switches,
         measurements
       ),
-      nodeConversion
+      connectedNodes
     )
   }
 
   /**
-    * Converts all apparent nodes to the equivalent power system data model. The slack information is derived from the
-    * attributes of external nets, power plants and renewable energy sources.
+    * Determine all relevant subnet override information. SimBench has a different notion of where the border of a
+    * subnet is. This is especially the case, if there is switch gear "upstream" of a transformer. For SimBench all
+    * nodes upstream of the transformer belong to the higher grid. However, for PowerSystemDataModel we expect the
+    * switch gear to belong to the lower grid (the transformer is in), as in a partitioned simulation, one most likely
+    * will control the switches in a manner, that the lower grid needs for. Therefore, for all nodes that are upstream
+    * of a transformer's hv node and connected via switches, explicit subnet numbers are provided.
     *
-    * @param gridInput       Total grid input model to convert
-    * @param subnetConverter Converter holding the mapping information from simbench to power system data model sub grid
-    * @return A map from simbench to power system data model nodes
+    * @param transformers2w   Collection of two winding transformers
+    * @param transformers3w   Collection of three winding transformers
+    * @param switches         Collection of switches
+    * @param lines            Collection of lines
+    * @param subnetConverter  Converter to determine subnet numbers
+    * @return A collection of [[SubnetOverride]]s
     */
-  private def convertNodes(
-      gridInput: GridModel,
+  private def determineSubnetOverrides(
+      transformers2w: Vector[Transformer2W],
+      transformers3w: Vector[Transformer3W],
+      switches: Vector[Switch],
+      lines: Vector[Line[_]],
       subnetConverter: SubnetConverter
-  ): Map[Node, NodeInput] = {
-    val slackNodeKeys = NodeConverter.getSlackNodeKeys(
-      gridInput.externalNets,
-      gridInput.powerPlants,
-      gridInput.res
-    )
-    gridInput.nodes
-      .map(
-        node =>
-          node -> NodeConverter.convert(node, slackNodeKeys, subnetConverter)
+  ): Vector[SubnetOverride] = {
+    /* All nodes, at which a branch element is connected */
+    val junctions = (lines.flatMap(
+      line => Vector(line.nodeA, line.nodeB)
+    ) ++ transformers2w
+      .flatMap(
+        transformer => Vector(transformer.nodeHV, transformer.nodeLV)
+      ) ++ transformers3w.flatMap(
+      transformer =>
+        Vector(transformer.nodeHV, transformer.nodeLV, transformer.nodeMV)
+    )).distinct
+
+    transformers2w.flatMap { transformer =>
+      val relevantSubnet = subnetConverter.convert(
+        transformer.nodeLV.vmR,
+        transformer.nodeLV.subnet
       )
-      .toMap
-  }
-
-  /**
-    * Convert the given [[NodePFResult]]s with the help of yet known conversion mapping of nodes
-    *
-    * @param input          Vector of [[NodePFResult]] to convert
-    * @param nodeConversion Mapping from SimBench to psdm node model
-    * @return A [[Vector]] of converted [[NodeResult]]
-    */
-  private def convertNodeResults(
-      input: Vector[NodePFResult],
-      nodeConversion: Map[Node, NodeInput]
-  ): Vector[NodeResult] = input.map { nodePfResult =>
-    val node = nodeConversion.getOrElse(
-      nodePfResult.node,
-      throw ConversionException(
-        s"Cannot convert power flow result for node ${nodePfResult.node}, as the needed node conversion cannot be found."
+      val startNode = transformer.nodeHV
+      determineSubnetOverrides(
+        startNode,
+        switches,
+        junctions.filterNot(_ == startNode),
+        relevantSubnet
       )
-    )
-    NodePFResultConverter.convert(nodePfResult, node)
-  }
-
-  /**
-    * Traverse upstream of switch chain at transformer's high voltage nodes to comply the subnet assignment to
-    * conventions found in PowerSystemDataModel: Those nodes will also belong to the inferior sub grid.
-    *
-    * @param initialNodeConversion  Mapping from SimBench to psdm nodes, that needs update
-    * @param subnetConverter        Converter holding information about subnet mapping
-    * @param gridModel              Overall grid model with all needed topological models
-    * @return An updated mapping from SimBench to psdm nodes
-    */
-  def updateSubnetInSwitchGears(
-      initialNodeConversion: Map[Node, NodeInput],
-      subnetConverter: SubnetConverter,
-      gridModel: GridModel
-  ): Map[Node, NodeInput] = {
-    val updatedConversion =
-      gridModel.transformers2w.foldLeft(initialNodeConversion) {
-        case (conversion, transformer) =>
-          val relevantSubnet = subnetConverter.convert(
-            transformer.nodeLV.vmR,
-            transformer.nodeLV.subnet
-          )
-
-          updateAlongSwitchChain(
-            conversion,
-            transformer,
-            gridModel,
-            relevantSubnet
-          )
-      }
-
-    gridModel.transformers3w.foldLeft(updatedConversion) {
-      case (conversion, transformer) =>
-        val relevantSubnet = subnetConverter.convert(
-          transformer.nodeHV.vmR,
-          transformer.nodeHV.subnet
-        )
-
-        updateAlongSwitchChain(
-          conversion,
-          transformer,
-          gridModel,
-          relevantSubnet
-        )
+    } ++ transformers3w.flatMap { transformer =>
+      val relevantSubnet = subnetConverter.convert(
+        transformer.nodeHV.vmR,
+        transformer.nodeHV.subnet
+      )
+      val startNode = transformer.nodeHV
+      determineSubnetOverrides(
+        startNode,
+        switches,
+        junctions.filterNot(_ == startNode),
+        relevantSubnet
+      )
     }
   }
 
   /**
     * Traveling along a switch chain starting from a starting node and stopping at dead ends and those nodes, that are
-    * directly related to lines or transformers (read: not only switches). During this travel, every node we come along
-    * is updated to the relevant subnet and the mapping from SimBench to psdm is updated as well.
+    * marked explicitly as junctions. During this travel, every node we come along gets a [[SubnetOverride]] instance
+    * assigned, marking, that later in node conversion, this explicit subnet number shall be used. The subnet at
+    * junctions and dead ends is not altered. Adding the traveled nodes to the list of junctions, prevents from running
+    * in circles forever. Pay attention, that when starting from the hv node of a transformer, it may not be included
+    * in the set of junction nodes, if it is not part of any other junction.
     *
-    * @param initialNodeConversion Mapping from SimBench to psdm model that needs update
-    * @param startTransformer      Transformer from whose high voltage node the travel is supposed to start
-    * @param gridModel             Model of the grid to take information about lines and transformers from
-    * @param relevantSubnet        The subnet id to set
-    * @return updated mapping from SimBench to psdm node model
+    * @param startNode      Node, where the traversal begins
+    * @param switches       Collection of all switches
+    * @param junctions      Collection of nodes, that are junctions
+    * @param relevantSubnet The explicit subnet number to use later
+    * @param overrides      Current collection of overrides (for recursive usage)
+    * @return A collection of [[SubnetOverride]]s for this traversal
     */
-  private def updateAlongSwitchChain(
-      initialNodeConversion: Map[Node, NodeInput],
-      startTransformer: Transformer2W,
-      gridModel: GridModel,
-      relevantSubnet: Int
-  ): Map[Node, NodeInput] = {
-    val startNode = startTransformer.nodeHV
-    val junctions = (gridModel.lines.flatMap(
-      line => Vector(line.nodeA, line.nodeB)
-    ) ++ gridModel.transformers2w
-      .filter(_ != startTransformer)
-      .flatMap(
-        transformer => Vector(transformer.nodeHV, transformer.nodeLV)
-      ) ++ gridModel.transformers3w.flatMap(
-      transformer =>
-        Vector(transformer.nodeHV, transformer.nodeLV, transformer.nodeMV)
-    )).distinct
-    updateAlongSwitchChain(
-      initialNodeConversion,
-      startNode,
-      gridModel.switches,
-      junctions,
-      relevantSubnet
-    )
-  }
-
-  /**
-    * Traveling along a switch chain starting from a starting node and stopping at dead ends and those nodes, that are
-    * directly related to lines or transformers (read: not only switches). During this travel, every node we come along
-    * is updated to the relevant subnet and the mapping from SimBench to psdm is updated as well.
-    *
-    * @param initialNodeConversion Mapping from SimBench to psdm model that needs update
-    * @param startTransformer      Transformer from whose high voltage node the travel is supposed to start
-    * @param gridModel             Model of the grid to take information about lines and transformers from
-    * @param relevantSubnet        The subnet id to set
-    * @return updated mapping from SimBench to psdm node model
-    */
-  private def updateAlongSwitchChain(
-      initialNodeConversion: Map[Node, NodeInput],
-      startTransformer: Transformer3W,
-      gridModel: GridModel,
-      relevantSubnet: Int
-  ): Map[Node, NodeInput] = {
-    val startNode = startTransformer.nodeHV
-    val junctions = (gridModel.lines.flatMap(
-      line => Vector(line.nodeA, line.nodeB)
-    ) ++ gridModel.transformers2w.flatMap(
-      transformer => Vector(transformer.nodeHV, transformer.nodeLV)
-    ) ++ gridModel.transformers3w
-      .filter(_ != startTransformer)
-      .flatMap(
-        transformer =>
-          Vector(transformer.nodeHV, transformer.nodeLV, transformer.nodeMV)
-      )).distinct
-    updateAlongSwitchChain(
-      initialNodeConversion,
-      startNode,
-      gridModel.switches,
-      junctions,
-      relevantSubnet
-    )
-  }
-
-  /**
-    * Traveling along a switch chain starting from a starting node and stopping at dead ends and those nodes, that are
-    * marked explicitly as junctions. During this travel, every node we come along is updated to the relevant subnet and
-    * the mapping from SimBench to psdm is updated as well. The subnet at junctions and dead ends is not altered. Adding
-    * the traveled nodes to the list of junctions, prevents from running in circles forever. Pay attention, that when
-    * starting from the hv node of a transformer, it may not be included in the set of junction nodes, if it is not part
-    * of any other junction.
-    *
-    * @param initialNodeConversion Mapping from SimBench to psdm model that needs update
-    * @param startNode             Start node from which the travel is supposed to start
-    * @param switches              Collection of all switches to consider
-    * @param junctions             Collection of nodes that are meant to be junctions
-    * @param relevantSubnet        The subnet id to set
-    * @return updated mapping from SimBench to psdm node model
-    */
-  private def updateAlongSwitchChain(
-      initialNodeConversion: Map[Node, NodeInput],
+  private def determineSubnetOverrides(
       startNode: Node,
       switches: Vector[Switch],
       junctions: Vector[Node],
-      relevantSubnet: Int
-  ): Map[Node, NodeInput] = {
+      relevantSubnet: Int,
+      overrides: Vector[SubnetOverride] = Vector.empty
+  ): Vector[SubnetOverride] = {
     /* If the start node is among the junctions, do not travel further (Attention: Start node should not be among
      * junctions when the traversing starts, otherwise nothing will happen at all.) */
     if (junctions.contains(startNode))
-      return initialNodeConversion
+      return overrides
 
     /* Get all switches, that are connected to the current starting point. If the other end of the switch is a junction,
      * don't follow this path, as the other side wouldn't be touched anyways. */
@@ -346,25 +284,16 @@ case object GridConverter extends LazyLogging {
     if (nextSwitches.isEmpty) {
       /* There is no further switch, therefore the end is reached -> return the new mapping. Please note, as the subnet
        * of the current node is only altered, if there is a next switch available, dead end nodes are not altered. */
-      initialNodeConversion
+      overrides
     } else {
       /* Copy new node and add it to the mapping */
-      val updatedNode = initialNodeConversion
-        .getOrElse(
-          startNode,
-          throw ConversionException(
-            s"Cannot update the subnet of conversion of '$startNode', as its conversion cannot be found."
-          )
-        )
-        .copy()
-        .subnet(relevantSubnet)
-        .build()
-      val updatedConversion = initialNodeConversion + (startNode -> updatedNode)
-      val newJunctions = junctions.appended(startNode)
+      val subnetOverride = SubnetOverride(startNode.getKey, relevantSubnet)
+      val updatedOverrides = overrides :+ subnetOverride
+      val updatedJunctions = junctions.appended(startNode)
 
       /* For all possible next upcoming switches -> Traverse along each branch (depth first search) */
-      nextSwitches.foldLeft(updatedConversion) {
-        case (conversion, switch) =>
+      nextSwitches.foldLeft(updatedOverrides) {
+        case (currentOverride, switch) =>
           /* Determine the next node */
           val nextNode =
             Vector(switch.nodeA, switch.nodeB).find(_ != startNode) match {
@@ -375,16 +304,180 @@ case object GridConverter extends LazyLogging {
                 )
             }
 
-          return updateAlongSwitchChain(
-            conversion,
+          return determineSubnetOverrides(
             nextNode,
             switches,
-            newJunctions,
-            relevantSubnet
+            updatedJunctions,
+            relevantSubnet,
+            currentOverride
           )
       }
     }
   }
+
+  /**
+    * Determine join overrides for all nodes, that are connected by closed switches
+    *
+    * @param switches       Collection of all (closed) switches
+    * @param slackNodeKeys  Collection of node keys, that are foreseen to be slack nodes
+    * @return A collection of [[JoinOverride]]s
+    */
+  private def determineJoinOverrides(
+      switches: Vector[Switch],
+      slackNodeKeys: Vector[Node.NodeKey]
+  ): Vector[JoinOverride] = {
+    val closedSwitches = switches.filter(_.cond)
+    val switchGroups = determineSwitchGroups(closedSwitches)
+    switchGroups
+      .flatMap(
+        switchGroup =>
+          determineJoinOverridesForSwitchGroup(switchGroup, slackNodeKeys)
+      )
+      .distinct
+  }
+
+  /**
+    * Determine groups of directly connected switches
+    *
+    * @param switches     Collection of switches to group
+    * @param switchGroups Current collection of switch groups (for recursion)
+    * @return A collection of switch collections, that denote groups
+    */
+  @tailrec
+  private def determineSwitchGroups(
+      switches: Vector[Switch],
+      switchGroups: Vector[Vector[Switch]] = Vector.empty
+  ): Vector[Vector[Switch]] = switches.headOption match {
+    case Some(currentSwitch) =>
+      val currentNodes = Vector(currentSwitch.nodeA, currentSwitch.nodeB)
+      val (group, remainingSwitches) = switches.partition { switch =>
+        currentNodes.contains(switch.nodeA) || currentNodes.contains(
+          switch.nodeB
+        )
+      }
+      val updatedGroups = switchGroups :+ group
+      determineSwitchGroups(remainingSwitches, updatedGroups)
+    case None =>
+      switchGroups
+  }
+
+  /**
+    * Determine overrides per switch group
+    *
+    * @param switchGroup    A group of directly connected switches
+    * @param slackNodeKeys  Collection of node keys, that are foreseen to be slack nodes
+    * @return A collection of [[JoinOverride]]s
+    */
+  private def determineJoinOverridesForSwitchGroup(
+      switchGroup: Vector[Switch],
+      slackNodeKeys: Vector[Node.NodeKey]
+  ): Vector[JoinOverride] = {
+    val nodes =
+      switchGroup.flatMap(switch => Vector(switch.nodeA, switch.nodeB))
+    val leadingNode =
+      nodes.find(node => slackNodeKeys.contains(node.getKey)).getOrElse {
+        /* Get the node with the most occurrences */
+        nodes.groupBy(identity).view.mapValues(_.size).toMap.maxBy(_._2)._1
+      }
+    val leadingNodeKey = leadingNode.getKey
+    nodes.distinct
+      .filterNot(_ == leadingNode)
+      .map(node => JoinOverride(node.getKey, leadingNodeKey))
+  }
+
+  /**
+    * Converts all apparent nodes to the equivalent power system data model. The slack information is derived from the
+    * attributes of external nets, power plants and renewable energy sources.
+    *
+    * @param nodes           All nodes to convert
+    * @param slackNodeKeys   Node identifier for those, that are foreseen to be slack nodes
+    * @param subnetConverter Converter holding the mapping information from simbench to power system data model sub grid
+    * @param subnetOverrides Collection of explicit subnet assignments
+    * @param joinOverrides   Collection of pairs of nodes, that are meant to be joined
+    * @return A map from simbench to power system data model nodes
+    */
+  private def convertNodes(
+      nodes: Vector[Node],
+      slackNodeKeys: Vector[Node.NodeKey],
+      subnetConverter: SubnetConverter,
+      subnetOverrides: Vector[SubnetOverride],
+      joinOverrides: Vector[JoinOverride]
+  ): Map[Node, NodeInput] = {
+    val nodeToExplicitSubnet = subnetOverrides.map {
+      case SubnetOverride(key, subnet) => key -> subnet
+    }.toMap
+
+    /* First convert all nodes, that are target of node joins */
+    val nodeToJoinMap = joinOverrides.map {
+      case JoinOverride(key, joinWith) => key -> joinWith
+    }.toMap
+    val joinTargetNodeKeys = nodeToJoinMap.values.toSeq.distinct
+    val (joinTargetNodes, remainingNodes) =
+      nodes.partition(node => joinTargetNodeKeys.contains(node.getKey))
+    val joinTargetConversion = joinTargetNodes.par
+      .map(
+        node =>
+          node -> NodeConverter.convert(
+            node,
+            slackNodeKeys,
+            subnetConverter,
+            nodeToExplicitSubnet.get(node.getKey)
+          )
+      )
+      .seq
+      .toMap
+
+    /* Then map all nodes to be joined to the converted target nodes */
+    val (nodesToBeJoined, singleNodes) = remainingNodes.partition(
+      node => nodeToJoinMap.keySet.contains(node.getKey)
+    )
+    val conversionWithJoinedNodes = joinTargetConversion ++ nodesToBeJoined.par
+      .map { node =>
+        node -> joinTargetConversion.getOrElse(
+          node,
+          throw ConversionException(
+            s"The node with key '${node.getKey}' was meant to be joined with another node, but that converted target node is not apparent."
+          )
+        )
+      }
+      .seq
+      .toMap
+
+    /* Finally convert all left over nodes */
+    conversionWithJoinedNodes ++ singleNodes.par
+      .map(
+        node =>
+          node -> NodeConverter.convert(
+            node,
+            slackNodeKeys,
+            subnetConverter,
+            nodeToExplicitSubnet.get(node.getKey)
+          )
+      )
+      .seq
+      .toMap
+  }
+
+  /**
+    * Convert the given [[NodePFResult]]s with the help of yet known conversion mapping of nodes
+    *
+    * @param input          Vector of [[NodePFResult]] to convert
+    * @param nodeConversion Mapping from SimBench to psdm node model
+    * @return A [[Vector]] of converted [[NodeResult]]
+    */
+  private def convertNodeResults(
+      input: Vector[NodePFResult],
+      nodeConversion: Map[Node, NodeInput]
+  ): Vector[NodeResult] =
+    input.par.map { nodePfResult =>
+      val node = nodeConversion.getOrElse(
+        nodePfResult.node,
+        throw ConversionException(
+          s"Cannot convert power flow result for node ${nodePfResult.node}, as the needed node conversion cannot be found."
+        )
+      )
+      NodePFResultConverter.convert(nodePfResult, node)
+    }.seq
 
   /**
     * Converts the given lines.
@@ -420,6 +513,46 @@ case object GridConverter extends LazyLogging {
       transformerTypes,
       nodeConversion
     )
+  }
+
+  /**
+    * Filter the given node conversion for only those nodes, that are also part of any branch
+    *
+    * @param nodeConversion Mapping from original node to converted model
+    * @param lines          Collection of all lines
+    * @param transformers2w Collection of all two winding transformers
+    * @param transformers3w Collection of all three winding transformers
+    * @param switches       Collection of all switches
+    * @return A mapping, that only contains connected nodes
+    */
+  private def filterIsolatedNodes(
+      nodeConversion: Map[Node, NodeInput],
+      lines: java.util.Set[LineInput],
+      transformers2w: java.util.Set[Transformer2WInput],
+      transformers3w: java.util.Set[Transformer3WInput],
+      switches: java.util.Set[SwitchInput]
+  ): Map[Node, NodeInput] = {
+    val branchNodes = lines.asScala.flatMap(
+      line => Vector(line.getNodeA, line.getNodeB)
+    ) ++ transformers2w.asScala.flatMap(
+      transformer => Vector(transformer.getNodeA, transformer.getNodeB)
+    ) ++ transformers3w.asScala.flatMap(
+      transformer =>
+        Vector(transformer.getNodeA, transformer.getNodeB, transformer.getNodeC)
+    ) ++ switches.asScala.flatMap(
+      switch => Vector(switch.getNodeA, switch.getNodeB)
+    )
+    nodeConversion.partition {
+      case (_, convertedNode) => branchNodes.contains(convertedNode)
+    } match {
+      case (connectedNodes, unconnectedNodes) =>
+        if (unconnectedNodes.nonEmpty)
+          logger.warn(
+            "The nodes with following keys are not part of any branch (aka. isolated) and will be neglected in the sequel.\n\t{}",
+            unconnectedNodes.map(_._1.getKey).mkString("\n\t")
+          )
+        connectedNodes
+    }
   }
 
   /**

@@ -10,6 +10,8 @@ import edu.ie3.simbench.exception.ConversionException
 import edu.ie3.simbench.model.datamodel.types.Transformer2WType
 import edu.ie3.simbench.model.datamodel.{Node, Transformer2W}
 
+import scala.collection.parallel.CollectionConverters._
+
 case object Transformer2wConverter {
 
   /**
@@ -25,7 +27,7 @@ case object Transformer2wConverter {
       types: Map[Transformer2WType, Transformer2WTypeInput],
       nodes: Map[Node, NodeInput]
   ): Vector[Transformer2WInput] =
-    for (input <- inputs) yield {
+    inputs.par.map { input =>
       val (nodeA, nodeB) =
         NodeConverter.getNodes(input.nodeHV, input.nodeLV, nodes)
       val transformerType = types.getOrElse(
@@ -36,7 +38,7 @@ case object Transformer2wConverter {
       )
 
       convert(input, transformerType, nodeA, nodeB)
-    }
+    }.seq
 
   /**
     * Converts a SimBench [[Transformer2W]] into a [[Transformer2WInput]].

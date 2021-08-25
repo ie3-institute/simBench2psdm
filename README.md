@@ -1,6 +1,6 @@
 # simBench2pdsm
 [![Build Status](https://travis-ci.org/ie3-institute/simbench4ie3.svg?branch=master)](https://travis-ci.org/ie3-institute/simbench4ie3)
-[![Codacy Badge](https://api.codacy.com/project/badge/Grade/c339035212004716bab94c774da476aa)](https://app.codacy.com/gh/ie3-institute/simbench4ie3?utm_source=github.com&utm_medium=referral&utm_content=ie3-institute/simbench4ie3&utm_campaign=Badge_Grade_Dashboard)
+[![Codacy Badge](https://app.codacy.com/project/badge/Grade/793affe18cd44718a66b07b2a7c45258)](https://www.codacy.com/gh/ie3-institute/simBench2psdm/dashboard?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=ie3-institute/simBench2psdm&amp;utm_campaign=Badge_Grade)
 [![codecov](https://codecov.io/gh/ie3-institute/simBench2psdm/branch/master/graph/badge.svg)](https://codecov.io/gh/ie3-institute/simBench2psdm)
 [![License](https://img.shields.io/github/license/ie3-institute/simbench4ie3)](https://github.com/ie3-institute/simbench4ie3/blob/master/LICENSE)
 

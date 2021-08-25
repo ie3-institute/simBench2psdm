@@ -20,18 +20,22 @@ import edu.ie3.util.quantities.PowerSystemUnits.{
 }
 import tech.units.indriya.quantity.Quantities
 
+import scala.collection.parallel.CollectionConverters._
+
 case object LoadConverter extends ShuntConverter {
   def convert(
       loads: Vector[Load],
       nodes: Map[Node, NodeInput],
       profiles: Map[LoadProfileType, LoadProfile]
-  ): Map[LoadInput, IndividualTimeSeries[SValue]] = {
-    (for (load <- loads) yield {
-      val node = NodeConverter.getNode(load.node, nodes)
-      val profile = PowerProfileConverter.getProfile(load.profile, profiles)
-      convert(load, node, profile)
-    }).toMap
-  }
+  ): Map[LoadInput, IndividualTimeSeries[SValue]] =
+    loads.par
+      .map { load =>
+        val node = NodeConverter.getNode(load.node, nodes)
+        val profile = PowerProfileConverter.getProfile(load.profile, profiles)
+        convert(load, node, profile)
+      }
+      .seq
+      .toMap
 
   /**
     * Converts a single SimBench [[Load]] to ie3's [[LoadInput]]. Currently not sufficiently covered:
