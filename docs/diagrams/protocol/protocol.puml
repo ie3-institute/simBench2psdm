@@ -1,0 +1,46 @@
+@startuml
+
+participant Main
+participant Coordinator
+participant Converter
+participant GridConverter
+participant RESConverter
+participant Mutator
+collections RESConverterWorker
+
+Main -> Coordinator: Convert(Config)
+Coordinator -> Converter: Convert(String)
+Converter --[#blue]> Mutator: <font color=blue>spawn & watch</font>
+Converter -> Mutator: Init(Config)
+Converter <- Mutator: Ready
+Converter --[#blue]> GridConverter: <font color=blue>spawn & watch</font>
+Converter -> GridConverter: ConvertNodes(List[Node])
+Converter <- GridConverter: ConvertedNodes(Map[Node,NodeInput])
+
+Converter -> GridConverter: ConvertRest(...)
+activate GridConverter
+
+Converter --[#blue]> RESConverter: <font color=blue>spawn & watch</font>
+Converter -> RESConverter: Convert(List[RES], Map[Node,NodeInput])
+RESConverter -> RESConverterWorker: Convert(RES, Map[Node,NodeInput])
+RESConverterWorker -> Mutator: Mutate(RES)
+activate Mutator
+RESConverterWorker <- Mutator: MutatedEntity(UUID)
+RESConverterWorker -> Mutator: Mutate(TimeSeries)
+RESConverterWorker <- Mutator: MutatedTimeSeries(UUID)
+RESConverter <- RESConverterWorker: Converted(UUID, UUID)
+RESConverter --[#blue]> RESConverterWorker: <font color=blue>terminate</font>
+RESConverter <--[#blue] RESConverterWorker
+Converter <- RESConverter: Done
+
+GridConverter -> Mutator: Mutate(...)
+deactivate GridConverter
+GridConverter <- Mutator: Mutated(...)
+Converter <- GridConverter: Done
+
+Converter -> Mutator: Shutdown
+Converter <- Mutator: Done
+deactivate Mutator
+
+Coordinator <- Converter: Converted(String)
+@enduml
