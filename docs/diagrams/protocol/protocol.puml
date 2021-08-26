@@ -8,7 +8,10 @@ participant RESConverter
 participant Mutator
 collections RESConverterWorker
 
-Main -> Coordinator: Convert(Config)
+Main -> Coordinator: Start(Config)
+Coordinator --[#blue]> Converter: <font color=blue>spawn & watch</font>
+Coordinator -> Converter: Init(String)
+Coordinator <- Converter: ConverterInitialized
 Coordinator -> Converter: Convert(String)
 Converter --[#blue]> Mutator: <font color=blue>spawn & watch</font>
 Converter -> Mutator: Init(Config)
