@@ -18,7 +18,7 @@ ext {
 
 	scalaVersion = '2.13'
 	scalaBinaryVersion = '2.13.6'
-	tscfgVersion = '0.9.986'
+	tscfgVersion = '0.9.993'
 	slf4jVersion = '1.7.32'
 
 	scriptsLocation = 'gradle' + File.separator + 'scripts' + File.separator //location of script plugins
@@ -64,11 +64,11 @@ dependencies {
 	implementation 'tech.units:indriya:2.1.2'
 
 	// logging
-	implementation 'org.apache.logging.log4j:log4j-api:+' // log4j
-	implementation 'org.apache.logging.log4j:log4j-core:+' // log4j
-	implementation 'org.apache.logging.log4j:log4j-slf4j-impl:+' // log4j -> slf4j
+	implementation 'org.apache.logging.log4j:log4j-api:2.14.1' // log4j
+	implementation 'org.apache.logging.log4j:log4j-core:2.14.1' // log4j
+	implementation 'org.apache.logging.log4j:log4j-slf4j-impl:2.14.1' // log4j -> slf4j
 
-	implementation "com.typesafe.scala-logging:scala-logging_${scalaVersion}:+" // akka scala logging
+	implementation "com.typesafe.scala-logging:scala-logging_${scalaVersion}:3.9.4" // akka scala logging
 	implementation "org.slf4j:log4j-over-slf4j:${slf4jVersion}" // slf4j -> log4j
 
 	// NEW scala libs //
@@ -83,14 +83,14 @@ dependencies {
 	implementation 'org.mockito:mockito-core:3.11.2' // mocking framework
 
 	// config //
-	implementation 'com.typesafe:config:+'
+	implementation 'com.typesafe:config:1.4.1'
 	implementation "com.github.carueda:tscfg_2.13:${tscfgVersion}"
 
 	// cmd args parser //
 	implementation "com.github.scopt:scopt_${scalaVersion}:+"
 
 	/* Handling compressed archives */
-	implementation "org.apache.commons:commons-compress:+"
+	implementation "org.apache.commons:commons-compress:1.21"
 }
 
 wrapper {
