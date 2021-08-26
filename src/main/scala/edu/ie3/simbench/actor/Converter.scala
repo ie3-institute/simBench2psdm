@@ -60,6 +60,8 @@ object Converter {
     case _ => Behaviors.same
   }
 
+  // TODO: Terminate mutator and await it's termination [[MutatorTerminated]] when terminating this actor
+
   def spawnMutator(
       simBenchCode: String,
       useDirectoryHierarchy: Boolean,
@@ -77,6 +79,7 @@ object Converter {
       compress,
       ctx.self
     )
+    ctx.watchWith(mutator, MutatorTerminated)
   }
 
   /** Messages, a converter will understand */
@@ -97,6 +100,11 @@ object Converter {
     */
   final case class MutatorInitialized(replyTo: ActorRef[Mutator.MutatorMessage])
       extends ConverterMessage
+
+  /**
+    * Report, that the [[Mutator]] has terminated
+    */
+  object MutatorTerminated extends ConverterMessage
 
   /**
     * Request to convert a certain SimBench model

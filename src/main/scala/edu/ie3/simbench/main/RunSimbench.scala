@@ -80,27 +80,6 @@ object RunSimbench extends SimbenchHelper {
 //      timeSeries.foreach(csvSink.persistTimeSeries(_))
 //      csvSink.persistAllIgnoreNested(timeSeriesMapping.asJava)
 //      csvSink.persistAll(powerFlowResults.asJava)
-//
-//      if (simbenchConfig.io.output.compress) {
-//        logger.info(s"$simbenchCode - Adding files to compressed archive")
-//        val rawOutputPath = Paths.get(baseTargetDirectory + simbenchCode)
-//        val archivePath = Paths.get(
-//          FilenameUtils.concat(baseTargetDirectory, simbenchCode + ".tar.gz")
-//        )
-//        val compressFuture =
-//          FileIOUtils.compressDir(rawOutputPath, archivePath).asScala
-//        compressFuture.onComplete {
-//          case Success(_) =>
-//            FileIOUtils.deleteRecursively(rawOutputPath)
-//          case Failure(exception) =>
-//            logger.error(
-//              s"Compression of output files to '$archivePath' has failed. Keep raw data.",
-//              exception
-//            )
-//        }
-//
-//        Await.ready(compressFuture, Duration("180s"))
-//      }
 //    }
   }
 }

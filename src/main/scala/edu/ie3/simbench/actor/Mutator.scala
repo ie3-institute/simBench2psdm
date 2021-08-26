@@ -9,6 +9,15 @@ import edu.ie3.datamodel.io.naming.{
 }
 import edu.ie3.datamodel.io.sink.CsvFileSink
 import edu.ie3.simbench.io.IoUtils
+import edu.ie3.util.io.FileIOUtils
+import org.apache.commons.io.FilenameUtils
+
+import java.nio.file.Paths
+import scala.concurrent.Await
+import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.duration.Duration
+import scala.jdk.FutureConverters.CompletionStageOps
+import scala.util.{Failure, Success}
 
 object Mutator {
   def apply(): Behaviors.Receive[MutatorMessage] = uninitialized
@@ -53,15 +62,43 @@ object Mutator {
       }
 
       replyTo ! Converter.MutatorInitialized(ctx.self)
-      idle(csvSink, compress)
+      idle(simBenchCode, csvSink, baseTargetDirectory, compress)
   }
 
   def idle(
+      simBenchCode: String,
       sink: CsvFileSink,
+      targetDirectory: String,
       compress: Boolean
   ): Behaviors.Receive[MutatorMessage] =
     Behaviors.receive {
-      case _ => Behaviors.ignore
+      case (ctx, Terminate) =>
+        ctx.log.debug("Got termination request")
+
+        if (compress) {
+          ctx.log.debug("Compressing output")
+          val rawOutputPath = Paths.get(targetDirectory + simBenchCode)
+          val archivePath = Paths.get(
+            FilenameUtils.concat(targetDirectory, simBenchCode + ".tar.gz")
+          )
+          val compressFuture =
+            FileIOUtils.compressDir(rawOutputPath, archivePath).asScala
+          compressFuture.onComplete {
+            case Success(_) =>
+              FileIOUtils.deleteRecursively(rawOutputPath)
+            case Failure(exception) =>
+              ctx.log.error(
+                s"Compression of output files to '$archivePath' has failed. Keep raw data.",
+                exception
+              )
+          }
+
+          Await.ready(compressFuture, Duration("180s"))
+        }
+
+        sink.shutdown()
+
+        Behaviors.stopped
     }
 
   /** Messages, a mutator will understand */
@@ -74,4 +111,6 @@ object Mutator {
       compress: Boolean,
       replyTo: ActorRef[Converter.ConverterMessage]
   ) extends MutatorMessage
+
+  object Terminate extends MutatorMessage
 }
