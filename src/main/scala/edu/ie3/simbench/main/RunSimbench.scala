@@ -75,29 +75,6 @@ object RunSimbench extends SimbenchHelper {
 //        )
 //
 //      logger.info(s"$simbenchCode - Writing converted data set to files")
-//      /* Check, if a directory hierarchy is needed or not */
-//      val baseTargetDirectory =
-//        IoUtils.ensureHarmonizedAndTerminatingFileSeparator(
-//          simbenchConfig.io.output.targetFolder
-//        )
-//      val csvSink = if (simbenchConfig.io.output.csv.directoryHierarchy) {
-//        new CsvFileSink(
-//          baseTargetDirectory,
-//          new FileNamingStrategy(
-//            new EntityPersistenceNamingStrategy(),
-//            new DefaultDirectoryHierarchy(baseTargetDirectory, simbenchCode)
-//          ),
-//          false,
-//          simbenchConfig.io.output.csv.separator
-//        )
-//      } else {
-//        new CsvFileSink(
-//          baseTargetDirectory + simbenchCode,
-//          new FileNamingStrategy(),
-//          false,
-//          simbenchConfig.io.output.csv.separator
-//        )
-//      }
 //
 //      csvSink.persistJointGrid(jointGridContainer)
 //      timeSeries.foreach(csvSink.persistTimeSeries(_))

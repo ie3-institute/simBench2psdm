@@ -16,9 +16,27 @@ object Coordinator {
             config.io.simbenchCodes.filter(_ != firstSimBenchCode)
 
           /* Start a converter and issue the conversion */
-          spawnConverter(ctx, firstSimBenchCode)
+          spawnConverter(
+            ctx,
+            firstSimBenchCode,
+            config.io.output.csv.directoryHierarchy,
+            config.io.output.targetFolder,
+            config.io.output.csv.separator,
+            config.io.output.compress
+          )
           val initializingConverters = List(firstSimBenchCode)
-          idle(remainingCodes, initializingConverters)
+
+          val stateData = StateData(
+            remainingCodes,
+            initializingConverters,
+            List.empty[String],
+            config.io.output.csv.directoryHierarchy,
+            config.io.output.targetFolder,
+            config.io.output.csv.separator,
+            config.io.output.compress
+          )
+
+          idle(stateData)
         case None =>
           ctx.log.error("No models to convert. Shut down.")
           Behaviors.stopped
@@ -26,31 +44,48 @@ object Coordinator {
   }
 
   def idle(
-      simBenchCodes: List[String],
-      initializingConverters: List[String],
-      activeConverters: List[String] = List.empty
+      stateData: StateData
   ): Behaviors.Receive[CoordinatorMessage] = Behaviors.receive {
     case (ctx, ConverterInitialized(simBenchCode, replyTo)) =>
       ctx.log.debug(s"Reading to convert SimBench mode '$simBenchCode'.")
       replyTo ! Converter.Convert(simBenchCode)
 
       val stillInitializingConverters =
-        initializingConverters.filterNot(_ == simBenchCode)
-      val yetActiveConverters = activeConverters :+ simBenchCode
-      idle(simBenchCodes, stillInitializingConverters, yetActiveConverters)
-    case (ctx, Converted(simBenchCode)) if simBenchCodes.nonEmpty =>
+        stateData.initializingConverters.filterNot(_ == simBenchCode)
+      val yetActiveConverters = stateData.activeConverters :+ simBenchCode
+      idle(
+        stateData.copy(
+          initializingConverters = stillInitializingConverters,
+          activeConverters = yetActiveConverters
+        )
+      )
+    case (ctx, Converted(simBenchCode)) if stateData.simBenchCodes.nonEmpty =>
       /* A converter has completed. Report that and start a new converter. */
       ctx.log.info(
         s"SimBench model with code '$simBenchCode' is completely converted."
       )
-      val stillActiveConverters = activeConverters.filterNot(_ == simBenchCode)
-      simBenchCodes.headOption match {
+      val stillActiveConverters =
+        stateData.activeConverters.filterNot(_ == simBenchCode)
+      stateData.simBenchCodes.headOption match {
         case Some(nextSimBenchCode) =>
           /* Spawn a converter and wait until it is ready */
-          val remainingCodes = simBenchCodes.filter(_ != nextSimBenchCode)
-          spawnConverter(ctx, nextSimBenchCode)
-          val yetInitializingConverters = initializingConverters :+ nextSimBenchCode
-          idle(remainingCodes, yetInitializingConverters, activeConverters)
+          val remainingCodes =
+            stateData.simBenchCodes.filter(_ != nextSimBenchCode)
+          spawnConverter(
+            ctx,
+            nextSimBenchCode,
+            stateData.useDirectoryHierarchy,
+            stateData.targetDirectory,
+            stateData.csvColumnSeparator,
+            stateData.compressConverted
+          )
+          val yetInitializingConverters = stateData.initializingConverters :+ nextSimBenchCode
+          idle(
+            stateData.copy(
+              simBenchCodes = remainingCodes,
+              initializingConverters = yetInitializingConverters
+            )
+          )
         case None if stillActiveConverters.nonEmpty =>
           ctx.log.debug(
             s"Waiting for last ${stillActiveConverters.size} active converter(s)."
@@ -64,11 +99,32 @@ object Coordinator {
 
   def spawnConverter(
       ctx: ActorContext[CoordinatorMessage],
-      simBenchCode: String
+      simBenchCode: String,
+      useDirectoryHierarchy: Boolean,
+      targetDirectory: String,
+      csvColumnSeparator: String,
+      compressConverted: Boolean
   ): Unit = {
     val converter = ctx.spawn(Converter(), s"converter_$simBenchCode")
-    converter ! Converter.Init(simBenchCode, ctx.self)
+    converter ! Converter.Init(
+      simBenchCode,
+      useDirectoryHierarchy,
+      targetDirectory,
+      csvColumnSeparator,
+      compressConverted,
+      ctx.self
+    )
   }
+
+  final case class StateData(
+      simBenchCodes: List[String],
+      initializingConverters: List[String],
+      activeConverters: List[String],
+      useDirectoryHierarchy: Boolean,
+      targetDirectory: String,
+      csvColumnSeparator: String,
+      compressConverted: Boolean
+  )
 
   /** Messages, a coordinator will understand */
   sealed trait CoordinatorMessage
