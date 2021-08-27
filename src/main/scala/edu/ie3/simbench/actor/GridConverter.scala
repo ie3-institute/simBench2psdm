@@ -37,6 +37,7 @@ import edu.ie3.simbench.convert.types.{
 import edu.ie3.simbench.convert._
 import edu.ie3.simbench.exception.ConversionException
 import edu.ie3.simbench.model.datamodel._
+import edu.ie3.simbench.model.datamodel.types.LineType
 
 import java.util.UUID
 import scala.annotation.tailrec
@@ -79,6 +80,46 @@ case object GridConverter extends LazyLogging {
       )
       converter ! Converter.NodesConverted(nodeConversion)
       Behaviors.same
+    case (
+        ctx,
+        ConvertBranches(
+          simBenchCode,
+          nodes,
+          transformers2w,
+          transformers3w,
+          lines,
+          switches,
+          measurements,
+          converter
+        )
+        ) =>
+      ctx.log.debug(
+        s"Got asked to convert branches of SimBench model '$simBenchCode'."
+      )
+
+      val convertedLines = convertLines(lines, nodes)
+      val convertedTransformers2w =
+        convertTransformers2w(transformers2w, nodes)
+      val convertedTransformers3w = Vector.empty[Transformer3WInput] /* Currently, no conversion strategy is known */
+      if (transformers3w.nonEmpty)
+        ctx.log.debug(
+          "Creation of three winding transformers is not yet implemented."
+        )
+      val convertedSwitches = SwitchConverter.convert(switches, nodes)
+      val convertedMeasurements = MeasurementConverter
+        .convert(measurements, nodes)
+
+      /* We have to hand back all results and cannot pass them to the mutator, because operators and types have to be
+       * harmonized across the entirety of models */
+      converter ! Converter.BranchesConverted(
+        convertedLines,
+        convertedTransformers2w,
+        convertedTransformers3w,
+        convertedSwitches,
+        convertedMeasurements
+      )
+
+      Behaviors.same
   }
 
   sealed trait GridConverterMessage
@@ -96,6 +137,17 @@ case object GridConverter extends LazyLogging {
       replyTo: ActorRef[Converter.ConverterMessage]
   ) extends GridConverterMessage
 
+  final case class ConvertBranches(
+      simBenchCode: String,
+      nodes: Map[Node, NodeInput],
+      transformers2w: Vector[Transformer2W],
+      transformers3w: Vector[Transformer3W],
+      lines: Vector[Line[_ <: LineType]],
+      switches: Vector[Switch],
+      measurements: Vector[Measurement],
+      replyTo: ActorRef[Converter.ConverterMessage]
+  ) extends GridConverterMessage
+
   /* FIXME: ===== From here on, it's plain object code! ===== */
 
   /**
@@ -107,6 +159,7 @@ case object GridConverter extends LazyLogging {
     * @param removeSwitches Whether or not to remove switches from the grid structure
     * @return A converted [[JointGridContainer]], a [[Vector]] of [[IndividualTimeSeries]] as well as a [[Vector]] of [[NodeResult]]s
     */
+  @deprecated("Use messages instead")
   def convert(
       simbenchCode: String,
       gridInput: GridModel,
@@ -173,9 +226,9 @@ case object GridConverter extends LazyLogging {
       removeSwitches
     )
 
-    val lines = convertLines(gridInput, nodeConversion).toSet.asJava
+    val lines = convertLines(gridInput.lines, nodeConversion).toSet.asJava
     val transformers2w =
-      convertTransformers2w(gridInput, nodeConversion).toSet.asJava
+      convertTransformers2w(gridInput.transformers2w, nodeConversion).toSet.asJava
     val transformers3w = Set.empty[Transformer3WInput].asJava /* Currently, no conversion strategy is known */
     logger.debug(
       "Creation of three winding transformers is not yet implemented."
@@ -569,34 +622,34 @@ case object GridConverter extends LazyLogging {
   /**
     * Converts the given lines.
     *
-    * @param gridInput      Total grid input model to convert
+    * @param lines          Lines to convert
     * @param nodeConversion Already known conversion mapping of nodes
     * @return A vector of converted line models
     */
   private def convertLines(
-      gridInput: GridModel,
+      lines: Vector[Line[_ <: LineType]],
       nodeConversion: Map[Node, NodeInput]
   ): Vector[LineInput] = {
-    val lineTypes = LineTypeConverter.convert(gridInput.lines)
-    LineConverter.convert(gridInput.lines, lineTypes, nodeConversion)
+    val lineTypes = LineTypeConverter.convert(lines)
+    LineConverter.convert(lines, lineTypes, nodeConversion)
   }
 
   /**
     * Converts the given two winding transformers.
     *
-    * @param gridInput      Total grid input model to convert
+    * @param transformers   Transformer models to convert
     * @param nodeConversion Already known conversion mapping of nodes
     * @return A vector of converted two winding transformer models
     */
   private def convertTransformers2w(
-      gridInput: GridModel,
+      transformers: Vector[Transformer2W],
       nodeConversion: Map[Node, NodeInput]
   ): Vector[Transformer2WInput] = {
     val transformerTypes = Transformer2wTypeConverter.convert(
-      gridInput.transformers2w.map(_.transformerType)
+      transformers.map(_.transformerType)
     )
     Transformer2wConverter.convert(
-      gridInput.transformers2w,
+      transformers,
       transformerTypes,
       nodeConversion
     )

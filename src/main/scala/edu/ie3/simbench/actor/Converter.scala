@@ -2,11 +2,18 @@ package edu.ie3.simbench.actor
 
 import akka.actor.typed.ActorRef
 import akka.actor.typed.scaladsl.{ActorContext, Behaviors}
-import edu.ie3.datamodel.models.input.NodeInput
+import edu.ie3.datamodel.models.input.{MeasurementUnitInput, NodeInput}
+import edu.ie3.datamodel.models.input.connector.{
+  LineInput,
+  SwitchInput,
+  Transformer2WInput,
+  Transformer3WInput
+}
+import edu.ie3.datamodel.models.input.system.{FixedFeedInInput, LoadInput}
 import edu.ie3.simbench.exception.CodeValidationException
 import edu.ie3.simbench.io.{Downloader, SimbenchReader, Zipper}
 import edu.ie3.simbench.model.SimbenchCode
-import edu.ie3.simbench.model.datamodel.{GridModel, Node}
+import edu.ie3.simbench.model.datamodel.{GridModel, Node, Switch}
 
 import java.nio.file.Path
 
@@ -142,10 +149,60 @@ object Converter {
         stateData.removeSwitches,
         ctx.self
       )
-      /*
-       * TODO: Switch to converting state
+      converting(stateData, simBenchModel, gridConverter)
+  }
+
+  def converting(
+      stateData: StateData,
+      simBenchModel: GridModel,
+      gridConverter: ActorRef[GridConverter.GridConverterMessage],
+      awaitedResults: AwaitedResults = AwaitedResults.empty
+  ): Behaviors.Receive[ConverterMessage] = Behaviors.receive {
+    case (ctx, NodesConverted(nodeConversion)) =>
+      ctx.log.debug(
+        s"Nodes for SimBench model '${stateData.simBenchCode}' have been converted."
+      )
+      ctx.log.debug(
+        s"Issue conversion of branch elements for model '${stateData.simBenchCode}'."
+      )
+      gridConverter ! GridConverter.ConvertBranches(
+        stateData.simBenchCode,
+        nodeConversion,
+        simBenchModel.transformers2w,
+        simBenchModel.transformers3w,
+        simBenchModel.lines,
+        if (!stateData.removeSwitches) simBenchModel.switches
+        else Vector.empty[Switch],
+        simBenchModel.measurements,
+        ctx.self
+      )
+
+      /* TODO:
+       *  1) Issue all other conversions (res, powerplants, power flow results, ...) in parallel
        */
       Behaviors.same
+    case (
+        ctx,
+        BranchesConverted(
+          lines,
+          transformers2w,
+          transformers3w,
+          switches,
+          measurements
+        )
+        ) =>
+      ctx.log.debug(
+        s"Branches for SimBench model '${stateData.simBenchCode}' have been converted."
+      )
+      /* TODO: Issue identification of islanded nodes (or later??) */
+      val updatedAwaitedResults = awaitedResults.copy(
+        lines = Some(lines),
+        transformers2w = Some(transformers2w),
+        transformers3w = Some(transformers3w),
+        switches = Some(switches),
+        measurements = Some(measurements)
+      )
+      converting(stateData, simBenchModel, gridConverter, updatedAwaitedResults)
   }
 
   // TODO: Terminate mutator and await it's termination [[MutatorTerminated]] when terminating this actor
@@ -246,6 +303,22 @@ object Converter {
       mutator: ActorRef[Mutator.MutatorMessage]
   )
 
+  final case class AwaitedResults(
+      nodes: Option[Vector[NodeInput]],
+      lines: Option[Vector[LineInput]],
+      transformers2w: Option[Vector[Transformer2WInput]],
+      transformers3w: Option[Vector[Transformer3WInput]],
+      switches: Option[Vector[SwitchInput]],
+      measurements: Option[Vector[MeasurementUnitInput]],
+      loads: Option[Vector[FixedFeedInInput]],
+      res: Option[Vector[FixedFeedInInput]],
+      powerPlants: Option[Vector[FixedFeedInInput]]
+  )
+  object AwaitedResults {
+    def empty =
+      new AwaitedResults(None, None, None, None, None, None, None, None, None)
+  }
+
   /** Messages, a converter will understand */
   sealed trait ConverterMessage
   final case class Init(
@@ -291,4 +364,12 @@ object Converter {
     */
   final case class NodesConverted(conversion: Map[Node, NodeInput])
       extends ConverterMessage
+
+  final case class BranchesConverted(
+      lines: Vector[LineInput],
+      transformers2w: Vector[Transformer2WInput],
+      transformers3w: Vector[Transformer3WInput],
+      switches: Vector[SwitchInput],
+      measurements: Vector[MeasurementUnitInput]
+  ) extends ConverterMessage
 }
