@@ -9,12 +9,11 @@ import edu.ie3.datamodel.models.input.connector.{
   Transformer2WInput,
   Transformer3WInput
 }
-import edu.ie3.datamodel.models.input.system.{FixedFeedInInput, LoadInput}
 import edu.ie3.datamodel.models.result.NodeResult
 import edu.ie3.simbench.exception.CodeValidationException
 import edu.ie3.simbench.io.{Downloader, SimbenchReader, Zipper}
 import edu.ie3.simbench.model.SimbenchCode
-import edu.ie3.simbench.model.datamodel.{GridModel, Node, Switch}
+import edu.ie3.simbench.model.datamodel.{GridModel, Node}
 
 import java.nio.file.Path
 
@@ -38,6 +37,7 @@ object Converter {
           inputFileEncoding,
           inputFileColumnSeparator,
           removeSwitches,
+          amountOfWorkers,
           useDirectoryHierarchy,
           targetDirectory,
           csvColumnSeparator,
@@ -65,6 +65,7 @@ object Converter {
         inputFileEncoding,
         inputFileColumnSeparator,
         removeSwitches,
+        amountOfWorkers,
         converter
       )
   }
@@ -80,6 +81,7 @@ object Converter {
     * @param inputFileEncoding            Encoding of the input files
     * @param inputFileColumnSeparator     Column separator of the input data
     * @param removeSwitches               Whether or not to remove switches in final model
+    * @param amountOfWorkers              Amount of workers to convert participants
     * @param coordinator                  Reference to the coordinator
     * @return Behavior to do so
     */
@@ -92,6 +94,7 @@ object Converter {
       inputFileEncoding: String,
       inputFileColumnSeparator: String,
       removeSwitches: Boolean,
+      amountOfWorkers: Int,
       coordinator: ActorRef[Coordinator.CoordinatorMessage]
   ): Behaviors.Receive[ConverterMessage] = Behaviors.receive {
     case (ctx, MutatorInitialized(mutator)) =>
@@ -107,6 +110,7 @@ object Converter {
           inputFileEncoding,
           inputFileColumnSeparator,
           removeSwitches,
+          amountOfWorkers,
           mutator
         )
       )
@@ -176,6 +180,16 @@ object Converter {
       ctx.log.debug(
         s"Grid structure of model '${stateData.simBenchCode}' has been converted."
       )
+
+      val resConverter =
+        ctx.spawn(ResConverter(), s"resConverter_${stateData.simBenchCode}")
+      resConverter ! ResConverter.Init(
+        stateData.simBenchCode,
+        stateData.amountOfWorkers,
+        simBenchModel.resProfiles,
+        ctx.self
+      )
+
       // TODO: Issue conversion of participants that then also respect for islanded nodes
       converting(
         stateData,
@@ -191,6 +205,18 @@ object Converter {
           measurements = Some(measurements)
         )
       )
+
+    case (ctx, ResConverterReady(resConverter)) =>
+      ctx.log.debug(
+        s"ResConverter for '${stateData.simBenchCode}' is ready. Request conversion."
+      )
+      resConverter ! ResConverter.Convert(
+        stateData.simBenchCode,
+        simBenchModel.res,
+        awaitedResults.nodeConversion.getOrElse(Map.empty),
+        ctx.self
+      )
+      Behaviors.same
   }
 
   // TODO: Terminate mutator and await it's termination [[MutatorTerminated]] when terminating this actor
@@ -288,6 +314,7 @@ object Converter {
       inputFileEncoding: String,
       inputFileColumnSeparator: String,
       removeSwitches: Boolean,
+      amountOfWorkers: Int,
       mutator: ActorRef[Mutator.MutatorMessage]
   )
 
@@ -324,6 +351,7 @@ object Converter {
       inputFileEncoding: String,
       inputFileColumnSeparator: String,
       removeSwitches: Boolean,
+      amountOfWorkers: Int,
       useDirectoryHierarchy: Boolean,
       targetDirectory: String,
       csvColumnSeparator: String,
@@ -370,5 +398,9 @@ object Converter {
       transformers3w: Vector[Transformer3WInput],
       switches: Vector[SwitchInput],
       measurements: Vector[MeasurementUnitInput]
+  ) extends ConverterMessage
+
+  final case class ResConverterReady(
+      replyTo: ActorRef[ResConverter.ResConverterMessage]
   ) extends ConverterMessage
 }

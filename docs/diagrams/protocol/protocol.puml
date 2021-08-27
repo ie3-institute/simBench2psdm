@@ -4,9 +4,9 @@ participant Main
 participant Coordinator
 participant Converter
 participant GridConverter
-participant RESConverter
+participant ResConverter
+collections ResConverterWorker
 participant Mutator
-collections RESConverterWorker
 
 Main -> Coordinator: Start(Config)
 Coordinator --[#blue]> Converter: <font color=blue>spawn & watch</font>
@@ -21,18 +21,21 @@ Converter -> GridConverter: ConvertGridStructure(...)
 Converter <- GridConverter: GridStructureConverted(Map[Node,NodeInput])
 note left: Now all other entities\ncan be converted (not)\nconsidering islanded\nnodes
 
-Converter --[#blue]> RESConverter: <font color=blue>spawn & watch</font>
-Converter -> RESConverter: Convert(List[RES], Map[Node,NodeInput])
-RESConverter -> RESConverterWorker: Convert(RES, Map[Node,NodeInput])
-RESConverterWorker -> Mutator: Mutate(RES)
+Converter --[#blue]> ResConverter: <font color=blue>spawn & watch</font>
+Converter -> ResConverter: Init(...)
+ResConverter --[#blue]> ResConverterWorker:  <font color=blue>spawn & watch</font>
+Converter <- ResConverter: ResConverterReady
+Converter -> ResConverter: Convert(...)
+ResConverter -> ResConverterWorker: Convert(Res, Map[Node,NodeInput])
+ResConverterWorker -> Mutator: Mutate(Res)
 activate Mutator
-RESConverterWorker <- Mutator: MutatedEntity(UUID)
-RESConverterWorker -> Mutator: Mutate(TimeSeries)
-RESConverterWorker <- Mutator: MutatedTimeSeries(UUID)
-RESConverter <- RESConverterWorker: Converted(UUID, UUID)
-RESConverter --[#blue]> RESConverterWorker: <font color=blue>terminate</font>
-RESConverter <--[#blue] RESConverterWorker
-Converter <- RESConverter: Done
+ResConverterWorker <- Mutator: MutatedEntity(UUID)
+ResConverterWorker -> Mutator: Mutate(TimeSeries)
+ResConverterWorker <- Mutator: MutatedTimeSeries(UUID)
+ResConverter <- ResConverterWorker: Converted(UUID, UUID)
+ResConverter --[#blue]> ResConverterWorker: <font color=blue>terminate</font>
+ResConverter <--[#blue] ResConverterWorker
+Converter <- ResConverter: Done
 
 GridConverter -> Mutator: Mutate(...)
 GridConverter <- Mutator: Mutated(...)

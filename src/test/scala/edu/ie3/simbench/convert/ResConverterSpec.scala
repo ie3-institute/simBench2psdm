@@ -1,6 +1,7 @@
 package edu.ie3.simbench.convert
 
 import edu.ie3.datamodel.models.StandardUnits
+import edu.ie3.simbench.actor.ResConverter
 
 import java.util.Objects
 import edu.ie3.simbench.model.datamodel.profiles.{ResProfile, ResProfileType}
@@ -37,7 +38,8 @@ class ResConverterSpec
         )
       )
     )
-    val (actual, actualTimeSeries) = ResConverter.convert(input, node, pProfile)
+    val (actual, actualTimeSeries) =
+      ResConverter.Worker.convert(input, node, pProfile)
 
     "bring up the correct input model" in {
       Objects.nonNull(actual.getUuid) shouldBe true
