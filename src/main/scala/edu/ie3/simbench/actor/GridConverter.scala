@@ -50,9 +50,10 @@ case object GridConverter extends LazyLogging {
   def idle: Behaviors.Receive[GridConverterMessage] = Behaviors.receive {
     case (
         ctx,
-        ConvertNodes(
+        ConvertGridStructure(
           simBenchCode,
           nodes,
+          nodeResults,
           externalNets,
           powerPlants,
           res,
@@ -60,12 +61,13 @@ case object GridConverter extends LazyLogging {
           transformers3w,
           lines,
           switches,
+          measurements,
           removeSwitches,
           converter
         )
         ) =>
       ctx.log.debug(
-        s"Got asked to convert nodes of SimBench model '$simBenchCode'."
+        s"Got asked to convert the grid structure of SimBench model '$simBenchCode'."
       )
       val nodeConversion = convertNodes(
         nodes,
@@ -78,120 +80,55 @@ case object GridConverter extends LazyLogging {
         switches,
         removeSwitches
       )
-      converter ! Converter.NodesConverted(nodeConversion)
-      Behaviors.same
-    case (
-        ctx,
-        ConvertBranches(
-          simBenchCode,
-          nodes,
-          transformers2w,
-          transformers3w,
-          lines,
-          switches,
-          measurements,
-          converter
-        )
-        ) =>
-      ctx.log.debug(
-        s"Got asked to convert branches of SimBench model '$simBenchCode'."
-      )
 
-      val convertedLines = convertLines(lines, nodes)
+      val convertedLines = convertLines(lines, nodeConversion)
       val convertedTransformers2w =
-        convertTransformers2w(transformers2w, nodes)
+        convertTransformers2w(transformers2w, nodeConversion)
       val convertedTransformers3w = Vector.empty[Transformer3WInput] /* Currently, no conversion strategy is known */
       if (transformers3w.nonEmpty)
         ctx.log.debug(
           "Creation of three winding transformers is not yet implemented."
         )
-      val convertedSwitches = SwitchConverter.convert(switches, nodes)
+      val convertedSwitches = SwitchConverter.convert(switches, nodeConversion)
       val convertedMeasurements = MeasurementConverter
-        .convert(measurements, nodes)
+        .convert(measurements, nodeConversion)
 
-      /* We have to hand back all results and cannot pass them to the mutator, because operators and types have to be
-       * harmonized across the entirety of models */
-      converter ! Converter.BranchesConverted(
+      val nodes = filterIsolatedNodes(
+        nodeConversion,
+        convertedLines.toSet.asJava,
+        convertedTransformers2w.toSet.asJava,
+        convertedTransformers3w.toSet.asJava,
+        convertedSwitches.toSet.asJava
+      )
+
+      val convertedResults = convertNodeResults(nodeResults, nodes)
+
+      converter ! Converter.GridStructureConverted(
+        nodes,
+        convertedResults,
         convertedLines,
         convertedTransformers2w,
         convertedTransformers3w,
         convertedSwitches,
         convertedMeasurements
       )
-
-      Behaviors.same
-
-    case (
-        ctx,
-        FilterIsolatedNodes(
-          simBenchCode,
-          nodeConversion,
-          lines,
-          transformers2w,
-          transformers3w,
-          switches,
-          converter
-        )
-        ) =>
-      ctx.log.debug(s"Filtering islanded nodes in '$simBenchCode'.")
-      val nodes = filterIsolatedNodes(
-        nodeConversion,
-        lines.toSet.asJava,
-        transformers2w.toSet.asJava,
-        transformers3w.toSet.asJava,
-        switches.toSet.asJava
-      )
-      converter ! Converter.FilteredNodes(nodes)
-      Behaviors.same
-    case (
-        ctx,
-        ConvertNodeResults(simBenchCode, nodeConversion, results, replyTo)
-        ) =>
-      ctx.log.debug(s"Converting node results for '$simBenchCode'.")
-      val convertedResults = convertNodeResults(results, nodeConversion)
       Behaviors.same
   }
 
   sealed trait GridConverterMessage
-  final case class ConvertNodes(
+  final case class ConvertGridStructure(
       simBenchCode: String,
       nodes: Vector[Node],
+      results: Vector[NodePFResult],
       externalNets: Vector[ExternalNet],
       powerPlants: Vector[PowerPlant],
       res: Vector[RES],
       transformers2w: Vector[Transformer2W],
       transformers3w: Vector[Transformer3W],
-      lines: Vector[Line[_]],
-      switches: Vector[Switch],
-      removeSwitches: Boolean = false,
-      replyTo: ActorRef[Converter.ConverterMessage]
-  ) extends GridConverterMessage
-
-  final case class ConvertBranches(
-      simBenchCode: String,
-      nodes: Map[Node, NodeInput],
-      transformers2w: Vector[Transformer2W],
-      transformers3w: Vector[Transformer3W],
       lines: Vector[Line[_ <: LineType]],
       switches: Vector[Switch],
       measurements: Vector[Measurement],
-      replyTo: ActorRef[Converter.ConverterMessage]
-  ) extends GridConverterMessage
-
-  final case class FilterIsolatedNodes(
-      simBenchCode: String,
-      nodeConversion: Map[Node, NodeInput],
-      lines: Vector[LineInput],
-      transformers2w: Vector[Transformer2WInput],
-      transformers3w: Vector[Transformer3WInput],
-      switches: Vector[SwitchInput],
-      replyTo: ActorRef[Converter.ConverterMessage]
-  ) extends GridConverterMessage
-
-  final case class ConvertNodeResults(
-      simBenchCode: String,
-      nodeConversion: Map[Node, NodeInput],
-      results: Vector[NodePFResult],
+      removeSwitches: Boolean = false,
       replyTo: ActorRef[Converter.ConverterMessage]
   ) extends GridConverterMessage
 

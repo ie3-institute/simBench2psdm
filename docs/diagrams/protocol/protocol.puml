@@ -17,13 +17,9 @@ Converter --[#blue]> Mutator: <font color=blue>spawn & watch</font>
 Converter -> Mutator: Init(Config)
 Converter <- Mutator: Ready
 Converter --[#blue]> GridConverter: <font color=blue>spawn & watch</font>
-Converter -> GridConverter: ConvertNodes(List[Node])
-Converter <- GridConverter: NodesConverted(Map[Node,NodeInput])
-Converter -> GridConverter: ConvertBranches(...)
-Converter <- GridConverter: BranchesConverted(...)
-Converter -> GridConverter: FilterIsolatedNodes(...)
-Converter <- GridConverter: FilteredNodes(...)
-note left: Now all other entities\ncan be converted (not)\nconsidering islanded nodes
+Converter -> GridConverter: ConvertGridStructure(...)
+Converter <- GridConverter: GridStructureConverted(Map[Node,NodeInput])
+note left: Now all other entities\ncan be converted (not)\nconsidering islanded\nnodes
 
 Converter --[#blue]> RESConverter: <font color=blue>spawn & watch</font>
 Converter -> RESConverter: Convert(List[RES], Map[Node,NodeInput])

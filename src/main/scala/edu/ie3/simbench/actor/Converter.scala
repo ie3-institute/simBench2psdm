@@ -137,9 +137,10 @@ object Converter {
       /* Spawning a grid converter and ask it to do some first conversions */
       val gridConverter =
         ctx.spawn(GridConverter(), s"gridConverter_${stateData.simBenchCode}")
-      gridConverter ! GridConverter.ConvertNodes(
+      gridConverter ! GridConverter.ConvertGridStructure(
         simBenchCode,
         simBenchModel.nodes,
+        simBenchModel.nodePFResults,
         simBenchModel.externalNets,
         simBenchModel.powerPlants,
         simBenchModel.res,
@@ -147,6 +148,7 @@ object Converter {
         simBenchModel.transformers3w,
         simBenchModel.lines,
         simBenchModel.switches,
+        simBenchModel.measurements,
         stateData.removeSwitches,
         ctx.self
       )
@@ -159,28 +161,11 @@ object Converter {
       gridConverter: ActorRef[GridConverter.GridConverterMessage],
       awaitedResults: AwaitedResults = AwaitedResults.empty
   ): Behaviors.Receive[ConverterMessage] = Behaviors.receive {
-    case (ctx, NodesConverted(nodeConversion)) =>
-      ctx.log.debug(
-        s"Nodes for SimBench model '${stateData.simBenchCode}' have been converted."
-      )
-      ctx.log.debug(
-        s"Issue conversion of branch elements for model '${stateData.simBenchCode}'."
-      )
-      gridConverter ! GridConverter.ConvertBranches(
-        stateData.simBenchCode,
-        nodeConversion,
-        simBenchModel.transformers2w,
-        simBenchModel.transformers3w,
-        simBenchModel.lines,
-        if (!stateData.removeSwitches) simBenchModel.switches
-        else Vector.empty[Switch],
-        simBenchModel.measurements,
-        ctx.self
-      )
-      Behaviors.same
     case (
         ctx,
-        BranchesConverted(
+        GridStructureConverted(
+          nodeConversion,
+          nodeResults,
           lines,
           transformers2w,
           transformers3w,
@@ -189,63 +174,23 @@ object Converter {
         )
         ) =>
       ctx.log.debug(
-        s"Branches for SimBench model '${stateData.simBenchCode}' have been converted."
+        s"Grid structure of model '${stateData.simBenchCode}' has been converted."
       )
-      ctx.log.debug(
-        s"Issue filtering of islanded nodes in '${stateData.simBenchCode}'."
-      )
-      gridConverter ! GridConverter.FilterIsolatedNodes(
-        stateData.simBenchCode,
-        awaitedResults.nodeConversion.getOrElse(Map.empty[Node, NodeInput]),
-        lines,
-        transformers2w,
-        transformers3w,
-        switches,
-        ctx.self
-      )
-
-      val updatedAwaitedResults = awaitedResults.copy(
-        lines = Some(lines),
-        transformers2w = Some(transformers2w),
-        transformers3w = Some(transformers3w),
-        switches = Some(switches),
-        measurements = Some(measurements)
-      )
-      converting(stateData, simBenchModel, gridConverter, updatedAwaitedResults)
-
-    case (ctx, FilteredNodes(updatedNodeConversion)) =>
-      ctx.log.debug(
-        s"Received nodes, that are filtered for non-islanded nodes in '${stateData.simBenchCode}'."
-      )
-      val updatedAwaitingResults = awaitedResults.copy(
-        nodes = Some(updatedNodeConversion.values.toSeq.distinct.toVector),
-        nodeConversion = Some(updatedNodeConversion)
-      )
-
-      gridConverter ! GridConverter
-        .ConvertNodeResults(
-          stateData.simBenchCode,
-          updatedNodeConversion,
-          simBenchModel.nodePFResults,
-          ctx.self
-        )
-
-      // TODO: Persist Grid structure
       // TODO: Issue conversion of participants that then also respect for islanded nodes
-
       converting(
         stateData,
         simBenchModel,
         gridConverter,
-        updatedAwaitingResults
+        awaitedResults.copy(
+          nodeConversion = Some(nodeConversion),
+          nodeResults = Some(nodeResults),
+          lines = Some(lines),
+          transformers2w = Some(transformers2w),
+          transformers3w = Some(transformers3w),
+          switches = Some(switches),
+          measurements = Some(measurements)
+        )
       )
-    case (ctx, NodeResultsConverted(nodeResults)) =>
-      ctx.log.debug(
-        s"Received converted node results for '${stateData.simBenchCode}'."
-      )
-      val updatedAwaitedResults =
-        awaitedResults.copy(nodeResults = Some(nodeResults))
-      converting(stateData, simBenchModel, gridConverter, updatedAwaitedResults)
   }
 
   // TODO: Terminate mutator and await it's termination [[MutatorTerminated]] when terminating this actor
@@ -347,25 +292,17 @@ object Converter {
   )
 
   final case class AwaitedResults(
-      nodes: Option[Vector[NodeInput]],
       nodeConversion: Option[Map[Node, NodeInput]],
       nodeResults: Option[Vector[NodeResult]],
       lines: Option[Vector[LineInput]],
       transformers2w: Option[Vector[Transformer2WInput]],
       transformers3w: Option[Vector[Transformer3WInput]],
       switches: Option[Vector[SwitchInput]],
-      measurements: Option[Vector[MeasurementUnitInput]],
-      loads: Option[Vector[FixedFeedInInput]],
-      res: Option[Vector[FixedFeedInInput]],
-      powerPlants: Option[Vector[FixedFeedInInput]]
+      measurements: Option[Vector[MeasurementUnitInput]]
   )
   object AwaitedResults {
     def empty =
       new AwaitedResults(
-        None,
-        None,
-        None,
-        None,
         None,
         None,
         None,
@@ -417,32 +354,21 @@ object Converter {
   /**
     * Feedback, that a given set of nodes have been converted
     *
-    * @param conversion The conversion of nodes
+    * @param nodeConversion The conversion of nodes
+    * @param nodeResults    Node results
+    * @param lines          Lines
+    * @param transformers2w Two winding transformer
+    * @param transformers3w Three winding transformers
+    * @param switches       Switches
+    * @param measurements   Measurement devices
     */
-  final case class NodesConverted(conversion: Map[Node, NodeInput])
-      extends ConverterMessage
-
-  final case class BranchesConverted(
+  final case class GridStructureConverted(
+      nodeConversion: Map[Node, NodeInput],
+      nodeResults: Vector[NodeResult],
       lines: Vector[LineInput],
       transformers2w: Vector[Transformer2WInput],
       transformers3w: Vector[Transformer3WInput],
       switches: Vector[SwitchInput],
       measurements: Vector[MeasurementUnitInput]
   ) extends ConverterMessage
-
-  /**
-    * Report, with all nodes, that are not islanded
-    *
-    * @param nodes Non-islanded nodes
-    */
-  final case class FilteredNodes(nodes: Map[Node, NodeInput])
-      extends ConverterMessage
-
-  /**
-    * Feedback, about converted node results
-    *
-    * @param nodeResults Converted node results
-    */
-  final case class NodeResultsConverted(nodeResults: Vector[NodeResult])
-      extends ConverterMessage
 }
