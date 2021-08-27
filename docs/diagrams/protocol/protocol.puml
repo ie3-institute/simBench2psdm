@@ -18,10 +18,12 @@ Converter -> Mutator: Init(Config)
 Converter <- Mutator: Ready
 Converter --[#blue]> GridConverter: <font color=blue>spawn & watch</font>
 Converter -> GridConverter: ConvertNodes(List[Node])
-Converter <- GridConverter: ConvertedNodes(Map[Node,NodeInput])
-
-Converter -> GridConverter: ConvertRest(...)
-activate GridConverter
+Converter <- GridConverter: NodesConverted(Map[Node,NodeInput])
+Converter -> GridConverter: ConvertBranches(...)
+Converter <- GridConverter: BranchesConverted(...)
+Converter -> GridConverter: FilterIsolatedNodes(...)
+Converter <- GridConverter: FilteredNodes(...)
+note left: Now all other entities\ncan be converted (not)\nconsidering islanded nodes
 
 Converter --[#blue]> RESConverter: <font color=blue>spawn & watch</font>
 Converter -> RESConverter: Convert(List[RES], Map[Node,NodeInput])
@@ -37,7 +39,6 @@ RESConverter <--[#blue] RESConverterWorker
 Converter <- RESConverter: Done
 
 GridConverter -> Mutator: Mutate(...)
-deactivate GridConverter
 GridConverter <- Mutator: Mutated(...)
 Converter <- GridConverter: Done
 

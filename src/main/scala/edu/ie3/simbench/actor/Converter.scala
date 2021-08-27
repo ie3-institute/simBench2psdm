@@ -230,7 +230,8 @@ object Converter {
           ctx.self
         )
 
-      //TODO: Issue conversion of participants that then also respect for islanded nodes
+      // TODO: Persist Grid structure
+      // TODO: Issue conversion of participants that then also respect for islanded nodes
 
       converting(
         stateData,
