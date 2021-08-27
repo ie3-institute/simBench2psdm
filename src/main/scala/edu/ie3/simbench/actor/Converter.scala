@@ -1,6 +1,8 @@
 package edu.ie3.simbench.actor
 
+import akka.actor.PoisonPill
 import akka.actor.typed.ActorRef
+import akka.actor.typed.internal.Terminate
 import akka.actor.typed.scaladsl.{ActorContext, Behaviors}
 import edu.ie3.datamodel.models.input.{MeasurementUnitInput, NodeInput}
 import edu.ie3.datamodel.models.input.connector.{
@@ -226,10 +228,18 @@ object Converter {
         s"All RES of model '${stateData.simBenchCode}' are converted."
       )
       val updatedAwaitedResults = awaitedResults.copy(res = Some(converted))
-      converting(stateData, simBenchModel, gridConverter, updatedAwaitedResults)
-  }
 
-  // TODO: Terminate mutator and await it's termination [[MutatorTerminated]] when terminating this actor
+      // TODO: Move the termination of the mutator to another place, when all entities are converted
+      stateData.mutator ! Mutator.Terminate
+
+      converting(stateData, simBenchModel, gridConverter, updatedAwaitedResults)
+
+    case (ctx, MutatorTerminated) =>
+      ctx.log.debug(
+        s"Mutator has terminated, shut down converter for SimBench model '${stateData.simBenchCode}'."
+      )
+      Behaviors.stopped
+  }
 
   private def spawnMutator(
       simBenchCode: String,
