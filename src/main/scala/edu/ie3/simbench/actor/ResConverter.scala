@@ -160,7 +160,7 @@ case object ResConverter extends ShuntConverter {
           Quantities.getQuantity(res.p, MEGAWATT).multiply(-1)
         )
 
-        mutator ! Mutator.PersistTimeSeries(timeSeries)
+        mutator ! Mutator.PersistTimeSeries(timeSeries, ctx.self)
         val updatedAwaitedTimeSeriesPersistence = awaitTimeSeriesPersistence + (timeSeries.getUuid -> (res.id, res.node.getKey, model, replyTo))
         idle(mutator, updatedAwaitedTimeSeriesPersistence)
 

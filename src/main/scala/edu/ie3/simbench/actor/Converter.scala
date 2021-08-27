@@ -1,8 +1,6 @@
 package edu.ie3.simbench.actor
 
-import akka.actor.PoisonPill
 import akka.actor.typed.ActorRef
-import akka.actor.typed.internal.Terminate
 import akka.actor.typed.scaladsl.{ActorContext, Behaviors}
 import edu.ie3.datamodel.models.input.{MeasurementUnitInput, NodeInput}
 import edu.ie3.datamodel.models.input.connector.{
@@ -49,7 +47,7 @@ object Converter {
           converter
         )
         ) =>
-      ctx.log.info(s"Converter for '$simBenchCode' started.")
+      ctx.log.info(s"$simBenchCode - Converter started.")
 
       /* Initialize a mutator for this conversion and wait for it's reply */
       spawnMutator(
@@ -102,7 +100,7 @@ object Converter {
       coordinator: ActorRef[Coordinator.CoordinatorMessage]
   ): Behaviors.Receive[ConverterMessage] = Behaviors.receive {
     case (ctx, MutatorInitialized(mutator)) =>
-      ctx.log.debug(s"Mutator for model '$simBenchCode' is ready.")
+      ctx.log.debug(s"$simBenchCode - Mutator is ready.")
       coordinator ! Coordinator.ConverterInitialized(simBenchCode, ctx.self)
       idle(
         StateData(
@@ -115,7 +113,8 @@ object Converter {
           inputFileColumnSeparator,
           removeSwitches,
           amountOfWorkers,
-          mutator
+          mutator,
+          coordinator
         )
       )
   }
@@ -133,7 +132,7 @@ object Converter {
         stateData.baseUrl,
         stateData.failOnExistingFiles
       )
-      ctx.log.info(s"$simBenchCode - Reading in the SimBench data set")
+      ctx.log.debug(s"$simBenchCode - Reading in the SimBench data set")
       val simBenchModel = readModel(
         simBenchCode,
         downloadDirectory,
@@ -143,6 +142,7 @@ object Converter {
       )
 
       /* Spawning a grid converter and ask it to do some first conversions */
+      ctx.log.debug(s"$simBenchCode - Start conversion of grid structure")
       val gridConverter =
         ctx.spawn(GridConverter(), s"gridConverter_${stateData.simBenchCode}")
       gridConverter ! GridConverter.ConvertGridStructure(
@@ -182,9 +182,12 @@ object Converter {
         )
         ) =>
       ctx.log.debug(
-        s"Grid structure of model '${stateData.simBenchCode}' has been converted."
+        s"${stateData.simBenchCode} - Grid structure has been converted."
       )
 
+      ctx.log.info(
+        s"${stateData.simBenchCode} - Starting conversion of participant models"
+      )
       val resConverter =
         ctx.spawn(ResConverter(), s"resConverter_${stateData.simBenchCode}")
       resConverter ! ResConverter.Init(
@@ -213,7 +216,7 @@ object Converter {
 
     case (ctx, ResConverterReady(resConverter)) =>
       ctx.log.debug(
-        s"ResConverter for '${stateData.simBenchCode}' is ready. Request conversion."
+        s"${stateData.simBenchCode} - ResConverter is ready. Request conversion."
       )
       resConverter ! ResConverter.Convert(
         stateData.simBenchCode,
@@ -224,8 +227,8 @@ object Converter {
       Behaviors.same
 
     case (ctx, ResConverted(converted)) =>
-      ctx.log.debug(
-        s"All RES of model '${stateData.simBenchCode}' are converted."
+      ctx.log.info(
+        s"${stateData.simBenchCode} - All RES are converted."
       )
       val updatedAwaitedResults = awaitedResults.copy(res = Some(converted))
 
@@ -235,9 +238,11 @@ object Converter {
       converting(stateData, simBenchModel, gridConverter, updatedAwaitedResults)
 
     case (ctx, MutatorTerminated) =>
-      ctx.log.debug(
-        s"Mutator has terminated, shut down converter for SimBench model '${stateData.simBenchCode}'."
+      ctx.log.debug(s"${stateData.simBenchCode} - Mutator has terminated.")
+      ctx.log.info(
+        s"${stateData.simBenchCode} - Shut down converter."
       )
+      stateData.coordinator ! Coordinator.Converted(stateData.simBenchCode)
       Behaviors.stopped
   }
 
@@ -335,7 +340,8 @@ object Converter {
       inputFileColumnSeparator: String,
       removeSwitches: Boolean,
       amountOfWorkers: Int,
-      mutator: ActorRef[Mutator.MutatorMessage]
+      mutator: ActorRef[Mutator.MutatorMessage],
+      coordinator: ActorRef[Coordinator.CoordinatorMessage]
   )
 
   final case class AwaitedResults(

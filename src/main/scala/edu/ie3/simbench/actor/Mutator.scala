@@ -73,11 +73,12 @@ object Mutator {
       compress: Boolean
   ): Behaviors.Receive[MutatorMessage] =
     Behaviors.receive {
-      case (ctx, PersistTimeSeries(timeSeries)) =>
+      case (ctx, PersistTimeSeries(timeSeries, replyTo)) =>
         ctx.log.debug(
           s"Got request to persist time series '${timeSeries.getUuid}'."
         )
         sink.persistTimeSeries(timeSeries)
+        replyTo ! ResConverter.Worker.TimeSeriesPersisted(timeSeries.getUuid)
         Behaviors.same
 
       case (ctx, Terminate) =>
@@ -120,8 +121,10 @@ object Mutator {
       replyTo: ActorRef[Converter.ConverterMessage]
   ) extends MutatorMessage
 
-  final case class PersistTimeSeries(timeSeries: IndividualTimeSeries[_])
-      extends MutatorMessage
+  final case class PersistTimeSeries(
+      timeSeries: IndividualTimeSeries[_],
+      replyTo: ActorRef[ResConverter.Worker.WorkerMessage]
+  ) extends MutatorMessage
 
   object Terminate extends MutatorMessage
 }

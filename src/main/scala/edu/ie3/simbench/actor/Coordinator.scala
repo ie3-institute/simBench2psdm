@@ -75,10 +75,10 @@ object Coordinator {
           activeConverters = yetActiveConverters
         )
       )
-    case (ctx, Converted(simBenchCode)) if stateData.simBenchCodes.nonEmpty =>
+    case (ctx, Converted(simBenchCode)) =>
       /* A converter has completed. Report that and start a new converter. */
       ctx.log.info(
-        s"SimBench model with code '$simBenchCode' is completely converted."
+        s"$simBenchCode - Completely converted."
       )
       val stillActiveConverters =
         stateData.activeConverters.filterNot(_ == simBenchCode)
