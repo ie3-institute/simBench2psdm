@@ -178,7 +178,7 @@ object Converter {
       )
 
       /* TODO:
-       *  1) Issue all other conversions (res, powerplants, power flow results, ...) in parallel
+       *  1) Issue all other conversions (power flow results, ...) in parallel
        */
       Behaviors.same
     case (
@@ -194,7 +194,19 @@ object Converter {
       ctx.log.debug(
         s"Branches for SimBench model '${stateData.simBenchCode}' have been converted."
       )
-      /* TODO: Issue identification of islanded nodes (or later??) */
+      ctx.log.debug(
+        s"Issue filtering of islanded nodes in '${stateData.simBenchCode}'."
+      )
+      gridConverter ! GridConverter.FilterIsolatedNodes(
+        stateData.simBenchCode,
+        awaitedResults.nodeConversion.getOrElse(Map.empty[Node, NodeInput]),
+        lines,
+        transformers2w,
+        transformers3w,
+        switches,
+        ctx.self
+      )
+
       val updatedAwaitedResults = awaitedResults.copy(
         lines = Some(lines),
         transformers2w = Some(transformers2w),
@@ -203,6 +215,24 @@ object Converter {
         measurements = Some(measurements)
       )
       converting(stateData, simBenchModel, gridConverter, updatedAwaitedResults)
+
+    case (ctx, FilteredNodes(nodes)) =>
+      ctx.log.debug(
+        s"Received nodes, that are filtered for non-islanded nodes in '${stateData.simBenchCode}'."
+      )
+      val updatedAwaitingResults = awaitedResults.copy(
+        nodes = Some(nodes.values.toSeq.distinct.toVector),
+        nodeConversion = Some(nodes)
+      )
+
+      //TODO: Issue conversion of participants that then also respect for islanded nodes
+
+      converting(
+        stateData,
+        simBenchModel,
+        gridConverter,
+        updatedAwaitingResults
+      )
   }
 
   // TODO: Terminate mutator and await it's termination [[MutatorTerminated]] when terminating this actor
@@ -305,6 +335,7 @@ object Converter {
 
   final case class AwaitedResults(
       nodes: Option[Vector[NodeInput]],
+      nodeConversion: Option[Map[Node, NodeInput]],
       lines: Option[Vector[LineInput]],
       transformers2w: Option[Vector[Transformer2WInput]],
       transformers3w: Option[Vector[Transformer3WInput]],
@@ -316,7 +347,18 @@ object Converter {
   )
   object AwaitedResults {
     def empty =
-      new AwaitedResults(None, None, None, None, None, None, None, None, None)
+      new AwaitedResults(
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None
+      )
   }
 
   /** Messages, a converter will understand */
@@ -372,4 +414,12 @@ object Converter {
       switches: Vector[SwitchInput],
       measurements: Vector[MeasurementUnitInput]
   ) extends ConverterMessage
+
+  /**
+    * Report, with all nodes, that are not islanded
+    *
+    * @param nodes Non-islanded nodes
+    */
+  final case class FilteredNodes(nodes: Map[Node, NodeInput])
+      extends ConverterMessage
 }

@@ -120,6 +120,29 @@ case object GridConverter extends LazyLogging {
       )
 
       Behaviors.same
+
+    case (
+        ctx,
+        FilterIsolatedNodes(
+          simBenchCode,
+          nodeConversion,
+          lines,
+          transformers2w,
+          transformers3w,
+          switches,
+          converter
+        )
+        ) =>
+      ctx.log.debug(s"Filtering islanded nodes in '${simBenchCode}'.")
+      val nodes = filterIsolatedNodes(
+        nodeConversion,
+        lines.toSet.asJava,
+        transformers2w.toSet.asJava,
+        transformers3w.toSet.asJava,
+        switches.toSet.asJava
+      )
+      converter ! Converter.FilteredNodes(nodes)
+      Behaviors.same
   }
 
   sealed trait GridConverterMessage
@@ -145,6 +168,16 @@ case object GridConverter extends LazyLogging {
       lines: Vector[Line[_ <: LineType]],
       switches: Vector[Switch],
       measurements: Vector[Measurement],
+      replyTo: ActorRef[Converter.ConverterMessage]
+  ) extends GridConverterMessage
+
+  final case class FilterIsolatedNodes(
+      simBenchCode: String,
+      nodeConversion: Map[Node, NodeInput],
+      lines: Vector[LineInput],
+      transformers2w: Vector[Transformer2WInput],
+      transformers3w: Vector[Transformer3WInput],
+      switches: Vector[SwitchInput],
       replyTo: ActorRef[Converter.ConverterMessage]
   ) extends GridConverterMessage
 
