@@ -55,14 +55,37 @@ case object ResConverter extends ShuntConverter {
       workerPool: ActorRef[ResConverter.Worker.WorkerMessage]
   ): Behaviors.Receive[ResConverterMessage] = Behaviors.receive {
     case (ctx, Convert(simBenchCode, res, nodes, converter)) =>
-      /*
-       * TODO
-       *  1) Prepare needed information
-       *  2) Issue conversion
-       *  3) Collect converted models
-       *  4) Report back
-       */
-      Behaviors.same
+      ctx.log.debug(s"Got request to convert res from '$simBenchCode'.")
+      val activeConversions = res.map { plant =>
+        val node = NodeConverter.getNode(plant.node, nodes)
+        val profile =
+          PowerProfileConverter.getProfile(plant.profile, typeToProfile)
+
+        workerPool ! Worker.Convert(plant, node, profile, ctx.self)
+        (plant.id, plant.node.getKey)
+      }
+      converting(activeConversions, Vector.empty, workerPool, converter)
+  }
+
+  def converting(
+      activeConversions: Vector[(String, Node.NodeKey)],
+      converted: Vector[FixedFeedInInput],
+      workerPool: ActorRef[Worker.WorkerMessage],
+      converter: ActorRef[Converter.ConverterMessage]
+  ): Behaviors.Receive[ResConverterMessage] = Behaviors.receive {
+    case (ctx, Converted(id, node, fixedFeedInInput)) =>
+      val remainingConversions = activeConversions.filterNot(_ == (id, node))
+      val updatedConverted = converted :+ fixedFeedInInput
+      ctx.log.debug(
+        s"Model '$id' at node '$node' is converted. ${remainingConversions.size} active conversions remaining."
+      )
+      /* Stop the children and myself, if all conversions are done. */
+      if (remainingConversions.isEmpty) {
+        ctx.stop(workerPool)
+        converter ! Converter.ResConverted(converted)
+        Behaviors.stopped
+      }
+      converting(remainingConversions, updatedConverted, workerPool, converter)
   }
 
   sealed trait ResConverterMessage
@@ -72,6 +95,12 @@ case object ResConverter extends ShuntConverter {
       amountOfWorkers: Int,
       profiles: Vector[ResProfile],
       replyTo: ActorRef[Converter.ConverterMessage]
+  ) extends ResConverterMessage
+
+  final case class Converted(
+      id: String,
+      node: Node.NodeKey,
+      fixedFeedInInput: FixedFeedInInput
   ) extends ResConverterMessage
 
   /**
@@ -96,6 +125,12 @@ case object ResConverter extends ShuntConverter {
     }
 
     sealed trait WorkerMessage
+    final case class Convert(
+        res: RES,
+        node: NodeInput,
+        profile: ResProfile,
+        replyTo: ActorRef[ResConverterMessage]
+    ) extends WorkerMessage
 
     /**
       * Convert a full set of renewable energy source system

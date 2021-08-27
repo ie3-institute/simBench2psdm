@@ -9,6 +9,7 @@ import edu.ie3.datamodel.models.input.connector.{
   Transformer2WInput,
   Transformer3WInput
 }
+import edu.ie3.datamodel.models.input.system.FixedFeedInInput
 import edu.ie3.datamodel.models.result.NodeResult
 import edu.ie3.simbench.exception.CodeValidationException
 import edu.ie3.simbench.io.{Downloader, SimbenchReader, Zipper}
@@ -217,6 +218,13 @@ object Converter {
         ctx.self
       )
       Behaviors.same
+
+    case (ctx, ResConverted(converted)) =>
+      ctx.log.debug(
+        s"All RES of model '${stateData.simBenchCode}' are converted."
+      )
+      val updatedAwaitedResults = awaitedResults.copy(res = Some(converted))
+      converting(stateData, simBenchModel, gridConverter, updatedAwaitedResults)
   }
 
   // TODO: Terminate mutator and await it's termination [[MutatorTerminated]] when terminating this actor
@@ -295,14 +303,14 @@ object Converter {
       fileEnding: String,
       fileEncoding: String
   ): GridModel = {
-    val simbenchReader = SimbenchReader(
+    val simBenchReader = SimbenchReader(
       simBenchCode,
       downloadDirectory,
       csvColumnSeparator,
       fileEnding,
       fileEncoding
     )
-    simbenchReader.readGrid()
+    simBenchReader.readGrid()
   }
 
   final case class StateData(
@@ -325,11 +333,15 @@ object Converter {
       transformers2w: Option[Vector[Transformer2WInput]],
       transformers3w: Option[Vector[Transformer3WInput]],
       switches: Option[Vector[SwitchInput]],
-      measurements: Option[Vector[MeasurementUnitInput]]
+      measurements: Option[Vector[MeasurementUnitInput]],
+      res: Option[Vector[FixedFeedInInput]],
+      powerPlants: Option[Vector[FixedFeedInInput]]
   )
   object AwaitedResults {
     def empty =
       new AwaitedResults(
+        None,
+        None,
         None,
         None,
         None,
@@ -403,4 +415,7 @@ object Converter {
   final case class ResConverterReady(
       replyTo: ActorRef[ResConverter.ResConverterMessage]
   ) extends ConverterMessage
+
+  final case class ResConverted(converted: Vector[FixedFeedInInput])
+      extends ConverterMessage
 }
