@@ -6,6 +6,7 @@ import edu.ie3.datamodel.models.UniqueEntity
 import edu.ie3.datamodel.models.input.NodeInput
 import edu.ie3.datamodel.models.input.connector.{LineInput, Transformer2WInput}
 import edu.ie3.datamodel.models.input.system.{FixedFeedInInput, LoadInput}
+import edu.ie3.simbench.actor.GridConverter
 import edu.ie3.simbench.convert.NodeConverter.AttributeOverride.JoinOverride
 import edu.ie3.simbench.io.SimbenchReader
 import edu.ie3.simbench.model.datamodel.{GridModel, Node, Switch}

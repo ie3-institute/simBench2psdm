@@ -2,10 +2,11 @@ package edu.ie3.simbench.actor
 
 import akka.actor.typed.ActorRef
 import akka.actor.typed.scaladsl.{ActorContext, Behaviors}
+import edu.ie3.datamodel.models.input.NodeInput
 import edu.ie3.simbench.exception.CodeValidationException
 import edu.ie3.simbench.io.{Downloader, SimbenchReader, Zipper}
 import edu.ie3.simbench.model.SimbenchCode
-import edu.ie3.simbench.model.datamodel.GridModel
+import edu.ie3.simbench.model.datamodel.{GridModel, Node}
 
 import java.nio.file.Path
 
@@ -28,6 +29,7 @@ object Converter {
           inputFileEnding,
           inputFileEncoding,
           inputFileColumnSeparator,
+          removeSwitches,
           useDirectoryHierarchy,
           targetDirectory,
           csvColumnSeparator,
@@ -54,6 +56,7 @@ object Converter {
         inputFileEnding,
         inputFileEncoding,
         inputFileColumnSeparator,
+        removeSwitches,
         converter
       )
   }
@@ -68,6 +71,7 @@ object Converter {
     * @param inputFileEnding              Ending of input files
     * @param inputFileEncoding            Encoding of the input files
     * @param inputFileColumnSeparator     Column separator of the input data
+    * @param removeSwitches               Whether or not to remove switches in final model
     * @param coordinator                  Reference to the coordinator
     * @return Behavior to do so
     */
@@ -79,6 +83,7 @@ object Converter {
       inputFileEnding: String,
       inputFileEncoding: String,
       inputFileColumnSeparator: String,
+      removeSwitches: Boolean,
       coordinator: ActorRef[Coordinator.CoordinatorMessage]
   ): Behaviors.Receive[ConverterMessage] = Behaviors.receive {
     case (ctx, MutatorInitialized(mutator)) =>
@@ -93,6 +98,7 @@ object Converter {
           inputFileEnding,
           inputFileEncoding,
           inputFileColumnSeparator,
+          removeSwitches,
           mutator
         )
       )
@@ -119,9 +125,25 @@ object Converter {
         stateData.inputFileEnding,
         stateData.inputFileEncoding
       )
+
+      /* Spawning a grid converter and ask it to do some first conversions */
+      val gridConverter =
+        ctx.spawn(GridConverter(), s"gridConverter_${stateData.simBenchCode}")
+      gridConverter ! GridConverter.ConvertNodes(
+        simBenchCode,
+        simBenchModel.nodes,
+        simBenchModel.externalNets,
+        simBenchModel.powerPlants,
+        simBenchModel.res,
+        simBenchModel.transformers2w,
+        simBenchModel.transformers3w,
+        simBenchModel.lines,
+        simBenchModel.switches,
+        stateData.removeSwitches,
+        ctx.self
+      )
       /*
-       * TODO
-       *  3) Issue conversion
+       * TODO: Switch to converting state
        */
       Behaviors.same
   }
@@ -220,6 +242,7 @@ object Converter {
       inputFileEnding: String,
       inputFileEncoding: String,
       inputFileColumnSeparator: String,
+      removeSwitches: Boolean,
       mutator: ActorRef[Mutator.MutatorMessage]
   )
 
@@ -233,6 +256,7 @@ object Converter {
       inputFileEnding: String,
       inputFileEncoding: String,
       inputFileColumnSeparator: String,
+      removeSwitches: Boolean,
       useDirectoryHierarchy: Boolean,
       targetDirectory: String,
       csvColumnSeparator: String,
@@ -259,4 +283,12 @@ object Converter {
     * @param simBenchCode Code that denotes the model
     */
   final case class Convert(simBenchCode: String) extends ConverterMessage
+
+  /**
+    * Feedback, that a given set of nodes have been converted
+    *
+    * @param conversion The conversion of nodes
+    */
+  final case class NodesConverted(conversion: Map[Node, NodeInput])
+      extends ConverterMessage
 }

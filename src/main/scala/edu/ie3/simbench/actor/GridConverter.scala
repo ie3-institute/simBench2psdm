@@ -1,8 +1,11 @@
-package edu.ie3.simbench.convert
+package edu.ie3.simbench.actor
 
+import akka.actor.typed.ActorRef
+import akka.actor.typed.scaladsl.Behaviors
 import com.typesafe.scalalogging.LazyLogging
 import edu.ie3.datamodel.io.source.TimeSeriesMappingSource
 import edu.ie3.datamodel.io.source.TimeSeriesMappingSource.MappingEntry
+import edu.ie3.datamodel.models.input.NodeInput
 import edu.ie3.datamodel.models.input.connector.{
   LineInput,
   SwitchInput,
@@ -20,10 +23,9 @@ import edu.ie3.datamodel.models.input.graphics.{
   NodeGraphicInput
 }
 import edu.ie3.datamodel.models.input.system._
-import edu.ie3.datamodel.models.input.NodeInput
 import edu.ie3.datamodel.models.result.NodeResult
 import edu.ie3.datamodel.models.timeseries.individual.IndividualTimeSeries
-import edu.ie3.datamodel.models.value.{PValue, SValue, Value}
+import edu.ie3.datamodel.models.value.{PValue, SValue}
 import edu.ie3.simbench.convert.NodeConverter.AttributeOverride.{
   JoinOverride,
   SubnetOverride
@@ -32,16 +34,9 @@ import edu.ie3.simbench.convert.types.{
   LineTypeConverter,
   Transformer2wTypeConverter
 }
+import edu.ie3.simbench.convert._
 import edu.ie3.simbench.exception.ConversionException
-import edu.ie3.simbench.model.datamodel.{
-  GridModel,
-  Line,
-  Node,
-  NodePFResult,
-  Switch,
-  Transformer2W,
-  Transformer3W
-}
+import edu.ie3.simbench.model.datamodel._
 
 import java.util.UUID
 import scala.annotation.tailrec
@@ -49,6 +44,59 @@ import scala.jdk.CollectionConverters._
 import scala.collection.parallel.CollectionConverters._
 
 case object GridConverter extends LazyLogging {
+  def apply(): Behaviors.Receive[GridConverterMessage] = idle
+
+  def idle: Behaviors.Receive[GridConverterMessage] = Behaviors.receive {
+    case (
+        ctx,
+        ConvertNodes(
+          simBenchCode,
+          nodes,
+          externalNets,
+          powerPlants,
+          res,
+          transformers2w,
+          transformers3w,
+          lines,
+          switches,
+          removeSwitches,
+          converter
+        )
+        ) =>
+      ctx.log.debug(
+        s"Got asked to convert nodes of SimBench model '$simBenchCode'."
+      )
+      val nodeConversion = convertNodes(
+        nodes,
+        externalNets,
+        powerPlants,
+        res,
+        transformers2w,
+        transformers3w,
+        lines,
+        switches,
+        removeSwitches
+      )
+      converter ! Converter.NodesConverted(nodeConversion)
+      Behaviors.same
+  }
+
+  sealed trait GridConverterMessage
+  final case class ConvertNodes(
+      simBenchCode: String,
+      nodes: Vector[Node],
+      externalNets: Vector[ExternalNet],
+      powerPlants: Vector[PowerPlant],
+      res: Vector[RES],
+      transformers2w: Vector[Transformer2W],
+      transformers3w: Vector[Transformer3W],
+      lines: Vector[Line[_]],
+      switches: Vector[Switch],
+      removeSwitches: Boolean = false,
+      replyTo: ActorRef[Converter.ConverterMessage]
+  ) extends GridConverterMessage
+
+  /* FIXME: ===== From here on, it's plain object code! ===== */
 
   /**
     * Converts a full simbench grid into power system data models [[JointGridContainer]]. Additionally, individual time
@@ -108,43 +156,22 @@ case object GridConverter extends LazyLogging {
     * @param removeSwitches Whether or not to remove switches from the grid structure
     * @return All grid elements in converted form + a mapping from old to new node models
     */
+  @deprecated("Use messages instead")
   def convertGridElements(
       gridInput: GridModel,
       removeSwitches: Boolean
   ): (RawGridElements, Map[Node, NodeInput]) = {
-    /* Set up a sub net converter, by crawling all nodes */
-    val subnetConverter = SubnetConverter(
-      gridInput.nodes.map(node => (node.vmR, node.subnet))
-    )
-
-    val slackNodeKeys = NodeConverter.getSlackNodeKeys(
+    val nodeConversion = convertNodes(
+      gridInput.nodes,
       gridInput.externalNets,
       gridInput.powerPlants,
-      gridInput.res
-    )
-
-    /* Collect overriding attributes for node conversion, based on special constellations within the grid */
-    val subnetOverrides = determineSubnetOverrides(
+      gridInput.res,
       gridInput.transformers2w,
       gridInput.transformers3w,
-      gridInput.switches,
       gridInput.lines,
-      subnetConverter
+      gridInput.switches,
+      removeSwitches
     )
-    val joinOverrides = if (removeSwitches) {
-      /* If switches are meant to be removed, join all nodes at closed switches */
-      determineJoinOverrides(gridInput.switches, slackNodeKeys)
-    } else
-      Vector.empty
-
-    val nodeConversion =
-      convertNodes(
-        gridInput.nodes,
-        slackNodeKeys,
-        subnetConverter,
-        subnetOverrides,
-        joinOverrides
-      )
 
     val lines = convertLines(gridInput, nodeConversion).toSet.asJava
     val transformers2w =
@@ -185,6 +212,66 @@ case object GridConverter extends LazyLogging {
   }
 
   /**
+    * Convert the nodes with all needed preliminary steps. This is determination of target subnets, correction of subnet
+    * number for high voltage switch gear and joining of nodes in case of closed switches.
+    *
+    * @param nodes          Collection of nodes
+    * @param externalNets   Collection of external grids
+    * @param powerPlants    Collection of power plants
+    * @param res            Collection of renewable energy sources
+    * @param transformers2w Collection of two winding transformers
+    * @param transformers3w Collection of three winding transformers
+    * @param lines          Collection of lines
+    * @param switches       Collection of switches
+    * @param removeSwitches Whether or not to remove closed switches
+    * @return A mapping from raw node models to their conversion
+    */
+  private def convertNodes(
+      nodes: Vector[Node],
+      externalNets: Vector[ExternalNet],
+      powerPlants: Vector[PowerPlant],
+      res: Vector[RES],
+      transformers2w: Vector[Transformer2W],
+      transformers3w: Vector[Transformer3W],
+      lines: Vector[Line[_]],
+      switches: Vector[Switch],
+      removeSwitches: Boolean = false
+  ): Map[Node, NodeInput] = {
+    /* Set up a sub net converter, by crawling all nodes */
+    val subnetConverter = SubnetConverter(
+      nodes.map(node => (node.vmR, node.subnet))
+    )
+
+    val slackNodeKeys = NodeConverter.getSlackNodeKeys(
+      externalNets,
+      powerPlants,
+      res
+    )
+
+    /* Collect overriding attributes for node conversion, based on special constellations within the grid */
+    val subnetOverrides = determineSubnetOverrides(
+      transformers2w,
+      transformers3w,
+      switches,
+      lines,
+      subnetConverter
+    )
+    val joinOverrides = if (removeSwitches) {
+      /* If switches are meant to be removed, join all nodes at closed switches */
+      determineJoinOverrides(switches, slackNodeKeys)
+    } else
+      Vector.empty
+
+    convertNodes(
+      nodes,
+      slackNodeKeys,
+      subnetConverter,
+      subnetOverrides,
+      joinOverrides
+    )
+  }
+
+  /**
     * Determine all relevant subnet override information. SimBench has a different notion of where the border of a
     * subnet is. This is especially the case, if there is switch gear "upstream" of a transformer. For SimBench all
     * nodes upstream of the transformer belong to the higher grid. However, for PowerSystemDataModel we expect the
@@ -192,11 +279,11 @@ case object GridConverter extends LazyLogging {
     * will control the switches in a manner, that the lower grid needs for. Therefore, for all nodes that are upstream
     * of a transformer's hv node and connected via switches, explicit subnet numbers are provided.
     *
-    * @param transformers2w   Collection of two winding transformers
-    * @param transformers3w   Collection of three winding transformers
-    * @param switches         Collection of switches
-    * @param lines            Collection of lines
-    * @param subnetConverter  Converter to determine subnet numbers
+    * @param transformers2w  Collection of two winding transformers
+    * @param transformers3w  Collection of three winding transformers
+    * @param switches        Collection of switches
+    * @param lines           Collection of lines
+    * @param subnetConverter Converter to determine subnet numbers
     * @return A collection of [[SubnetOverride]]s
     */
   private def determineSubnetOverrides(
@@ -318,8 +405,8 @@ case object GridConverter extends LazyLogging {
   /**
     * Determine join overrides for all nodes, that are connected by closed switches
     *
-    * @param switches       Collection of all (closed) switches
-    * @param slackNodeKeys  Collection of node keys, that are foreseen to be slack nodes
+    * @param switches      Collection of all (closed) switches
+    * @param slackNodeKeys Collection of node keys, that are foreseen to be slack nodes
     * @return A collection of [[JoinOverride]]s
     */
   private def determineJoinOverrides(
@@ -364,8 +451,8 @@ case object GridConverter extends LazyLogging {
   /**
     * Determine overrides per switch group
     *
-    * @param switchGroup    A group of directly connected switches
-    * @param slackNodeKeys  Collection of node keys, that are foreseen to be slack nodes
+    * @param switchGroup   A group of directly connected switches
+    * @param slackNodeKeys Collection of node keys, that are foreseen to be slack nodes
     * @return A collection of [[JoinOverride]]s
     */
   private def determineJoinOverridesForSwitchGroup(
