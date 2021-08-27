@@ -9,12 +9,13 @@ import edu.ie3.datamodel.models.input.connector.{
   Transformer2WInput,
   Transformer3WInput
 }
-import edu.ie3.datamodel.models.input.system.FixedFeedInInput
+import edu.ie3.datamodel.models.input.system.{FixedFeedInInput, LoadInput}
 import edu.ie3.datamodel.models.result.NodeResult
 import edu.ie3.simbench.exception.CodeValidationException
 import edu.ie3.simbench.io.{Downloader, SimbenchReader, Zipper}
 import edu.ie3.simbench.model.SimbenchCode
 import edu.ie3.simbench.model.datamodel.{GridModel, Node}
+import org.slf4j.Logger
 
 import java.nio.file.Path
 import java.util.UUID
@@ -142,7 +143,7 @@ object Converter {
       )
 
       /* Spawning a grid converter and ask it to do some first conversions */
-      ctx.log.debug(s"$simBenchCode - Start conversion of grid structure")
+      ctx.log.info(s"$simBenchCode - Start conversion of grid structure")
       val gridConverter =
         ctx.spawn(GridConverter(), s"gridConverter_${stateData.simBenchCode}")
       gridConverter ! GridConverter.ConvertGridStructure(
@@ -232,18 +233,91 @@ object Converter {
       )
       val updatedAwaitedResults = awaitedResults.copy(res = Some(converted))
 
-      // TODO: Move the termination of the mutator to another place, when all entities are converted
-      stateData.mutator ! Mutator.Terminate
+      if (updatedAwaitedResults.isReady)
+        finalizeConversion(
+          stateData.simBenchCode,
+          updatedAwaitedResults,
+          stateData.mutator,
+          stateData.coordinator,
+          ctx.self,
+          ctx.log
+        )
+      else
+        converting(
+          stateData,
+          simBenchModel,
+          gridConverter,
+          updatedAwaitedResults
+        )
+  }
 
-      converting(stateData, simBenchModel, gridConverter, updatedAwaitedResults)
-
+  def finalizing(
+      simBenchCode: String,
+      mutator: ActorRef[Mutator.MutatorMessage],
+      coordinator: ActorRef[Coordinator.CoordinatorMessage],
+      gridStructurePersisted: Boolean = false,
+      nodeResultsPersisted: Boolean = false,
+      timeSeriesMappingPersisted: Boolean = false
+  ): Behaviors.Receive[ConverterMessage] = Behaviors.receive {
     case (ctx, MutatorTerminated) =>
-      ctx.log.debug(s"${stateData.simBenchCode} - Mutator has terminated.")
+      ctx.log.debug(s"$simBenchCode - Mutator has terminated.")
       ctx.log.info(
-        s"${stateData.simBenchCode} - Shut down converter."
+        s"$simBenchCode - Shut down converter."
       )
-      stateData.coordinator ! Coordinator.Converted(stateData.simBenchCode)
+      coordinator ! Coordinator.Converted(simBenchCode)
       Behaviors.stopped
+
+    case (ctx, message) =>
+      val (
+        updatedGridStructurePersisted,
+        updatedNodeResultsPersisted,
+        updatedTimeSeriesMappingPersisted
+      ) = message match {
+        case GridStructurePersisted =>
+          ctx.log.debug(s"$simBenchCode - Grid structure is persisted")
+          (
+            true,
+            nodeResultsPersisted,
+            timeSeriesMappingPersisted
+          )
+        case NodalResultsPersisted =>
+          ctx.log.debug(s"$simBenchCode - Node results are persisted")
+          (
+            gridStructurePersisted,
+            true,
+            timeSeriesMappingPersisted
+          )
+        case TimeSeriesMappingPersisted =>
+          ctx.log.debug(s"$simBenchCode - Time series mapping is persisted")
+          (
+            gridStructurePersisted,
+            nodeResultsPersisted,
+            true
+          )
+        case unexpected =>
+          ctx.log.warn(
+            s"$simBenchCode - Received unexpected message '$unexpected'."
+          )
+          (
+            gridStructurePersisted,
+            nodeResultsPersisted,
+            timeSeriesMappingPersisted
+          )
+      }
+      if (updatedGridStructurePersisted && updatedNodeResultsPersisted && updatedTimeSeriesMappingPersisted) {
+        ctx.log.debug(
+          s"$simBenchCode - All models are persisted. Shut down mutator."
+        )
+        mutator ! Mutator.Terminate
+      }
+      finalizing(
+        simBenchCode,
+        mutator,
+        coordinator,
+        updatedGridStructurePersisted,
+        updatedNodeResultsPersisted,
+        updatedTimeSeriesMappingPersisted
+      )
   }
 
   private def spawnMutator(
@@ -330,6 +404,101 @@ object Converter {
     simBenchReader.readGrid()
   }
 
+  private def finalizeConversion(
+      simBenchCode: String,
+      awaitedResults: AwaitedResults,
+      mutator: ActorRef[Mutator.MutatorMessage],
+      coordinator: ActorRef[Coordinator.CoordinatorMessage],
+      self: ActorRef[ConverterMessage],
+      logger: Logger
+  ): Behaviors.Receive[ConverterMessage] = {
+    logger.info(
+      s"$simBenchCode - Persisting grid structure and associated particicpants."
+    )
+    /* Bring together all results and send them to the mutator */
+    mutator ! Mutator.PersistGridStructure(
+      simBenchCode,
+      awaitedResults.nodeConversion.map(_.values.toSet).getOrElse(Set.empty),
+      awaitedResults.lines.map(_.toSet).getOrElse {
+        logger.warn("Model does not contain lines.")
+        Set.empty
+      },
+      awaitedResults.transformers2w.map(_.toSet).getOrElse {
+        logger.warn("Model does not contain two winding transformers.")
+        Set.empty
+      },
+      awaitedResults.transformers3w.map(_.toSet).getOrElse {
+        logger.debug("Model does not contain three winding transformers.")
+        Set.empty
+      },
+      awaitedResults.switches.map(_.toSet).getOrElse {
+        logger.debug("Model does not contain switches.")
+        Set.empty
+      },
+      awaitedResults.measurements.map(_.toSet).getOrElse {
+        logger.debug("Model does not contain measurements.")
+        Set.empty
+      },
+      awaitedResults.loads.map(_.keys.toSet).getOrElse {
+        logger.debug("Model does not contain loads.")
+        Set.empty
+      },
+      (awaitedResults.res.map(_.keys).getOrElse {
+        logger.debug("Model does not contain renewable energy sources.")
+        Seq.empty[FixedFeedInInput]
+      } ++ awaitedResults.powerPlants.map(_.keys).getOrElse {
+        logger.debug("Model does not contain power plants.")
+        Seq.empty[FixedFeedInInput]
+      }).toSet,
+      self
+    )
+
+    /* Build the time series mapping and send it to the mutator */
+    val timeSeriesMapping: Map[UUID, UUID] = awaitedResults.loads
+      .map(
+        modelToTimeSeries =>
+          modelToTimeSeries.map {
+            case (model, uuid) => model.getUuid -> uuid
+          }
+      )
+      .getOrElse {
+        logger.warn("The model does not contain time series for loads.")
+        Map.empty[UUID, UUID]
+      } ++ awaitedResults.res
+      .map(
+        modelToTimeSeries =>
+          modelToTimeSeries.map {
+            case (model, uuid) => model.getUuid -> uuid
+          }
+      )
+      .getOrElse {
+        logger.warn(
+          "The model does not contain time series for renewable energy sources."
+        )
+        Map.empty[UUID, UUID]
+      } ++ awaitedResults.powerPlants
+      .map(
+        modelToTimeSeries =>
+          modelToTimeSeries.map {
+            case (model, uuid) => model.getUuid -> uuid
+          }
+      )
+      .getOrElse {
+        logger.warn("The model does not contain time series for power plants.")
+        Map.empty[UUID, UUID]
+      }
+
+    mutator ! Mutator.PersistTimeSeriesMapping(timeSeriesMapping, self)
+
+    /* Persist the nodal results */
+    mutator ! Mutator.PersistNodalResults(awaitedResults.nodeResults.getOrElse {
+      logger.warn("The model does not contain nodal results.")
+      Set.empty[NodeResult]
+    }.toSet, self)
+
+    finalizing(simBenchCode, mutator, coordinator)
+  }
+
   final case class StateData(
       simBenchCode: String,
       downloadDirectory: String,
@@ -352,12 +521,34 @@ object Converter {
       transformers3w: Option[Vector[Transformer3WInput]],
       switches: Option[Vector[SwitchInput]],
       measurements: Option[Vector[MeasurementUnitInput]],
+      loads: Option[Map[LoadInput, UUID]],
       res: Option[Map[FixedFeedInInput, UUID]],
       powerPlants: Option[Map[FixedFeedInInput, UUID]]
-  )
+  ) {
+
+    /**
+      * Check, if all awaited results are there
+      *
+      * @return true, if nothing is missing
+      */
+    def isReady: Boolean =
+      Seq(
+        nodeConversion,
+        nodeResults,
+        lines,
+        transformers2w,
+        transformers3w,
+        switches,
+        measurements,
+        //loads, TODO
+        res
+        //powerPlants TODO
+      ).forall(_.nonEmpty)
+  }
   object AwaitedResults {
     def empty =
       new AwaitedResults(
+        None,
         None,
         None,
         None,
@@ -436,4 +627,8 @@ object Converter {
 
   final case class ResConverted(converted: Map[FixedFeedInInput, UUID])
       extends ConverterMessage
+
+  object GridStructurePersisted extends ConverterMessage
+  object TimeSeriesMappingPersisted extends ConverterMessage
+  object NodalResultsPersisted extends ConverterMessage
 }

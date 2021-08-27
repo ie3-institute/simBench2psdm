@@ -8,17 +8,48 @@ import edu.ie3.datamodel.io.naming.{
   FileNamingStrategy
 }
 import edu.ie3.datamodel.io.sink.CsvFileSink
+import edu.ie3.datamodel.io.source.TimeSeriesMappingSource.MappingEntry
+import edu.ie3.datamodel.models.input.{MeasurementUnitInput, NodeInput}
+import edu.ie3.datamodel.models.input.connector.{
+  LineInput,
+  SwitchInput,
+  Transformer2WInput,
+  Transformer3WInput
+}
+import edu.ie3.datamodel.models.input.container.{
+  GraphicElements,
+  JointGridContainer,
+  RawGridElements,
+  SystemParticipants
+}
+import edu.ie3.datamodel.models.input.system.{
+  BmInput,
+  ChpInput,
+  EvInput,
+  EvcsInput,
+  FixedFeedInInput,
+  HpInput,
+  LoadInput,
+  PvInput,
+  StorageInput,
+  SystemParticipantInput,
+  WecInput
+}
+import edu.ie3.datamodel.models.result.NodeResult
 import edu.ie3.datamodel.models.timeseries.individual.IndividualTimeSeries
 import edu.ie3.simbench.io.IoUtils
 import edu.ie3.util.io.FileIOUtils
 import org.apache.commons.io.FilenameUtils
 
 import java.nio.file.Paths
+import java.util
+import java.util.UUID
 import scala.concurrent.Await
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration.Duration
 import scala.jdk.FutureConverters.CompletionStageOps
 import scala.util.{Failure, Success}
+import scala.jdk.CollectionConverters._
 
 object Mutator {
   def apply(): Behaviors.Receive[MutatorMessage] = uninitialized
@@ -81,6 +112,77 @@ object Mutator {
         replyTo ! ResConverter.Worker.TimeSeriesPersisted(timeSeries.getUuid)
         Behaviors.same
 
+      case (
+          ctx,
+          PersistGridStructure(
+            simBenchCode,
+            nodes,
+            lines,
+            transformers2w,
+            transformers3w,
+            switches,
+            measurements,
+            loads,
+            fixedFeedIns,
+            replyTo
+          )
+          ) =>
+        ctx.log.debug("Got request to persist grid structure.")
+
+        val container = new JointGridContainer(
+          simBenchCode,
+          new RawGridElements(
+            nodes.asJava,
+            lines.asJava,
+            transformers2w.asJava,
+            transformers3w.asJava,
+            switches.asJava,
+            measurements.asJava
+          ),
+          new SystemParticipants(
+            Set.empty[BmInput].asJava,
+            Set.empty[ChpInput].asJava,
+            Set.empty[EvcsInput].asJava,
+            Set.empty[EvInput].asJava,
+            fixedFeedIns.asJava,
+            Set.empty[HpInput].asJava,
+            loads.asJava,
+            Set.empty[PvInput].asJava,
+            Set.empty[StorageInput].asJava,
+            Set.empty[WecInput].asJava
+          ),
+          new GraphicElements(
+            Set.empty[GraphicElements].asJava
+          )
+        )
+
+        sink.persistJointGrid(container)
+
+        replyTo ! Converter.GridStructurePersisted
+        Behaviors.same
+
+      case (ctx, PersistNodalResults(results, replyTo)) =>
+        ctx.log.debug("Got request to persist nodal results.")
+
+        sink.persistAll(results.asJava)
+        replyTo ! Converter.NodalResultsPersisted
+        Behaviors.same
+
+      case (ctx, PersistTimeSeriesMapping(mapping, replyTo)) =>
+        ctx.log.debug("Got request to persist time series mapping")
+
+        sink.persistAllIgnoreNested(
+          mapping
+            .map {
+              case (modelUuid, timeSeriesUuid) =>
+                new MappingEntry(UUID.randomUUID(), modelUuid, timeSeriesUuid)
+            }
+            .toList
+            .asJava
+        )
+        replyTo ! Converter.TimeSeriesMappingPersisted
+        Behaviors.same
+
       case (ctx, Terminate) =>
         ctx.log.debug("Got termination request")
 
@@ -118,6 +220,29 @@ object Mutator {
       targetDirectory: String,
       csvColumnSeparator: String,
       compress: Boolean,
+      replyTo: ActorRef[Converter.ConverterMessage]
+  ) extends MutatorMessage
+
+  final case class PersistGridStructure(
+      simBenchCode: String,
+      nodes: Set[NodeInput],
+      lines: Set[LineInput],
+      transformers2w: Set[Transformer2WInput],
+      transformers3w: Set[Transformer3WInput],
+      switches: Set[SwitchInput],
+      measurements: Set[MeasurementUnitInput],
+      loads: Set[LoadInput],
+      fixedFeedIns: Set[FixedFeedInInput],
+      replyTo: ActorRef[Converter.ConverterMessage]
+  ) extends MutatorMessage
+
+  final case class PersistTimeSeriesMapping(
+      mapping: Map[UUID, UUID],
+      replyTo: ActorRef[Converter.ConverterMessage]
+  ) extends MutatorMessage
+
+  final case class PersistNodalResults(
+      results: Set[NodeResult],
       replyTo: ActorRef[Converter.ConverterMessage]
   ) extends MutatorMessage
 
