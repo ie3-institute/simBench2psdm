@@ -133,7 +133,7 @@ case object GridConverter extends LazyLogging {
           converter
         )
         ) =>
-      ctx.log.debug(s"Filtering islanded nodes in '${simBenchCode}'.")
+      ctx.log.debug(s"Filtering islanded nodes in '$simBenchCode'.")
       val nodes = filterIsolatedNodes(
         nodeConversion,
         lines.toSet.asJava,
@@ -142,6 +142,13 @@ case object GridConverter extends LazyLogging {
         switches.toSet.asJava
       )
       converter ! Converter.FilteredNodes(nodes)
+      Behaviors.same
+    case (
+        ctx,
+        ConvertNodeResults(simBenchCode, nodeConversion, results, replyTo)
+        ) =>
+      ctx.log.debug(s"Converting node results for '$simBenchCode'.")
+      val convertedResults = convertNodeResults(results, nodeConversion)
       Behaviors.same
   }
 
@@ -178,6 +185,13 @@ case object GridConverter extends LazyLogging {
       transformers2w: Vector[Transformer2WInput],
       transformers3w: Vector[Transformer3WInput],
       switches: Vector[SwitchInput],
+      replyTo: ActorRef[Converter.ConverterMessage]
+  ) extends GridConverterMessage
+
+  final case class ConvertNodeResults(
+      simBenchCode: String,
+      nodeConversion: Map[Node, NodeInput],
+      results: Vector[NodePFResult],
       replyTo: ActorRef[Converter.ConverterMessage]
   ) extends GridConverterMessage
 
@@ -642,14 +656,10 @@ case object GridConverter extends LazyLogging {
       input: Vector[NodePFResult],
       nodeConversion: Map[Node, NodeInput]
   ): Vector[NodeResult] =
-    input.par.map { nodePfResult =>
-      val node = nodeConversion.getOrElse(
-        nodePfResult.node,
-        throw ConversionException(
-          s"Cannot convert power flow result for node ${nodePfResult.node}, as the needed node conversion cannot be found."
-        )
-      )
-      NodePFResultConverter.convert(nodePfResult, node)
+    input.par.flatMap { nodePfResult =>
+      nodeConversion
+        .get(nodePfResult.node)
+        .map(node => NodePFResultConverter.convert(nodePfResult, node))
     }.seq
 
   /**

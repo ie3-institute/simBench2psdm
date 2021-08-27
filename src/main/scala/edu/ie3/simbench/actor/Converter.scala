@@ -10,6 +10,7 @@ import edu.ie3.datamodel.models.input.connector.{
   Transformer3WInput
 }
 import edu.ie3.datamodel.models.input.system.{FixedFeedInInput, LoadInput}
+import edu.ie3.datamodel.models.result.NodeResult
 import edu.ie3.simbench.exception.CodeValidationException
 import edu.ie3.simbench.io.{Downloader, SimbenchReader, Zipper}
 import edu.ie3.simbench.model.SimbenchCode
@@ -176,10 +177,6 @@ object Converter {
         simBenchModel.measurements,
         ctx.self
       )
-
-      /* TODO:
-       *  1) Issue all other conversions (power flow results, ...) in parallel
-       */
       Behaviors.same
     case (
         ctx,
@@ -216,14 +213,22 @@ object Converter {
       )
       converting(stateData, simBenchModel, gridConverter, updatedAwaitedResults)
 
-    case (ctx, FilteredNodes(nodes)) =>
+    case (ctx, FilteredNodes(updatedNodeConversion)) =>
       ctx.log.debug(
         s"Received nodes, that are filtered for non-islanded nodes in '${stateData.simBenchCode}'."
       )
       val updatedAwaitingResults = awaitedResults.copy(
-        nodes = Some(nodes.values.toSeq.distinct.toVector),
-        nodeConversion = Some(nodes)
+        nodes = Some(updatedNodeConversion.values.toSeq.distinct.toVector),
+        nodeConversion = Some(updatedNodeConversion)
       )
+
+      gridConverter ! GridConverter
+        .ConvertNodeResults(
+          stateData.simBenchCode,
+          updatedNodeConversion,
+          simBenchModel.nodePFResults,
+          ctx.self
+        )
 
       //TODO: Issue conversion of participants that then also respect for islanded nodes
 
@@ -233,6 +238,13 @@ object Converter {
         gridConverter,
         updatedAwaitingResults
       )
+    case (ctx, NodeResultsConverted(nodeResults)) =>
+      ctx.log.debug(
+        s"Received converted node results for '${stateData.simBenchCode}'."
+      )
+      val updatedAwaitedResults =
+        awaitedResults.copy(nodeResults = Some(nodeResults))
+      converting(stateData, simBenchModel, gridConverter, updatedAwaitedResults)
   }
 
   // TODO: Terminate mutator and await it's termination [[MutatorTerminated]] when terminating this actor
@@ -336,6 +348,7 @@ object Converter {
   final case class AwaitedResults(
       nodes: Option[Vector[NodeInput]],
       nodeConversion: Option[Map[Node, NodeInput]],
+      nodeResults: Option[Vector[NodeResult]],
       lines: Option[Vector[LineInput]],
       transformers2w: Option[Vector[Transformer2WInput]],
       transformers3w: Option[Vector[Transformer3WInput]],
@@ -348,6 +361,7 @@ object Converter {
   object AwaitedResults {
     def empty =
       new AwaitedResults(
+        None,
         None,
         None,
         None,
@@ -421,5 +435,13 @@ object Converter {
     * @param nodes Non-islanded nodes
     */
   final case class FilteredNodes(nodes: Map[Node, NodeInput])
+      extends ConverterMessage
+
+  /**
+    * Feedback, about converted node results
+    *
+    * @param nodeResults Converted node results
+    */
+  final case class NodeResultsConverted(nodeResults: Vector[NodeResult])
       extends ConverterMessage
 }
