@@ -17,6 +17,7 @@ import edu.ie3.simbench.model.SimbenchCode
 import edu.ie3.simbench.model.datamodel.{GridModel, Node}
 
 import java.nio.file.Path
+import java.util.UUID
 
 object Converter {
   def apply(): Behaviors.Receive[ConverterMessage] = uninitialized
@@ -188,6 +189,7 @@ object Converter {
         stateData.simBenchCode,
         stateData.amountOfWorkers,
         simBenchModel.resProfiles,
+        stateData.mutator,
         ctx.self
       )
 
@@ -334,8 +336,8 @@ object Converter {
       transformers3w: Option[Vector[Transformer3WInput]],
       switches: Option[Vector[SwitchInput]],
       measurements: Option[Vector[MeasurementUnitInput]],
-      res: Option[Vector[FixedFeedInInput]],
-      powerPlants: Option[Vector[FixedFeedInInput]]
+      res: Option[Map[FixedFeedInInput, UUID]],
+      powerPlants: Option[Map[FixedFeedInInput, UUID]]
   )
   object AwaitedResults {
     def empty =
@@ -416,6 +418,6 @@ object Converter {
       replyTo: ActorRef[ResConverter.ResConverterMessage]
   ) extends ConverterMessage
 
-  final case class ResConverted(converted: Vector[FixedFeedInInput])
+  final case class ResConverted(converted: Map[FixedFeedInInput, UUID])
       extends ConverterMessage
 }

@@ -6,8 +6,6 @@ import edu.ie3.datamodel.models.OperationTime
 import edu.ie3.datamodel.models.input.system.FixedFeedInInput
 import edu.ie3.datamodel.models.input.system.characteristic.CosPhiFixed
 import edu.ie3.datamodel.models.input.{NodeInput, OperatorInput}
-import edu.ie3.datamodel.models.timeseries.individual.IndividualTimeSeries
-import edu.ie3.datamodel.models.value.PValue
 import edu.ie3.simbench.convert.profiles.PowerProfileConverter
 import edu.ie3.simbench.convert.{NodeConverter, ShuntConverter}
 import edu.ie3.simbench.model.datamodel.profiles.{ResProfile, ResProfileType}
@@ -26,7 +24,10 @@ case object ResConverter extends ShuntConverter {
 
   def uninitialized: Behaviors.Receive[ResConverterMessage] =
     Behaviors.receive {
-      case (ctx, Init(simBenchCode, amountOfWorkers, profiles, converter)) =>
+      case (
+          ctx,
+          Init(simBenchCode, amountOfWorkers, profiles, mutator, converter)
+          ) =>
         /* Prepare information */
         val typeToProfile =
           profiles.map(profile => profile.profileType -> profile).toMap
@@ -38,6 +39,11 @@ case object ResConverter extends ShuntConverter {
               .supervise(ResConverter.Worker())
               .onFailure(SupervisorStrategy.restart)
           }
+          /* Allow broadcast messages to init all workers */
+          .withBroadcastPredicate {
+            case _: Worker.Init => true
+            case _              => false
+          }
           .withRoundRobinRouting()
         val workerPoolProxy =
           ctx.spawn(
@@ -45,6 +51,7 @@ case object ResConverter extends ShuntConverter {
             s"ResConverterWorkerPool_$simBenchCode"
           )
 
+        workerPoolProxy ! Worker.Init(mutator)
         converter ! Converter.ResConverterReady(ctx.self)
 
         idle(typeToProfile, workerPoolProxy)
@@ -64,18 +71,18 @@ case object ResConverter extends ShuntConverter {
         workerPool ! Worker.Convert(plant, node, profile, ctx.self)
         (plant.id, plant.node.getKey)
       }
-      converting(activeConversions, Vector.empty, workerPool, converter)
+      converting(activeConversions, Map.empty, workerPool, converter)
   }
 
   def converting(
       activeConversions: Vector[(String, Node.NodeKey)],
-      converted: Vector[FixedFeedInInput],
+      converted: Map[FixedFeedInInput, UUID],
       workerPool: ActorRef[Worker.WorkerMessage],
       converter: ActorRef[Converter.ConverterMessage]
   ): Behaviors.Receive[ResConverterMessage] = Behaviors.receive {
-    case (ctx, Converted(id, node, fixedFeedInInput)) =>
+    case (ctx, Converted(id, node, fixedFeedInInput, timeSeriesUuid)) =>
       val remainingConversions = activeConversions.filterNot(_ == (id, node))
-      val updatedConverted = converted :+ fixedFeedInInput
+      val updatedConverted = converted + (fixedFeedInInput -> timeSeriesUuid)
       ctx.log.debug(
         s"Model '$id' at node '$node' is converted. ${remainingConversions.size} active conversions remaining."
       )
@@ -94,13 +101,15 @@ case object ResConverter extends ShuntConverter {
       simBenchCode: String,
       amountOfWorkers: Int,
       profiles: Vector[ResProfile],
+      mutator: ActorRef[Mutator.MutatorMessage],
       replyTo: ActorRef[Converter.ConverterMessage]
   ) extends ResConverterMessage
 
   final case class Converted(
       id: String,
       node: Node.NodeKey,
-      fixedFeedInInput: FixedFeedInInput
+      fixedFeedInInput: FixedFeedInInput,
+      timeSeriesUuid: UUID
   ) extends ResConverterMessage
 
   /**
@@ -119,64 +128,91 @@ case object ResConverter extends ShuntConverter {
   ) extends ResConverterMessage
 
   object Worker {
-    def apply(): Behaviors.Receive[WorkerMessage] = idle
-    def idle: Behaviors.Receive[WorkerMessage] = Behaviors.receive {
-      case (ctx, _) => Behaviors.same
+    def apply(): Behaviors.Receive[WorkerMessage] = uninitialized
+
+    def uninitialized: Behaviors.Receive[WorkerMessage] = Behaviors.receive {
+      case (_, Init(mutator)) =>
+        idle(mutator)
+    }
+
+    def idle(
+        mutator: ActorRef[Mutator.MutatorMessage],
+        awaitTimeSeriesPersistence: Map[
+          UUID,
+          (
+              String,
+              Node.NodeKey,
+              FixedFeedInInput,
+              ActorRef[ResConverterMessage]
+          )
+        ] = Map.empty
+    ): Behaviors.Receive[WorkerMessage] = Behaviors.receive {
+      case (ctx, Convert(res, node, profile, replyTo)) =>
+        Behaviors.same
+        ctx.log.debug(
+          s"Got request to convert RES '${res.id} at node '${res.node.getKey} / ${node.getUuid}'."
+        )
+
+        val model = convertModel(res, node)
+        /* Flip the sign, as infeed is negative in PowerSystemDataModel */
+        val timeSeries = PowerProfileConverter.convert(
+          profile,
+          Quantities.getQuantity(res.p, MEGAWATT).multiply(-1)
+        )
+
+        mutator ! Mutator.PersistTimeSeries(timeSeries)
+        val updatedAwaitedTimeSeriesPersistence = awaitTimeSeriesPersistence + (timeSeries.getUuid -> (res.id, res.node.getKey, model, replyTo))
+        idle(mutator, updatedAwaitedTimeSeriesPersistence)
+
+      case (ctx, TimeSeriesPersisted(uuid)) =>
+        ctx.log.debug(s"Time series '$uuid' is fully persisted.")
+        awaitTimeSeriesPersistence.get(uuid) match {
+          case Some((id, nodeKey, model, replyTo)) =>
+            val remainingPersistence =
+              awaitTimeSeriesPersistence.filterNot(_._1 == uuid)
+
+            replyTo ! ResConverter.Converted(id, nodeKey, model, uuid)
+
+            idle(mutator, remainingPersistence)
+          case None =>
+            ctx.log.warn(
+              s"Got informed, that the time series with uuid '$uuid' is persisted. But I didn't expect that to happen."
+            )
+            Behaviors.same
+        }
     }
 
     sealed trait WorkerMessage
+    final case class Init(mutator: ActorRef[Mutator.MutatorMessage])
+        extends WorkerMessage
     final case class Convert(
         res: RES,
         node: NodeInput,
         profile: ResProfile,
         replyTo: ActorRef[ResConverterMessage]
     ) extends WorkerMessage
-
-    /**
-      * Convert a full set of renewable energy source system
-      *
-      * @param res      Input models to convert
-      * @param nodes    Mapping from Simbench to power system data model node
-      * @param profiles Collection of [[ResProfile]]s
-      * @return A mapping from converted renewable energy source system to equivalent individual time series
-      */
-    def convert(
-        res: Vector[RES],
-        nodes: Map[Node, NodeInput],
-        profiles: Map[ResProfileType, ResProfile]
-    ): Map[FixedFeedInInput, IndividualTimeSeries[PValue]] =
-      res.map { plant =>
-        val node = NodeConverter.getNode(plant.node, nodes)
-        val profile =
-          PowerProfileConverter.getProfile(plant.profile, profiles)
-        convert(plant, node, profile)
-      }.toMap
+    final case class TimeSeriesPersisted(uuid: UUID) extends WorkerMessage
 
     /**
       * Converts a single renewable energy source system to a fixed feed in model due to lacking information to
-      * sophistically guess typical types of assets. Different voltage regulation strategies are not covered, yet.
+      * sophistical guess typical types of assets. Different voltage regulation strategies are not covered, yet.
       *
       * @param input   Input model
       * @param node    Node, the renewable energy source system is connected to
-      * @param profile SimBench renewable energy source system profile
       * @param uuid    Option to a specific uuid
       * @return A pair of [[FixedFeedInInput]] and matching active power time series
       */
-    def convert(
+    def convertModel(
         input: RES,
         node: NodeInput,
-        profile: ResProfile,
         uuid: Option[UUID] = None
-    ): (FixedFeedInInput, IndividualTimeSeries[PValue]) = {
+    ): FixedFeedInInput = {
       val p = Quantities.getQuantity(input.p, MEGAWATT)
       val q = Quantities.getQuantity(input.q, MEGAVAR)
       val cosphi = cosPhi(p.getValue.doubleValue(), q.getValue.doubleValue())
       val varCharacteristicString =
         "cosPhiFixed:{(0.0,%#.2f)}".formatLocal(Locale.ENGLISH, cosphi)
       val sRated = Quantities.getQuantity(input.sR, MEGAVOLTAMPERE)
-
-      /* Flip the sign, as infeed is negative in PowerSystemDataModel */
-      val timeSeries = PowerProfileConverter.convert(profile, p.multiply(-1))
 
       new FixedFeedInInput(
         uuid.getOrElse(UUID.randomUUID()),
@@ -187,7 +223,7 @@ case object ResConverter extends ShuntConverter {
         new CosPhiFixed(varCharacteristicString),
         sRated,
         cosphi
-      ) -> timeSeries
+      )
     }
   }
 }

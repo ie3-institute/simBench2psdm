@@ -8,6 +8,7 @@ import edu.ie3.datamodel.io.naming.{
   FileNamingStrategy
 }
 import edu.ie3.datamodel.io.sink.CsvFileSink
+import edu.ie3.datamodel.models.timeseries.individual.IndividualTimeSeries
 import edu.ie3.simbench.io.IoUtils
 import edu.ie3.util.io.FileIOUtils
 import org.apache.commons.io.FilenameUtils
@@ -72,6 +73,13 @@ object Mutator {
       compress: Boolean
   ): Behaviors.Receive[MutatorMessage] =
     Behaviors.receive {
+      case (ctx, PersistTimeSeries(timeSeries)) =>
+        ctx.log.debug(
+          s"Got request to persist time series '${timeSeries.getUuid}'."
+        )
+        sink.persistTimeSeries(timeSeries)
+        Behaviors.same
+
       case (ctx, Terminate) =>
         ctx.log.debug("Got termination request")
 
@@ -111,6 +119,9 @@ object Mutator {
       compress: Boolean,
       replyTo: ActorRef[Converter.ConverterMessage]
   ) extends MutatorMessage
+
+  final case class PersistTimeSeries(timeSeries: IndividualTimeSeries[_])
+      extends MutatorMessage
 
   object Terminate extends MutatorMessage
 }
