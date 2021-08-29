@@ -19,10 +19,12 @@ import tech.units.indriya.quantity.Quantities
 
 import java.util.{Locale, UUID}
 
-case object ResConverter extends ShuntConverter {
-  def apply(): Behaviors.Receive[ResConverterMessage] = uninitialized
+case object ResConverter
+    extends ShuntConverter
+    with ShuntConverterMessageSupport[RES, ResProfile, FixedFeedInInput] {
+  def apply(): Behaviors.Receive[ShuntConverterMessage] = uninitialized
 
-  def uninitialized: Behaviors.Receive[ResConverterMessage] =
+  def uninitialized: Behaviors.Receive[ShuntConverterMessage] =
     Behaviors.receive {
       case (
           ctx,
@@ -60,7 +62,7 @@ case object ResConverter extends ShuntConverter {
   def idle(
       typeToProfile: Map[ResProfileType, ResProfile],
       workerPool: ActorRef[WorkerMessage]
-  ): Behaviors.Receive[ResConverterMessage] = Behaviors.receive {
+  ): Behaviors.Receive[ShuntConverterMessage] = Behaviors.receive {
     case (ctx, Convert(simBenchCode, res, nodes, converter)) =>
       ctx.log.debug(s"Got request to convert res from '$simBenchCode'.")
       val activeConversions = res.map { plant =>
@@ -79,7 +81,7 @@ case object ResConverter extends ShuntConverter {
       converted: Map[FixedFeedInInput, UUID],
       workerPool: ActorRef[WorkerMessage],
       converter: ActorRef[Converter.ConverterMessage]
-  ): Behaviors.Receive[ResConverterMessage] = Behaviors.receive {
+  ): Behaviors.Receive[ShuntConverterMessage] = Behaviors.receive {
     case (ctx, Converted(id, node, fixedFeedInInput, timeSeriesUuid)) =>
       val remainingConversions = activeConversions.filterNot(_ == (id, node))
       val updatedConverted = converted + (fixedFeedInInput -> timeSeriesUuid)
@@ -95,37 +97,30 @@ case object ResConverter extends ShuntConverter {
       converting(remainingConversions, updatedConverted, workerPool, converter)
   }
 
-  sealed trait ResConverterMessage
-
   final case class Init(
       simBenchCode: String,
       amountOfWorkers: Int,
       profiles: Vector[ResProfile],
       mutator: ActorRef[Mutator.MutatorMessage],
       replyTo: ActorRef[Converter.ConverterMessage]
-  ) extends ResConverterMessage
+  ) extends super.Init
+
+  /**
+    * Request to convert all given models
+    */
+  final case class Convert(
+      simBenchCode: String,
+      inputs: Vector[RES],
+      nodes: Map[Node, NodeInput],
+      replyTo: ActorRef[Converter.ConverterMessage]
+  ) extends super.Convert
 
   final case class Converted(
       id: String,
       node: Node.NodeKey,
-      fixedFeedInInput: FixedFeedInInput,
+      model: FixedFeedInInput,
       timeSeriesUuid: UUID
-  ) extends ResConverterMessage
-
-  /**
-    * Request to convert all given RES
-    *
-    * @param simBenchCode Code of the referencing model
-    * @param res          Input models to convert
-    * @param nodes        Mapping from SimBench to power system data model node
-    * @param replyTo      Converter to report to
-    */
-  final case class Convert(
-      simBenchCode: String,
-      res: Vector[RES],
-      nodes: Map[Node, NodeInput],
-      replyTo: ActorRef[Converter.ConverterMessage]
-  ) extends ResConverterMessage
+  ) extends super.Converted
 
   object Worker {
     def apply(): Behaviors.Receive[WorkerMessage] = uninitialized
@@ -143,7 +138,7 @@ case object ResConverter extends ShuntConverter {
               String,
               Node.NodeKey,
               FixedFeedInInput,
-              ActorRef[ResConverterMessage]
+              ActorRef[ShuntConverterMessage]
           )
         ] = Map.empty
     ): Behaviors.Receive[WorkerMessage] = Behaviors.receive {
@@ -194,8 +189,8 @@ case object ResConverter extends ShuntConverter {
         override val model: RES,
         override val node: NodeInput,
         override val profile: ResProfile,
-        override val replyTo: ActorRef[ResConverterMessage]
-    ) extends WorkerMessage.Convert[RES, ResProfile]
+        override val replyTo: ActorRef[ShuntConverterMessage]
+    ) extends WorkerMessage.Convert[RES, ResProfile, ShuntConverterMessage]
 
     /**
       * Converts a single renewable energy source system to a fixed feed in model due to lacking information to

@@ -622,7 +622,7 @@ object Converter {
   ) extends ConverterMessage
 
   final case class ResConverterReady(
-      replyTo: ActorRef[ResConverter.ResConverterMessage]
+      replyTo: ActorRef[ResConverter.ShuntConverterMessage]
   ) extends ConverterMessage
 
   final case class ResConverted(converted: Map[FixedFeedInInput, UUID])
