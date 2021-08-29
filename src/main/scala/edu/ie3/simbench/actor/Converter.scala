@@ -189,36 +189,48 @@ object Converter {
       ctx.log.info(
         s"${stateData.simBenchCode} - Starting conversion of participant models"
       )
-      val loadConverter =
-        ctx.spawn(LoadConverter(), s"loadConverter_${stateData.simBenchCode}")
-      loadConverter ! LoadConverter.Init(
-        stateData.simBenchCode,
-        stateData.amountOfWorkers,
-        simBenchModel.loadProfiles,
-        stateData.mutator,
-        ctx.self
-      )
-      val resConverter =
-        ctx.spawn(ResConverter(), s"resConverter_${stateData.simBenchCode}")
-      resConverter ! ResConverter.Init(
-        stateData.simBenchCode,
-        stateData.amountOfWorkers,
-        simBenchModel.resProfiles,
-        stateData.mutator,
-        ctx.self
-      )
-      val powerPlantConverter =
-        ctx.spawn(
-          PowerPlantConverter(),
-          s"powerPlantConverter_${stateData.simBenchCode}"
+      if (simBenchModel.loads.nonEmpty) {
+        val loadConverter =
+          ctx.spawn(LoadConverter(), s"loadConverter_${stateData.simBenchCode}")
+        loadConverter ! LoadConverter.Init(
+          stateData.simBenchCode,
+          stateData.amountOfWorkers,
+          simBenchModel.loadProfiles,
+          stateData.mutator,
+          ctx.self
         )
-      powerPlantConverter ! PowerPlantConverter.Init(
-        stateData.simBenchCode,
-        stateData.amountOfWorkers,
-        simBenchModel.powerPlantProfiles,
-        stateData.mutator,
-        ctx.self
-      )
+      } else {
+        ctx.self ! LoadsConverted(Map.empty[LoadInput, UUID])
+      }
+      if (simBenchModel.res.nonEmpty) {
+        val resConverter =
+          ctx.spawn(ResConverter(), s"resConverter_${stateData.simBenchCode}")
+        resConverter ! ResConverter.Init(
+          stateData.simBenchCode,
+          stateData.amountOfWorkers,
+          simBenchModel.resProfiles,
+          stateData.mutator,
+          ctx.self
+        )
+      } else {
+        ctx.self ! ResConverted(Map.empty[FixedFeedInInput, UUID])
+      }
+      if (simBenchModel.powerPlants.nonEmpty) {
+        val powerPlantConverter =
+          ctx.spawn(
+            PowerPlantConverter(),
+            s"powerPlantConverter_${stateData.simBenchCode}"
+          )
+        powerPlantConverter ! PowerPlantConverter.Init(
+          stateData.simBenchCode,
+          stateData.amountOfWorkers,
+          simBenchModel.powerPlantProfiles,
+          stateData.mutator,
+          ctx.self
+        )
+      } else {
+        ctx.self ! PowerPlantsConverted(Map.empty[FixedFeedInInput, UUID])
+      }
 
       converting(
         stateData,
