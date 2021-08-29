@@ -32,7 +32,6 @@ import edu.ie3.datamodel.models.input.system.{
   LoadInput,
   PvInput,
   StorageInput,
-  SystemParticipantInput,
   WecInput
 }
 import edu.ie3.datamodel.models.result.NodeResult
@@ -42,7 +41,6 @@ import edu.ie3.util.io.FileIOUtils
 import org.apache.commons.io.FilenameUtils
 
 import java.nio.file.Paths
-import java.util
 import java.util.UUID
 import scala.concurrent.Await
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -109,7 +107,7 @@ object Mutator {
           s"Got request to persist time series '${timeSeries.getUuid}'."
         )
         sink.persistTimeSeries(timeSeries)
-        replyTo ! ResConverter.Worker.TimeSeriesPersisted(timeSeries.getUuid)
+        replyTo ! WorkerMessage.TimeSeriesPersisted(timeSeries.getUuid)
         Behaviors.same
 
       case (
@@ -248,7 +246,7 @@ object Mutator {
 
   final case class PersistTimeSeries(
       timeSeries: IndividualTimeSeries[_],
-      replyTo: ActorRef[ResConverter.Worker.WorkerMessage]
+      replyTo: ActorRef[WorkerMessage]
   ) extends MutatorMessage
 
   object Terminate extends MutatorMessage

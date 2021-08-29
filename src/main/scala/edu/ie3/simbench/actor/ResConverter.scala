@@ -41,8 +41,8 @@ case object ResConverter extends ShuntConverter {
           }
           /* Allow broadcast messages to init all workers */
           .withBroadcastPredicate {
-            case _: Worker.Init => true
-            case _              => false
+            case _: WorkerMessage.Init => true
+            case _                     => false
           }
           .withRoundRobinRouting()
         val workerPoolProxy =
@@ -51,7 +51,7 @@ case object ResConverter extends ShuntConverter {
             s"ResConverterWorkerPool_$simBenchCode"
           )
 
-        workerPoolProxy ! Worker.Init(mutator)
+        workerPoolProxy ! WorkerMessage.Init(mutator)
         converter ! Converter.ResConverterReady(ctx.self)
 
         idle(typeToProfile, workerPoolProxy)
@@ -59,7 +59,7 @@ case object ResConverter extends ShuntConverter {
 
   def idle(
       typeToProfile: Map[ResProfileType, ResProfile],
-      workerPool: ActorRef[ResConverter.Worker.WorkerMessage]
+      workerPool: ActorRef[WorkerMessage]
   ): Behaviors.Receive[ResConverterMessage] = Behaviors.receive {
     case (ctx, Convert(simBenchCode, res, nodes, converter)) =>
       ctx.log.debug(s"Got request to convert res from '$simBenchCode'.")
@@ -77,7 +77,7 @@ case object ResConverter extends ShuntConverter {
   def converting(
       activeConversions: Vector[(String, Node.NodeKey)],
       converted: Map[FixedFeedInInput, UUID],
-      workerPool: ActorRef[Worker.WorkerMessage],
+      workerPool: ActorRef[WorkerMessage],
       converter: ActorRef[Converter.ConverterMessage]
   ): Behaviors.Receive[ResConverterMessage] = Behaviors.receive {
     case (ctx, Converted(id, node, fixedFeedInInput, timeSeriesUuid)) =>
@@ -131,7 +131,7 @@ case object ResConverter extends ShuntConverter {
     def apply(): Behaviors.Receive[WorkerMessage] = uninitialized
 
     def uninitialized: Behaviors.Receive[WorkerMessage] = Behaviors.receive {
-      case (_, Init(mutator)) =>
+      case (_, WorkerMessage.Init(mutator)) =>
         idle(mutator)
     }
 
@@ -164,7 +164,7 @@ case object ResConverter extends ShuntConverter {
         val updatedAwaitedTimeSeriesPersistence = awaitTimeSeriesPersistence + (timeSeries.getUuid -> (res.id, res.node.getKey, model, replyTo))
         idle(mutator, updatedAwaitedTimeSeriesPersistence)
 
-      case (ctx, TimeSeriesPersisted(uuid)) =>
+      case (ctx, WorkerMessage.TimeSeriesPersisted(uuid)) =>
         ctx.log.debug(s"Time series '$uuid' is fully persisted.")
         awaitTimeSeriesPersistence.get(uuid) match {
           case Some((id, nodeKey, model, replyTo)) =>
@@ -182,16 +182,20 @@ case object ResConverter extends ShuntConverter {
         }
     }
 
-    sealed trait WorkerMessage
-    final case class Init(mutator: ActorRef[Mutator.MutatorMessage])
-        extends WorkerMessage
+    /**
+      * Override the abstract Request message with parameters, that suit your needs.
+      *
+      * @param model    Model itself
+      * @param node     Node, the converted model will be connected to
+      * @param profile  The profile, that belongs to the model
+      * @param replyTo  Address to reply to
+      */
     final case class Convert(
-        res: RES,
-        node: NodeInput,
-        profile: ResProfile,
-        replyTo: ActorRef[ResConverterMessage]
-    ) extends WorkerMessage
-    final case class TimeSeriesPersisted(uuid: UUID) extends WorkerMessage
+        override val model: RES,
+        override val node: NodeInput,
+        override val profile: ResProfile,
+        override val replyTo: ActorRef[ResConverterMessage]
+    ) extends WorkerMessage.Convert[RES, ResProfile]
 
     /**
       * Converts a single renewable energy source system to a fixed feed in model due to lacking information to
