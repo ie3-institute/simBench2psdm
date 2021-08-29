@@ -207,8 +207,19 @@ object Converter {
         stateData.mutator,
         ctx.self
       )
+      val powerPlantConverter =
+        ctx.spawn(
+          PowerPlantConverter(),
+          s"powerPlantConverter_${stateData.simBenchCode}"
+        )
+      powerPlantConverter ! PowerPlantConverter.Init(
+        stateData.simBenchCode,
+        stateData.amountOfWorkers,
+        simBenchModel.powerPlantProfiles,
+        stateData.mutator,
+        ctx.self
+      )
 
-      // TODO: Issue conversion of participants that then also respect for islanded nodes
       converting(
         stateData,
         simBenchModel,
@@ -248,6 +259,18 @@ object Converter {
       )
       Behaviors.same
 
+    case (ctx, PowerPlantConverterReady(powerPlantConverter)) =>
+      ctx.log.debug(
+        s"${stateData.simBenchCode} - PowerPlantConverter is ready. Request conversion."
+      )
+      powerPlantConverter ! PowerPlantConverter.Convert(
+        stateData.simBenchCode,
+        simBenchModel.powerPlants,
+        awaitedResults.nodeConversion.getOrElse(Map.empty),
+        ctx.self
+      )
+      Behaviors.same
+
     case (ctx, LoadsConverted(converted)) =>
       ctx.log.info(
         s"${stateData.simBenchCode} - All loads are converted."
@@ -276,6 +299,30 @@ object Converter {
         s"${stateData.simBenchCode} - All RES are converted."
       )
       val updatedAwaitedResults = awaitedResults.copy(res = Some(converted))
+
+      if (updatedAwaitedResults.isReady)
+        finalizeConversion(
+          stateData.simBenchCode,
+          updatedAwaitedResults,
+          stateData.mutator,
+          stateData.coordinator,
+          ctx.self,
+          ctx.log
+        )
+      else
+        converting(
+          stateData,
+          simBenchModel,
+          gridConverter,
+          updatedAwaitedResults
+        )
+
+    case (ctx, PowerPlantsConverted(converted)) =>
+      ctx.log.info(
+        s"${stateData.simBenchCode} - All power plants are converted."
+      )
+      val updatedAwaitedResults =
+        awaitedResults.copy(powerPlants = Some(converted))
 
       if (updatedAwaitedResults.isReady)
         finalizeConversion(
@@ -585,8 +632,8 @@ object Converter {
         switches,
         measurements,
         loads,
-        res
-        //powerPlants TODO
+        res,
+        powerPlants
       ).forall(_.nonEmpty)
   }
   object AwaitedResults {
@@ -668,14 +715,22 @@ object Converter {
   final case class ResConverterReady(
       replyTo: ActorRef[ResConverter.ShuntConverterMessage]
   ) extends ConverterMessage
+
   final case class LoadConverterReady(
       replyTo: ActorRef[LoadConverter.ShuntConverterMessage]
+  ) extends ConverterMessage
+
+  final case class PowerPlantConverterReady(
+      replyTo: ActorRef[PowerPlantConverter.ShuntConverterMessage]
   ) extends ConverterMessage
 
   final case class ResConverted(converted: Map[FixedFeedInInput, UUID])
       extends ConverterMessage
 
   final case class LoadsConverted(converted: Map[LoadInput, UUID])
+      extends ConverterMessage
+
+  final case class PowerPlantsConverted(converted: Map[FixedFeedInInput, UUID])
       extends ConverterMessage
 
   object GridStructurePersisted extends ConverterMessage

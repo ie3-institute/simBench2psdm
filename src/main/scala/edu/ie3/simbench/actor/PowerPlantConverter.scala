@@ -3,16 +3,17 @@ package edu.ie3.simbench.actor
 import akka.actor.typed.{ActorRef, SupervisorStrategy}
 import akka.actor.typed.scaladsl.{Behaviors, Routers}
 import edu.ie3.datamodel.models.OperationTime
-import edu.ie3.datamodel.models.StandardLoadProfile.DefaultLoadProfiles
-import edu.ie3.datamodel.models.input.system.LoadInput
+import edu.ie3.datamodel.models.input.system.FixedFeedInInput
 import edu.ie3.datamodel.models.input.system.characteristic.CosPhiFixed
 import edu.ie3.datamodel.models.input.{NodeInput, OperatorInput}
 import edu.ie3.simbench.convert.profiles.PowerProfileConverter
 import edu.ie3.simbench.convert.{NodeConverter, ShuntConverter}
-import edu.ie3.simbench.model.datamodel.profiles.{LoadProfile, LoadProfileType}
-import edu.ie3.simbench.model.datamodel.{Load, Node}
+import edu.ie3.simbench.model.datamodel.profiles.{
+  PowerPlantProfile,
+  PowerPlantProfileType
+}
+import edu.ie3.simbench.model.datamodel.{Node, PowerPlant}
 import edu.ie3.util.quantities.PowerSystemUnits.{
-  KILOWATTHOUR,
   MEGAVAR,
   MEGAVOLTAMPERE,
   MEGAWATT
@@ -21,9 +22,13 @@ import tech.units.indriya.quantity.Quantities
 
 import java.util.{Locale, UUID}
 
-case object LoadConverter
+case object PowerPlantConverter
     extends ShuntConverter
-    with ShuntConverterMessageSupport[Load, LoadProfile, LoadInput] {
+    with ShuntConverterMessageSupport[
+      PowerPlant,
+      PowerPlantProfile,
+      FixedFeedInInput
+    ] {
   def apply(): Behaviors.Receive[ShuntConverterMessage] = uninitialized
 
   def uninitialized: Behaviors.Receive[ShuntConverterMessage] =
@@ -40,7 +45,7 @@ case object LoadConverter
         val workerPool = Routers
           .pool(poolSize = amountOfWorkers) {
             Behaviors
-              .supervise(LoadConverter.Worker())
+              .supervise(PowerPlantConverter.Worker())
               .onFailure(SupervisorStrategy.restart)
           }
           /* Allow broadcast messages to init all workers */
@@ -52,21 +57,23 @@ case object LoadConverter
         val workerPoolProxy =
           ctx.spawn(
             workerPool,
-            s"LoadConverterWorkerPool_$simBenchCode"
+            s"PowerPlantConverterWorkerPool_$simBenchCode"
           )
 
         workerPoolProxy ! WorkerMessage.Init(mutator)
-        converter ! Converter.LoadConverterReady(ctx.self)
+        converter ! Converter.PowerPlantConverterReady(ctx.self)
 
         idle(typeToProfile, workerPoolProxy)
     }
 
   def idle(
-      typeToProfile: Map[LoadProfileType, LoadProfile],
+      typeToProfile: Map[PowerPlantProfileType, PowerPlantProfile],
       workerPool: ActorRef[WorkerMessage]
   ): Behaviors.Receive[ShuntConverterMessage] = Behaviors.receive {
     case (ctx, Convert(simBenchCode, input, nodes, converter)) =>
-      ctx.log.debug(s"Got request to convert loads from '$simBenchCode'.")
+      ctx.log.debug(
+        s"Got request to convert power plants from '$simBenchCode'."
+      )
       val activeConversions = input.map { plant =>
         val node = NodeConverter.getNode(plant.node, nodes)
         val profile =
@@ -80,7 +87,7 @@ case object LoadConverter
 
   def converting(
       activeConversions: Vector[(String, Node.NodeKey)],
-      converted: Map[LoadInput, UUID],
+      converted: Map[FixedFeedInInput, UUID],
       workerPool: ActorRef[WorkerMessage],
       converter: ActorRef[Converter.ConverterMessage]
   ): Behaviors.Receive[ShuntConverterMessage] = Behaviors.receive {
@@ -93,7 +100,7 @@ case object LoadConverter
       /* Stop the children and myself, if all conversions are done. */
       if (remainingConversions.isEmpty) {
         ctx.stop(workerPool)
-        converter ! Converter.LoadsConverted(converted)
+        converter ! Converter.PowerPlantsConverted(converted)
         Behaviors.stopped
       }
       converting(remainingConversions, updatedConverted, workerPool, converter)
@@ -102,7 +109,7 @@ case object LoadConverter
   final case class Init(
       simBenchCode: String,
       amountOfWorkers: Int,
-      profiles: Vector[LoadProfile],
+      profiles: Vector[PowerPlantProfile],
       mutator: ActorRef[Mutator.MutatorMessage],
       replyTo: ActorRef[Converter.ConverterMessage]
   ) extends super.Init
@@ -112,7 +119,7 @@ case object LoadConverter
     */
   final case class Convert(
       simBenchCode: String,
-      inputs: Vector[Load],
+      inputs: Vector[PowerPlant],
       nodes: Map[Node, NodeInput],
       replyTo: ActorRef[Converter.ConverterMessage]
   ) extends super.Convert
@@ -120,7 +127,7 @@ case object LoadConverter
   final case class Converted(
       id: String,
       node: Node.NodeKey,
-      model: LoadInput,
+      model: FixedFeedInInput,
       timeSeriesUuid: UUID
   ) extends super.Converted
 
@@ -139,7 +146,7 @@ case object LoadConverter
           (
               String,
               Node.NodeKey,
-              LoadInput,
+              FixedFeedInInput,
               ActorRef[ShuntConverterMessage]
           )
         ] = Map.empty
@@ -147,15 +154,14 @@ case object LoadConverter
       case (ctx, Convert(input, node, profile, replyTo)) =>
         Behaviors.same
         ctx.log.debug(
-          s"Got request to convert load '${input.id} at node '${input.node.getKey} / ${node.getUuid}'."
+          s"Got request to convert power plant '${input.id} at node '${input.node.getKey} / ${node.getUuid}'."
         )
 
         val model = convertModel(input, node)
 
         val timeSeries = PowerProfileConverter.convert(
           profile,
-          Quantities.getQuantity(input.pLoad, MEGAWATT),
-          Quantities.getQuantity(input.qLoad, MEGAVAR)
+          Quantities.getQuantity(input.p, MEGAWATT).multiply(-1)
         )
 
         mutator ! Mutator.PersistTimeSeries(timeSeries, ctx.self)
@@ -169,7 +175,7 @@ case object LoadConverter
             val remainingPersistence =
               awaitTimeSeriesPersistence.filterNot(_._1 == uuid)
 
-            replyTo ! LoadConverter.Converted(id, nodeKey, model, uuid)
+            replyTo ! PowerPlantConverter.Converted(id, nodeKey, model, uuid)
 
             idle(mutator, remainingPersistence)
           case None =>
@@ -189,42 +195,47 @@ case object LoadConverter
       * @param replyTo  Address to reply to
       */
     final case class Convert(
-        override val model: Load,
+        override val model: PowerPlant,
         override val node: NodeInput,
-        override val profile: LoadProfile,
+        override val profile: PowerPlantProfile,
         override val replyTo: ActorRef[ShuntConverterMessage]
-    ) extends WorkerMessage.Convert[Load, LoadProfile, ShuntConverterMessage]
+    ) extends WorkerMessage.Convert[
+          PowerPlant,
+          PowerPlantProfile,
+          ShuntConverterMessage
+        ]
 
     /**
-      * Converts a load. Different voltage regulation strategies are not covered, yet.
+      * Converts a single power plant system to a fixed feed in model due to lacking information to sophistical guess
+      * typical types of assets. Different voltage regulation strategies are not covered, yet.
       *
       * @param input   Input model
       * @param node    Node, the renewable energy source system is connected to
       * @param uuid    Option to a specific uuid
-      * @return A [[LoadInput]]
+      * @return A [[FixedFeedInInput]]
       */
     def convertModel(
-        input: Load,
+        input: PowerPlant,
         node: NodeInput,
         uuid: Option[UUID] = None
-    ): LoadInput = {
-      val id = input.id
-      val cosphi = cosPhi(input.pLoad, input.qLoad)
+    ): FixedFeedInInput = {
+      val p = Quantities.getQuantity(input.p, MEGAWATT)
+      val q = input.q match {
+        case Some(value) => Quantities.getQuantity(value, MEGAVAR)
+        case None        => Quantities.getQuantity(0d, MEGAVAR)
+      }
+      val cosphi = cosPhi(p.getValue.doubleValue(), q.getValue.doubleValue())
       val varCharacteristicString =
         "cosPhiFixed:{(0.0,%#.2f)}".formatLocal(Locale.ENGLISH, cosphi)
-      val eCons = Quantities.getQuantity(0d, KILOWATTHOUR)
       val sRated = Quantities.getQuantity(input.sR, MEGAVOLTAMPERE)
 
-      new LoadInput(
+      new FixedFeedInInput(
         uuid.getOrElse(UUID.randomUUID()),
-        id,
+        input.id,
         OperatorInput.NO_OPERATOR_ASSIGNED,
         OperationTime.notLimited(),
         node,
         new CosPhiFixed(varCharacteristicString),
-        DefaultLoadProfiles.NO_STANDARD_LOAD_PROFILE,
-        false,
-        eCons,
         sRated,
         cosphi
       )

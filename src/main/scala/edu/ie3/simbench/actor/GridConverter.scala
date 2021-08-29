@@ -3,8 +3,6 @@ package edu.ie3.simbench.actor
 import akka.actor.typed.ActorRef
 import akka.actor.typed.scaladsl.Behaviors
 import com.typesafe.scalalogging.LazyLogging
-import edu.ie3.datamodel.io.source.TimeSeriesMappingSource
-import edu.ie3.datamodel.io.source.TimeSeriesMappingSource.MappingEntry
 import edu.ie3.datamodel.models.input.NodeInput
 import edu.ie3.datamodel.models.input.connector.{
   LineInput,
@@ -12,20 +10,7 @@ import edu.ie3.datamodel.models.input.connector.{
   Transformer2WInput,
   Transformer3WInput
 }
-import edu.ie3.datamodel.models.input.container.{
-  GraphicElements,
-  JointGridContainer,
-  RawGridElements,
-  SystemParticipants
-}
-import edu.ie3.datamodel.models.input.graphics.{
-  LineGraphicInput,
-  NodeGraphicInput
-}
-import edu.ie3.datamodel.models.input.system._
 import edu.ie3.datamodel.models.result.NodeResult
-import edu.ie3.datamodel.models.timeseries.individual.IndividualTimeSeries
-import edu.ie3.datamodel.models.value.{PValue, SValue}
 import edu.ie3.simbench.convert.NodeConverter.AttributeOverride.{
   JoinOverride,
   SubnetOverride
@@ -39,7 +24,6 @@ import edu.ie3.simbench.exception.ConversionException
 import edu.ie3.simbench.model.datamodel._
 import edu.ie3.simbench.model.datamodel.types.LineType
 
-import java.util.UUID
 import scala.annotation.tailrec
 import scala.jdk.CollectionConverters._
 import scala.collection.parallel.CollectionConverters._
@@ -131,122 +115,6 @@ case object GridConverter extends LazyLogging {
       removeSwitches: Boolean = false,
       replyTo: ActorRef[Converter.ConverterMessage]
   ) extends GridConverterMessage
-
-  /* FIXME: ===== From here on, it's plain object code! ===== */
-
-  /**
-    * Converts a full simbench grid into power system data models [[JointGridContainer]]. Additionally, individual time
-    * series for all system participants are delivered as well.
-    *
-    * @param simbenchCode   Simbench code, that is used as identifier for the grid
-    * @param gridInput      Total grid input model to be converted
-    * @param removeSwitches Whether or not to remove switches from the grid structure
-    * @return A converted [[JointGridContainer]], a [[Vector]] of [[IndividualTimeSeries]] as well as a [[Vector]] of [[NodeResult]]s
-    */
-  @deprecated("Use messages instead")
-  def convert(
-      simbenchCode: String,
-      gridInput: GridModel,
-      removeSwitches: Boolean
-  ): (
-      JointGridContainer,
-      Vector[IndividualTimeSeries[_ <: PValue]],
-      Seq[MappingEntry],
-      Vector[NodeResult]
-  ) = {
-    logger.debug(s"Converting raw grid elements of '${gridInput.simbenchCode}'")
-    val (rawGridElements, nodeConversion) =
-      convertGridElements(gridInput, removeSwitches)
-
-    logger.debug(
-      s"Converting system participants and their time series of '${gridInput.simbenchCode}'"
-    )
-    val (systemParticipants, timeSeries, timeSeriesMapping) =
-      convertParticipants(gridInput, nodeConversion)
-
-    logger.debug(
-      s"Converting power flow results of '${gridInput.simbenchCode}'"
-    )
-    val powerFlowResults =
-      convertNodeResults(gridInput.nodePFResults, nodeConversion)
-
-    (
-      new JointGridContainer(
-        simbenchCode,
-        rawGridElements,
-        systemParticipants,
-        new GraphicElements(
-          Set.empty[NodeGraphicInput].asJava,
-          Set.empty[LineGraphicInput].asJava
-        )
-      ),
-      timeSeries,
-      timeSeriesMapping,
-      powerFlowResults
-    )
-  }
-
-  /**
-    * Converts all elements that do form the grid itself.
-    *
-    * @param gridInput      Total grid input model to convert
-    * @param removeSwitches Whether or not to remove switches from the grid structure
-    * @return All grid elements in converted form + a mapping from old to new node models
-    */
-  @deprecated("Use messages instead")
-  def convertGridElements(
-      gridInput: GridModel,
-      removeSwitches: Boolean
-  ): (RawGridElements, Map[Node, NodeInput]) = {
-    val nodeConversion = convertNodes(
-      gridInput.nodes,
-      gridInput.externalNets,
-      gridInput.powerPlants,
-      gridInput.res,
-      gridInput.transformers2w,
-      gridInput.transformers3w,
-      gridInput.lines,
-      gridInput.switches,
-      removeSwitches
-    )
-
-    val lines = convertLines(gridInput.lines, nodeConversion).toSet.asJava
-    val transformers2w =
-      convertTransformers2w(gridInput.transformers2w, nodeConversion).toSet.asJava
-    val transformers3w = Set.empty[Transformer3WInput].asJava /* Currently, no conversion strategy is known */
-    logger.debug(
-      "Creation of three winding transformers is not yet implemented."
-    )
-    val switches =
-      if (!removeSwitches)
-        SwitchConverter.convert(gridInput.switches, nodeConversion).toSet.asJava
-      else
-        Set.empty[SwitchInput].asJava
-    val measurements = MeasurementConverter
-      .convert(gridInput.measurements, nodeConversion)
-      .toSet
-      .asJava
-
-    val connectedNodes = filterIsolatedNodes(
-      nodeConversion,
-      lines,
-      transformers2w,
-      transformers3w,
-      switches
-    )
-
-    (
-      new RawGridElements(
-        connectedNodes.values.toSet.asJava,
-        lines,
-        transformers2w,
-        transformers3w,
-        switches,
-        measurements
-      ),
-      connectedNodes
-    )
-  }
 
   /**
     * Convert the nodes with all needed preliminary steps. This is determination of target subnets, correction of subnet
@@ -673,90 +541,5 @@ case object GridConverter extends LazyLogging {
           )
         connectedNodes
     }
-  }
-
-  /**
-    * Converts all system participants and extracts their individual power time series
-    *
-    * @param gridInput      Total grid input model to convert
-    * @param nodeConversion Already known conversion mapping of nodes
-    * @return A collection of converted system participants and their individual time series
-    */
-  def convertParticipants(
-      gridInput: GridModel,
-      nodeConversion: Map[Node, NodeInput]
-  ): (
-      SystemParticipants,
-      Vector[IndividualTimeSeries[_ <: PValue]],
-      Seq[MappingEntry]
-  ) = {
-    /* Convert all participant groups */
-    logger.debug(
-      s"Participants to convert:\n\tLoads: ${gridInput.loads.size}" +
-        s"\n\tPower Plants: ${gridInput.powerPlants.size}\n\tRES: ${gridInput.res.size}"
-    )
-//    val loadsToTimeSeries = convertLoads(gridInput, nodeConversion)
-//    logger.debug(
-//      s"Done converting ${gridInput.loads.size} loads including time series"
-//    )
-    val powerPlantsToTimeSeries = convertPowerPlants(gridInput, nodeConversion)
-    logger.debug(
-      s"Done converting ${gridInput.powerPlants.size} power plants including time series"
-    )
-//    val resToTimeSeries = convertRes(gridInput, nodeConversion)
-//    logger.debug(
-//      s"Done converting ${gridInput.res.size} RES including time series"
-//    )
-
-    /* Map participant uuid onto time series */
-    val participantsToTimeSeries = powerPlantsToTimeSeries // ++ resToTimeSeries
-    val mapping = participantsToTimeSeries.map {
-      case (model, timeSeries) =>
-        new TimeSeriesMappingSource.MappingEntry(
-          UUID.randomUUID(),
-          model.getUuid,
-          timeSeries.getUuid
-        )
-    }.toSeq
-    val timeSeries: Vector[IndividualTimeSeries[_ >: SValue <: PValue]] =
-      participantsToTimeSeries.values.toVector
-
-    (
-      new SystemParticipants(
-        Set.empty[BmInput].asJava,
-        Set.empty[ChpInput].asJava,
-        Set.empty[EvcsInput].asJava,
-        Set.empty[EvInput].asJava,
-        powerPlantsToTimeSeries.keySet.asJava,
-        Set.empty[HpInput].asJava,
-        Set.empty[LoadInput].asJava,
-        Set.empty[PvInput].asJava,
-        Set.empty[StorageInput].asJava,
-        Set.empty[WecInput].asJava
-      ),
-      timeSeries,
-      mapping
-    )
-  }
-
-  /**
-    * Converting all power plants.
-    *
-    * @param gridInput      Total grid input model to convert
-    * @param nodeConversion Already known conversion mapping of nodes
-    * @return A mapping from power plants to their assigned, specific time series
-    */
-  def convertPowerPlants(
-      gridInput: GridModel,
-      nodeConversion: Map[Node, NodeInput]
-  ): Map[FixedFeedInInput, IndividualTimeSeries[PValue]] = {
-    val powerPlantProfiles = gridInput.powerPlantProfiles
-      .map(profile => profile.profileType -> profile)
-      .toMap
-    PowerPlantConverter.convert(
-      gridInput.powerPlants,
-      nodeConversion,
-      powerPlantProfiles
-    )
   }
 }
