@@ -695,10 +695,10 @@ case object GridConverter extends LazyLogging {
       s"Participants to convert:\n\tLoads: ${gridInput.loads.size}" +
         s"\n\tPower Plants: ${gridInput.powerPlants.size}\n\tRES: ${gridInput.res.size}"
     )
-    val loadsToTimeSeries = convertLoads(gridInput, nodeConversion)
-    logger.debug(
-      s"Done converting ${gridInput.loads.size} loads including time series"
-    )
+//    val loadsToTimeSeries = convertLoads(gridInput, nodeConversion)
+//    logger.debug(
+//      s"Done converting ${gridInput.loads.size} loads including time series"
+//    )
     val powerPlantsToTimeSeries = convertPowerPlants(gridInput, nodeConversion)
     logger.debug(
       s"Done converting ${gridInput.powerPlants.size} power plants including time series"
@@ -709,7 +709,7 @@ case object GridConverter extends LazyLogging {
 //    )
 
     /* Map participant uuid onto time series */
-    val participantsToTimeSeries = loadsToTimeSeries ++ powerPlantsToTimeSeries // ++ resToTimeSeries
+    val participantsToTimeSeries = powerPlantsToTimeSeries // ++ resToTimeSeries
     val mapping = participantsToTimeSeries.map {
       case (model, timeSeries) =>
         new TimeSeriesMappingSource.MappingEntry(
@@ -719,7 +719,7 @@ case object GridConverter extends LazyLogging {
         )
     }.toSeq
     val timeSeries: Vector[IndividualTimeSeries[_ >: SValue <: PValue]] =
-      participantsToTimeSeries.map(_._2).toVector
+      participantsToTimeSeries.values.toVector
 
     (
       new SystemParticipants(
@@ -727,9 +727,9 @@ case object GridConverter extends LazyLogging {
         Set.empty[ChpInput].asJava,
         Set.empty[EvcsInput].asJava,
         Set.empty[EvInput].asJava,
-        (powerPlantsToTimeSeries.keySet).asJava,
+        powerPlantsToTimeSeries.keySet.asJava,
         Set.empty[HpInput].asJava,
-        loadsToTimeSeries.keySet.asJava,
+        Set.empty[LoadInput].asJava,
         Set.empty[PvInput].asJava,
         Set.empty[StorageInput].asJava,
         Set.empty[WecInput].asJava
@@ -737,23 +737,6 @@ case object GridConverter extends LazyLogging {
       timeSeries,
       mapping
     )
-  }
-
-  /**
-    * Converting all loads.
-    *
-    * @param gridInput      Total grid input model to convert
-    * @param nodeConversion Already known conversion mapping of nodes
-    * @return A mapping from loads to their assigned, specific time series
-    */
-  def convertLoads(
-      gridInput: GridModel,
-      nodeConversion: Map[Node, NodeInput]
-  ): Map[LoadInput, IndividualTimeSeries[SValue]] = {
-    val loadProfiles = gridInput.loadProfiles
-      .map(profile => profile.profileType -> profile)
-      .toMap
-    LoadConverter.convert(gridInput.loads, nodeConversion, loadProfiles)
   }
 
   /**

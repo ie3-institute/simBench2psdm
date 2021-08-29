@@ -189,6 +189,15 @@ object Converter {
       ctx.log.info(
         s"${stateData.simBenchCode} - Starting conversion of participant models"
       )
+      val loadConverter =
+        ctx.spawn(LoadConverter(), s"loadConverter_${stateData.simBenchCode}")
+      loadConverter ! LoadConverter.Init(
+        stateData.simBenchCode,
+        stateData.amountOfWorkers,
+        simBenchModel.loadProfiles,
+        stateData.mutator,
+        ctx.self
+      )
       val resConverter =
         ctx.spawn(ResConverter(), s"resConverter_${stateData.simBenchCode}")
       resConverter ! ResConverter.Init(
@@ -215,6 +224,18 @@ object Converter {
         )
       )
 
+    case (ctx, LoadConverterReady(loadConverter)) =>
+      ctx.log.debug(
+        s"${stateData.simBenchCode} - LoadConverter is ready. Request conversion."
+      )
+      loadConverter ! LoadConverter.Convert(
+        stateData.simBenchCode,
+        simBenchModel.loads,
+        awaitedResults.nodeConversion.getOrElse(Map.empty),
+        ctx.self
+      )
+      Behaviors.same
+
     case (ctx, ResConverterReady(resConverter)) =>
       ctx.log.debug(
         s"${stateData.simBenchCode} - ResConverter is ready. Request conversion."
@@ -226,6 +247,29 @@ object Converter {
         ctx.self
       )
       Behaviors.same
+
+    case (ctx, LoadsConverted(converted)) =>
+      ctx.log.info(
+        s"${stateData.simBenchCode} - All loads are converted."
+      )
+      val updatedAwaitedResults = awaitedResults.copy(loads = Some(converted))
+
+      if (updatedAwaitedResults.isReady)
+        finalizeConversion(
+          stateData.simBenchCode,
+          updatedAwaitedResults,
+          stateData.mutator,
+          stateData.coordinator,
+          ctx.self,
+          ctx.log
+        )
+      else
+        converting(
+          stateData,
+          simBenchModel,
+          gridConverter,
+          updatedAwaitedResults
+        )
 
     case (ctx, ResConverted(converted)) =>
       ctx.log.info(
@@ -540,7 +584,7 @@ object Converter {
         transformers3w,
         switches,
         measurements,
-        //loads, TODO
+        loads,
         res
         //powerPlants TODO
       ).forall(_.nonEmpty)
@@ -624,8 +668,14 @@ object Converter {
   final case class ResConverterReady(
       replyTo: ActorRef[ResConverter.ShuntConverterMessage]
   ) extends ConverterMessage
+  final case class LoadConverterReady(
+      replyTo: ActorRef[LoadConverter.ShuntConverterMessage]
+  ) extends ConverterMessage
 
   final case class ResConverted(converted: Map[FixedFeedInInput, UUID])
+      extends ConverterMessage
+
+  final case class LoadsConverted(converted: Map[LoadInput, UUID])
       extends ConverterMessage
 
   object GridStructurePersisted extends ConverterMessage
