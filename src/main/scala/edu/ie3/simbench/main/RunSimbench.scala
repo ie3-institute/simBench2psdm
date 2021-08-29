@@ -26,27 +26,5 @@ object RunSimbench extends SimbenchHelper {
       "Coordinator"
     )
     actorSystem ! Start(simbenchConfig)
-
-//    simbenchConfig.io.simbenchCodes.foreach { simbenchCode =>
-//      logger.info(s"$simbenchCode - Converting to PowerSystemDataModel")
-//      val (
-//        jointGridContainer,
-//        timeSeries,
-//        timeSeriesMapping,
-//        powerFlowResults
-//      ) =
-//        GridConverter.convert(
-//          simbenchCode,
-//          simbenchModel,
-//          simbenchConfig.conversion.removeSwitches
-//        )
-//
-//      logger.info(s"$simbenchCode - Writing converted data set to files")
-//
-//      csvSink.persistJointGrid(jointGridContainer)
-//      timeSeries.foreach(csvSink.persistTimeSeries(_))
-//      csvSink.persistAllIgnoreNested(timeSeriesMapping.asJava)
-//      csvSink.persistAll(powerFlowResults.asJava)
-//    }
   }
 }

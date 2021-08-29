@@ -194,12 +194,6 @@ class GridConverterSpec
             measurements.size shouldBe 0
         }
       }
-      /* TODO: Test amount of converted participants
-     *  4 x FixedFeedInInput
-     *  13 x LoadInput
-     *  17 x Time Series and Mapping
-     *  All participants have a corresponding time series
-     */
     }
   }
 }

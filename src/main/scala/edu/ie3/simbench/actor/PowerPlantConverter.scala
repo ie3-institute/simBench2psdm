@@ -100,7 +100,7 @@ case object PowerPlantConverter
       /* Stop the children and myself, if all conversions are done. */
       if (remainingConversions.isEmpty) {
         ctx.stop(workerPool)
-        converter ! Converter.PowerPlantsConverted(converted)
+        converter ! Converter.PowerPlantsConverted(updatedConverted)
         Behaviors.stopped
       }
       converting(remainingConversions, updatedConverted, workerPool, converter)
