@@ -35,6 +35,10 @@ case object ConfigValidator {
   @throws[SimbenchException]
   private def checkValidity(io: SimbenchConfig.Io): Unit = {
     checkSimbenchCodes(io.simbenchCodes)
+    if (io.output.workers <= 0)
+      throw new SimbenchException(
+        "The amount of output workers has to be positive!"
+      )
   }
 
   /**
