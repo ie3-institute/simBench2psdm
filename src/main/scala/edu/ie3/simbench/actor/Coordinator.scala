@@ -30,7 +30,8 @@ object Coordinator {
             config.io.output.csv.directoryHierarchy,
             config.io.output.targetFolder,
             config.io.output.csv.separator,
-            config.io.output.compress
+            config.io.output.compress,
+            config.io.output.workers
           )
           val initializingConverters = List(firstSimBenchCode)
 
@@ -49,7 +50,8 @@ object Coordinator {
             config.io.output.csv.directoryHierarchy,
             config.io.output.targetFolder,
             config.io.output.csv.separator,
-            config.io.output.compress
+            config.io.output.compress,
+            config.io.output.workers
           )
 
           idle(stateData)
@@ -101,7 +103,8 @@ object Coordinator {
             stateData.useDirectoryHierarchy,
             stateData.targetDirectory,
             stateData.csvColumnSeparator,
-            stateData.compressConverted
+            stateData.compressConverted,
+            stateData.amountOfMutatorWorkers
           )
           val yetInitializingConverters = stateData.initializingConverters :+ nextSimBenchCode
           idle(
@@ -135,7 +138,8 @@ object Coordinator {
       useDirectoryHierarchy: Boolean,
       targetDirectory: String,
       csvColumnSeparator: String,
-      compressConverted: Boolean
+      compressConverted: Boolean,
+      amountOfMutatorWorkers: Int
   ): Unit = {
     val converter = ctx.spawn(Converter(), s"converter_$simBenchCode")
     converter ! Converter.Init(
@@ -152,6 +156,7 @@ object Coordinator {
       targetDirectory,
       csvColumnSeparator,
       compressConverted,
+      amountOfMutatorWorkers,
       ctx.self
     )
   }
@@ -171,7 +176,8 @@ object Coordinator {
       useDirectoryHierarchy: Boolean,
       targetDirectory: String,
       csvColumnSeparator: String,
-      compressConverted: Boolean
+      compressConverted: Boolean,
+      amountOfMutatorWorkers: Int
   )
 
   /** Messages, a coordinator will understand */

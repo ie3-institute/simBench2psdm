@@ -17,7 +17,8 @@ trait ConfigTestData {
   val validIoOutputConfig = new SimbenchConfig.Io.Output(
     false,
     new config.SimbenchConfig.CsvConfig(false, "UTF-8", ".csv", ";"),
-    "convertedData"
+    "convertedData",
+    20
   )
 
   val validIo = new SimbenchConfig.Io(

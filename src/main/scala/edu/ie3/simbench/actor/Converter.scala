@@ -45,6 +45,7 @@ object Converter {
           targetDirectory,
           csvColumnSeparator,
           compress,
+          amountOfMutatorWorkers,
           converter
         )
         ) =>
@@ -57,6 +58,7 @@ object Converter {
         targetDirectory,
         csvColumnSeparator,
         compress,
+        amountOfMutatorWorkers,
         ctx
       )
       initializing(
@@ -429,6 +431,7 @@ object Converter {
       targetDirectory: String,
       csvColumnSeparator: String,
       compress: Boolean,
+      amountOfWorkers: Int,
       ctx: ActorContext[ConverterMessage]
   ): Unit = {
     val mutator = ctx.spawn(Mutator(), s"mutator_$simBenchCode")
@@ -438,6 +441,7 @@ object Converter {
       targetDirectory,
       csvColumnSeparator,
       compress,
+      amountOfWorkers,
       ctx.self
     )
     ctx.watchWith(mutator, MutatorTerminated)
@@ -680,6 +684,7 @@ object Converter {
       targetDirectory: String,
       csvColumnSeparator: String,
       compressConverted: Boolean,
+      amountOfMutatorWorkers: Int,
       replyTo: ActorRef[Coordinator.CoordinatorMessage]
   ) extends ConverterMessage
 
