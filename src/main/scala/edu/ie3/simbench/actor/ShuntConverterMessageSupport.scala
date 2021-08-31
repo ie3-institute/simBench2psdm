@@ -11,13 +11,17 @@ import java.util.UUID
 trait ShuntConverterMessageSupport[I <: ShuntModel, P <: ProfileModel[_, _], R <: SystemParticipantInput] {
   sealed trait ShuntConverterMessage
 
-  protected[actor] abstract class Init extends ShuntConverterMessage {
+  sealed trait Init extends ShuntConverterMessage {
     val simBenchCode: String
     val amountOfWorkers: Int
-    val profiles: Vector[P]
     val mutator: ActorRef[Mutator.MutatorMessage]
     val replyTo: ActorRef[Converter.ConverterMessage]
   }
+  protected[actor] abstract class InitWithTimeSeries extends Init {
+    val profiles: Vector[P]
+  }
+
+  protected[actor] abstract class InitWithoutTimeSeries extends Init
 
   protected[actor] abstract class Converted extends ShuntConverterMessage {
     val id: String

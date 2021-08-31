@@ -3,12 +3,7 @@ package edu.ie3.simbench.convert
 import akka.actor.testkit.typed.scaladsl.{ActorTestKit, TestProbe}
 import akka.actor.typed.ActorRef
 import edu.ie3.simbench.actor.{Converter, Coordinator, Mutator, WorkerMessage}
-import edu.ie3.simbench.actor.Mutator.{
-  MutatorMessage,
-  PersistGridStructure,
-  PersistNodalResults,
-  PersistTimeSeriesMapping
-}
+import edu.ie3.simbench.actor.Mutator.MutatorMessage
 import edu.ie3.test.common.UnitSpec
 import org.scalatest.BeforeAndAfterAll
 
@@ -38,6 +33,7 @@ class ConverterSpec extends UnitSpec with BeforeAndAfterAll {
         ";",
         removeSwitches = false,
         20,
+        createTimeSeries = true,
         mutator.ref,
         coordinator.ref
       )

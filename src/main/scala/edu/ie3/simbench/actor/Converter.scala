@@ -41,6 +41,7 @@ object Converter {
           inputFileColumnSeparator,
           removeSwitches,
           amountOfWorkers,
+          createTimeSeries,
           useDirectoryHierarchy,
           targetDirectory,
           csvColumnSeparator,
@@ -71,6 +72,7 @@ object Converter {
         inputFileColumnSeparator,
         removeSwitches,
         amountOfWorkers,
+        createTimeSeries,
         converter
       )
   }
@@ -87,6 +89,7 @@ object Converter {
     * @param inputFileColumnSeparator     Column separator of the input data
     * @param removeSwitches               Whether or not to remove switches in final model
     * @param amountOfWorkers              Amount of workers to convert participants
+    * @param createTimeSeries             Whether to create time series or not
     * @param coordinator                  Reference to the coordinator
     * @return Behavior to do so
     */
@@ -100,6 +103,7 @@ object Converter {
       inputFileColumnSeparator: String,
       removeSwitches: Boolean,
       amountOfWorkers: Int,
+      createTimeSeries: Boolean,
       coordinator: ActorRef[Coordinator.CoordinatorMessage]
   ): Behaviors.Receive[ConverterMessage] = Behaviors.receive {
     case (ctx, MutatorInitialized(mutator)) =>
@@ -116,6 +120,7 @@ object Converter {
           inputFileColumnSeparator,
           removeSwitches,
           amountOfWorkers,
+          createTimeSeries,
           mutator,
           coordinator
         )
@@ -194,26 +199,44 @@ object Converter {
       if (simBenchModel.loads.nonEmpty) {
         val loadConverter =
           ctx.spawn(LoadConverter(), s"loadConverter_${stateData.simBenchCode}")
-        loadConverter ! LoadConverter.Init(
-          stateData.simBenchCode,
-          stateData.amountOfWorkers,
-          simBenchModel.loadProfiles,
-          stateData.mutator,
-          ctx.self
-        )
+        if (stateData.createTimeSeries) {
+          loadConverter ! LoadConverter.InitWithTimeSeries(
+            stateData.simBenchCode,
+            stateData.amountOfWorkers,
+            simBenchModel.loadProfiles,
+            stateData.mutator,
+            ctx.self
+          )
+        } else {
+          loadConverter ! LoadConverter.InitWithoutTimeSeries(
+            stateData.simBenchCode,
+            stateData.amountOfWorkers,
+            stateData.mutator,
+            ctx.self
+          )
+        }
       } else {
         ctx.self ! LoadsConverted(Map.empty[LoadInput, UUID])
       }
       if (simBenchModel.res.nonEmpty) {
         val resConverter =
           ctx.spawn(ResConverter(), s"resConverter_${stateData.simBenchCode}")
-        resConverter ! ResConverter.Init(
-          stateData.simBenchCode,
-          stateData.amountOfWorkers,
-          simBenchModel.resProfiles,
-          stateData.mutator,
-          ctx.self
-        )
+        if (stateData.createTimeSeries) {
+          resConverter ! ResConverter.InitWithTimeSeries(
+            stateData.simBenchCode,
+            stateData.amountOfWorkers,
+            simBenchModel.resProfiles,
+            stateData.mutator,
+            ctx.self
+          )
+        } else {
+          resConverter ! ResConverter.InitWithoutTimeSeries(
+            stateData.simBenchCode,
+            stateData.amountOfWorkers,
+            stateData.mutator,
+            ctx.self
+          )
+        }
       } else {
         ctx.self ! ResConverted(Map.empty[FixedFeedInInput, UUID])
       }
@@ -223,13 +246,22 @@ object Converter {
             PowerPlantConverter(),
             s"powerPlantConverter_${stateData.simBenchCode}"
           )
-        powerPlantConverter ! PowerPlantConverter.Init(
-          stateData.simBenchCode,
-          stateData.amountOfWorkers,
-          simBenchModel.powerPlantProfiles,
-          stateData.mutator,
-          ctx.self
-        )
+        if (stateData.createTimeSeries) {
+          powerPlantConverter ! PowerPlantConverter.InitWithTimeSeries(
+            stateData.simBenchCode,
+            stateData.amountOfWorkers,
+            simBenchModel.powerPlantProfiles,
+            stateData.mutator,
+            ctx.self
+          )
+        } else {
+          powerPlantConverter ! PowerPlantConverter.InitWithoutTimeSeries(
+            stateData.simBenchCode,
+            stateData.amountOfWorkers,
+            stateData.mutator,
+            ctx.self
+          )
+        }
       } else {
         ctx.self ! PowerPlantsConverted(Map.empty[FixedFeedInInput, UUID])
       }
@@ -616,6 +648,7 @@ object Converter {
       inputFileColumnSeparator: String,
       removeSwitches: Boolean,
       amountOfWorkers: Int,
+      createTimeSeries: Boolean,
       mutator: ActorRef[Mutator.MutatorMessage],
       coordinator: ActorRef[Coordinator.CoordinatorMessage]
   )
@@ -680,6 +713,7 @@ object Converter {
       inputFileColumnSeparator: String,
       removeSwitches: Boolean,
       amountOfWorkers: Int,
+      createTimeSeries: Boolean,
       useDirectoryHierarchy: Boolean,
       targetDirectory: String,
       csvColumnSeparator: String,

@@ -1,7 +1,7 @@
 package edu.ie3.simbench.actor
 
 import akka.actor.typed.{ActorRef, SupervisorStrategy}
-import akka.actor.typed.scaladsl.{Behaviors, Routers}
+import akka.actor.typed.scaladsl.{ActorContext, Behaviors, Routers}
 import edu.ie3.datamodel.models.OperationTime
 import edu.ie3.datamodel.models.input.system.FixedFeedInInput
 import edu.ie3.datamodel.models.input.system.characteristic.CosPhiFixed
@@ -15,9 +15,11 @@ import edu.ie3.util.quantities.PowerSystemUnits.{
   MEGAVOLTAMPERE,
   MEGAWATT
 }
+import tech.units.indriya.ComparableQuantity
 import tech.units.indriya.quantity.Quantities
 
 import java.util.{Locale, UUID}
+import javax.measure.quantity.Power
 
 case object ResConverter
     extends ShuntConverter
@@ -28,49 +30,49 @@ case object ResConverter
     Behaviors.receive {
       case (
           ctx,
-          Init(simBenchCode, amountOfWorkers, profiles, mutator, converter)
+          init: Init
           ) =>
-        /* Prepare information */
-        val typeToProfile =
-          profiles.map(profile => profile.profileType -> profile).toMap
-
         /* Set up a worker pool */
-        val workerPool = Routers
-          .pool(poolSize = amountOfWorkers) {
-            Behaviors
-              .supervise(ResConverter.Worker())
-              .onFailure(SupervisorStrategy.restart)
-          }
-          /* Allow broadcast messages to init all workers */
-          .withBroadcastPredicate {
-            case _: WorkerMessage.Init => true
-            case _                     => false
-          }
-          .withRoundRobinRouting()
-        val workerPoolProxy =
-          ctx.spawn(
-            workerPool,
-            s"ResConverterWorkerPool_$simBenchCode"
-          )
+        val workerPoolProxy = setupWorkerPoolAndReportReady(
+          init.simBenchCode,
+          init.amountOfWorkers,
+          ctx,
+          init.mutator,
+          init.replyTo
+        )
 
-        workerPoolProxy ! WorkerMessage.Init(mutator)
-        converter ! Converter.ResConverterReady(ctx.self)
-
-        idle(typeToProfile, workerPoolProxy)
+        /* Prepare information */
+        init match {
+          case InitWithTimeSeries(_, _, profiles, _, _) =>
+            val typeToProfile =
+              profiles.map(profile => profile.profileType -> profile).toMap
+            idle(typeToProfile, workerPoolProxy, createTimeSeries = true)
+          case _: InitWithoutTimeSeries =>
+            idle(
+              Map.empty[ResProfileType, ResProfile],
+              workerPoolProxy,
+              createTimeSeries = false
+            )
+        }
     }
 
   def idle(
       typeToProfile: Map[ResProfileType, ResProfile],
-      workerPool: ActorRef[WorkerMessage]
+      workerPool: ActorRef[WorkerMessage],
+      createTimeSeries: Boolean
   ): Behaviors.Receive[ShuntConverterMessage] = Behaviors.receive {
     case (ctx, Convert(simBenchCode, res, nodes, converter)) =>
       ctx.log.debug(s"Got request to convert res from '$simBenchCode'.")
       val activeConversions = res.map { plant =>
         val node = NodeConverter.getNode(plant.node, nodes)
-        val profile =
-          PowerProfileConverter.getProfile(plant.profile, typeToProfile)
 
-        workerPool ! Worker.Convert(plant, node, profile, ctx.self)
+        if (createTimeSeries) {
+          val profile =
+            PowerProfileConverter.getProfile(plant.profile, typeToProfile)
+          workerPool ! Worker
+            .ConvertWithTimeSeries(plant, node, profile, ctx.self)
+        } else
+          workerPool ! Worker.ConvertWithoutTimeSeries(plant, node, ctx.self)
         (plant.id, plant.node.getKey)
       }
       converting(activeConversions, Map.empty, workerPool, converter)
@@ -97,13 +99,81 @@ case object ResConverter
       converting(remainingConversions, updatedConverted, workerPool, converter)
   }
 
-  final case class Init(
+  /**
+    * Set up the worker pool and report to be ready
+    *
+    * @param simBenchCode     SimBench model to convert
+    * @param amountOfWorkers  Amount of workers to use
+    * @param ctx              Current actor context
+    * @param mutator          Reference to the mutator
+    * @param converter        Reference to the converter
+    * @return A reference to the worker pool proxy
+    */
+  private def setupWorkerPoolAndReportReady(
+      simBenchCode: String,
+      amountOfWorkers: Int,
+      ctx: ActorContext[ShuntConverterMessage],
+      mutator: ActorRef[Mutator.MutatorMessage],
+      converter: ActorRef[Converter.ConverterMessage]
+  ): ActorRef[WorkerMessage] = {
+    val workerPoolProxy =
+      spawnWorkerPool(simBenchCode, amountOfWorkers, ctx, mutator, converter)
+
+    workerPoolProxy ! WorkerMessage.Init(mutator)
+    converter ! Converter.ResConverterReady(ctx.self)
+    workerPoolProxy
+  }
+
+  /**
+    * Spawning a worker pool for this Converter
+    *
+    * @param simBenchCode     SimBench model to convert
+    * @param amountOfWorkers  Amount of workers to use
+    * @param ctx              Current actor context
+    * @param mutator          Reference to the mutator
+    * @param converter        Reference to the converter
+    * @return A reference to the worker pool proxy
+    */
+  private def spawnWorkerPool(
+      simBenchCode: String,
+      amountOfWorkers: Int,
+      ctx: ActorContext[ShuntConverterMessage],
+      mutator: ActorRef[Mutator.MutatorMessage],
+      converter: ActorRef[Converter.ConverterMessage]
+  ): ActorRef[WorkerMessage] = {
+    /* Set up a worker pool */
+    val workerPool = Routers
+      .pool(poolSize = amountOfWorkers) {
+        Behaviors
+          .supervise(ResConverter.Worker())
+          .onFailure(SupervisorStrategy.restart)
+      }
+      /* Allow broadcast messages to init all workers */
+      .withBroadcastPredicate {
+        case _: WorkerMessage.Init => true
+        case _                     => false
+      }
+      .withRoundRobinRouting()
+    ctx.spawn(
+      workerPool,
+      s"ResConverterWorkerPool_$simBenchCode"
+    )
+  }
+
+  final case class InitWithTimeSeries(
       simBenchCode: String,
       amountOfWorkers: Int,
       profiles: Vector[ResProfile],
       mutator: ActorRef[Mutator.MutatorMessage],
       replyTo: ActorRef[Converter.ConverterMessage]
-  ) extends super.Init
+  ) extends super.InitWithTimeSeries
+
+  final case class InitWithoutTimeSeries(
+      simBenchCode: String,
+      amountOfWorkers: Int,
+      mutator: ActorRef[Mutator.MutatorMessage],
+      replyTo: ActorRef[Converter.ConverterMessage]
+  ) extends super.InitWithoutTimeSeries
 
   /**
     * Request to convert all given models
@@ -142,22 +212,33 @@ case object ResConverter
           )
         ] = Map.empty
     ): Behaviors.Receive[WorkerMessage] = Behaviors.receive {
-      case (ctx, Convert(res, node, profile, replyTo)) =>
-        Behaviors.same
+      case (ctx, convertRequest: WorkerMessage.Convert[RES, _, _]) =>
         ctx.log.debug(
-          s"Got request to convert RES '${res.id} at node '${res.node.getKey} / ${node.getUuid}'."
+          s"Got request to convert res '${convertRequest.model.id} at node '${convertRequest.model.node.getKey} " +
+            s"/ ${convertRequest.node.getUuid}'."
         )
 
-        val model = convertModel(res, node)
-        /* Flip the sign, as infeed is negative in PowerSystemDataModel */
-        val timeSeries = PowerProfileConverter.convert(
-          profile,
-          Quantities.getQuantity(res.p, MEGAWATT).multiply(-1)
-        )
+        /* Convert the model */
+        val model = convertModel(convertRequest.model, convertRequest.node)
 
-        mutator ! Mutator.PersistTimeSeries(timeSeries, ctx.self)
-        val updatedAwaitedTimeSeriesPersistence = awaitTimeSeriesPersistence + (timeSeries.getUuid -> (res.id, res.node.getKey, model, replyTo))
-        idle(mutator, updatedAwaitedTimeSeriesPersistence)
+        /* If needed, convert time series and await their finishing */
+        convertRequest match {
+          case ConvertWithTimeSeries(input, _, profile, replyTo) =>
+            /* Flip the sign, as infeed is negative in PowerSystemDataModel */
+            val timeSeries = PowerProfileConverter.convert(
+              profile,
+              Quantities
+                .getQuantity(convertRequest.model.p, MEGAWATT)
+                .multiply(-1)
+            )
+
+            mutator ! Mutator.PersistTimeSeries(timeSeries, ctx.self)
+            val updatedAwaitedTimeSeriesPersistence = awaitTimeSeriesPersistence +
+              (timeSeries.getUuid -> (input.id, input.node.getKey, model, replyTo))
+            idle(mutator, updatedAwaitedTimeSeriesPersistence)
+          case _: ConvertWithoutTimeSeries =>
+            idle(mutator, awaitTimeSeriesPersistence)
+        }
 
       case (ctx, WorkerMessage.TimeSeriesPersisted(uuid)) =>
         ctx.log.debug(s"Time series '$uuid' is fully persisted.")
@@ -185,12 +266,33 @@ case object ResConverter
       * @param profile  The profile, that belongs to the model
       * @param replyTo  Address to reply to
       */
-    final case class Convert(
+    final case class ConvertWithTimeSeries(
         override val model: RES,
         override val node: NodeInput,
         override val profile: ResProfile,
         override val replyTo: ActorRef[ShuntConverterMessage]
-    ) extends WorkerMessage.Convert[RES, ResProfile, ShuntConverterMessage]
+    ) extends WorkerMessage.ConvertWithTimeSeries[
+          RES,
+          ResProfile,
+          ShuntConverterMessage
+        ]
+
+    /**
+      * Override the abstract Request message with parameters, that suit your needs.
+      *
+      * @param model    Model itself
+      * @param node     Node, the converted model will be connected to
+      * @param replyTo  Address to reply to
+      */
+    final case class ConvertWithoutTimeSeries(
+        override val model: RES,
+        override val node: NodeInput,
+        override val replyTo: ActorRef[ShuntConverterMessage]
+    ) extends WorkerMessage.ConvertWithoutTimeSeries[
+          RES,
+          ResProfile,
+          ShuntConverterMessage
+        ]
 
     /**
       * Converts a single renewable energy source system to a fixed feed in model due to lacking information to
