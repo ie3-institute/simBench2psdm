@@ -216,7 +216,7 @@ object Converter {
           )
         }
       } else {
-        ctx.self ! LoadsConverted(Map.empty[LoadInput, UUID])
+        ctx.self ! LoadsConverted(Map.empty[LoadInput, Option[UUID]])
       }
       if (simBenchModel.res.nonEmpty) {
         val resConverter =
@@ -238,7 +238,7 @@ object Converter {
           )
         }
       } else {
-        ctx.self ! ResConverted(Map.empty[FixedFeedInInput, UUID])
+        ctx.self ! ResConverted(Map.empty[FixedFeedInInput, Option[UUID]])
       }
       if (simBenchModel.powerPlants.nonEmpty) {
         val powerPlantConverter =
@@ -263,7 +263,9 @@ object Converter {
           )
         }
       } else {
-        ctx.self ! PowerPlantsConverted(Map.empty[FixedFeedInInput, UUID])
+        ctx.self ! PowerPlantsConverted(
+          Map.empty[FixedFeedInInput, Option[UUID]]
+        )
       }
 
       converting(
@@ -596,8 +598,8 @@ object Converter {
     val timeSeriesMapping: Map[UUID, UUID] = awaitedResults.loads
       .map(
         modelToTimeSeries =>
-          modelToTimeSeries.map {
-            case (model, uuid) => model.getUuid -> uuid
+          modelToTimeSeries.filter(_._2.nonEmpty).map {
+            case (model, uuid) => model.getUuid -> uuid.get
           }
       )
       .getOrElse {
@@ -606,8 +608,8 @@ object Converter {
       } ++ awaitedResults.res
       .map(
         modelToTimeSeries =>
-          modelToTimeSeries.map {
-            case (model, uuid) => model.getUuid -> uuid
+          modelToTimeSeries.filter(_._2.nonEmpty).map {
+            case (model, uuid) => model.getUuid -> uuid.get
           }
       )
       .getOrElse {
@@ -618,8 +620,8 @@ object Converter {
       } ++ awaitedResults.powerPlants
       .map(
         modelToTimeSeries =>
-          modelToTimeSeries.map {
-            case (model, uuid) => model.getUuid -> uuid
+          modelToTimeSeries.filter(_._2.nonEmpty).map {
+            case (model, uuid) => model.getUuid -> uuid.get
           }
       )
       .getOrElse {
@@ -661,9 +663,9 @@ object Converter {
       transformers3w: Option[Vector[Transformer3WInput]],
       switches: Option[Vector[SwitchInput]],
       measurements: Option[Vector[MeasurementUnitInput]],
-      loads: Option[Map[LoadInput, UUID]],
-      res: Option[Map[FixedFeedInInput, UUID]],
-      powerPlants: Option[Map[FixedFeedInInput, UUID]]
+      loads: Option[Map[LoadInput, Option[UUID]]],
+      res: Option[Map[FixedFeedInInput, Option[UUID]]],
+      powerPlants: Option[Map[FixedFeedInInput, Option[UUID]]]
   ) {
 
     /**
@@ -775,14 +777,15 @@ object Converter {
       replyTo: ActorRef[PowerPlantConverter.ShuntConverterMessage]
   ) extends ConverterMessage
 
-  final case class ResConverted(converted: Map[FixedFeedInInput, UUID])
+  final case class ResConverted(converted: Map[FixedFeedInInput, Option[UUID]])
       extends ConverterMessage
 
-  final case class LoadsConverted(converted: Map[LoadInput, UUID])
+  final case class LoadsConverted(converted: Map[LoadInput, Option[UUID]])
       extends ConverterMessage
 
-  final case class PowerPlantsConverted(converted: Map[FixedFeedInInput, UUID])
-      extends ConverterMessage
+  final case class PowerPlantsConverted(
+      converted: Map[FixedFeedInInput, Option[UUID]]
+  ) extends ConverterMessage
 
   object GridStructurePersisted extends ConverterMessage
   object TimeSeriesMappingPersisted extends ConverterMessage

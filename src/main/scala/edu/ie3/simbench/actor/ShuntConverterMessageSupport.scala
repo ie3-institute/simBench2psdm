@@ -27,7 +27,7 @@ trait ShuntConverterMessageSupport[I <: ShuntModel, P <: ProfileModel[_, _], R <
     val id: String
     val node: Node.NodeKey
     val model: R
-    val timeSeriesUuid: UUID
+    val timeSeriesUuid: Option[UUID]
   }
 
   /**

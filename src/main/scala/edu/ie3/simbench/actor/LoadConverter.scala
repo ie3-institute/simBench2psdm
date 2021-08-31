@@ -7,7 +7,6 @@ import edu.ie3.datamodel.models.StandardLoadProfile.DefaultLoadProfiles
 import edu.ie3.datamodel.models.input.system.LoadInput
 import edu.ie3.datamodel.models.input.system.characteristic.CosPhiFixed
 import edu.ie3.datamodel.models.input.{NodeInput, OperatorInput}
-import edu.ie3.simbench.actor.WorkerMessage.TimeSeriesPersisted
 import edu.ie3.simbench.convert.profiles.PowerProfileConverter
 import edu.ie3.simbench.convert.{NodeConverter, ShuntConverter}
 import edu.ie3.simbench.model.datamodel.profiles.{LoadProfile, LoadProfileType}
@@ -81,7 +80,7 @@ case object LoadConverter
 
   def converting(
       activeConversions: Vector[(String, Node.NodeKey)],
-      converted: Map[LoadInput, UUID],
+      converted: Map[LoadInput, Option[UUID]],
       workerPool: ActorRef[WorkerMessage],
       converter: ActorRef[Converter.ConverterMessage]
   ): Behaviors.Receive[ShuntConverterMessage] = Behaviors.receive {
@@ -190,7 +189,7 @@ case object LoadConverter
       id: String,
       node: Node.NodeKey,
       model: LoadInput,
-      timeSeriesUuid: UUID
+      timeSeriesUuid: Option[UUID]
   ) extends super.Converted
 
   object Worker {
@@ -220,7 +219,8 @@ case object LoadConverter
         )
 
         /* Convert the model */
-        val model = convertModel(convertRequest.model, convertRequest.node)
+        val convertedModel =
+          convertModel(convertRequest.model, convertRequest.node)
 
         /* If needed, convert time series and await their finishing */
         convertRequest match {
@@ -233,9 +233,11 @@ case object LoadConverter
 
             mutator ! Mutator.PersistTimeSeries(timeSeries, ctx.self)
             val updatedAwaitedTimeSeriesPersistence = awaitTimeSeriesPersistence +
-              (timeSeries.getUuid -> (input.id, input.node.getKey, model, replyTo))
+              (timeSeries.getUuid -> (input.id, input.node.getKey, convertedModel, replyTo))
             idle(mutator, updatedAwaitedTimeSeriesPersistence)
-          case _: ConvertWithoutTimeSeries =>
+          case ConvertWithoutTimeSeries(model, _, replyTo) =>
+            replyTo ! LoadConverter
+              .Converted(model.id, model.node.getKey, convertedModel, None)
             idle(mutator, awaitTimeSeriesPersistence)
         }
 
@@ -246,7 +248,7 @@ case object LoadConverter
             val remainingPersistence =
               awaitTimeSeriesPersistence.filterNot(_._1 == uuid)
 
-            replyTo ! LoadConverter.Converted(id, nodeKey, model, uuid)
+            replyTo ! LoadConverter.Converted(id, nodeKey, model, Some(uuid))
 
             idle(mutator, remainingPersistence)
           case None =>

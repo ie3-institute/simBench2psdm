@@ -15,11 +15,9 @@ import edu.ie3.util.quantities.PowerSystemUnits.{
   MEGAVOLTAMPERE,
   MEGAWATT
 }
-import tech.units.indriya.ComparableQuantity
 import tech.units.indriya.quantity.Quantities
 
 import java.util.{Locale, UUID}
-import javax.measure.quantity.Power
 
 case object ResConverter
     extends ShuntConverter
@@ -80,7 +78,7 @@ case object ResConverter
 
   def converting(
       activeConversions: Vector[(String, Node.NodeKey)],
-      converted: Map[FixedFeedInInput, UUID],
+      converted: Map[FixedFeedInInput, Option[UUID]],
       workerPool: ActorRef[WorkerMessage],
       converter: ActorRef[Converter.ConverterMessage]
   ): Behaviors.Receive[ShuntConverterMessage] = Behaviors.receive {
@@ -189,7 +187,7 @@ case object ResConverter
       id: String,
       node: Node.NodeKey,
       model: FixedFeedInInput,
-      timeSeriesUuid: UUID
+      timeSeriesUuid: Option[UUID]
   ) extends super.Converted
 
   object Worker {
@@ -219,7 +217,8 @@ case object ResConverter
         )
 
         /* Convert the model */
-        val model = convertModel(convertRequest.model, convertRequest.node)
+        val convertedModel =
+          convertModel(convertRequest.model, convertRequest.node)
 
         /* If needed, convert time series and await their finishing */
         convertRequest match {
@@ -234,9 +233,11 @@ case object ResConverter
 
             mutator ! Mutator.PersistTimeSeries(timeSeries, ctx.self)
             val updatedAwaitedTimeSeriesPersistence = awaitTimeSeriesPersistence +
-              (timeSeries.getUuid -> (input.id, input.node.getKey, model, replyTo))
+              (timeSeries.getUuid -> (input.id, input.node.getKey, convertedModel, replyTo))
             idle(mutator, updatedAwaitedTimeSeriesPersistence)
-          case _: ConvertWithoutTimeSeries =>
+          case ConvertWithoutTimeSeries(model, _, replyTo) =>
+            replyTo ! ResConverter
+              .Converted(model.id, model.node.getKey, convertedModel, None)
             idle(mutator, awaitTimeSeriesPersistence)
         }
 
@@ -247,7 +248,7 @@ case object ResConverter
             val remainingPersistence =
               awaitTimeSeriesPersistence.filterNot(_._1 == uuid)
 
-            replyTo ! ResConverter.Converted(id, nodeKey, model, uuid)
+            replyTo ! ResConverter.Converted(id, nodeKey, model, Some(uuid))
 
             idle(mutator, remainingPersistence)
           case None =>

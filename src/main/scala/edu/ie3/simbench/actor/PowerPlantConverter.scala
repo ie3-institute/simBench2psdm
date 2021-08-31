@@ -87,7 +87,7 @@ case object PowerPlantConverter
 
   def converting(
       activeConversions: Vector[(String, Node.NodeKey)],
-      converted: Map[FixedFeedInInput, UUID],
+      converted: Map[FixedFeedInInput, Option[UUID]],
       workerPool: ActorRef[WorkerMessage],
       converter: ActorRef[Converter.ConverterMessage]
   ): Behaviors.Receive[ShuntConverterMessage] = Behaviors.receive {
@@ -196,7 +196,7 @@ case object PowerPlantConverter
       id: String,
       node: Node.NodeKey,
       model: FixedFeedInInput,
-      timeSeriesUuid: UUID
+      timeSeriesUuid: Option[UUID]
   ) extends super.Converted
 
   object Worker {
@@ -226,7 +226,8 @@ case object PowerPlantConverter
         )
 
         /* Convert the model */
-        val model = convertModel(convertRequest.model, convertRequest.node)
+        val convertedModel =
+          convertModel(convertRequest.model, convertRequest.node)
 
         /* If needed, convert time series and await their finishing */
         convertRequest match {
@@ -241,9 +242,11 @@ case object PowerPlantConverter
 
             mutator ! Mutator.PersistTimeSeries(timeSeries, ctx.self)
             val updatedAwaitedTimeSeriesPersistence = awaitTimeSeriesPersistence +
-              (timeSeries.getUuid -> (input.id, input.node.getKey, model, replyTo))
+              (timeSeries.getUuid -> (input.id, input.node.getKey, convertedModel, replyTo))
             idle(mutator, updatedAwaitedTimeSeriesPersistence)
-          case _: ConvertWithoutTimeSeries =>
+          case ConvertWithoutTimeSeries(model, _, replyTo) =>
+            replyTo ! PowerPlantConverter
+              .Converted(model.id, model.node.getKey, convertedModel, None)
             idle(mutator, awaitTimeSeriesPersistence)
         }
 
@@ -254,7 +257,8 @@ case object PowerPlantConverter
             val remainingPersistence =
               awaitTimeSeriesPersistence.filterNot(_._1 == uuid)
 
-            replyTo ! PowerPlantConverter.Converted(id, nodeKey, model, uuid)
+            replyTo ! PowerPlantConverter
+              .Converted(id, nodeKey, model, Some(uuid))
 
             idle(mutator, remainingPersistence)
           case None =>
