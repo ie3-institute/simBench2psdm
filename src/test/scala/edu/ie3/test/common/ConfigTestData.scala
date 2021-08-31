@@ -34,7 +34,11 @@ trait ConfigTestData {
   )
 
   val validConversionConfig: Conversion =
-    Conversion(removeSwitches = false, participantWorkersPerType = 20)
+    Conversion(
+      removeSwitches = false,
+      participantWorkersPerType = 20,
+      createTimeSeries = false
+    )
 
   val validConfig = new SimbenchConfig(validConversionConfig, validIo)
 }
