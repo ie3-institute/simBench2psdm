@@ -51,7 +51,8 @@ class ConverterSpec extends UnitSpec with BeforeAndAfterAll {
 
       /* Receive 17 time series messages and reply completion */
       (1 to 17).foldLeft(List.empty[Mutator.PersistTimeSeries]) {
-        case (messages, _) =>
+        case (messages, idx) =>
+          logger.debug("Received {} time series for persistence so far.", idx)
           val message = mutator.expectMessageType[Mutator.PersistTimeSeries](
             FiniteDuration(60, "s")
           )
