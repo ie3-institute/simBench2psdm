@@ -202,7 +202,7 @@ object Mutator {
       )
 
       if (compress) {
-        ctx.log.debug("Compressing output")
+        ctx.log.info(s"$simBenchCode - Compressing output")
         val rawOutputPath = Paths.get(targetDirectory + simBenchCode)
         val archivePath = Paths.get(
           FilenameUtils.concat(targetDirectory, simBenchCode + ".tar.gz")
@@ -219,7 +219,7 @@ object Mutator {
             )
         }
 
-        Await.ready(compressFuture, Duration("180s"))
+        Await.ready(compressFuture, Duration("1200s"))
       }
 
       Behaviors.stopped
