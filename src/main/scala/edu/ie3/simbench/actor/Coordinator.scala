@@ -113,6 +113,7 @@ object Coordinator {
           idle(
             stateData.copy(
               simBenchCodes = remainingCodes,
+              activeConverters = stillActiveConverters,
               initializingConverters = yetInitializingConverters
             )
           )
