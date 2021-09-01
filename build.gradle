@@ -1,3 +1,5 @@
+import com.github.jengelman.gradle.plugins.shadow.transformers.AppendingTransformer
+
 plugins {
 	id "com.jfrog.artifactory" version "4.24.14"
 	id 'groovy' // groovy support
@@ -7,6 +9,7 @@ plugins {
 	id 'com.diffplug.spotless' version '5.14.2'// code format
 	id "de.undercouch.download" version "4.1.2" // downloads plugin
 	id 'jacoco' // java code coverage plugin
+	id "com.github.johnrengelman.shadow" version "7.0.0" // fat jar
 	id "org.sonarqube" version "3.3" // sonarqube
 	id 'org.scoverage' version '6.0.0' // Code coverage plugin for scala
 	id "com.github.maiflai.scalatest" version "0.31" // run scalatest without specific task
@@ -109,4 +112,16 @@ tasks.withType(JavaCompile) {
 
 tasks.withType(Javadoc){
 	options.encoding = 'UTF-8'
+}
+
+//////////////////////////////////////////////////////////////////////
+// Build akka'able fat jar using the gradle shadow plugin
+// see http://www.sureshpw.com/2015/10/building-akka-bundle-with-all.html
+// and https://github.com/akka/akka/issues/24248
+//////////////////////////////////////////////////////////////////////
+shadowJar {
+	transform(AppendingTransformer) {
+		resource = 'reference.conf'
+	}
+	zip64 = true
 }
