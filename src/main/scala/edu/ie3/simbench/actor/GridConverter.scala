@@ -73,7 +73,9 @@ case object GridConverter extends LazyLogging {
         ctx.log.debug(
           "Creation of three winding transformers is not yet implemented."
         )
-      val convertedSwitches = SwitchConverter.convert(switches, nodeConversion)
+      val convertedSwitches =
+        if (!removeSwitches) SwitchConverter.convert(switches, nodeConversion)
+        else Vector.empty
       val convertedMeasurements = MeasurementConverter
         .convert(measurements, nodeConversion)
 
