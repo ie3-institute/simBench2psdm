@@ -1,6 +1,7 @@
 import com.github.jengelman.gradle.plugins.shadow.transformers.AppendingTransformer
 
 plugins {
+	id 'application'
 	id "com.jfrog.artifactory" version "4.24.14"
 	id 'groovy' // groovy support
 	id 'java' // java support
@@ -38,6 +39,8 @@ apply from: scriptsLocation + 'spotless.gradle'
 apply from: scriptsLocation + 'checkJavaVersion.gradle'
 apply from: scriptsLocation + 'tscfg.gradle' // config tasks
 apply from: scriptsLocation + 'scoverage.gradle'
+
+application.mainClassName = 'edu.ie3.simbench.main.RunSimbench'
 
 repositories {
 	mavenCentral()
