@@ -80,6 +80,7 @@ object Mutator {
             .supervise(Mutator.Worker())
             .onFailure(SupervisorStrategy.restart)
         }
+        .withRouteeProps(DispatcherSelector.sameAsParent())
         /* Allow broadcast messages to init all workers */
         .withBroadcastPredicate {
           case _: Worker.Init      => true

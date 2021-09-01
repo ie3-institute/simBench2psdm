@@ -155,6 +155,7 @@ case object PowerPlantConverter
           .supervise(PowerPlantConverter.Worker())
           .onFailure(SupervisorStrategy.restart)
       }
+      .withRouteeProps(DispatcherSelector.sameAsParent())
       /* Allow broadcast messages to init all workers */
       .withBroadcastPredicate {
         case _: WorkerMessage.Init => true

@@ -148,6 +148,7 @@ case object LoadConverter
           .supervise(LoadConverter.Worker())
           .onFailure(SupervisorStrategy.restart)
       }
+      .withRouteeProps(DispatcherSelector.sameAsParent())
       /* Allow broadcast messages to init all workers */
       .withBroadcastPredicate {
         case _: WorkerMessage.Init => true
