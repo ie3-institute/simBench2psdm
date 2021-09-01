@@ -1,6 +1,6 @@
 package edu.ie3.simbench.actor
 
-import akka.actor.typed.{ActorRef, SupervisorStrategy}
+import akka.actor.typed.{ActorRef, DispatcherSelector, SupervisorStrategy}
 import akka.actor.typed.scaladsl.{ActorContext, Behaviors, Routers}
 import edu.ie3.datamodel.models.OperationTime
 import edu.ie3.datamodel.models.input.system.FixedFeedInInput
@@ -163,7 +163,8 @@ case object PowerPlantConverter
       .withRoundRobinRouting()
     ctx.spawn(
       workerPool,
-      s"PowerPlantConverterWorkerPool_$simBenchCode"
+      s"PowerPlantConverterWorkerPool_$simBenchCode",
+      DispatcherSelector.sameAsParent()
     )
   }
 

@@ -1,6 +1,6 @@
 package edu.ie3.simbench.actor
 
-import akka.actor.typed.ActorRef
+import akka.actor.typed.{ActorRef, DispatcherSelector}
 import akka.actor.typed.scaladsl.{ActorContext, Behaviors}
 import edu.ie3.datamodel.models.input.{MeasurementUnitInput, NodeInput}
 import edu.ie3.datamodel.models.input.connector.{
@@ -152,7 +152,11 @@ object Converter {
       /* Spawning a grid converter and ask it to do some first conversions */
       ctx.log.info(s"$simBenchCode - Start conversion of grid structure")
       val gridConverter =
-        ctx.spawn(GridConverter(), s"gridConverter_${stateData.simBenchCode}")
+        ctx.spawn(
+          GridConverter(),
+          s"gridConverter_${stateData.simBenchCode}",
+          DispatcherSelector.sameAsParent()
+        )
       gridConverter ! GridConverter.ConvertGridStructure(
         simBenchCode,
         simBenchModel.nodes,
@@ -198,7 +202,11 @@ object Converter {
       )
       if (simBenchModel.loads.nonEmpty) {
         val loadConverter =
-          ctx.spawn(LoadConverter(), s"loadConverter_${stateData.simBenchCode}")
+          ctx.spawn(
+            LoadConverter(),
+            s"loadConverter_${stateData.simBenchCode}",
+            DispatcherSelector.sameAsParent()
+          )
         if (stateData.createTimeSeries) {
           loadConverter ! LoadConverter.InitWithTimeSeries(
             stateData.simBenchCode,
@@ -220,7 +228,11 @@ object Converter {
       }
       if (simBenchModel.res.nonEmpty) {
         val resConverter =
-          ctx.spawn(ResConverter(), s"resConverter_${stateData.simBenchCode}")
+          ctx.spawn(
+            ResConverter(),
+            s"resConverter_${stateData.simBenchCode}",
+            DispatcherSelector.sameAsParent()
+          )
         if (stateData.createTimeSeries) {
           resConverter ! ResConverter.InitWithTimeSeries(
             stateData.simBenchCode,
@@ -244,7 +256,8 @@ object Converter {
         val powerPlantConverter =
           ctx.spawn(
             PowerPlantConverter(),
-            s"powerPlantConverter_${stateData.simBenchCode}"
+            s"powerPlantConverter_${stateData.simBenchCode}",
+            DispatcherSelector.sameAsParent()
           )
         if (stateData.createTimeSeries) {
           powerPlantConverter ! PowerPlantConverter.InitWithTimeSeries(
@@ -468,7 +481,11 @@ object Converter {
       amountOfWorkers: Int,
       ctx: ActorContext[ConverterMessage]
   ): Unit = {
-    val mutator = ctx.spawn(Mutator(), s"mutator_$simBenchCode")
+    val mutator = ctx.spawn(
+      Mutator(),
+      s"mutator_$simBenchCode",
+      DispatcherSelector.sameAsParent()
+    )
     mutator ! Mutator.Init(
       simBenchCode,
       useDirectoryHierarchy,

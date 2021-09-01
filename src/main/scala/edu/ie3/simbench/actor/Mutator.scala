@@ -1,6 +1,6 @@
 package edu.ie3.simbench.actor
 
-import akka.actor.typed.{ActorRef, SupervisorStrategy}
+import akka.actor.typed.{ActorRef, DispatcherSelector, SupervisorStrategy}
 import akka.actor.typed.scaladsl.{Behaviors, Routers}
 import edu.ie3.datamodel.io.naming.{
   DefaultDirectoryHierarchy,
@@ -90,7 +90,8 @@ object Mutator {
       val workerPoolProxy =
         ctx.spawn(
           workerPool,
-          s"MutatorWorkerPool_$simBenchCode"
+          s"MutatorWorkerPool_$simBenchCode",
+          DispatcherSelector.sameAsParent()
         )
       /* Broadcasting init information to all workers */
       workerPoolProxy ! Worker.Init(

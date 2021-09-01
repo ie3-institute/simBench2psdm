@@ -1,6 +1,6 @@
 package edu.ie3.simbench.actor
 
-import akka.actor.typed.ActorRef
+import akka.actor.typed.{ActorRef, DispatcherSelector}
 import akka.actor.typed.scaladsl.{ActorContext, Behaviors}
 import edu.ie3.simbench.config.SimbenchConfig
 
@@ -146,7 +146,11 @@ object Coordinator {
       compressConverted: Boolean,
       amountOfMutatorWorkers: Int
   ): Unit = {
-    val converter = ctx.spawn(Converter(), s"converter_$simBenchCode")
+    val converter = ctx.spawn(
+      Converter(),
+      s"converter_$simBenchCode",
+      DispatcherSelector.sameAsParent()
+    )
     converter ! Converter.Init(
       simBenchCode,
       baseUrl,
