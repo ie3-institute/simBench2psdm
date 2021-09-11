@@ -252,6 +252,34 @@ object Converter {
       } else {
         ctx.self ! ResConverted(Map.empty[FixedFeedInInput, Option[UUID]])
       }
+
+      if (simBenchModel.storages.nonEmpty) {
+        val storageConverter =
+          ctx.spawn(
+            StorageConverter(),
+            s"storageConverter_${stateData.simBenchCode}",
+            DispatcherSelector.sameAsParent()
+          )
+        if (stateData.createTimeSeries) {
+          storageConverter ! StorageConverter.InitWithTimeSeries(
+            stateData.simBenchCode,
+            stateData.amountOfWorkers,
+            simBenchModel.storageProfiles,
+            stateData.mutator,
+            ctx.self
+          )
+        } else {
+          storageConverter ! StorageConverter.InitWithoutTimeSeries(
+            stateData.simBenchCode,
+            stateData.amountOfWorkers,
+            stateData.mutator,
+            ctx.self
+          )
+        }
+      } else {
+        ctx.self ! StoragesConverted(Map.empty[FixedFeedInInput, Option[UUID]])
+      }
+
       if (simBenchModel.powerPlants.nonEmpty) {
         val powerPlantConverter =
           ctx.spawn(
@@ -320,6 +348,18 @@ object Converter {
       )
       Behaviors.same
 
+    case (ctx, StoragesConverterReady(storageConverter)) =>
+      ctx.log.debug(
+        s"${stateData.simBenchCode} - StorageConverter is ready. Request conversion."
+      )
+      storageConverter ! StorageConverter.Convert(
+        stateData.simBenchCode,
+        simBenchModel.storages,
+        awaitedResults.nodeConversion.getOrElse(Map.empty),
+        ctx.self
+      )
+      Behaviors.same
+
     case (ctx, PowerPlantConverterReady(powerPlantConverter)) =>
       ctx.log.debug(
         s"${stateData.simBenchCode} - PowerPlantConverter is ready. Request conversion."
@@ -360,6 +400,30 @@ object Converter {
         s"${stateData.simBenchCode} - All RES are converted."
       )
       val updatedAwaitedResults = awaitedResults.copy(res = Some(converted))
+
+      if (updatedAwaitedResults.isReady)
+        finalizeConversion(
+          stateData.simBenchCode,
+          updatedAwaitedResults,
+          stateData.mutator,
+          stateData.coordinator,
+          ctx.self,
+          ctx.log
+        )
+      else
+        converting(
+          stateData,
+          simBenchModel,
+          gridConverter,
+          updatedAwaitedResults
+        )
+
+    case (ctx, StoragesConverted(converted)) =>
+      ctx.log.info(
+        s"${stateData.simBenchCode} - All Storages are converted."
+      )
+      val updatedAwaitedResults =
+        awaitedResults.copy(storages = Some(converted))
 
       if (updatedAwaitedResults.isReady)
         finalizeConversion(
@@ -607,6 +671,9 @@ object Converter {
       } ++ awaitedResults.powerPlants.map(_.keys).getOrElse {
         logger.debug("Model does not contain power plants.")
         Seq.empty[FixedFeedInInput]
+      } ++ awaitedResults.storages.map(_.keys).getOrElse {
+        logger.debug("Model does not contain storages.")
+        Seq.empty[FixedFeedInInput]
       }).toSet,
       self
     )
@@ -682,6 +749,7 @@ object Converter {
       measurements: Option[Vector[MeasurementUnitInput]],
       loads: Option[Map[LoadInput, Option[UUID]]],
       res: Option[Map[FixedFeedInInput, Option[UUID]]],
+      storages: Option[Map[FixedFeedInInput, Option[UUID]]],
       powerPlants: Option[Map[FixedFeedInInput, Option[UUID]]]
   ) {
 
@@ -701,12 +769,14 @@ object Converter {
         measurements,
         loads,
         res,
+        storages,
         powerPlants
       ).forall(_.nonEmpty)
   }
   object AwaitedResults {
     def empty =
       new AwaitedResults(
+        None,
         None,
         None,
         None,
@@ -786,6 +856,10 @@ object Converter {
       replyTo: ActorRef[ResConverter.ShuntConverterMessage]
   ) extends ConverterMessage
 
+  final case class StoragesConverterReady(
+      replyTo: ActorRef[StorageConverter.ShuntConverterMessage]
+  ) extends ConverterMessage
+
   final case class LoadConverterReady(
       replyTo: ActorRef[LoadConverter.ShuntConverterMessage]
   ) extends ConverterMessage
@@ -796,6 +870,10 @@ object Converter {
 
   final case class ResConverted(converted: Map[FixedFeedInInput, Option[UUID]])
       extends ConverterMessage
+
+  final case class StoragesConverted(
+      converted: Map[FixedFeedInInput, Option[UUID]]
+  ) extends ConverterMessage
 
   final case class LoadsConverted(converted: Map[LoadInput, Option[UUID]])
       extends ConverterMessage
