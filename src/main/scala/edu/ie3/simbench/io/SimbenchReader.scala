@@ -66,6 +66,7 @@ final case class SimbenchReader(
     (classOf[Node], Node.getFields),
     (classOf[NodePFResult], NodePFResult.getFields),
     (classOf[RES], RES.getFields),
+    (classOf[Storage], Storage.getFields),
     (classOf[Transformer2WType], Transformer2WType.getFields),
     (classOf[Transformer2W], Transformer2W.getFields),
     (classOf[Switch], Switch.getFields)
@@ -220,11 +221,12 @@ final case class SimbenchReader(
       case None => Vector.empty[Shunt]
     }
     val storages = modelClassToRawData.getOrElse(classOf[Storage], None) match {
-      case Some(_) =>
-        throw SimbenchDataModelException(
-          s"Found data set for ${classOf[Storage]}, but no factory method defined"
+      case Some(rawData) => Storage.buildModels(rawData, nodes)
+      case None =>
+        logger.debug(
+          s"No information available for ${classOf[PowerPlant].getSimpleName}"
         )
-      case None => Vector.empty[Storage]
+        Vector.empty[Storage]
     }
     val transformers3w =
       modelClassToRawData.getOrElse(classOf[Transformer3W], None) match {

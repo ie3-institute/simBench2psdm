@@ -12,7 +12,7 @@ import edu.ie3.simbench.model.datamodel.profiles.{
   StorageProfile,
   StorageProfileType
 }
-import edu.ie3.simbench.model.datamodel.{Node, Storage}
+import edu.ie3.simbench.model.datamodel.{Node, Storage, enums}
 import edu.ie3.util.quantities.PowerSystemUnits.{
   MEGAVAR,
   MEGAVOLTAMPERE,
@@ -73,7 +73,7 @@ case object StorageConverter
         if (createTimeSeries) {
           val profile =
             PowerProfileConverter
-              .getProfile(plant.profile.profileType, typeToProfile)
+              .getProfile(plant.profile, typeToProfile)
           workerPool ! Worker
             .ConvertWithTimeSeries(plant, node, profile, ctx.self)
         } else
