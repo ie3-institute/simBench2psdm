@@ -85,7 +85,7 @@ class LineTypeConverterSpec extends UnitSpec with ConverterTestData {
     }
 
     "build line type to rated voltage mapping correctly" in {
-      val actual = LineTypeConverter.getRatedVoltages(lineVec)
+      val actual = LineTypeConverter.assignRatedVoltages(lineVec)
       val expected = Map(
         getACLineTypes("NAYY 4x150SE 0.6/1kV")._1 -> Quantities
           .getQuantity(0.4, KILOVOLT),

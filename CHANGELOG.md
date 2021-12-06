@@ -6,9 +6,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [1.0.0] - 2021-08-03
-### Added
--   Basic functionality to convert SimBench data sets to [PowerSystemDataModel](https://github.com/ie3-institute/powersystemdatamodel)
+
+### Changed
+- Line type can be mapped to more than one vRated voltage.
 
 [Unreleased]: https://github.com/ie3-institute/simbench2psdm/compare/v1.0...HEAD
 [1.0.0]: https://github.com/ie3-institute/simbench2psdm/releases/tag/1.0
