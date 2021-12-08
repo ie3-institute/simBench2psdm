@@ -77,7 +77,7 @@ dependencies {
 	implementation 'org.scala-lang.modules:scala-parallel-collections_2.13:1.0.3'
 
 	// TEST Scala //
-	testImplementation "org.scalatest:scalatest_${scalaVersion}:3.2.0"
+	testImplementation "org.scalatest:scalatest_${scalaVersion}:3.2.10"
 	testImplementation 'com.vladsch.flexmark:flexmark-all:0.62.2'
 	testImplementation "org.pegdown:pegdown:1.6.0" // HTML report for scalatest
 	implementation 'org.mockito:mockito-core:3.11.2' // mocking framework
