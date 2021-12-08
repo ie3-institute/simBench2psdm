@@ -19,7 +19,7 @@ import scala.util.matching.Regex
   *
   * Please note, that there is another difference in subnet mapping when switchgear comes into play upstream of a
   * transformer. As this can only be considered, when the whole grid structure is available, this is addressed in
-  * [[GridConverter.updateSubnetInSwitchGears()]]
+  * [[GridConverter.determineSubnetOverrides()]]
   *
   * @param ratedVoltageIdPairs Vector of known combinations of rated voltage and subnet id
   */

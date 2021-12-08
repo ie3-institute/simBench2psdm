@@ -17,6 +17,8 @@ import javax.measure.quantity.ElectricPotential
 import tech.units.indriya.ComparableQuantity
 import tech.units.indriya.quantity.Quantities
 
+import scala.collection.parallel.CollectionConverters._
+
 case object LineConverter extends LazyLogging {
 
   /**
@@ -32,7 +34,7 @@ case object LineConverter extends LazyLogging {
                types: Map[(LineType,ComparableQuantity[ElectricPotential]), LineTypeInput],
                nodes: Map[Node, NodeInput]
   ): Vector[LineInput] =
-    inputs.flatMap {
+    inputs.par.flatMap {
       case acLine: Line.ACLine =>
         val (nodeA, nodeB) =
           NodeConverter.getNodes(acLine.nodeA, acLine.nodeB, nodes)
@@ -44,7 +46,7 @@ case object LineConverter extends LazyLogging {
         )
         Some(convert(acLine, lineType, nodeA, nodeB))
       case _: Line.DCLine => None
-    }
+    }.seq
 
   /**
     * Converts a single [[Line]] to [[LineInput]]. [[Line.DCLine]] is not converted, as the ie3 data model does not
