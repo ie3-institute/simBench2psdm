@@ -12,7 +12,7 @@ import edu.ie3.datamodel.utils.GridAndGeoUtils
 import edu.ie3.simbench.exception.ConversionException
 import edu.ie3.simbench.model.datamodel.types.LineType
 import edu.ie3.simbench.model.datamodel.{Line, Node}
-import edu.ie3.util.quantities.PowerSystemUnits.{KILOMETRE,KILOVOLT}
+import edu.ie3.util.quantities.PowerSystemUnits.{KILOMETRE, KILOVOLT}
 import javax.measure.quantity.ElectricPotential
 import tech.units.indriya.ComparableQuantity
 import tech.units.indriya.quantity.Quantities
@@ -30,16 +30,19 @@ case object LineConverter extends LazyLogging {
     * @return       A [[Vector]] of [[LineInput]]s
     */
   def convert(
-               inputs: Vector[Line[_ <: LineType]],
-               types: Map[(LineType,ComparableQuantity[ElectricPotential]), LineTypeInput],
-               nodes: Map[Node, NodeInput]
+      inputs: Vector[Line[_ <: LineType]],
+      types: Map[
+        (LineType, ComparableQuantity[ElectricPotential]),
+        LineTypeInput
+      ],
+      nodes: Map[Node, NodeInput]
   ): Vector[LineInput] =
     inputs.par.flatMap {
       case acLine: Line.ACLine =>
         val (nodeA, nodeB) =
           NodeConverter.getNodes(acLine.nodeA, acLine.nodeB, nodes)
         val lineType = types.getOrElse(
-          (acLine.lineType,Quantities.getQuantity(acLine.nodeA.vmR,KILOVOLT)),
+          (acLine.lineType, Quantities.getQuantity(acLine.nodeA.vmR, KILOVOLT)),
           throw ConversionException(
             s"Cannot find conversion result for line type ${acLine.lineType.id}"
           )

@@ -32,8 +32,8 @@ case object LineTypeConverter extends LazyLogging {
     * @return       A [[Vector]] of [[LineTypeInput]]s
     */
   def convert(
-               lines: Vector[Line[_ <: LineType]]
-             ): Map[(LineType, ComparableQuantity[ElectricPotential]), LineTypeInput] = {
+      lines: Vector[Line[_ <: LineType]]
+  ): Map[(LineType, ComparableQuantity[ElectricPotential]), LineTypeInput] = {
     assignRatedVoltages(lines).map {
       case pair @ (lineType, vRated) =>
         pair -> convert(
@@ -82,8 +82,8 @@ case object LineTypeConverter extends LazyLogging {
     * @return       Mapping of [[LineType]] to [[ComparableQuantity]] of type [[ElectricPotential]]
     */
   def assignRatedVoltages(
-                           lines: Vector[Line[_ <: LineType]]
-                         ): Vector[(LineType, ComparableQuantity[ElectricPotential])] =
+      lines: Vector[Line[_ <: LineType]]
+  ): Vector[(LineType, ComparableQuantity[ElectricPotential])] =
     lines.map(line => determineRatedVoltage(line)).distinct
 
   /**
