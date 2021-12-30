@@ -340,6 +340,110 @@ trait ConverterTestData {
         LV,
         2
       )
+    ),
+    "EHV Bus 49" -> ConversionPair(
+      Node(
+        "EHV Bus 49",
+        DoubleBusBar,
+        Some(BigDecimal("1.092")),
+        None,
+        BigDecimal("380"),
+        BigDecimal("0.9"),
+        BigDecimal("1.1"),
+        None,
+        None,
+        "EHV1",
+        1
+      ),
+      new NodeInput(
+        UUID.randomUUID(),
+        "EHV Bus 49",
+        OperatorInput.NO_OPERATOR_ASSIGNED,
+        OperationTime.notLimited(),
+        Quantities.getQuantity(1.092, PU),
+        false,
+        NodeInput.DEFAULT_GEO_POSITION,
+        GermanVoltageLevelUtils.EHV_380KV,
+        1
+      )
+    ),
+    "EHV Bus 59" -> ConversionPair(
+      Node(
+        "EHV Bus 59",
+        DoubleBusBar,
+        None,
+        None,
+        BigDecimal("380"),
+        BigDecimal("0.9"),
+        BigDecimal("1.1"),
+        None,
+        None,
+        "EHV1",
+        1
+      ),
+      new NodeInput(
+        UUID.randomUUID(),
+        "EHV Bus 59",
+        OperatorInput.NO_OPERATOR_ASSIGNED,
+        OperationTime.notLimited(),
+        Quantities.getQuantity(0, PU),
+        false,
+        NodeInput.DEFAULT_GEO_POSITION,
+        GermanVoltageLevelUtils.EHV_380KV,
+        1
+      )
+    ),
+    "EHV Bus 1433" -> ConversionPair(
+      Node(
+        "EHV Bus 1433",
+        DoubleBusBar,
+        Some(BigDecimal("1.068")),
+        None,
+        BigDecimal("220"),
+        BigDecimal("0.9"),
+        BigDecimal("1.1"),
+        None,
+        None,
+        "EHV1",
+        1
+      ),
+      new NodeInput(
+        UUID.randomUUID(),
+        "EHV Bus 1433",
+        OperatorInput.NO_OPERATOR_ASSIGNED,
+        OperationTime.notLimited(),
+        Quantities.getQuantity(1.068, PU),
+        false,
+        NodeInput.DEFAULT_GEO_POSITION,
+        GermanVoltageLevelUtils.EHV_220KV,
+        1
+      )
+    ),
+    "EHV Bus 1435" -> ConversionPair(
+      Node(
+        "EHV Bus 1435",
+        DoubleBusBar,
+        None,
+        None,
+        BigDecimal("220"),
+        BigDecimal("0.9"),
+        BigDecimal("1.1"),
+        None,
+        None,
+        "EHV1",
+        1
+      ),
+      new NodeInput(
+        UUID.randomUUID(),
+        "EHV Bus 1435",
+        OperatorInput.NO_OPERATOR_ASSIGNED,
+        OperationTime.notLimited(),
+        Quantities.getQuantity(0, PU),
+        false,
+        NodeInput.DEFAULT_GEO_POSITION,
+        GermanVoltageLevelUtils.EHV_220KV,
+        1
+      )
     )
   )
 
@@ -463,7 +567,50 @@ trait ConverterTestData {
         Quantities.getQuantity(652d, ELECTRIC_CURRENT_MAGNITUDE),
         Quantities.getQuantity(20d, RATED_VOLTAGE_MAGNITUDE)
       )
+    ),
+    "LineType_1" -> ConversionPair(
+    ACLineType(
+      "LineType_1",
+      BigDecimal("0.08"),
+      BigDecimal("0.32"),
+      BigDecimal("361.283"),
+      BigDecimal("1300"),
+      LineStyle.OverheadLine
+    ),
+    new LineTypeInput(
+      UUID.randomUUID(),
+      "LineType_1",
+      Quantities
+        .getQuantity(361.283d, ADMITTANCE_PER_LENGTH),
+      Quantities.getQuantity(0d, ADMITTANCE_PER_LENGTH),
+      Quantities.getQuantity(0.08d, IMPEDANCE_PER_LENGTH),
+      Quantities.getQuantity(0.32d, IMPEDANCE_PER_LENGTH),
+      Quantities.getQuantity(1300d, ELECTRIC_CURRENT_MAGNITUDE),
+      Quantities.getQuantity(220d, RATED_VOLTAGE_MAGNITUDE)
     )
+  ),
+    "LineType_1" -> ConversionPair(
+      ACLineType(
+        "LineType_1",
+        BigDecimal("0.08"),
+        BigDecimal("0.32"),
+        BigDecimal("361.283"),
+        BigDecimal("1300"),
+        LineStyle.OverheadLine
+      ),
+      new LineTypeInput(
+        UUID.randomUUID(),
+        "LineType_1",
+        Quantities
+          .getQuantity(361.283d, ADMITTANCE_PER_LENGTH),
+        Quantities.getQuantity(0d, ADMITTANCE_PER_LENGTH),
+        Quantities.getQuantity(0.08d, IMPEDANCE_PER_LENGTH),
+        Quantities.getQuantity(0.32d, IMPEDANCE_PER_LENGTH),
+        Quantities.getQuantity(1300d, ELECTRIC_CURRENT_MAGNITUDE),
+        Quantities.getQuantity(380d, RATED_VOLTAGE_MAGNITUDE)
+      )
+    )
+
   )
 
   val dcLineTypes = Map(

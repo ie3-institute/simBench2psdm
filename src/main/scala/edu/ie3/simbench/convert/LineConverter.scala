@@ -41,6 +41,9 @@ case object LineConverter extends LazyLogging {
       case acLine: Line.ACLine =>
         val (nodeA, nodeB) =
           NodeConverter.getNodes(acLine.nodeA, acLine.nodeB, nodes)
+        /**
+          * This part of the code works only if no calculations are done with the voltage provided here.
+          */
         val lineType = types.getOrElse(
           (acLine.lineType, Quantities.getQuantity(acLine.nodeA.vmR, KILOVOLT)),
           throw ConversionException(

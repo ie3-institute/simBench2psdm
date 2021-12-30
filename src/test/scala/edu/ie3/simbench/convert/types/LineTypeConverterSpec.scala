@@ -58,6 +58,28 @@ class LineTypeConverterSpec extends UnitSpec with ConverterTestData {
       7
     )
   )
+  val EHVlines = Vector(
+   ACLine(
+      "EHV Line 4",
+      getNodePair("EHV Bus 49")._1,
+      getNodePair("EHV Bus 59")._1,
+      getACLineTypes("LineType_1")._1,
+      BigDecimal("194.581"),
+      BigDecimal("100"),
+      "EHV 1",
+     1
+    ),
+     ACLine(
+      "EHV Line 273",
+      getNodePair("EHV Bus 1433")._1,
+      getNodePair("EHV Bus 1435")._1,
+      getACLineTypes("LineType_1")._1,
+      BigDecimal("43.396"),
+      BigDecimal("100"),
+       "EHV 1",
+       1
+    )
+  )
 
   val uuid: UUID = UUID.randomUUID()
 
@@ -90,7 +112,7 @@ class LineTypeConverterSpec extends UnitSpec with ConverterTestData {
         getACLineTypes("NAYY 4x150SE 0.6/1kV")._1 -> Quantities
           .getQuantity(0.4, KILOVOLT),
         getACLineTypes("24-AL1/4-ST1A 20.0")._1 -> Quantities
-          .getQuantity(0.4, KILOVOLT)
+         .getQuantity(0.4, KILOVOLT)
       )
       actual.toSet shouldBe expected.toSet
     }
@@ -136,5 +158,19 @@ class LineTypeConverterSpec extends UnitSpec with ConverterTestData {
       )
       thrown.getMessage shouldBe "DC line types are currently not supported by ie3's data model."
     }
+
+    "extract the rated voltage of lines with same line type but different rated voltages correctly" in {
+      val actual = LineTypeConverter invokePrivate determineRatedVoltageMethod(
+        EHVlines(0)
+      )
+      actual shouldBe (getACLineTypes("LineType_1")._1, Quantities
+        .getQuantity(380, KILOVOLT))
+      val actualVal = LineTypeConverter invokePrivate determineRatedVoltageMethod(
+        EHVlines(1)
+      )
+      actualVal shouldBe (getACLineTypes("LineType_1")._1, Quantities
+        .getQuantity(220, KILOVOLT))
+    }
+
   }
 }
