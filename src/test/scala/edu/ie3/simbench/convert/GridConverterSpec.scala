@@ -1,20 +1,32 @@
 package edu.ie3.simbench.convert
 
+import akka.actor.testkit.typed.scaladsl.ActorTestKit
+
 import java.nio.file.Paths
 import java.util
 import edu.ie3.datamodel.models.UniqueEntity
-import edu.ie3.datamodel.models.input.NodeInput
-import edu.ie3.datamodel.models.input.connector.{LineInput, Transformer2WInput}
-import edu.ie3.datamodel.models.input.system.{FixedFeedInInput, LoadInput}
+import edu.ie3.simbench.actor.GridConverter.ConvertGridStructure
+import edu.ie3.simbench.actor.{Converter, GridConverter}
 import edu.ie3.simbench.convert.NodeConverter.AttributeOverride.JoinOverride
 import edu.ie3.simbench.io.SimbenchReader
 import edu.ie3.simbench.model.datamodel.{GridModel, Node, Switch}
 import edu.ie3.test.common.{SwitchTestingData, UnitSpec}
-import org.scalatest.Inside._
+import org.scalatest.BeforeAndAfterAll
 
+import scala.concurrent.duration.{Duration, FiniteDuration}
 import scala.jdk.CollectionConverters._
 
-class GridConverterSpec extends UnitSpec with SwitchTestingData {
+class GridConverterSpec
+    extends UnitSpec
+    with BeforeAndAfterAll
+    with SwitchTestingData {
+  val akkaTestKit: ActorTestKit = ActorTestKit()
+
+  override protected def afterAll(): Unit = {
+    akkaTestKit.shutdownTestKit()
+    super.afterAll()
+  }
+
   val simbenchReader: SimbenchReader = SimbenchReader(
     "1-LV-rural1--0-no_sw",
     Paths.get("src/test/resources/gridData/1-LV-rural1--0-no_sw")
@@ -139,67 +151,49 @@ class GridConverterSpec extends UnitSpec with SwitchTestingData {
 
     "converting a full data set" should {
       "bring the correct amount of converted models" in {
-        val actual = GridConverter.convert(
+        /* Set up the actors */
+        val gridConverter = akkaTestKit.spawn(GridConverter(), "gridConverter")
+        val converter =
+          akkaTestKit.createTestProbe[Converter.ConverterMessage]("converter")
+
+        /* Issue the conversion */
+        gridConverter ! ConvertGridStructure(
           "1-LV-rural1--0-no_sw",
-          input,
-          removeSwitches = false
+          input.nodes,
+          input.nodePFResults,
+          input.externalNets,
+          input.powerPlants,
+          input.res,
+          input.transformers2w,
+          input.transformers3w,
+          input.lines,
+          input.switches,
+          input.measurements,
+          removeSwitches = false,
+          converter.ref
         )
-        inside(actual) {
-          case (
-              gridContainer,
-              timeSeries,
-              timeSeriesMapping,
-              powerFlowResults
+
+        converter.expectMessageType[Converter.GridStructureConverted](
+          FiniteDuration(60, "s")
+        ) match {
+          case Converter.GridStructureConverted(
+              nodeConversion,
+              nodeResults,
+              lines,
+              transformers2w,
+              transformers3w,
+              switches,
+              measurements
               ) =>
-            /* Evaluate the correctness of the container by counting the occurrence of models (the correct conversion is
-             * tested in separate unit tests */
-            gridContainer.getGridName shouldBe "1-LV-rural1--0-no_sw"
-            countClassOccurrences(gridContainer.getRawGrid.allEntitiesAsList()) shouldBe Map(
-              classOf[NodeInput] -> 15,
-              classOf[LineInput] -> 13,
-              classOf[Transformer2WInput] -> 1
-            )
-            countClassOccurrences(
-              gridContainer.getSystemParticipants.allEntitiesAsList()
-            ) shouldBe Map(
-              classOf[FixedFeedInInput] -> 4,
-              classOf[LoadInput] -> 13
-            )
-            countClassOccurrences(gridContainer.getGraphics.allEntitiesAsList()) shouldBe Map
-              .empty[Class[_ <: UniqueEntity], Int]
-
-            /* Evaluate the correctness of the time series by counting the occurrence of models */
-            timeSeries.size shouldBe 17
-
-            /* Evaluate the existence of time series mappings for all participants */
-            timeSeriesMapping.size shouldBe 17
-            val participantUuids = gridContainer.getSystemParticipants
-              .allEntitiesAsList()
-              .asScala
-              .map(_.getUuid)
-              .toVector
-            /* There is no participant uuid in mapping, that is not among participants */
-            timeSeriesMapping.exists(
-              entry => !participantUuids.contains(entry.getParticipant)
-            ) shouldBe false
-
-            /* Evaluate the amount of converted power flow results */
-            powerFlowResults.size shouldBe 15
+            nodeConversion.size shouldBe 15
+            nodeResults.size shouldBe 15
+            lines.size shouldBe 13
+            transformers2w.size shouldBe 1
+            transformers3w.size shouldBe 0
+            switches.size shouldBe 0
+            measurements.size shouldBe 0
         }
       }
     }
   }
-
-  def countClassOccurrences(
-      entities: util.List[_ <: UniqueEntity]
-  ): Map[Class[_ <: UniqueEntity], Int] =
-    entities.asScala
-      .groupBy(_.getClass)
-      .map(
-        classToOccurrences =>
-          classToOccurrences._1 -> classToOccurrences._2.size
-      )
-      .toSeq
-      .sortBy(_._1.getName)
-      .toMap
 }

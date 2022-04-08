@@ -1,4 +1,7 @@
+import com.github.jengelman.gradle.plugins.shadow.transformers.AppendingTransformer
+
 plugins {
+	id 'application'
 	id "com.jfrog.artifactory" version "4.24.14"
 	id 'groovy' // groovy support
 	id 'java' // java support
@@ -7,6 +10,7 @@ plugins {
 	id 'com.diffplug.spotless' version '5.14.2'// code format
 	id "de.undercouch.download" version "4.1.2" // downloads plugin
 	id 'jacoco' // java code coverage plugin
+	id "com.github.johnrengelman.shadow" version "7.0.0" // fat jar
 	id "org.sonarqube" version "3.3" // sonarqube
 	id 'org.scoverage' version '6.0.0' // Code coverage plugin for scala
 	id "com.github.maiflai.scalatest" version "0.31" // run scalatest without specific task
@@ -18,7 +22,7 @@ ext {
 
 	scalaVersion = '2.13'
 	scalaBinaryVersion = '2.13.6'
-	tscfgVersion = '0.9.986'
+	tscfgVersion = '0.9.993'
 	slf4jVersion = '1.7.32'
 
 	scriptsLocation = 'gradle' + File.separator + 'scripts' + File.separator //location of script plugins
@@ -35,6 +39,8 @@ apply from: scriptsLocation + 'spotless.gradle'
 apply from: scriptsLocation + 'checkJavaVersion.gradle'
 apply from: scriptsLocation + 'tscfg.gradle' // config tasks
 apply from: scriptsLocation + 'scoverage.gradle'
+
+application.mainClassName = 'edu.ie3.simbench.main.RunSimbench'
 
 repositories {
 	mavenCentral()
@@ -66,11 +72,11 @@ dependencies {
 	implementation 'commons-io:commons-io:2.11.0'
 
 	// logging
-	implementation 'org.apache.logging.log4j:log4j-api:+' // log4j
-	implementation 'org.apache.logging.log4j:log4j-core:+' // log4j
-	implementation 'org.apache.logging.log4j:log4j-slf4j-impl:+' // log4j -> slf4j
+	implementation 'org.apache.logging.log4j:log4j-api:2.14.1' // log4j
+	implementation 'org.apache.logging.log4j:log4j-core:2.14.1' // log4j
+	implementation 'org.apache.logging.log4j:log4j-slf4j-impl:2.14.1' // log4j -> slf4j
 
-	implementation "com.typesafe.scala-logging:scala-logging_${scalaVersion}:+" // akka scala logging
+	implementation "com.typesafe.scala-logging:scala-logging_${scalaVersion}:3.9.4" // akka scala logging
 	implementation "org.slf4j:log4j-over-slf4j:${slf4jVersion}" // slf4j -> log4j
 
 	// NEW scala libs //
@@ -84,21 +90,43 @@ dependencies {
 	testImplementation "org.pegdown:pegdown:1.6.0" // HTML report for scalatest
 	implementation 'org.mockito:mockito-core:3.11.2' // mocking framework
 
+	// akka actor system //
+	implementation platform("com.typesafe.akka:akka-bom_${scalaVersion}:2.6.14")
+	implementation "com.typesafe.akka:akka-actor-typed_${scalaVersion}"
+	implementation "com.typesafe.akka:akka-stream_${scalaVersion}"
+	testImplementation "com.typesafe.akka:akka-actor-testkit-typed_${scalaVersion}"
+
 	// config //
-	implementation 'com.typesafe:config:+'
+	implementation 'com.typesafe:config:1.4.1'
 	implementation "com.github.carueda:tscfg_2.13:${tscfgVersion}"
 
 	// cmd args parser //
 	implementation "com.github.scopt:scopt_${scalaVersion}:+"
 
 	/* Handling compressed archives */
-	implementation "org.apache.commons:commons-compress:+"
+	implementation "org.apache.commons:commons-compress:1.21"
 }
 
 wrapper {
-	gradleVersion = '7.1.1'
+	gradleVersion = '7.2'
 }
 
 tasks.withType(JavaCompile) {
 	options.encoding = 'UTF-8'
+}
+
+tasks.withType(Javadoc){
+	options.encoding = 'UTF-8'
+}
+
+//////////////////////////////////////////////////////////////////////
+// Build akka'able fat jar using the gradle shadow plugin
+// see http://www.sureshpw.com/2015/10/building-akka-bundle-with-all.html
+// and https://github.com/akka/akka/issues/24248
+//////////////////////////////////////////////////////////////////////
+shadowJar {
+	transform(AppendingTransformer) {
+		resource = 'reference.conf'
+	}
+	zip64 = true
 }

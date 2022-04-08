@@ -11,3 +11,19 @@ SimBench has been research project of Kassel university, Fraunhofer IEE, RWTH Aa
 The data is availabe at https://simbench.de.
 
 There is another conversion tool available [here](https://github.com/e2nIEE/simbench), that makes the models available to the well known [pandapower](https://github.com/e2nIEE/pandapower) simulation software.
+
+## Hints for usage
+If you intend to convert bigger models, like `1-MVLV-rural-all-...`, it may consume a considerable amount of resources.
+Therefore, you have two options to make conversion more convenient.
+If you don't need time resolved grid usage patterns, you can turn off their conversion by `conversion.createTimeSeries = true` within the config.
+
+If you are interested in obtaining the time series, it is recommended to set some JVM options.
+Of course, adapting the heap size is advisory.
+For above-mentioned grid, `-Xmx20g` was sufficient, if the config was chosen as follows.
+Of course this will also be dependend on your system.
+```hocon
+conversion.participantWorkersPerType = 5
+io.output.workers = 30
+```
+If running the conversion with Java 8, it is also advisory to define a specific garbage collector to use.
+The G1 garbage collector `-XX:+UseG1GC` was a good choice for above-mentioned example application.

@@ -22,6 +22,7 @@ case object ConfigValidator {
   @throws[SimbenchException]
   def checkValidity(config: SimbenchConfig): Unit = {
     checkValidity(config.io)
+    checkValidity(config.conversion)
   }
 
   /**
@@ -34,6 +35,25 @@ case object ConfigValidator {
   @throws[SimbenchException]
   private def checkValidity(io: SimbenchConfig.Io): Unit = {
     checkSimbenchCodes(io.simbenchCodes)
+    if (io.output.workers <= 0)
+      throw new SimbenchException(
+        "The amount of output workers has to be positive!"
+      )
+  }
+
+  /**
+    * Checks the validity of an conversion-config part. If any content is not valid, a
+    * [[SimbenchConfigException]] is thrown
+    *
+    * @param conversion The conversion config to validate
+    * @throws SimbenchException If any of the content is not as it is expected
+    */
+  @throws[SimbenchException]
+  private def checkValidity(conversion: SimbenchConfig.Conversion): Unit = {
+    if (conversion.participantWorkersPerType <= 0)
+      throw new SimbenchException(
+        "The amount of participant workers has to be positive!"
+      )
   }
 
   /**

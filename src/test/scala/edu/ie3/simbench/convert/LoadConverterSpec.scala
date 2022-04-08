@@ -2,6 +2,7 @@ package edu.ie3.simbench.convert
 
 import edu.ie3.datamodel.models.StandardUnits
 import edu.ie3.datamodel.models.input.NodeInput
+import edu.ie3.simbench.actor.LoadConverter
 import edu.ie3.simbench.model.datamodel.profiles.LoadProfile
 import edu.ie3.test.common.{ConverterTestData, UnitSpec}
 import edu.ie3.util.quantities.PowerSystemUnits.KILOWATTHOUR
@@ -19,7 +20,7 @@ class LoadConverterSpec extends UnitSpec with ConverterTestData {
   "The load converter" should {
     "convert a single model correctly" in {
       /* Time series conversion is tested in a single test */
-      val (actual, _) = LoadConverter.convert(input, node, inputProfile)
+      val actual = LoadConverter.Worker.convertModel(input, node)
 
       actual.getId shouldBe actual.getId
       actual.getNode shouldBe expected.getNode
