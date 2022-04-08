@@ -1,29 +1,16 @@
-package edu.ie3.simbench.convert
+package edu.ie3.simbench.actor
 
+import akka.actor.typed.ActorRef
+import akka.actor.typed.scaladsl.Behaviors
 import com.typesafe.scalalogging.LazyLogging
-import edu.ie3.datamodel.io.source.TimeSeriesMappingSource
-import edu.ie3.datamodel.io.source.TimeSeriesMappingSource.MappingEntry
+import edu.ie3.datamodel.models.input.NodeInput
 import edu.ie3.datamodel.models.input.connector.{
   LineInput,
   SwitchInput,
   Transformer2WInput,
   Transformer3WInput
 }
-import edu.ie3.datamodel.models.input.container.{
-  GraphicElements,
-  JointGridContainer,
-  RawGridElements,
-  SystemParticipants
-}
-import edu.ie3.datamodel.models.input.graphics.{
-  LineGraphicInput,
-  NodeGraphicInput
-}
-import edu.ie3.datamodel.models.input.system._
-import edu.ie3.datamodel.models.input.NodeInput
 import edu.ie3.datamodel.models.result.NodeResult
-import edu.ie3.datamodel.models.timeseries.individual.IndividualTimeSeries
-import edu.ie3.datamodel.models.value.{PValue, SValue, Value}
 import edu.ie3.simbench.convert.NodeConverter.AttributeOverride.{
   JoinOverride,
   SubnetOverride
@@ -32,155 +19,160 @@ import edu.ie3.simbench.convert.types.{
   LineTypeConverter,
   Transformer2wTypeConverter
 }
+import edu.ie3.simbench.convert._
 import edu.ie3.simbench.exception.ConversionException
-import edu.ie3.simbench.model.datamodel.{
-  GridModel,
-  Line,
-  Node,
-  NodePFResult,
-  Switch,
-  Transformer2W,
-  Transformer3W
-}
+import edu.ie3.simbench.model.datamodel._
+import edu.ie3.simbench.model.datamodel.types.LineType
 
-import java.util.UUID
 import scala.annotation.tailrec
 import scala.jdk.CollectionConverters._
 import scala.collection.parallel.CollectionConverters._
 
 case object GridConverter extends LazyLogging {
+  def apply(): Behaviors.Receive[GridConverterMessage] = idle
 
-  /**
-    * Converts a full simbench grid into power system data models [[JointGridContainer]]. Additionally, individual time
-    * series for all system participants are delivered as well.
-    *
-    * @param simbenchCode   Simbench code, that is used as identifier for the grid
-    * @param gridInput      Total grid input model to be converted
-    * @param removeSwitches Whether or not to remove switches from the grid structure
-    * @return A converted [[JointGridContainer]], a [[Vector]] of [[IndividualTimeSeries]] as well as a [[Vector]] of [[NodeResult]]s
-    */
-  def convert(
-      simbenchCode: String,
-      gridInput: GridModel,
-      removeSwitches: Boolean
-  ): (
-      JointGridContainer,
-      Vector[IndividualTimeSeries[_ <: PValue]],
-      Seq[MappingEntry],
-      Vector[NodeResult]
-  ) = {
-    logger.debug(s"Converting raw grid elements of '${gridInput.simbenchCode}'")
-    val (rawGridElements, nodeConversion) =
-      convertGridElements(gridInput, removeSwitches)
-
-    logger.debug(
-      s"Converting system participants and their time series of '${gridInput.simbenchCode}'"
-    )
-    val (systemParticipants, timeSeries, timeSeriesMapping) =
-      convertParticipants(gridInput, nodeConversion)
-
-    logger.debug(
-      s"Converting power flow results of '${gridInput.simbenchCode}'"
-    )
-    val powerFlowResults =
-      convertNodeResults(gridInput.nodePFResults, nodeConversion)
-
-    (
-      new JointGridContainer(
-        simbenchCode,
-        rawGridElements,
-        systemParticipants,
-        new GraphicElements(
-          Set.empty[NodeGraphicInput].asJava,
-          Set.empty[LineGraphicInput].asJava
+  def idle: Behaviors.Receive[GridConverterMessage] = Behaviors.receive {
+    case (
+        ctx,
+        ConvertGridStructure(
+          simBenchCode,
+          nodes,
+          nodeResults,
+          externalNets,
+          powerPlants,
+          res,
+          transformers2w,
+          transformers3w,
+          lines,
+          switches,
+          measurements,
+          removeSwitches,
+          converter
         )
-      ),
-      timeSeries,
-      timeSeriesMapping,
-      powerFlowResults
-    )
+        ) =>
+      ctx.log.debug(
+        s"Got asked to convert the grid structure of SimBench model '$simBenchCode'."
+      )
+      val nodeConversion = convertNodes(
+        nodes,
+        externalNets,
+        powerPlants,
+        res,
+        transformers2w,
+        transformers3w,
+        lines,
+        switches,
+        removeSwitches
+      )
+
+      val convertedLines = convertLines(lines, nodeConversion)
+      val convertedTransformers2w =
+        convertTransformers2w(transformers2w, nodeConversion)
+      val convertedTransformers3w = Vector.empty[Transformer3WInput] /* Currently, no conversion strategy is known */
+      if (transformers3w.nonEmpty)
+        ctx.log.debug(
+          "Creation of three winding transformers is not yet implemented."
+        )
+      val convertedSwitches = SwitchConverter.convert(switches, nodeConversion)
+      val convertedMeasurements = MeasurementConverter
+        .convert(measurements, nodeConversion)
+
+      val nonIslandedNodes = filterIsolatedNodes(
+        nodeConversion,
+        convertedLines.toSet.asJava,
+        convertedTransformers2w.toSet.asJava,
+        convertedTransformers3w.toSet.asJava,
+        convertedSwitches.toSet.asJava
+      )
+
+      val convertedResults = convertNodeResults(nodeResults, nonIslandedNodes)
+
+      converter ! Converter.GridStructureConverted(
+        nonIslandedNodes,
+        convertedResults,
+        convertedLines,
+        convertedTransformers2w,
+        convertedTransformers3w,
+        convertedSwitches,
+        convertedMeasurements
+      )
+      Behaviors.same
   }
 
+  sealed trait GridConverterMessage
+  final case class ConvertGridStructure(
+      simBenchCode: String,
+      nodes: Vector[Node],
+      results: Vector[NodePFResult],
+      externalNets: Vector[ExternalNet],
+      powerPlants: Vector[PowerPlant],
+      res: Vector[RES],
+      transformers2w: Vector[Transformer2W],
+      transformers3w: Vector[Transformer3W],
+      lines: Vector[Line[_ <: LineType]],
+      switches: Vector[Switch],
+      measurements: Vector[Measurement],
+      removeSwitches: Boolean = false,
+      replyTo: ActorRef[Converter.ConverterMessage]
+  ) extends GridConverterMessage
+
   /**
-    * Converts all elements that do form the grid itself.
+    * Convert the nodes with all needed preliminary steps. This is determination of target subnets, correction of subnet
+    * number for high voltage switch gear and joining of nodes in case of closed switches.
     *
-    * @param gridInput      Total grid input model to convert
-    * @param removeSwitches Whether or not to remove switches from the grid structure
-    * @return All grid elements in converted form + a mapping from old to new node models
+    * @param nodes          Collection of nodes
+    * @param externalNets   Collection of external grids
+    * @param powerPlants    Collection of power plants
+    * @param res            Collection of renewable energy sources
+    * @param transformers2w Collection of two winding transformers
+    * @param transformers3w Collection of three winding transformers
+    * @param lines          Collection of lines
+    * @param switches       Collection of switches
+    * @param removeSwitches Whether or not to remove closed switches
+    * @return A mapping from raw node models to their conversion
     */
-  def convertGridElements(
-      gridInput: GridModel,
-      removeSwitches: Boolean
-  ): (RawGridElements, Map[Node, NodeInput]) = {
+  private def convertNodes(
+      nodes: Vector[Node],
+      externalNets: Vector[ExternalNet],
+      powerPlants: Vector[PowerPlant],
+      res: Vector[RES],
+      transformers2w: Vector[Transformer2W],
+      transformers3w: Vector[Transformer3W],
+      lines: Vector[Line[_]],
+      switches: Vector[Switch],
+      removeSwitches: Boolean = false
+  ): Map[Node, NodeInput] = {
     /* Set up a sub net converter, by crawling all nodes */
     val subnetConverter = SubnetConverter(
-      gridInput.nodes.map(node => (node.vmR, node.subnet))
+      nodes.map(node => (node.vmR, node.subnet))
     )
 
     val slackNodeKeys = NodeConverter.getSlackNodeKeys(
-      gridInput.externalNets,
-      gridInput.powerPlants,
-      gridInput.res
+      externalNets,
+      powerPlants,
+      res
     )
 
     /* Collect overriding attributes for node conversion, based on special constellations within the grid */
     val subnetOverrides = determineSubnetOverrides(
-      gridInput.transformers2w,
-      gridInput.transformers3w,
-      gridInput.switches,
-      gridInput.lines,
+      transformers2w,
+      transformers3w,
+      switches,
+      lines,
       subnetConverter
     )
     val joinOverrides = if (removeSwitches) {
       /* If switches are meant to be removed, join all nodes at closed switches */
-      determineJoinOverrides(gridInput.switches, slackNodeKeys)
+      determineJoinOverrides(switches, slackNodeKeys)
     } else
       Vector.empty
 
-    val nodeConversion =
-      convertNodes(
-        gridInput.nodes,
-        slackNodeKeys,
-        subnetConverter,
-        subnetOverrides,
-        joinOverrides
-      )
-
-    val lines = convertLines(gridInput, nodeConversion).toSet.asJava
-    val transformers2w =
-      convertTransformers2w(gridInput, nodeConversion).toSet.asJava
-    val transformers3w = Set.empty[Transformer3WInput].asJava /* Currently, no conversion strategy is known */
-    logger.debug(
-      "Creation of three winding transformers is not yet implemented."
-    )
-    val switches =
-      if (!removeSwitches)
-        SwitchConverter.convert(gridInput.switches, nodeConversion).toSet.asJava
-      else
-        Set.empty[SwitchInput].asJava
-    val measurements = MeasurementConverter
-      .convert(gridInput.measurements, nodeConversion)
-      .toSet
-      .asJava
-
-    val connectedNodes = filterIsolatedNodes(
-      nodeConversion,
-      lines,
-      transformers2w,
-      transformers3w,
-      switches
-    )
-
-    (
-      new RawGridElements(
-        connectedNodes.values.toSet.asJava,
-        lines,
-        transformers2w,
-        transformers3w,
-        switches,
-        measurements
-      ),
-      connectedNodes
+    convertNodes(
+      nodes,
+      slackNodeKeys,
+      subnetConverter,
+      subnetOverrides,
+      joinOverrides
     )
   }
 
@@ -192,11 +184,11 @@ case object GridConverter extends LazyLogging {
     * will control the switches in a manner, that the lower grid needs for. Therefore, for all nodes that are upstream
     * of a transformer's hv node and connected via switches, explicit subnet numbers are provided.
     *
-    * @param transformers2w   Collection of two winding transformers
-    * @param transformers3w   Collection of three winding transformers
-    * @param switches         Collection of switches
-    * @param lines            Collection of lines
-    * @param subnetConverter  Converter to determine subnet numbers
+    * @param transformers2w  Collection of two winding transformers
+    * @param transformers3w  Collection of three winding transformers
+    * @param switches        Collection of switches
+    * @param lines           Collection of lines
+    * @param subnetConverter Converter to determine subnet numbers
     * @return A collection of [[SubnetOverride]]s
     */
   private def determineSubnetOverrides(
@@ -318,8 +310,8 @@ case object GridConverter extends LazyLogging {
   /**
     * Determine join overrides for all nodes, that are connected by closed switches
     *
-    * @param switches       Collection of all (closed) switches
-    * @param slackNodeKeys  Collection of node keys, that are foreseen to be slack nodes
+    * @param switches      Collection of all (closed) switches
+    * @param slackNodeKeys Collection of node keys, that are foreseen to be slack nodes
     * @return A collection of [[JoinOverride]]s
     */
   private def determineJoinOverrides(
@@ -364,8 +356,8 @@ case object GridConverter extends LazyLogging {
   /**
     * Determine overrides per switch group
     *
-    * @param switchGroup    A group of directly connected switches
-    * @param slackNodeKeys  Collection of node keys, that are foreseen to be slack nodes
+    * @param switchGroup   A group of directly connected switches
+    * @param slackNodeKeys Collection of node keys, that are foreseen to be slack nodes
     * @return A collection of [[JoinOverride]]s
     */
   private def determineJoinOverridesForSwitchGroup(
@@ -469,47 +461,43 @@ case object GridConverter extends LazyLogging {
       input: Vector[NodePFResult],
       nodeConversion: Map[Node, NodeInput]
   ): Vector[NodeResult] =
-    input.par.map { nodePfResult =>
-      val node = nodeConversion.getOrElse(
-        nodePfResult.node,
-        throw ConversionException(
-          s"Cannot convert power flow result for node ${nodePfResult.node}, as the needed node conversion cannot be found."
-        )
-      )
-      NodePFResultConverter.convert(nodePfResult, node)
+    input.par.flatMap { nodePfResult =>
+      nodeConversion
+        .get(nodePfResult.node)
+        .map(node => NodePFResultConverter.convert(nodePfResult, node))
     }.seq
 
   /**
     * Converts the given lines.
     *
-    * @param gridInput      Total grid input model to convert
+    * @param lines          Lines to convert
     * @param nodeConversion Already known conversion mapping of nodes
     * @return A vector of converted line models
     */
   private def convertLines(
-      gridInput: GridModel,
+      lines: Vector[Line[_ <: LineType]],
       nodeConversion: Map[Node, NodeInput]
   ): Vector[LineInput] = {
-    val lineTypes = LineTypeConverter.convert(gridInput.lines)
-    LineConverter.convert(gridInput.lines, lineTypes, nodeConversion)
+    val lineTypes = LineTypeConverter.convert(lines)
+    LineConverter.convert(lines, lineTypes, nodeConversion)
   }
 
   /**
     * Converts the given two winding transformers.
     *
-    * @param gridInput      Total grid input model to convert
+    * @param transformers   Transformer models to convert
     * @param nodeConversion Already known conversion mapping of nodes
     * @return A vector of converted two winding transformer models
     */
   private def convertTransformers2w(
-      gridInput: GridModel,
+      transformers: Vector[Transformer2W],
       nodeConversion: Map[Node, NodeInput]
   ): Vector[Transformer2WInput] = {
     val transformerTypes = Transformer2wTypeConverter.convert(
-      gridInput.transformers2w.map(_.transformerType)
+      transformers.map(_.transformerType)
     )
     Transformer2wConverter.convert(
-      gridInput.transformers2w,
+      transformers,
       transformerTypes,
       nodeConversion
     )
@@ -553,123 +541,5 @@ case object GridConverter extends LazyLogging {
           )
         connectedNodes
     }
-  }
-
-  /**
-    * Converts all system participants and extracts their individual power time series
-    *
-    * @param gridInput      Total grid input model to convert
-    * @param nodeConversion Already known conversion mapping of nodes
-    * @return A collection of converted system participants and their individual time series
-    */
-  def convertParticipants(
-      gridInput: GridModel,
-      nodeConversion: Map[Node, NodeInput]
-  ): (
-      SystemParticipants,
-      Vector[IndividualTimeSeries[_ <: PValue]],
-      Seq[MappingEntry]
-  ) = {
-    /* Convert all participant groups */
-    logger.debug(
-      s"Participants to convert:\n\tLoads: ${gridInput.loads.size}" +
-        s"\n\tPower Plants: ${gridInput.powerPlants.size}\n\tRES: ${gridInput.res.size}"
-    )
-    val loadsToTimeSeries = convertLoads(gridInput, nodeConversion)
-    logger.debug(
-      s"Done converting ${gridInput.loads.size} loads including time series"
-    )
-    val powerPlantsToTimeSeries = convertPowerPlants(gridInput, nodeConversion)
-    logger.debug(
-      s"Done converting ${gridInput.powerPlants.size} power plants including time series"
-    )
-    val resToTimeSeries = convertRes(gridInput, nodeConversion)
-    logger.debug(
-      s"Done converting ${gridInput.res.size} RES including time series"
-    )
-
-    /* Map participant uuid onto time series */
-    val participantsToTimeSeries = loadsToTimeSeries ++ powerPlantsToTimeSeries ++ resToTimeSeries
-    val mapping = participantsToTimeSeries.map {
-      case (model, timeSeries) =>
-        new TimeSeriesMappingSource.MappingEntry(
-          UUID.randomUUID(),
-          model.getUuid,
-          timeSeries.getUuid
-        )
-    }.toSeq
-    val timeSeries: Vector[IndividualTimeSeries[_ >: SValue <: PValue]] =
-      participantsToTimeSeries.map(_._2).toVector
-
-    (
-      new SystemParticipants(
-        Set.empty[BmInput].asJava,
-        Set.empty[ChpInput].asJava,
-        Set.empty[EvcsInput].asJava,
-        Set.empty[EvInput].asJava,
-        (powerPlantsToTimeSeries.keySet ++ resToTimeSeries.keySet).asJava,
-        Set.empty[HpInput].asJava,
-        loadsToTimeSeries.keySet.asJava,
-        Set.empty[PvInput].asJava,
-        Set.empty[StorageInput].asJava,
-        Set.empty[WecInput].asJava
-      ),
-      timeSeries,
-      mapping
-    )
-  }
-
-  /**
-    * Converting all loads.
-    *
-    * @param gridInput      Total grid input model to convert
-    * @param nodeConversion Already known conversion mapping of nodes
-    * @return A mapping from loads to their assigned, specific time series
-    */
-  def convertLoads(
-      gridInput: GridModel,
-      nodeConversion: Map[Node, NodeInput]
-  ): Map[LoadInput, IndividualTimeSeries[SValue]] = {
-    val loadProfiles = gridInput.loadProfiles
-      .map(profile => profile.profileType -> profile)
-      .toMap
-    LoadConverter.convert(gridInput.loads, nodeConversion, loadProfiles)
-  }
-
-  /**
-    * Converting all power plants.
-    *
-    * @param gridInput      Total grid input model to convert
-    * @param nodeConversion Already known conversion mapping of nodes
-    * @return A mapping from power plants to their assigned, specific time series
-    */
-  def convertPowerPlants(
-      gridInput: GridModel,
-      nodeConversion: Map[Node, NodeInput]
-  ): Map[FixedFeedInInput, IndividualTimeSeries[PValue]] = {
-    val powerPlantProfiles = gridInput.powerPlantProfiles
-      .map(profile => profile.profileType -> profile)
-      .toMap
-    PowerPlantConverter.convert(
-      gridInput.powerPlants,
-      nodeConversion,
-      powerPlantProfiles
-    )
-  }
-
-  /**
-    * Converting all renewable energy source system.
-    *
-    * @param gridInput      Total grid input model to convert
-    * @param nodeConversion Already known conversion mapping of nodes
-    * @return A mapping from renewable energy source system to their assigned, specific time series
-    */
-  def convertRes(
-      gridInput: GridModel,
-      nodeConversion: Map[Node, NodeInput]
-  ): Map[FixedFeedInInput, IndividualTimeSeries[PValue]] = {
-    val resProfiles =
-      gridInput.resProfiles.map(profile => profile.profileType -> profile).toMap
-    ResConverter.convert(gridInput.res, nodeConversion, resProfiles)
   }
 }
