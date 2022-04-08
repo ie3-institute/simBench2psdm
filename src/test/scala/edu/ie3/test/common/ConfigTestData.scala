@@ -32,7 +32,8 @@ trait ConfigTestData {
     List("1-LV-urban6--0-sw", "blabla", "1-EHVHV-mixed-2-0-sw")
   )
 
-  val validConversionConfig: Conversion = Conversion(removeSwitches = false)
+  val validConversionConfig: Conversion =
+    Conversion(removeSwitches = false, participantWorkersPerType = 20)
 
   val validConfig = new SimbenchConfig(validConversionConfig, validIo)
 }
