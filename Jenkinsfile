@@ -5,9 +5,6 @@
 ////////////////////////////////
 
 
-//// Rocket.Chat channel to publish updates
-final String rocketChatChannel = "jenkins"
-
 
 //// project build dir order
 //// this list contains the build order
@@ -88,11 +85,6 @@ if (env.BRANCH_NAME == "master") {
                         "master branch build triggered (incl. snapshot deploy) by merging pr from feature branch '${featureBranchName}'"
                         : "master branch build triggered (incl. snapshot deploy) for commit with message '${jsonObject.commit.message}'"
 
-                // notify rocket chat about the started feature branch run
-                rocketSend channel: rocketChatChannel, emoji: ':jenkins_triggered:',
-                        message: message + "\n"
-                rawMessage: true
-
                 // set build display name
                 currentBuild.displayName = ((featureBranchName?.trim()) ? "merge pr branch '${featureBranchName}'" : "commit '" +
                         "${jsonObject.commit.message.length() <= 20 ? jsonObject.commit.message : jsonObject.commit.message.substring(0, 20)}...'") + " (" + currentBuild.displayName + ")"
@@ -148,11 +140,6 @@ if (env.BRANCH_NAME == "master") {
                 Date date = new Date()
                 println("[ERROR] [${date.format("dd/MM/yyyy")} - ${date.format("HH:mm:ss")}]" + e)
 
-                // notify rocket chat
-                rocketSend channel: rocketChatChannel, emoji: ':jenkins_explode:',
-                        message: "merge feature into master failed!\n" +
-                                "*repo:* ${urls.get(0)}/${projects.get(0)}\n"
-                rawMessage: true
             }
 
         }
@@ -190,13 +177,6 @@ if (env.BRANCH_NAME == "master") {
 
                 /// set the build name
                 currentBuild.displayName = featureBranchName + " (" + currentBuild.displayName + ")"
-
-                // notify rocket chat about the started feature branch run
-                rocketSend channel: rocketChatChannel, emoji: ':jenkins_triggered:',
-                        message: "feature branch build triggered:\n" +
-                                "*repo:* ${repoName}\n" +
-                                "*branch:* ${featureBranchName}\n"
-                rawMessage: true
 
                 stage('checkout from scm') {
 
@@ -253,12 +233,6 @@ if (env.BRANCH_NAME == "master") {
                         sh "curl -s https://codecov.io/bash | bash -s - -t ${env.codeCovToken} -C ${commitHash}"
                     }
 
-                    // notify rocket chat
-                    rocketSend channel: rocketChatChannel, emoji: ':jenkins_party:',
-                            message: "feature branch test successful!\n" +
-                                    "*repo:* ${repoName}\n" +
-                                    "*branch:* ${featureBranchName}\n"
-                    rawMessage: true
                 }
             } catch (Exception e) {
                 // set build result to failure
@@ -271,12 +245,6 @@ if (env.BRANCH_NAME == "master") {
                 Date date = new Date()
                 println("[ERROR] [${date.format("dd/MM/yyyy")} - ${date.format("HH:mm:ss")}]" + e)
 
-                // notify rocket chat
-                rocketSend channel: rocketChatChannel, emoji: ':jenkins_explode:',
-                        message: "feature branch test failed!\n" +
-                                "*repo:* ${repoName}\n" +
-                                "*branch:* ${featureBranchName}\n"
-                rawMessage: true
             }
 
         }
