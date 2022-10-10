@@ -46,16 +46,18 @@ repositories {
 
 dependencies {
 	/* PowerSystemDataModel */
-	implementation ('com.github.ie3-institute:PowerSystemDataModel:2.1-SNAPSHOT') {
-		/* Exclude nested logging and ie3 related dependencies */
+	implementation('com.github.ie3-institute:PowerSystemDataModel:3.0-SNAPSHOT') {
+		exclude group: 'org.apache.logging.log4j'
 		exclude group: 'org.slf4j'
+		/* Exclude our own nested dependencies */
 		exclude group: 'com.github.ie3-institute'
 	}
 
 	/* util functions */
-	implementation ('com.github.ie3-institute:PowerSystemUtils:1.6-SNAPSHOT') {
-		/* Exclude nested logging and ie3 related dependencies */
+	implementation('com.github.ie3-institute:PowerSystemUtils:2.0-SNAPSHOT') {
+		exclude group: 'org.apache.logging.log4j'
 		exclude group: 'org.slf4j'
+		/* Exclude our own nested dependencies */
 		exclude group: 'com.github.ie3-institute'
 	}
 
@@ -96,7 +98,7 @@ dependencies {
 }
 
 wrapper {
-	gradleVersion = '7.1.1'
+	gradleVersion = '7.5.1'
 }
 
 tasks.withType(JavaCompile) {
