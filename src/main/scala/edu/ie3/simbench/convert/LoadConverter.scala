@@ -1,12 +1,11 @@
 package edu.ie3.simbench.convert
 
 import java.util.{Locale, UUID}
-
 import edu.ie3.datamodel.models.OperationTime
-import edu.ie3.datamodel.models.StandardLoadProfile.DefaultLoadProfiles
 import edu.ie3.datamodel.models.input.system.LoadInput
 import edu.ie3.datamodel.models.input.system.characteristic.CosPhiFixed
 import edu.ie3.datamodel.models.input.{NodeInput, OperatorInput}
+import edu.ie3.datamodel.models.profile.LoadProfile.DefaultLoadProfiles
 import edu.ie3.datamodel.models.timeseries.individual.IndividualTimeSeries
 import edu.ie3.datamodel.models.value.SValue
 import edu.ie3.simbench.convert.profiles.PowerProfileConverter
@@ -72,7 +71,7 @@ case object LoadConverter extends ShuntConverter {
       OperationTime.notLimited(),
       node,
       new CosPhiFixed(varCharacteristicString),
-      DefaultLoadProfiles.NO_STANDARD_LOAD_PROFILE,
+      DefaultLoadProfiles.NO_LOAD_PROFILE,
       false,
       eCons,
       sRated,

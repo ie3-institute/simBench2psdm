@@ -2,49 +2,21 @@ package edu.ie3.test.common
 
 import java.time.{ZoneId, ZonedDateTime}
 import java.util.{Locale, UUID}
-
-import edu.ie3.datamodel.models.StandardLoadProfile.DefaultLoadProfiles
-import edu.ie3.datamodel.models.StandardUnits.{
-  ADMITTANCE_PER_LENGTH,
-  ELECTRIC_CURRENT_MAGNITUDE,
-  IMPEDANCE_PER_LENGTH,
-  RATED_VOLTAGE_MAGNITUDE
-}
-import edu.ie3.datamodel.models.input.connector.{
-  LineInput,
-  SwitchInput,
-  Transformer2WInput
-}
-import edu.ie3.datamodel.models.input.connector.`type`.{
-  LineTypeInput,
-  Transformer2WTypeInput
-}
-import edu.ie3.datamodel.models.input.system.characteristic.{
-  CosPhiFixed,
-  OlmCharacteristicInput
-}
+import edu.ie3.datamodel.models.StandardUnits.{ADMITTANCE_PER_LENGTH, ELECTRIC_CURRENT_MAGNITUDE, IMPEDANCE_PER_LENGTH, RATED_VOLTAGE_MAGNITUDE}
+import edu.ie3.datamodel.models.input.connector.{LineInput, SwitchInput, Transformer2WInput}
+import edu.ie3.datamodel.models.input.connector.`type`.{LineTypeInput, Transformer2WTypeInput}
+import edu.ie3.datamodel.models.input.system.characteristic.{CosPhiFixed, OlmCharacteristicInput}
 import edu.ie3.datamodel.models.input.system.{FixedFeedInInput, LoadInput}
-import edu.ie3.datamodel.models.input.{
-  MeasurementUnitInput,
-  NodeInput,
-  OperatorInput
-}
+import edu.ie3.datamodel.models.input.{MeasurementUnitInput, NodeInput, OperatorInput}
+import edu.ie3.datamodel.models.profile.LoadProfile.DefaultLoadProfiles
 import edu.ie3.datamodel.models.result.NodeResult
 import edu.ie3.datamodel.models.voltagelevels.GermanVoltageLevelUtils
-import edu.ie3.datamodel.models.voltagelevels.GermanVoltageLevelUtils.{
-  LV,
-  MV_10KV,
-  MV_20KV
-}
+import edu.ie3.datamodel.models.voltagelevels.GermanVoltageLevelUtils.{LV, MV_10KV, MV_20KV}
 import edu.ie3.datamodel.models.{OperationTime, UniqueEntity}
 import edu.ie3.datamodel.utils.GridAndGeoUtils
 import edu.ie3.simbench.exception.TestingException
 import edu.ie3.simbench.model.datamodel.Line.ACLine
-import edu.ie3.simbench.model.datamodel.Measurement.{
-  LineMeasurement,
-  NodeMeasurement,
-  TransformerMeasurement
-}
+import edu.ie3.simbench.model.datamodel.Measurement.{LineMeasurement, NodeMeasurement, TransformerMeasurement}
 import edu.ie3.simbench.model.datamodel._
 import edu.ie3.simbench.model.datamodel.enums.BranchElementPort.HV
 import edu.ie3.simbench.model.datamodel.enums.CalculationType.PVm
@@ -53,21 +25,14 @@ import edu.ie3.simbench.model.datamodel.enums.NodeType.{BusBar, DoubleBusBar}
 import edu.ie3.simbench.model.datamodel.enums.PowerPlantType.Lignite
 import edu.ie3.simbench.model.datamodel.enums._
 import edu.ie3.simbench.model.datamodel.profiles.PowerPlantProfileType.PowerPlantProfile1
-import edu.ie3.simbench.model.datamodel.profiles.{
-  LoadProfile,
-  LoadProfileType,
-  ResProfileType
-}
+import edu.ie3.simbench.model.datamodel.profiles.{LoadProfile, LoadProfileType, ResProfileType}
 import edu.ie3.simbench.model.datamodel.types.LineType.{ACLineType, DCLineType}
 import edu.ie3.simbench.model.datamodel.types.{LineType, Transformer2WType}
 import edu.ie3.util.TimeUtil
 import edu.ie3.util.quantities.PowerSystemUnits._
+
 import javax.measure.MetricPrefix
-import org.locationtech.jts.geom.{
-  GeometryFactory,
-  Point,
-  Coordinate => JTSCoordinate
-}
+import org.locationtech.jts.geom.{GeometryFactory, Point, Coordinate => JTSCoordinate}
 import tech.units.indriya.quantity.Quantities
 import tech.units.indriya.unit.Units._
 
@@ -756,7 +721,7 @@ trait ConverterTestData {
         OperationTime.notLimited(),
         getNodePair("LV1.101 Bus 1")._2,
         new CosPhiFixed("cosPhiFixed:{(0.0,0.93)}"),
-        DefaultLoadProfiles.NO_STANDARD_LOAD_PROFILE,
+        DefaultLoadProfiles.NO_LOAD_PROFILE,
         false,
         Quantities.getQuantity(0d, KILOWATTHOUR),
         Quantities.getQuantity(15.0538, KILOVOLTAMPERE),
