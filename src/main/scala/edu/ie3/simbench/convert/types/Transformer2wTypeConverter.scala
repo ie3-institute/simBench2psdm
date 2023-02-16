@@ -74,7 +74,7 @@ case object Transformer2wTypeConverter {
       throw ConversionException(
         s"Cannot convert two winding transformer type $id into ie3 type, as the conversion of no load parameters is not possible."
       )
-    val bNoLoad = sqrt((yNoLoad * yNoLoad - gNoLoad * gNoLoad).doubleValue) // No load susceptance in Ohm
+    val bNoLoad = -sqrt((yNoLoad * yNoLoad - gNoLoad * gNoLoad).doubleValue) // No load susceptance in Ohm
 
     new Transformer2WTypeInput(
       uuid,

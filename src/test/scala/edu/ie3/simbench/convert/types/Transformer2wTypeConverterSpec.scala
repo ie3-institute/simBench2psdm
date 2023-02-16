@@ -50,7 +50,7 @@ class Transformer2wTypeConverterSpec
       )
       actual.getbM() should equalWithTolerance(
         Quantities
-          .getQuantity(33.0475190, MetricPrefix.MICRO(SIEMENS))
+          .getQuantity(-33.0475190, MetricPrefix.MICRO(SIEMENS))
           .to(MetricPrefix.NANO(SIEMENS))
       )
       actual.getdV() should equalWithTolerance(
