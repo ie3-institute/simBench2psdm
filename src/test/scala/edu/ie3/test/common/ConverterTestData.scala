@@ -2,8 +2,6 @@ package edu.ie3.test.common
 
 import java.time.{ZoneId, ZonedDateTime}
 import java.util.{Locale, UUID}
-
-import edu.ie3.datamodel.models.StandardLoadProfile.DefaultLoadProfiles
 import edu.ie3.datamodel.models.StandardUnits.{
   ADMITTANCE_PER_LENGTH,
   ELECTRIC_CURRENT_MAGNITUDE,
@@ -29,6 +27,7 @@ import edu.ie3.datamodel.models.input.{
   NodeInput,
   OperatorInput
 }
+import edu.ie3.datamodel.models.profile.LoadProfile.DefaultLoadProfiles
 import edu.ie3.datamodel.models.result.NodeResult
 import edu.ie3.datamodel.models.voltagelevels.GermanVoltageLevelUtils
 import edu.ie3.datamodel.models.voltagelevels.GermanVoltageLevelUtils.{
@@ -62,6 +61,7 @@ import edu.ie3.simbench.model.datamodel.types.LineType.{ACLineType, DCLineType}
 import edu.ie3.simbench.model.datamodel.types.{LineType, Transformer2WType}
 import edu.ie3.util.TimeUtil
 import edu.ie3.util.quantities.PowerSystemUnits._
+
 import javax.measure.MetricPrefix
 import org.locationtech.jts.geom.{
   GeometryFactory,
@@ -756,7 +756,7 @@ trait ConverterTestData {
         OperationTime.notLimited(),
         getNodePair("LV1.101 Bus 1")._2,
         new CosPhiFixed("cosPhiFixed:{(0.0,0.93)}"),
-        DefaultLoadProfiles.NO_STANDARD_LOAD_PROFILE,
+        DefaultLoadProfiles.NO_LOAD_PROFILE,
         false,
         Quantities.getQuantity(0d, KILOWATTHOUR),
         Quantities.getQuantity(15.0538, KILOVOLTAMPERE),

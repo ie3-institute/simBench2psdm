@@ -8,7 +8,8 @@ import edu.ie3.test.matchers.QuantityMatchers
 import edu.ie3.util.quantities.PowerSystemUnits.{
   DEGREE_GEOM,
   KILOVOLT,
-  KILOVOLTAMPERE
+  KILOVOLTAMPERE,
+  NANOSIEMENS
 }
 import tech.units.indriya.quantity.Quantities
 
@@ -46,12 +47,12 @@ class Transformer2wTypeConverterSpec
         Quantities.getQuantity(10d, KILOVOLT)
       )
       actual.getgM() should equalWithTolerance(
-        Quantities.getQuantity(826.44628, MetricPrefix.NANO(SIEMENS))
+        Quantities.getQuantity(826.44628, NANOSIEMENS)
       )
       actual.getbM() should equalWithTolerance(
         Quantities
           .getQuantity(-33.0475190, MetricPrefix.MICRO(SIEMENS))
-          .to(MetricPrefix.NANO(SIEMENS))
+          .to(NANOSIEMENS)
       )
       actual.getdV() should equalWithTolerance(
         Quantities.getQuantity(2.5, PERCENT)

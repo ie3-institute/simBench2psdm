@@ -612,7 +612,8 @@ case object GridConverter extends LazyLogging {
         loadsToTimeSeries.keySet.asJava,
         Set.empty[PvInput].asJava,
         Set.empty[StorageInput].asJava,
-        Set.empty[WecInput].asJava
+        Set.empty[WecInput].asJava,
+        Set.empty[EmInput].asJava
       ),
       timeSeries,
       mapping
