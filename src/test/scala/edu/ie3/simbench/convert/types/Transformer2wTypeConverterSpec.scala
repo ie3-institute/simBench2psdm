@@ -6,7 +6,12 @@ import edu.ie3.simbench.model.datamodel.types.Transformer2WType
 import edu.ie3.test.common.{ConverterTestData, UnitSpec}
 import edu.ie3.test.matchers.QuantityMatchers
 import edu.ie3.util.quantities.PowerSystemUnits
-import edu.ie3.util.quantities.PowerSystemUnits.{DEGREE_GEOM, KILOVOLT, KILOVOLTAMPERE, NANOSIEMENS}
+import edu.ie3.util.quantities.PowerSystemUnits.{
+  DEGREE_GEOM,
+  KILOVOLT,
+  KILOVOLTAMPERE,
+  NANOSIEMENS
+}
 import tech.units.indriya.quantity.Quantities
 
 import javax.measure.MetricPrefix
