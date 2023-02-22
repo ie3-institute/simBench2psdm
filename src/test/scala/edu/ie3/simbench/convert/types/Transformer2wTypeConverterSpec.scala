@@ -5,7 +5,6 @@ import edu.ie3.simbench.exception.ConversionException
 import edu.ie3.simbench.model.datamodel.types.Transformer2WType
 import edu.ie3.test.common.{ConverterTestData, UnitSpec}
 import edu.ie3.test.matchers.QuantityMatchers
-import edu.ie3.util.quantities.PowerSystemUnits
 import edu.ie3.util.quantities.PowerSystemUnits.{
   DEGREE_GEOM,
   KILOVOLT,
@@ -52,7 +51,7 @@ class Transformer2wTypeConverterSpec
       )
       actual.getbM() should equalWithTolerance(
         Quantities
-          .getQuantity(33.0475190, MetricPrefix.MICRO(SIEMENS))
+          .getQuantity(-33.0475190, MetricPrefix.MICRO(SIEMENS))
           .to(NANOSIEMENS)
       )
       actual.getdV() should equalWithTolerance(
