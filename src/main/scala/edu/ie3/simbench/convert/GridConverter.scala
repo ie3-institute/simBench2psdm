@@ -3,6 +3,7 @@ package edu.ie3.simbench.convert
 import com.typesafe.scalalogging.LazyLogging
 import edu.ie3.datamodel.io.source.TimeSeriesMappingSource
 import edu.ie3.datamodel.io.source.TimeSeriesMappingSource.MappingEntry
+import edu.ie3.datamodel.models.input.NodeInput
 import edu.ie3.datamodel.models.input.connector.{
   LineInput,
   SwitchInput,
@@ -20,10 +21,10 @@ import edu.ie3.datamodel.models.input.graphics.{
   NodeGraphicInput
 }
 import edu.ie3.datamodel.models.input.system._
-import edu.ie3.datamodel.models.input.NodeInput
 import edu.ie3.datamodel.models.result.NodeResult
 import edu.ie3.datamodel.models.timeseries.individual.IndividualTimeSeries
-import edu.ie3.datamodel.models.value.{PValue, SValue, Value}
+import edu.ie3.datamodel.models.value.{PValue, SValue}
+import edu.ie3.simbench.config.SimbenchConfig
 import edu.ie3.simbench.convert.NodeConverter.AttributeOverride.{
   JoinOverride,
   SubnetOverride
@@ -33,20 +34,16 @@ import edu.ie3.simbench.convert.types.{
   Transformer2wTypeConverter
 }
 import edu.ie3.simbench.exception.ConversionException
-import edu.ie3.simbench.model.datamodel.{
-  GridModel,
-  Line,
-  Node,
-  NodePFResult,
-  Switch,
-  Transformer2W,
-  Transformer3W
-}
+import edu.ie3.simbench.model.datamodel._
+import org.jgrapht.Graph
+import org.jgrapht.alg.connectivity.ConnectivityInspector
+import org.jgrapht.graph.{DefaultEdge, SimpleGraph}
 
+import java.nio.file.Paths
 import java.util.UUID
 import scala.annotation.tailrec
-import scala.jdk.CollectionConverters._
 import scala.collection.parallel.CollectionConverters._
+import scala.jdk.CollectionConverters._
 
 case object GridConverter extends LazyLogging {
 
@@ -61,6 +58,7 @@ case object GridConverter extends LazyLogging {
     */
   def convert(
       simbenchCode: String,
+      simbenchConfig: SimbenchConfig,
       gridInput: GridModel,
       removeSwitches: Boolean
   ): (
@@ -71,7 +69,12 @@ case object GridConverter extends LazyLogging {
   ) = {
     logger.debug(s"Converting raw grid elements of '${gridInput.simbenchCode}'")
     val (rawGridElements, nodeConversion) =
-      convertGridElements(gridInput, removeSwitches)
+      convertGridElements(
+        simbenchCode,
+        simbenchConfig,
+        gridInput,
+        removeSwitches
+      )
 
     logger.debug(
       s"Converting system participants and their time series of '${gridInput.simbenchCode}'"
@@ -85,20 +88,17 @@ case object GridConverter extends LazyLogging {
     val powerFlowResults =
       convertNodeResults(gridInput.nodePFResults, nodeConversion)
 
-    (
-      new JointGridContainer(
-        simbenchCode,
-        rawGridElements,
-        systemParticipants,
-        new GraphicElements(
-          Set.empty[NodeGraphicInput].asJava,
-          Set.empty[LineGraphicInput].asJava
-        )
-      ),
-      timeSeries,
-      timeSeriesMapping,
-      powerFlowResults
+    val jgc = new JointGridContainer(
+      simbenchCode,
+      rawGridElements,
+      systemParticipants,
+      new GraphicElements(
+        Set.empty[NodeGraphicInput].asJava,
+        Set.empty[LineGraphicInput].asJava
+      )
     )
+
+    (jgc, timeSeries, timeSeriesMapping, powerFlowResults)
   }
 
   /**
@@ -109,8 +109,11 @@ case object GridConverter extends LazyLogging {
     * @return All grid elements in converted form + a mapping from old to new node models
     */
   def convertGridElements(
+      simbenchCode: String,
+      simbenchConfig: SimbenchConfig,
       gridInput: GridModel,
-      removeSwitches: Boolean
+      removeSwitches: Boolean,
+      dsseTopologyChange: Boolean = true
   ): (RawGridElements, Map[Node, NodeInput]) = {
     /* Set up a sub net converter, by crawling all nodes */
     val subnetConverter = SubnetConverter(
@@ -171,7 +174,65 @@ case object GridConverter extends LazyLogging {
       switches
     )
 
-    (
+    val rawGridElements = if (dsseTopologyChange) {
+
+      val updatedSwitches = removeDoubleSwitchesAtNodes(
+        switches.asScala.toSet
+      )
+
+      val switchPairs = SwitchPairGenerator.generate(
+        connectedNodes.values.toSet,
+        lines.asScala.toSet,
+        transformers2w.asScala.toSet,
+        updatedSwitches
+      )
+
+      SwitchPairGenerator.SwitchPairs.writeSwitchPairMappings(
+        switchPairs,
+        Paths.get(simbenchConfig.io.output.targetFolder, simbenchCode).toString
+      )
+
+      // todo update line with switch connection
+      val (updatedSwitchLines, lineSwitchNodes, lineSwitches) = switchPairs.foldLeft(
+        Seq.empty[LineInput],
+        Seq.empty[NodeInput],
+        Seq.empty[SwitchInput]
+      )((current, switchPair) => {
+        val (lines, switchNodes, switches) = switchPair.lineSwitches.map {
+          case (line, nodeSwitchPair) =>
+            val (switchNode, switch) = nodeSwitchPair
+            val updatedLine =
+              if ((line.getNodeA == switch.getNodeA) | (line.getNodeA == switch.getNodeB)) {
+                line.copy().nodeA(switchNode).build()
+              } else {
+                require(
+                  (line.getNodeB == switch.getNodeA) | (line.getNodeB == switch.getNodeB),
+                  "Line is not connected to switch."
+                )
+                line.copy().nodeB(switchNode).build()
+              }
+            (updatedLine, switchNode, switch)
+        }.unzip3
+        (current._1 ++ lines, current._2 ++ switchNodes, current._3 ++ switches)
+      })
+
+      val switchLineUuids = updatedSwitchLines.map(_.getUuid).toSet
+      val unchangedLines =
+        lines.asScala.filter(line => !switchLineUuids.contains(line.getUuid))
+      require(
+        unchangedLines.size == (lines.size() - switchLineUuids.size),
+        "Expected to filter out one line for every switch Line"
+      )
+
+      new RawGridElements(
+        (connectedNodes.values ++ lineSwitchNodes).toSet.asJava,
+        (unchangedLines ++ updatedSwitchLines).asJava,
+        transformers2w,
+        transformers3w,
+        (updatedSwitches ++ lineSwitches).asJava,
+        measurements
+      )
+    } else {
       new RawGridElements(
         connectedNodes.values.toSet.asJava,
         lines,
@@ -179,9 +240,16 @@ case object GridConverter extends LazyLogging {
         transformers3w,
         switches,
         measurements
-      ),
-      connectedNodes
+      )
+    }
+    validateConnectivity(
+      rawGridElements.getNodes.asScala.toSeq,
+      rawGridElements.getLines.asScala.toSeq,
+      rawGridElements.getSwitches.asScala.toSeq,
+      rawGridElements.getTransformer2Ws.asScala.toSeq,
+      rawGridElements.getTransformer3Ws.asScala.toSeq
     )
+    (rawGridElements, connectedNodes)
   }
 
   /**
@@ -672,5 +740,75 @@ case object GridConverter extends LazyLogging {
     val resProfiles =
       gridInput.resProfiles.map(profile => profile.profileType -> profile).toMap
     ResConverter.convert(gridInput.res, nodeConversion, resProfiles)
+  }
+
+  def removeDoubleSwitchesAtNodes(
+      switches: Set[SwitchInput]
+  ): Set[SwitchInput] = {
+    val switchNodes =
+      switches.toSeq.flatMap(sw => Seq(sw.getNodeA, sw.getNodeB))
+    val duplicateSwitchNodes = switchNodes
+      .groupBy(identity)
+      .collect { case (x, Seq(_, _, _*)) => x }
+      .toSeq
+
+    // remove one switch with duplicate switch nodes
+    switches -- duplicateSwitchNodes.map(node => {
+      val duplicateSwitches = switches
+        .filter(sw => Seq(sw.getNodeA, sw.getNodeB).contains(node))
+        .toSeq
+      duplicateSwitches match {
+        case Seq(_) =>
+          throw new IllegalArgumentException("Expected more than one switch.")
+        case Seq(swA, _, _*) =>
+          val removedSwitches =
+            duplicateSwitches.filter(sw => sw != swA).map(_.getId)
+          logger.info(s"Removed at least one switch with id $removedSwitches")
+          swA
+      }
+    })
+  }
+
+  def validateConnectivity(
+      nodes: Seq[NodeInput],
+      lines: Seq[LineInput],
+      switches: Seq[SwitchInput],
+      transformers: Seq[Transformer2WInput],
+      transformers3w: Seq[Transformer3WInput]
+  ): Unit = {
+
+    if (transformers3w.nonEmpty) {
+      logger.error(
+        "Checking connectivity with 3W transformers is not implemented yet."
+      )
+    }
+
+    // build graph
+    val graph: Graph[NodeInput, DefaultEdge] =
+      new SimpleGraph(classOf[DefaultEdge])
+    nodes foreach (node => graph.addVertex(node))
+    lines
+      .foreach(line => {
+        graph.addEdge(line.getNodeA, line.getNodeB)
+      })
+
+    transformers
+      .foreach(trafo => {
+        graph.addEdge(trafo.getNodeA, trafo.getNodeB)
+      })
+
+    switches
+      .foreach(switch => {
+        graph.addEdge(switch.getNodeA, switch.getNodeB)
+      })
+
+    val inspector: ConnectivityInspector[NodeInput, DefaultEdge] =
+      new ConnectivityInspector(graph)
+
+    if (!inspector.isConnected) {
+      throw new IllegalStateException(
+        s"The grid is not connected! Please ensure that all elements are connected correctly!"
+      )
+    }
   }
 }

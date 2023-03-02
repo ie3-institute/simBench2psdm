@@ -1,6 +1,5 @@
 package edu.ie3.simbench.main
 
-import java.nio.file.Paths
 import edu.ie3.datamodel.io.naming.{
   DefaultDirectoryHierarchy,
   EntityPersistenceNamingStrategy,
@@ -9,12 +8,11 @@ import edu.ie3.datamodel.io.naming.{
 import edu.ie3.datamodel.io.sink.CsvFileSink
 import edu.ie3.simbench.config.{ConfigValidator, SimbenchConfig}
 import edu.ie3.simbench.convert.GridConverter
-import edu.ie3.simbench.exception.CodeValidationException
-import edu.ie3.simbench.io.{Downloader, IoUtils, SimbenchReader, Zipper}
-import edu.ie3.simbench.model.SimbenchCode
+import edu.ie3.simbench.io.{IoUtils, SimbenchModelRetriever}
 import edu.ie3.util.io.FileIOUtils
 import org.apache.commons.io.FilenameUtils
 
+import java.nio.file.Paths
 import scala.concurrent.Await
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration.Duration
@@ -37,38 +35,10 @@ object RunSimbench extends SimbenchHelper {
     ConfigValidator.checkValidity(simbenchConfig)
 
     simbenchConfig.io.simbenchCodes.foreach { simbenchCode =>
-      logger.info(s"$simbenchCode - Downloading data set from SimBench website")
-      val downloader =
-        Downloader(
-          simbenchConfig.io.input.download.folder,
-          simbenchConfig.io.input.download.baseUrl,
-          simbenchConfig.io.input.download.failOnExistingFiles
-        )
-      val downloadedFile =
-        downloader.download(
-          SimbenchCode(simbenchCode).getOrElse(
-            throw CodeValidationException(
-              s"'$simbenchCode' is no valid SimBench code."
-            )
-          )
-        )
-      val dataFolder =
-        Zipper.unzip(
-          downloadedFile,
-          downloader.downloadFolder,
-          simbenchConfig.io.input.download.failOnExistingFiles,
-          flattenDirectories = true
-        )
-
-      logger.info(s"$simbenchCode - Reading in the SimBench data set")
-      val simbenchReader = SimbenchReader(
+      val simbenchModel = SimbenchModelRetriever.retrieve(
         simbenchCode,
-        dataFolder,
-        simbenchConfig.io.input.csv.separator,
-        simbenchConfig.io.input.csv.fileEnding,
-        simbenchConfig.io.input.csv.fileEncoding
+        simbenchConfig
       )
-      val simbenchModel = simbenchReader.readGrid()
 
       logger.info(s"$simbenchCode - Converting to PowerSystemDataModel")
       val (
@@ -79,6 +49,7 @@ object RunSimbench extends SimbenchHelper {
       ) =
         GridConverter.convert(
           simbenchCode,
+          simbenchConfig,
           simbenchModel,
           simbenchConfig.conversion.removeSwitches
         )

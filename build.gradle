@@ -27,8 +27,6 @@ ext {
 group = 'com.github.ie3-institute'
 description = 'simbench2psdm'
 version = '1.1-SNAPSHOT'
-sourceCompatibility = javaVersion
-targetCompatibility = javaVersion
 
 apply from: scriptsLocation + 'pmd.gradle'
 apply from: scriptsLocation + 'spotless.gradle'
@@ -66,6 +64,9 @@ dependencies {
 	implementation 'tech.units:indriya:2.1.3'
 	implementation 'org.locationtech.jts:jts-core:1.19.0'
 	implementation 'commons-io:commons-io:2.11.0'
+
+	// Graphs
+	implementation 'org.jgrapht:jgrapht-core:1.5.1'
 
 	// logging
 	implementation 'org.apache.logging.log4j:log4j-api:+' // log4j
