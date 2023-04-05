@@ -61,7 +61,7 @@ dependencies {
 		exclude group: 'com.github.ie3-institute'
 	}
 
-	implementation 'org.codehaus.groovy:groovy:3.0.13'
+	implementation 'org.codehaus.groovy:groovy:3.0.17'
 
 	implementation 'tech.units:indriya:2.1.4'
 	implementation 'org.locationtech.jts:jts-core:1.19.0'
@@ -78,7 +78,7 @@ dependencies {
 	// NEW scala libs //
 	// CORE Scala //
 	implementation "org.scala-lang:scala-library:$scalaBinaryVersion"
-	implementation 'org.scala-lang.modules:scala-parallel-collections_2.13:1.0.3'
+	implementation 'org.scala-lang.modules:scala-parallel-collections_2.13:1.0.4'
 
 	// TEST Scala //
 	testImplementation "org.scalatest:scalatest_${scalaVersion}:3.2.10"
