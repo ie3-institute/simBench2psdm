@@ -1,7 +1,6 @@
 package edu.ie3.simbench.convert.types
 
 import java.util.UUID
-
 import edu.ie3.datamodel.models.StandardUnits
 import edu.ie3.simbench.exception.ConversionException
 import edu.ie3.simbench.exception.io.SimbenchDataModelException
@@ -10,6 +9,8 @@ import edu.ie3.simbench.model.datamodel.types.LineType
 import edu.ie3.simbench.model.datamodel.types.LineType.DCLineType
 import edu.ie3.test.common.{ConverterTestData, UnitSpec}
 import edu.ie3.util.quantities.PowerSystemUnits.KILOVOLT
+import edu.ie3.util.quantities.QuantityMatchers.equalWithTolerance
+
 import javax.measure.quantity.ElectricPotential
 import tech.units.indriya.ComparableQuantity
 import tech.units.indriya.quantity.Quantities
@@ -105,27 +106,37 @@ class LineTypeConverterSpec extends UnitSpec with ConverterTestData {
 
       actual.getUuid shouldBe uuid
       actual.getId shouldBe "NAYY 4x150SE 0.6/1kV"
-      actual.getB shouldBe Quantities
-        .getQuantity(260.752, StandardUnits.ADMITTANCE_PER_LENGTH)
+      actual.getB should equalWithTolerance(
+        Quantities
+          .getQuantity(260.752, StandardUnits.ADMITTANCE_PER_LENGTH)
+      )
       actual.getG shouldBe Quantities.getQuantity(
-        0d,
+        0,
         StandardUnits.ADMITTANCE_PER_LENGTH
       )
-      actual.getR shouldBe Quantities.getQuantity(
-        0.2067,
-        StandardUnits.IMPEDANCE_PER_LENGTH
+      actual.getR should equalWithTolerance(
+        Quantities.getQuantity(
+          0.2067,
+          StandardUnits.IMPEDANCE_PER_LENGTH
+        )
       )
-      actual.getX shouldBe Quantities.getQuantity(
-        0.0804248,
-        StandardUnits.IMPEDANCE_PER_LENGTH
+      actual.getX should equalWithTolerance(
+        Quantities.getQuantity(
+          0.0804248,
+          StandardUnits.IMPEDANCE_PER_LENGTH
+        )
       )
-      actual.getiMax shouldBe Quantities.getQuantity(
-        270d,
-        StandardUnits.ELECTRIC_CURRENT_MAGNITUDE
+      actual.getiMax should equalWithTolerance(
+        Quantities.getQuantity(
+          270d,
+          StandardUnits.ELECTRIC_CURRENT_MAGNITUDE
+        )
       )
-      actual.getvRated shouldBe Quantities.getQuantity(
-        0.4,
-        StandardUnits.RATED_VOLTAGE_MAGNITUDE
+      actual.getvRated should equalWithTolerance(
+        Quantities.getQuantity(
+          0.4,
+          StandardUnits.RATED_VOLTAGE_MAGNITUDE
+        )
       )
     }
 
