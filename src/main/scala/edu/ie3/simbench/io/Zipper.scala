@@ -10,14 +10,20 @@ import org.apache.commons.compress.archivers.zip.{ZipArchiveEntry, ZipFile}
 
 case object Zipper extends IoUtils with LazyLogging {
 
-  /**
-    * Unzips a given zip archive and returns the path to the folder, where the decompressed files are stored
+  /** Unzips a given zip archive and returns the path to the folder, where the
+    * decompressed files are stored
     *
-    * @param zipArchive           Path to archive file
-    * @param targetFolder         Folder, where to place the extracted files
-    * @param failOnExistingFiles  true, if already existing files in the target directory may provoke an Exception or not
-    * @param flattenDirectories   true, if the directory tree in the archive should be flattened
-    * @return [[Path]] to the folder, where the decompressed files are stored
+    * @param zipArchive
+    *   Path to archive file
+    * @param targetFolder
+    *   Folder, where to place the extracted files
+    * @param failOnExistingFiles
+    *   true, if already existing files in the target directory may provoke an
+    *   Exception or not
+    * @param flattenDirectories
+    *   true, if the directory tree in the archive should be flattened
+    * @return
+    *   [[Path]] to the folder, where the decompressed files are stored
     */
   @throws(classOf[ZipperException])
   def unzip(
@@ -55,12 +61,14 @@ case object Zipper extends IoUtils with LazyLogging {
     targetFolderPath
   }
 
-  /**
-    * Prepares the folder by creating it, if it not exists. If it is existent and no directory, throw an exception. If
-    * it is not empty, either delete the content or throw an exception, depending on what is requested.
+  /** Prepares the folder by creating it, if it not exists. If it is existent
+    * and no directory, throw an exception. If it is not empty, either delete
+    * the content or throw an exception, depending on what is requested.
     *
-    * @param folderPath           Path to the folder, that is meant to be prepared
-    * @param failOnNonEmptyFolder Throws an Exception, when true and the folder already has files in it
+    * @param folderPath
+    *   Path to the folder, that is meant to be prepared
+    * @param failOnNonEmptyFolder
+    *   Throws an Exception, when true and the folder already has files in it
     */
   private def prepareFolder(
       folderPath: Path,
@@ -91,13 +99,17 @@ case object Zipper extends IoUtils with LazyLogging {
     }
   }
 
-  /**
-    * Extracting the single entries from zip file. Enclosed directories are flattened, if requested to do so.
+  /** Extracting the single entries from zip file. Enclosed directories are
+    * flattened, if requested to do so.
     *
-    * @param entry              Actual entry to treat
-    * @param zipFile            Archive to extract information from
-    * @param targetFolder       Target folder path
-    * @param flattenDirectories true, when enclosed directories may be flattened
+    * @param entry
+    *   Actual entry to treat
+    * @param zipFile
+    *   Archive to extract information from
+    * @param targetFolder
+    *   Target folder path
+    * @param flattenDirectories
+    *   true, when enclosed directories may be flattened
     */
   private def handleZipEntry(
       entry: ZipArchiveEntry,

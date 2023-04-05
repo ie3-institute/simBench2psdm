@@ -19,20 +19,21 @@ import edu.ie3.simbench.model.datamodel.enums.MeasurementVariable.{
 }
 import edu.ie3.simbench.model.datamodel.{Measurement, Node}
 
-/**
-  * Currently not supported:
+/** Currently not supported:
   *   - LineMeasurement
   *   - TransformerMeasurement
   */
 case object MeasurementConverter extends LazyLogging {
 
-  /**
-    * Converts a given set of measurement units. If there are two or more measurements at a node, they are joined
-    * together.
+  /** Converts a given set of measurement units. If there are two or more
+    * measurements at a node, they are joined together.
     *
-    * @param measurements Input models to be converted
-    * @param nodes        Already known node conversion mapping
-    * @return A vector of [[MeasurementUnitInput]]
+    * @param measurements
+    *   Input models to be converted
+    * @param nodes
+    *   Already known node conversion mapping
+    * @return
+    *   A vector of [[MeasurementUnitInput]]
     */
   def convert(
       measurements: Vector[Measurement],
@@ -68,8 +69,10 @@ case object MeasurementConverter extends LazyLogging {
           /* If both current and voltage are measured, power can be measured, too */
           val voltageMeasured = coveredVariables.contains(Voltage)
           val (pMeasured, qMeasured) = {
-            if (coveredVariables
-                  .contains(Current) && coveredVariables.contains(Voltage))
+            if (
+              coveredVariables
+                .contains(Current) && coveredVariables.contains(Voltage)
+            )
               (true, true)
             else
               (
@@ -97,12 +100,14 @@ case object MeasurementConverter extends LazyLogging {
       .toVector
   }
 
-  /**
-    * Converts a given measurement device.
+  /** Converts a given measurement device.
     *
-    * @param measurement Input model to convert
-    * @param node        Node, the measurement will be attached to
-    * @return Option on a [[MeasurementUnitInput]]
+    * @param measurement
+    *   Input model to convert
+    * @param node
+    *   Node, the measurement will be attached to
+    * @return
+    *   Option on a [[MeasurementUnitInput]]
     */
   def convert(
       measurement: Measurement,

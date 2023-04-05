@@ -19,13 +19,16 @@ import scala.collection.parallel.CollectionConverters._
 
 case object LineConverter extends LazyLogging {
 
-  /**
-    * Convert a full vector of [[Line]]s to [[LineInput]]s
+  /** Convert a full vector of [[Line]]s to [[LineInput]]s
     *
-    * @param inputs Vector of input model
-    * @param types  Mapping of SimBench to ie3 line types
-    * @param nodes  Mapping of SimBench to ie3 nodes
-    * @return       A [[Vector]] of [[LineInput]]s
+    * @param inputs
+    *   Vector of input model
+    * @param types
+    *   Mapping of SimBench to ie3 line types
+    * @param nodes
+    *   Mapping of SimBench to ie3 nodes
+    * @return
+    *   A [[Vector]] of [[LineInput]]s
     */
   def convert(
       inputs: Vector[Line[_ <: LineType]],
@@ -46,16 +49,22 @@ case object LineConverter extends LazyLogging {
       case _: Line.DCLine => None
     }.seq
 
-  /**
-    * Converts a single [[Line]] to [[LineInput]]. [[Line.DCLine]] is not converted, as the ie3 data model does not
-    * support it. Currently, the maximum loading from SimBench is not supported.
+  /** Converts a single [[Line]] to [[LineInput]]. [[Line.DCLine]] is not
+    * converted, as the ie3 data model does not support it. Currently, the
+    * maximum loading from SimBench is not supported.
     *
-    * @param input    Input model
-    * @param lineType Corresponding line type to use
-    * @param nodeA    [[NodeInput]] at end A
-    * @param nodeB    [[NodeInput]] at end B
-    * @param uuid     UUID to use for the model generation (default: Random UUID)
-    * @return         A [[LineInput]] model
+    * @param input
+    *   Input model
+    * @param lineType
+    *   Corresponding line type to use
+    * @param nodeA
+    *   [[NodeInput]] at end A
+    * @param nodeB
+    *   [[NodeInput]] at end B
+    * @param uuid
+    *   UUID to use for the model generation (default: Random UUID)
+    * @return
+    *   A [[LineInput]] model
     */
   def convert(
       input: Line[_ <: LineType],

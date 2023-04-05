@@ -4,12 +4,15 @@ import scala.math.{atan, cos, round, signum}
 
 trait ShuntConverter {
 
-  /**
-    * Calculate the power factor based on active and reactive power, taking care of possible division by zero
+  /** Calculate the power factor based on active and reactive power, taking care
+    * of possible division by zero
     *
-    * @param p Active power
-    * @param q Reactive power
-    * @return Power factor
+    * @param p
+    *   Active power
+    * @param q
+    *   Reactive power
+    * @return
+    *   Power factor
     */
   def cosPhi(p: BigDecimal, q: BigDecimal): Double = {
     round({

@@ -7,12 +7,15 @@ import edu.ie3.simbench.io.HeadLineField.{MandatoryField, OptionalField}
 import edu.ie3.simbench.model.RawModelData
 import edu.ie3.simbench.model.datamodel.profiles.ProfileModel.ProfileCompanionObject
 
-/**
-  * A power plant's profile consisting of an identifier and a mapping of the date to (p,q) pair
+/** A power plant's profile consisting of an identifier and a mapping of the
+  * date to (p,q) pair
   *
-  * @param id           Identifier of the profile
-  * @param profileType  The type of the profile
-  * @param profile      The actual profile as scaling factor in p.u.
+  * @param id
+  *   Identifier of the profile
+  * @param profileType
+  *   The type of the profile
+  * @param profile
+  *   The actual profile as scaling factor in p.u.
   */
 final case class PowerPlantProfile(
     id: String,
@@ -23,21 +26,24 @@ final case class PowerPlantProfile(
 case object PowerPlantProfile
     extends ProfileCompanionObject[PowerPlantProfile, BigDecimal] {
 
-  /**
-    * Get an Array of table fields denoting the mapping to the model's attributes
+  /** Get an Array of table fields denoting the mapping to the model's
+    * attributes
     *
-    * @return Array of table headings
+    * @return
+    *   Array of table headings
     */
   override def getFields: Array[HeadLineField] =
-    Array(MandatoryField("time")) ++ (1 to 318).map(
-      cnt => OptionalField("pp_" + cnt)
+    Array(MandatoryField("time")) ++ (1 to 318).map(cnt =>
+      OptionalField("pp_" + cnt)
     ) ++ Array(OptionalField("imp0"), OptionalField("imp1"))
 
-  /**
-    * Factory method to build a batch of models from a mapping from field id to value
+  /** Factory method to build a batch of models from a mapping from field id to
+    * value
     *
-    * @param rawData mapping from field id to value
-    * @return A [[Vector]] of models
+    * @param rawData
+    *   mapping from field id to value
+    * @return
+    *   A [[Vector]] of models
     */
   override def buildModels(
       rawData: Vector[RawModelData]
@@ -57,7 +63,9 @@ case object PowerPlantProfile
         (profileType, time, factor)
       }
     }).flatten /* Flatten everything to have Vector((profileType, time, factor)) */
-      .groupBy(collectionEntry => collectionEntry._1) /* Build a Map(profileType -> (profileType, time, factor)) */
+      .groupBy(collectionEntry =>
+        collectionEntry._1
+      ) /* Build a Map(profileType -> (profileType, time, factor)) */
       .map(profileEntry => {
         /* Extract the needed information to build a LoadProfile for each profile type */
         val profileType = profileEntry._1

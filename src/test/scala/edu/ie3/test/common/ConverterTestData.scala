@@ -76,13 +76,17 @@ trait ConverterTestData {
   protected val simbenchTimeUtil =
     new TimeUtil(ZoneId.of("UTC"), Locale.GERMANY, "dd.MM.yyyy HH:mm")
 
-  /**
-    * Case class to denote a consistent pair of input and expected output of a conversion
+  /** Case class to denote a consistent pair of input and expected output of a
+    * conversion
     *
-    * @param input  Input model
-    * @param result Resulting, converted model
-    * @tparam I     Type of input model
-    * @tparam R     Type of result class
+    * @param input
+    *   Input model
+    * @param result
+    *   Resulting, converted model
+    * @tparam I
+    *   Type of input model
+    * @tparam R
+    *   Type of result class
     */
   final case class ConversionPair[I <: SimbenchModel, R <: UniqueEntity](
       input: I,
@@ -709,19 +713,27 @@ trait ConverterTestData {
         LoadProfileType.L2A,
         Map(
           TimeUtil.withDefaults
-            .toZonedDateTime("1990-01-01 00:00:00") -> (BigDecimal("0.75"), BigDecimal(
+            .toZonedDateTime("1990-01-01 00:00:00") -> (BigDecimal(
+            "0.75"
+          ), BigDecimal(
             "0.85"
           )),
           TimeUtil.withDefaults
-            .toZonedDateTime("1990-01-01 00:15:00") -> (BigDecimal("0.55"), BigDecimal(
+            .toZonedDateTime("1990-01-01 00:15:00") -> (BigDecimal(
+            "0.55"
+          ), BigDecimal(
             "0.75"
           )),
           TimeUtil.withDefaults
-            .toZonedDateTime("1990-01-01 00:30:00") -> (BigDecimal("0.35"), BigDecimal(
+            .toZonedDateTime("1990-01-01 00:30:00") -> (BigDecimal(
+            "0.35"
+          ), BigDecimal(
             "0.65"
           )),
           TimeUtil.withDefaults
-            .toZonedDateTime("1990-01-01 00:45:00") -> (BigDecimal("0.15"), BigDecimal(
+            .toZonedDateTime("1990-01-01 00:45:00") -> (BigDecimal(
+            "0.15"
+          ), BigDecimal(
             "0.55"
           ))
         )

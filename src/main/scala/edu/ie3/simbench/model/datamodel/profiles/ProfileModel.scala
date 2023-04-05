@@ -7,48 +7,54 @@ import edu.ie3.simbench.model.RawModelData
 import edu.ie3.simbench.model.datamodel.SimbenchModel
 import edu.ie3.simbench.model.datamodel.SimbenchModel.SimbenchCompanionObject
 
-/**
-  * Super class of a profile model
+/** Super class of a profile model
   *
-  * @tparam T Type parameter to describe the type of the profile
-  * @tparam D Type parameter of the profile's data
+  * @tparam T
+  *   Type parameter to describe the type of the profile
+  * @tparam D
+  *   Type parameter of the profile's data
   */
 trait ProfileModel[T <: ProfileType, D] extends SimbenchModel {
 
-  /**
-    * The type of the profile
+  /** The type of the profile
     */
   val profileType: T
 
-  /**
-    * The actual profile
+  /** The actual profile
     */
   val profile: Map[ZonedDateTime, D]
 }
 
 object ProfileModel {
 
-  abstract class ProfileCompanionObject[C <: ProfileModel[_ <: ProfileType, D], D]
+  abstract class ProfileCompanionObject[C <: ProfileModel[
+    _ <: ProfileType,
+    D
+  ], D]
       extends SimbenchCompanionObject[C] {
     protected val TIME = "time"
 
-    /**
-      * Factory method to build one model from a mapping from field id to value
+    /** Factory method to build one model from a mapping from field id to value
       *
-      * @param rawData mapping from field id to value
-      * @return A model
+      * @param rawData
+      *   mapping from field id to value
+      * @return
+      *   A model
       */
     override def apply(rawData: RawModelData): C =
       throw SimbenchDataModelException(
         s"No basic implementation of model creation available for profiles"
       )
 
-    /**
-      * Determine the ids of the available profile types by filtering the head line fields
+    /** Determine the ids of the available profile types by filtering the head
+      * line fields
       *
-      * @param values                 [[Vector]] of [[RawModelData]]
-      * @param idManipulationFuncOpt  Option to a partial function to manipulate ids
-      * @return                       A [[Vector]] available field ids
+      * @param values
+      *   [[Vector]] of [[RawModelData]]
+      * @param idManipulationFuncOpt
+      *   Option to a partial function to manipulate ids
+      * @return
+      *   A [[Vector]] available field ids
       */
     def determineAvailableProfileIds(
         values: Vector[RawModelData],
@@ -68,12 +74,14 @@ object ProfileModel {
       availableTypes.distinct
     }
 
-    /**
-      * Determine the available profile types from the given raw data
+    /** Determine the available profile types from the given raw data
       *
-      * @param values                 The map of field id to string content
-      * @param idManipulationFuncOpt  Option to a partial function to manipulate ids
-      * @return                       A [[Vector]] of available field ids
+      * @param values
+      *   The map of field id to string content
+      * @param idManipulationFuncOpt
+      *   Option to a partial function to manipulate ids
+      * @return
+      *   A [[Vector]] of available field ids
       */
     def determineAvailableProfileTypes(
         values: Map[String, String],

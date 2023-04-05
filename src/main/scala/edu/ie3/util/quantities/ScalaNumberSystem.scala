@@ -2,9 +2,9 @@ package edu.ie3.util.quantities
 
 import tech.units.indriya.function.DefaultNumberSystem
 
-/**
-  * This number system simply delegates the method calls to it's parent class. The only difference is, that
-  * [[BigDecimal]] is transferred to [[java.math.BigDecimal]] and back upon necessity
+/** This number system simply delegates the method calls to it's parent class.
+  * The only difference is, that [[BigDecimal]] is transferred to
+  * [[java.math.BigDecimal]] and back upon necessity
   */
 case class ScalaNumberSystem() extends DefaultNumberSystem {
   override def add(x: Number, y: Number): Number =
@@ -69,20 +69,22 @@ case class ScalaNumberSystem() extends DefaultNumberSystem {
   override def isInteger(number: Number): Boolean =
     super.isInteger(scala2java(number))
 
-  /**
-    * If necessary, converts [[BigDecimal]] into [[java.math.BigDecimal]]
+  /** If necessary, converts [[BigDecimal]] into [[java.math.BigDecimal]]
     *
-    * @return the very same [[Number]] but [[BigDecimal]] brought to [[java.math.BigDecimal]] on necessity
+    * @return
+    *   the very same [[Number]] but [[BigDecimal]] brought to
+    *   [[java.math.BigDecimal]] on necessity
     */
   def scala2java: Number => Number = {
     case bd: BigDecimal => bd.bigDecimal
     case x              => x
   }
 
-  /**
-    * If necessary, converts [[java.math.BigDecimal]] into [[BigDecimal]]
+  /** If necessary, converts [[java.math.BigDecimal]] into [[BigDecimal]]
     *
-    * @return the very same [[Number]] but [[java.math.BigDecimal]] brought to [[BigDecimal]] on necessity
+    * @return
+    *   the very same [[Number]] but [[java.math.BigDecimal]] brought to
+    *   [[BigDecimal]] on necessity
     */
   def java2scala: Number => Number = {
     case bd: java.math.BigDecimal => BigDecimal.javaBigDecimal2bigDecimal(bd)

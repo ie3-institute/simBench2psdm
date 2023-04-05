@@ -7,17 +7,24 @@ import edu.ie3.simbench.model.RawModelData
 import edu.ie3.simbench.model.datamodel.EntityModel.EntityModelCompanionObject
 import edu.ie3.simbench.model.datamodel.profiles.LoadProfileType
 
-/**
-  * Model of an electrical load
+/** Model of an electrical load
   *
-  * @param id Identifier
-  * @param node The node the load is connected to
-  * @param profile Profile type to use for time series calculation
-  * @param pLoad Active power consumption in MW
-  * @param qLoad Reactive power consumption in MVAr
-  * @param sR Rated apparent power in MVA
-  * @param subnet Subnet it belongs to
-  * @param voltLvl Voltage level
+  * @param id
+  *   Identifier
+  * @param node
+  *   The node the load is connected to
+  * @param profile
+  *   Profile type to use for time series calculation
+  * @param pLoad
+  *   Active power consumption in MW
+  * @param qLoad
+  *   Reactive power consumption in MVAr
+  * @param sR
+  *   Rated apparent power in MVA
+  * @param subnet
+  *   Subnet it belongs to
+  * @param voltLvl
+  *   Voltage level
   */
 final case class Load(
     id: String,
@@ -37,32 +44,36 @@ case object Load extends EntityModelCompanionObject[Load] {
   private val Q_LOAD = "qLoad"
   private val S_RATED = "sR"
 
-  /**
-    * Get an Array of table fields denoting the mapping to the model's attributes
+  /** Get an Array of table fields denoting the mapping to the model's
+    * attributes
     *
-    * @return Array of table headings
+    * @return
+    *   Array of table headings
     */
   override def getFields: Array[HeadLineField] =
     Array(ID, NODE, PROFILE, P_LOAD, Q_LOAD, S_RATED, SUBNET, VOLT_LVL).map(
       id => MandatoryField(id)
     )
 
-  /**
-    * Factory method to build one model from a mapping from field id to value
+  /** Factory method to build one model from a mapping from field id to value
     *
-    * @param rawData mapping from field id to value
-    * @return A model
+    * @param rawData
+    *   mapping from field id to value
+    * @return
+    *   A model
     */
   override def apply(rawData: RawModelData): Load =
     throw SimbenchDataModelException(
       s"No basic implementation of model creation available for ${this.getClass.getSimpleName}"
     )
 
-  /**
-    * Factory method to build a batch of models from a mapping from field id to value
+  /** Factory method to build a batch of models from a mapping from field id to
+    * value
     *
-    * @param rawData mapping from field id to value
-    * @return A [[Vector]] of models
+    * @param rawData
+    *   mapping from field id to value
+    * @return
+    *   A [[Vector]] of models
     */
   def buildModels(
       rawData: Vector[RawModelData],
@@ -73,12 +84,14 @@ case object Load extends EntityModelCompanionObject[Load] {
       buildModel(entry, node)
     }
 
-  /**
-    * Factory method to build one model from a mapping from field id to value
+  /** Factory method to build one model from a mapping from field id to value
     *
-    * @param rawData  mapping from field id to value
-    * @param node     Node at which the load is connected
-    * @return A load model
+    * @param rawData
+    *   mapping from field id to value
+    * @param node
+    *   Node at which the load is connected
+    * @return
+    *   A load model
     */
   def buildModel(rawData: RawModelData, node: Node): Load = {
     val (id, subnet, voltLvl) = getBaseInformation(rawData)

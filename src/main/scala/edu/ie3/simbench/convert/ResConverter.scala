@@ -22,13 +22,17 @@ import scala.collection.parallel.CollectionConverters._
 
 case object ResConverter extends ShuntConverter {
 
-  /**
-    * Convert a full set of renewable energy source system
+  /** Convert a full set of renewable energy source system
     *
-    * @param res      Input models to convert
-    * @param nodes    Mapping from Simbench to power system data model node
-    * @param profiles Collection of [[ResProfile]]s
-    * @return A mapping from converted renewable energy source system to equivalent individual time series
+    * @param res
+    *   Input models to convert
+    * @param nodes
+    *   Mapping from Simbench to power system data model node
+    * @param profiles
+    *   Collection of [[ResProfile]]s
+    * @return
+    *   A mapping from converted renewable energy source system to equivalent
+    *   individual time series
     */
   def convert(
       res: Vector[RES],
@@ -45,15 +49,20 @@ case object ResConverter extends ShuntConverter {
       .seq
       .toMap
 
-  /**
-    * Converts a single renewable energy source system to a fixed feed in model due to lacking information to
-    * sophistically guess typical types of assets. Different voltage regulation strategies are not covered, yet.
+  /** Converts a single renewable energy source system to a fixed feed in model
+    * due to lacking information to sophistically guess typical types of assets.
+    * Different voltage regulation strategies are not covered, yet.
     *
-    * @param input    Input model
-    * @param node     Node, the renewable energy source system is connected to
-    * @param profile  SimBench renewable energy source system profile
-    * @param uuid     Option to a specific uuid
-    * @return A pair of [[FixedFeedInInput]] and matching active power time series
+    * @param input
+    *   Input model
+    * @param node
+    *   Node, the renewable energy source system is connected to
+    * @param profile
+    *   SimBench renewable energy source system profile
+    * @param uuid
+    *   Option to a specific uuid
+    * @return
+    *   A pair of [[FixedFeedInInput]] and matching active power time series
     */
   def convert(
       input: RES,

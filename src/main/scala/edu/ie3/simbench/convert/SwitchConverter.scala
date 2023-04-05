@@ -11,12 +11,14 @@ import scala.collection.parallel.CollectionConverters._
 
 case object SwitchConverter {
 
-  /**
-    * Converts a set of [[Switch]]es to [[SwitchInput]]
+  /** Converts a set of [[Switch]]es to [[SwitchInput]]
     *
-    * @param switches [[Vector]] of SimBench [[Switch]]es
-    * @param nodes    Mapping from SimBench [[Node]] to ie3's [[NodeInput]]
-    * @return         [[Vector]] of [[SwitchInput]]
+    * @param switches
+    *   [[Vector]] of SimBench [[Switch]]es
+    * @param nodes
+    *   Mapping from SimBench [[Node]] to ie3's [[NodeInput]]
+    * @return
+    *   [[Vector]] of [[SwitchInput]]
     */
   def convert(
       switches: Vector[Switch],
@@ -28,14 +30,18 @@ case object SwitchConverter {
       convert(input, nodeA, nodeB)
     }.seq
 
-  /**
-    * Converts a [[Switch]] into ie3's [[SwitchInput]]
+  /** Converts a [[Switch]] into ie3's [[SwitchInput]]
     *
-    * @param input  Model to convert
-    * @param nodeA  One of the nodes, the switch connects
-    * @param nodeB  The other of the nodes, the switch connects
-    * @param uuid   UUID to use for the model generation (default: Random UUID)
-    * @return       A [[SwitchInput]] model
+    * @param input
+    *   Model to convert
+    * @param nodeA
+    *   One of the nodes, the switch connects
+    * @param nodeB
+    *   The other of the nodes, the switch connects
+    * @param uuid
+    *   UUID to use for the model generation (default: Random UUID)
+    * @return
+    *   A [[SwitchInput]] model
     */
   def convert(
       input: Switch,

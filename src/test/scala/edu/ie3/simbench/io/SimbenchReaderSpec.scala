@@ -40,8 +40,7 @@ class SimbenchReaderSpec extends UnitSpec with SimbenchReaderTestData {
       /* Simple mocking class implementing nothing at all */
       final case class SimbenchMock() extends SimbenchModel {
 
-        /**
-          * Identifier
+        /** Identifier
           */
         override val id: String = "No id"
       }
@@ -283,26 +282,26 @@ class SimbenchReaderSpec extends UnitSpec with SimbenchReaderTestData {
       val actual = reader.readGrid()
       inside(actual) {
         case GridModel(
-            simbenchCode,
-            externalNets,
-            lines,
-            loads,
-            loadProfiles,
-            measurements,
-            nodes,
-            nodePFResults,
-            powerPlants,
-            powerPlantProfiles,
-            res,
-            resProfiles,
-            shunts,
-            storages,
-            storageProfiles,
-            studyCases,
-            substations,
-            switches,
-            transofmers2w,
-            transformers3w
+              simbenchCode,
+              externalNets,
+              lines,
+              loads,
+              loadProfiles,
+              measurements,
+              nodes,
+              nodePFResults,
+              powerPlants,
+              powerPlantProfiles,
+              res,
+              resProfiles,
+              shunts,
+              storages,
+              storageProfiles,
+              studyCases,
+              substations,
+              switches,
+              transofmers2w,
+              transformers3w
             ) =>
           simbenchCode shouldBe expectedGridModel.simbenchCode
           externalNets shouldBe expectedGridModel.externalNets

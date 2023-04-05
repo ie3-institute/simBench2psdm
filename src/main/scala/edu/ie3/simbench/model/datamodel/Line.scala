@@ -18,17 +18,24 @@ sealed trait Line[T <: LineType] extends EntityModel {
 
 object Line extends EntityModelCompanionObject[Line[_ <: LineType]] {
 
-  /**
-    * AC line model
+  /** AC line model
     *
-    * @param id         Identifier
-    * @param nodeA      The node at end A
-    * @param nodeB      The node at end B
-    * @param lineType   The line type
-    * @param length     Length of the line in km
-    * @param loadingMax Maximum permissible loading in %
-    * @param subnet     Subnet it belongs to
-    * @param voltLvl    Voltage level
+    * @param id
+    *   Identifier
+    * @param nodeA
+    *   The node at end A
+    * @param nodeB
+    *   The node at end B
+    * @param lineType
+    *   The line type
+    * @param length
+    *   Length of the line in km
+    * @param loadingMax
+    *   Maximum permissible loading in %
+    * @param subnet
+    *   Subnet it belongs to
+    * @param voltLvl
+    *   Voltage level
     */
   final case class ACLine(
       id: String,
@@ -41,17 +48,24 @@ object Line extends EntityModelCompanionObject[Line[_ <: LineType]] {
       voltLvl: Int
   ) extends Line[ACLineType]
 
-  /**
-    * DC line model
+  /** DC line model
     *
-    * @param id         Identifier
-    * @param nodeA      The node at end A
-    * @param nodeB      The node at end B
-    * @param lineType   The line type
-    * @param length     Length of the line in km
-    * @param loadingMax Maximum permissible loading in %
-    * @param subnet     Subnet it belongs to
-    * @param voltLvl    Voltage level
+    * @param id
+    *   Identifier
+    * @param nodeA
+    *   The node at end A
+    * @param nodeB
+    *   The node at end B
+    * @param lineType
+    *   The line type
+    * @param length
+    *   Length of the line in km
+    * @param loadingMax
+    *   Maximum permissible loading in %
+    * @param subnet
+    *   Subnet it belongs to
+    * @param voltLvl
+    *   Voltage level
     */
   final case class DCLine(
       id: String,
@@ -70,33 +84,39 @@ object Line extends EntityModelCompanionObject[Line[_ <: LineType]] {
   private val LENGTH = "length"
   private val LOADING_MAX = "loadingMax"
 
-  /**
-    * Get an Array of table fields denoting the mapping to the model's attributes
+  /** Get an Array of table fields denoting the mapping to the model's
+    * attributes
     *
-    * @return Array of table headings
+    * @return
+    *   Array of table headings
     */
   override def getFields: Array[HeadLineField] =
     Array(ID, NODE_A, NODE_B, LINE_TYPE, LENGTH, LOADING_MAX, SUBNET, VOLT_LVL)
       .map(id => MandatoryField(id))
 
-  /**
-    * Factory method to build one model from a mapping from field id to value
+  /** Factory method to build one model from a mapping from field id to value
     *
-    * @param rawData mapping from field id to value
-    * @return A model
+    * @param rawData
+    *   mapping from field id to value
+    * @return
+    *   A model
     */
   override def apply(rawData: RawModelData): Line[_ <: LineType] =
     throw SimbenchDataModelException(
       s"No basic implementation of model creation available for ${this.getClass.getSimpleName}"
     )
 
-  /**
-    * Factory method to build a batch of models from a mapping from field id to value
+  /** Factory method to build a batch of models from a mapping from field id to
+    * value
     *
-    * @param rawData    mapping from field id to value
-    * @param nodes      Nodes to use for mapping
-    * @param lineTypes  Line types to use for mapping
-    * @return A [[Vector]] of models
+    * @param rawData
+    *   mapping from field id to value
+    * @param nodes
+    *   Nodes to use for mapping
+    * @param lineTypes
+    *   Line types to use for mapping
+    * @return
+    *   A [[Vector]] of models
     */
   def buildModels(
       rawData: Vector[RawModelData],
@@ -116,14 +136,18 @@ object Line extends EntityModelCompanionObject[Line[_ <: LineType]] {
       buildModel(entry, nodeA, nodeB, lineType)
     }
 
-  /**
-    * Factory method to build one model from a mapping from field id to value
+  /** Factory method to build one model from a mapping from field id to value
     *
-    * @param rawData mapping from field id to value
-    * @param nodeA    Node to use at port A
-    * @param nodeB    Node to use at port B
-    * @param lineType Line type to use for this line
-    * @return A model
+    * @param rawData
+    *   mapping from field id to value
+    * @param nodeA
+    *   Node to use at port A
+    * @param nodeB
+    *   Node to use at port B
+    * @param lineType
+    *   Line type to use for this line
+    * @return
+    *   A model
     */
   def buildModel(
       rawData: RawModelData,

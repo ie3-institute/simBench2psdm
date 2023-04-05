@@ -11,15 +11,20 @@ sealed trait LineType extends SimbenchModel
 
 object LineType {
 
-  /**
-    * Describing the attributes of a piece of AC line
+  /** Describing the attributes of a piece of AC line
     *
-    * @param id Identifier
-    * @param r Relative resistance in Ohm/km
-    * @param x Relative reactance in Ohm/km
-    * @param b Relative susceptance in microS/km
-    * @param iMax Maximum permissible current in A
-    * @param style The construction type of the line
+    * @param id
+    *   Identifier
+    * @param r
+    *   Relative resistance in Ohm/km
+    * @param x
+    *   Relative reactance in Ohm/km
+    * @param b
+    *   Relative susceptance in microS/km
+    * @param iMax
+    *   Maximum permissible current in A
+    * @param style
+    *   The construction type of the line
     */
   final case class ACLineType(
       id: String,
@@ -37,19 +42,21 @@ object LineType {
     private val I_MAX = "iMax"
     private val LINE_TYPE = "type"
 
-    /**
-      * Get an Array of table fields denoting the mapping to the model's attributes
+    /** Get an Array of table fields denoting the mapping to the model's
+      * attributes
       *
-      * @return Array of table headings
+      * @return
+      *   Array of table headings
       */
     override def getFields: Array[HeadLineField] =
       Array(ID, R, X, B, I_MAX, LINE_TYPE).map(id => MandatoryField(id))
 
-    /**
-      * Factory method to build one model from a mapping from field id to value
+    /** Factory method to build one model from a mapping from field id to value
       *
-      * @param rawData mapping from field id to value
-      * @return A model
+      * @param rawData
+      *   mapping from field id to value
+      * @return
+      *   A model
       */
     override def apply(rawData: RawModelData): ACLineType = {
       val id = rawData.get(ID)
@@ -63,18 +70,30 @@ object LineType {
     }
   }
 
-  /**
-    * Denoting the type of a DC line
+  /** Denoting the type of a DC line
     *
-    * @param id Identifier
-    * @param p Active power setpoint of the line in MW
-    * @param relPLoss Relative active power losses in %
-    * @param fixPLoss Fix active power losses in MW
-    * @param pMax Maximum permissible active power to be transferred in MW (optional)
-    * @param qMinA Minimum permissible reactive power provision at port A in MVAr (optional)
-    * @param qMaxA Maximum permissible reactive power provision at port A in MVAr (optional)
-    * @param qMinB Minimum permissible reactive power provision at port B in MVAr (optional)
-    * @param qMaxB Maximum permissible reactive power provision at port B in MVAr (optional)
+    * @param id
+    *   Identifier
+    * @param p
+    *   Active power setpoint of the line in MW
+    * @param relPLoss
+    *   Relative active power losses in %
+    * @param fixPLoss
+    *   Fix active power losses in MW
+    * @param pMax
+    *   Maximum permissible active power to be transferred in MW (optional)
+    * @param qMinA
+    *   Minimum permissible reactive power provision at port A in MVAr
+    *   (optional)
+    * @param qMaxA
+    *   Maximum permissible reactive power provision at port A in MVAr
+    *   (optional)
+    * @param qMinB
+    *   Minimum permissible reactive power provision at port B in MVAr
+    *   (optional)
+    * @param qMaxB
+    *   Maximum permissible reactive power provision at port B in MVAr
+    *   (optional)
     */
   final case class DCLineType(
       id: String,
@@ -98,10 +117,11 @@ object LineType {
     private val Q_MAX_A = "qMaxA"
     private val Q_MAX_B = "qMaxB"
 
-    /**
-      * Get an Array of table fields denoting the mapping to the model's attributes
+    /** Get an Array of table fields denoting the mapping to the model's
+      * attributes
       *
-      * @return Array of table headings
+      * @return
+      *   Array of table headings
       */
     override def getFields: Array[HeadLineField] =
       Array(
@@ -116,11 +136,12 @@ object LineType {
         Q_MAX_B
       ).map(id => MandatoryField(id))
 
-    /**
-      * Factory method to build one model from a mapping from field id to value
+    /** Factory method to build one model from a mapping from field id to value
       *
-      * @param rawData mapping from field id to value
-      * @return A model
+      * @param rawData
+      *   mapping from field id to value
+      * @return
+      *   A model
       */
     override def apply(rawData: RawModelData): DCLineType = {
       val id = rawData.get(ID)

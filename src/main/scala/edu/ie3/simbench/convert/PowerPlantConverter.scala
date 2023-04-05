@@ -25,13 +25,17 @@ import scala.collection.parallel.CollectionConverters._
 
 case object PowerPlantConverter extends ShuntConverter {
 
-  /**
-    * Convert a full set of power plants
+  /** Convert a full set of power plants
     *
-    * @param powerPlants  Input models to convert
-    * @param nodes        Mapping from Simbench to power system data model node
-    * @param profiles     Collection of [[PowerPlantProfile]]s
-    * @return A mapping from converted power plant to equivalent individual time series
+    * @param powerPlants
+    *   Input models to convert
+    * @param nodes
+    *   Mapping from Simbench to power system data model node
+    * @param profiles
+    *   Collection of [[PowerPlantProfile]]s
+    * @return
+    *   A mapping from converted power plant to equivalent individual time
+    *   series
     */
   def convert(
       powerPlants: Vector[PowerPlant],
@@ -48,15 +52,20 @@ case object PowerPlantConverter extends ShuntConverter {
       .seq
       .toMap
 
-  /**
-    * Converts a single power plant model to a fixed feed in model, as the power system data model does not reflect
-    * power plants, yet. Voltage regulation strategies are also not correctly accounted for.
+  /** Converts a single power plant model to a fixed feed in model, as the power
+    * system data model does not reflect power plants, yet. Voltage regulation
+    * strategies are also not correctly accounted for.
     *
-    * @param input    Input model
-    * @param node     Node, the power plant is connected to
-    * @param profile  SimBench power plant profile
-    * @param uuid     Option to a specific uuid
-    * @return A pair of [[FixedFeedInInput]] and matching active power time series
+    * @param input
+    *   Input model
+    * @param node
+    *   Node, the power plant is connected to
+    * @param profile
+    *   SimBench power plant profile
+    * @param uuid
+    *   Option to a specific uuid
+    * @return
+    *   A pair of [[FixedFeedInInput]] and matching active power time series
     */
   def convert(
       input: PowerPlant,

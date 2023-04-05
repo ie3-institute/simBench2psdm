@@ -48,12 +48,15 @@ case object ResProfileType {
   case object WP8 extends ResProfileType
   case object WP9 extends ResProfileType
 
-  /**
-    * Hands back a suitable [[ResProfileType]] based on the entries given in SimBench csv files
+  /** Hands back a suitable [[ResProfileType]] based on the entries given in
+    * SimBench csv files
     *
-    * @param typeString Entry in csv file
-    * @return The matching [[ResProfileType]]
-    * @throws SimbenchDataModelException if a non valid type string has been provided
+    * @param typeString
+    *   Entry in csv file
+    * @return
+    *   The matching [[ResProfileType]]
+    * @throws SimbenchDataModelException
+    *   if a non valid type string has been provided
     */
   @throws[SimbenchDataModelException]
   def apply(typeString: String): ResProfileType =

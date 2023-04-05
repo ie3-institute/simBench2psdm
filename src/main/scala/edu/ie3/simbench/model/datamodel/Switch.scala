@@ -7,17 +7,24 @@ import edu.ie3.simbench.model.RawModelData
 import edu.ie3.simbench.model.datamodel.EntityModel.EntityModelCompanionObject
 import edu.ie3.simbench.model.datamodel.enums.SwitchType
 
-/**
-  * Modeling switches between nodes
+/** Modeling switches between nodes
   *
-  * @param id Identifier
-  * @param nodeA Node at end A
-  * @param nodeB Node at end B
-  * @param switchType Type of the switch
-  * @param cond true, if the switch ist closed
-  * @param substation Substation it belongs to
-  * @param subnet Subnet it belongs to
-  * @param voltLvl Voltage level
+  * @param id
+  *   Identifier
+  * @param nodeA
+  *   Node at end A
+  * @param nodeB
+  *   Node at end B
+  * @param switchType
+  *   Type of the switch
+  * @param cond
+  *   true, if the switch ist closed
+  * @param substation
+  *   Substation it belongs to
+  * @param subnet
+  *   Subnet it belongs to
+  * @param voltLvl
+  *   Voltage level
   */
 final case class Switch(
     id: String,
@@ -37,33 +44,35 @@ case object Switch extends EntityModelCompanionObject[Switch] {
   private val COND = "cond"
   private val SUBSTATION = "substation"
 
-  /**
-    * Get an Array of table fields denoting the mapping to the model's attributes
+  /** Get an Array of table fields denoting the mapping to the model's
+    * attributes
     *
-    * @return Array of table headings
+    * @return
+    *   Array of table headings
     */
   override def getFields: Array[HeadLineField] =
     Array(ID, NODE_A, NODE_B, SWITCH_TYPE, COND, SUBSTATION, SUBNET, VOLT_LVL)
-      .map(
-        id => MandatoryField(id)
-      )
+      .map(id => MandatoryField(id))
 
-  /**
-    * Factory method to build one model from a mapping from field id to value
+  /** Factory method to build one model from a mapping from field id to value
     *
-    * @param rawData mapping from field id to value
-    * @return A model
+    * @param rawData
+    *   mapping from field id to value
+    * @return
+    *   A model
     */
   override def apply(rawData: RawModelData): Switch =
     throw SimbenchDataModelException(
       s"No basic implementation of model creation available for ${this.getClass.getSimpleName}"
     )
 
-  /**
-    * Factory method to build a batch of models from a mapping from field id to value
+  /** Factory method to build a batch of models from a mapping from field id to
+    * value
     *
-    * @param rawData mapping from field id to value
-    * @return A [[Vector]] of models
+    * @param rawData
+    *   mapping from field id to value
+    * @return
+    *   A [[Vector]] of models
     */
   def buildModels(
       rawData: Vector[RawModelData],
@@ -78,14 +87,18 @@ case object Switch extends EntityModelCompanionObject[Switch] {
       buildModel(entry, nodeA, nodeB, substation)
     }
 
-  /**
-    * Factory method to build one model from a mapping from field id to value
+  /** Factory method to build one model from a mapping from field id to value
     *
-    * @param rawData mapping from field id to value
-    * @param nodeA      Node at port A
-    * @param nodeB      Node at port B
-    * @param substation Substation to use
-    * @return A model
+    * @param rawData
+    *   mapping from field id to value
+    * @param nodeA
+    *   Node at port A
+    * @param nodeB
+    *   Node at port B
+    * @param substation
+    *   Substation to use
+    * @return
+    *   A model
     */
   def buildModel(
       rawData: RawModelData,

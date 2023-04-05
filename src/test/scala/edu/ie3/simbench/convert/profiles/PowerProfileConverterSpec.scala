@@ -103,50 +103,49 @@ class PowerProfileConverterSpec extends UnitSpec {
 
       val actual = PowerProfileConverter.convert(sProfile, pRated, qRated)
 
-      expected.foreach {
-        case (time, sValue) =>
-          abs(
-            actual
-              .getValue(time)
-              .toScala match {
-              case Some(value) =>
-                (value.getP.toScala, sValue.getP.toScala) match {
-                  case (Some(lhs), Some(rhs)) =>
-                    lhs
-                      .subtract(rhs)
-                      .to(KILOWATT)
-                      .getValue
-                      .doubleValue()
-                  case _ =>
-                    throw ConversionException(
-                      s"Unable to calculate difference between expected und actual time series, as one of both entries is not available for time $time"
-                    )
-                }
+      expected.foreach { case (time, sValue) =>
+        abs(
+          actual
+            .getValue(time)
+            .toScala match {
+            case Some(value) =>
+              (value.getP.toScala, sValue.getP.toScala) match {
+                case (Some(lhs), Some(rhs)) =>
+                  lhs
+                    .subtract(rhs)
+                    .to(KILOWATT)
+                    .getValue
+                    .doubleValue()
+                case _ =>
+                  throw ConversionException(
+                    s"Unable to calculate difference between expected und actual time series, as one of both entries is not available for time $time"
+                  )
+              }
 
-              case None =>
-                throw ConversionException(
-                  s"Cannot find a time series entry for $time"
-                )
-            }
-          ) < testingTolerance shouldBe abs(
-            actual
-              .getValue(time)
-              .toScala match {
-              case Some(value) =>
-                (value.getQ.toScala, sValue.getQ.toScala) match {
-                  case (Some(lhs), Some(rhs)) =>
-                    lhs
-                      .subtract(rhs)
-                      .to(KILOVAR)
-                      .getValue
-                      .doubleValue()
-                }
-              case None =>
-                throw ConversionException(
-                  s"Cannot find a time series entry for ${time}"
-                )
-            }
-          ) < testingTolerance
+            case None =>
+              throw ConversionException(
+                s"Cannot find a time series entry for $time"
+              )
+          }
+        ) < testingTolerance shouldBe abs(
+          actual
+            .getValue(time)
+            .toScala match {
+            case Some(value) =>
+              (value.getQ.toScala, sValue.getQ.toScala) match {
+                case (Some(lhs), Some(rhs)) =>
+                  lhs
+                    .subtract(rhs)
+                    .to(KILOVAR)
+                    .getValue
+                    .doubleValue()
+              }
+            case None =>
+              throw ConversionException(
+                s"Cannot find a time series entry for ${time}"
+              )
+          }
+        ) < testingTolerance
       }
     }
   }
@@ -175,31 +174,30 @@ class PowerProfileConverterSpec extends UnitSpec {
 
     val actual = PowerProfileConverter.convert(pProfile, pRated)
 
-    expected.foreach {
-      case (time, pValue) =>
-        abs(
-          actual
-            .getValue(time)
-            .toScala match {
-            case Some(value) =>
-              (value.getP.toScala, pValue.getP.toScala) match {
-                case (Some(lhs), Some(rhs)) =>
-                  lhs
-                    .subtract(rhs)
-                    .to(KILOWATT)
-                    .getValue
-                    .doubleValue()
-                case _ =>
-                  throw ConversionException(
-                    s"Unable to calculate difference between expected und actual time series, as one of both entries is not available for time $time"
-                  )
-              }
-            case None =>
-              throw ConversionException(
-                s"Cannot find a time series entry for $time"
-              )
-          }
-        ) < testingTolerance
+    expected.foreach { case (time, pValue) =>
+      abs(
+        actual
+          .getValue(time)
+          .toScala match {
+          case Some(value) =>
+            (value.getP.toScala, pValue.getP.toScala) match {
+              case (Some(lhs), Some(rhs)) =>
+                lhs
+                  .subtract(rhs)
+                  .to(KILOWATT)
+                  .getValue
+                  .doubleValue()
+              case _ =>
+                throw ConversionException(
+                  s"Unable to calculate difference between expected und actual time series, as one of both entries is not available for time $time"
+                )
+            }
+          case None =>
+            throw ConversionException(
+              s"Cannot find a time series entry for $time"
+            )
+        }
+      ) < testingTolerance
     }
   }
 }

@@ -8,8 +8,7 @@ final case class SimbenchCode private (code: String)
 
 case object SimbenchCode {
 
-  /**
-    * Valid codes as documented in offical SimBench doc Version DE-1.0.0
+  /** Valid codes as documented in offical SimBench doc Version DE-1.0.0
     */
   val validSimbenchCodes: Vector[String] = Vector(
     "1-complete_data-mixed-all-0-no_sw",
@@ -272,11 +271,13 @@ case object SimbenchCode {
     "1-MV-urban--2-sw"
   )
 
-  /**
-    * Checks the given code against the list of permitted Simbench codes
+  /** Checks the given code against the list of permitted Simbench codes
     *
-    * @param code The code to test
-    * @return A valid instance of [[SimbenchCode]], if the code is valid, otherwise an Exception
+    * @param code
+    *   The code to test
+    * @return
+    *   A valid instance of [[SimbenchCode]], if the code is valid, otherwise an
+    *   Exception
     */
   def apply(code: String): Try[SimbenchCode] = {
     isValid(code) match {
@@ -285,10 +286,11 @@ case object SimbenchCode {
     }
   }
 
-  /**
-    * Checks, if the provided code is among the permitted codes
-    * @param code The code to check
-    * @return True, if it is a valid SimBench code, false if not.
+  /** Checks, if the provided code is among the permitted codes
+    * @param code
+    *   The code to check
+    * @return
+    *   True, if it is a valid SimBench code, false if not.
     */
   def isValid(code: String): Try[Boolean] = {
     if (validSimbenchCodes.contains(code))

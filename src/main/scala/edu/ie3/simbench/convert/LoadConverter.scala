@@ -36,16 +36,21 @@ case object LoadConverter extends ShuntConverter {
       .seq
       .toMap
 
-  /**
-    * Converts a single SimBench [[Load]] to ie3's [[LoadInput]]. Currently not sufficiently covered:
+  /** Converts a single SimBench [[Load]] to ie3's [[LoadInput]]. Currently not
+    * sufficiently covered:
     *   - Consumed energy throughout the year
     *   - different VAr characteristics
     *
-    * @param input    Input model
-    * @param node     Node, the load is connected to
-    * @param profile  SimBench load profile
-    * @param uuid     UUID to use for the model generation (default: Random UUID)
-    * @return         A [[LoadInput]] model
+    * @param input
+    *   Input model
+    * @param node
+    *   Node, the load is connected to
+    * @param profile
+    *   SimBench load profile
+    * @param uuid
+    *   UUID to use for the model generation (default: Random UUID)
+    * @return
+    *   A [[LoadInput]] model
     */
   def convert(
       input: Load,

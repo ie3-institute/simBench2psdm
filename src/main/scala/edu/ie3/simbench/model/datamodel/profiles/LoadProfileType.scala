@@ -2,8 +2,7 @@ package edu.ie3.simbench.model.datamodel.profiles
 
 import edu.ie3.simbench.exception.io.SimbenchDataModelException
 
-/**
-  * Different load profile types available in SimBench
+/** Different load profile types available in SimBench
   */
 sealed trait LoadProfileType extends ProfileType
 
@@ -104,12 +103,15 @@ object LoadProfileType {
   case object AirSemiParallel1 extends LoadProfileType
   case object AirSemiParallel2 extends LoadProfileType
 
-  /**
-    * Hands back a suitable [[LoadProfileType]] based on the entries given in SimBench csv files
+  /** Hands back a suitable [[LoadProfileType]] based on the entries given in
+    * SimBench csv files
     *
-    * @param typeString Entry in csv file
-    * @return The matching [[LoadProfileType]]
-    * @throws SimbenchDataModelException if a non valid type string has been provided
+    * @param typeString
+    *   Entry in csv file
+    * @return
+    *   The matching [[LoadProfileType]]
+    * @throws SimbenchDataModelException
+    *   if a non valid type string has been provided
     */
   @throws[SimbenchDataModelException]
   def apply(typeString: String): LoadProfileType =
@@ -215,9 +217,8 @@ object LoadProfileType {
         )
     }
 
-  /**
-    * Removes the "pLoad" and "qLoad" suffix of table head line fields in order to extract the identifiable string
-    * representation of profile types
+  /** Removes the "pLoad" and "qLoad" suffix of table head line fields in order
+    * to extract the identifiable string representation of profile types
     */
   val stripSuffix: String => String = (input: String) =>
     "[-_](?:qload|pload)$".r.replaceAllIn(input, "")
