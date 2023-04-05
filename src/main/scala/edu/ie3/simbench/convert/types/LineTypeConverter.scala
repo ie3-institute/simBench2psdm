@@ -33,24 +33,14 @@ case object LineTypeConverter extends LazyLogging {
     */
   def convert(
       lines: Vector[Line[_ <: LineType]]
-  ): Map[LineType, LineTypeInput] = {
-    val ratedVoltageMapping = getRatedVoltages(lines)
-    val lineTypes = lines.map(line => line.lineType).distinct
-
-    lineTypes
-      .map(
-        lineType =>
-          lineType -> convert(
-            lineType,
-            ratedVoltageMapping.getOrElse(
-              lineType,
-              throw SimbenchDataModelException(
-                s"Cannot find the rated voltage vor line type ${lineType}"
-              )
-            )
-          )
-      )
-      .toMap
+  ): Map[(LineType, ComparableQuantity[ElectricPotential]), LineTypeInput] = {
+    assignRatedVoltages(lines).map {
+      case pair @ (lineType, vRated) =>
+        pair -> convert(
+          lineType,
+          vRated
+        )
+    }.toMap
   }
 
   /**
@@ -91,42 +81,10 @@ case object LineTypeConverter extends LazyLogging {
     * @param lines  [[Vector]] of [[Line]]s
     * @return       Mapping of [[LineType]] to [[ComparableQuantity]] of type [[ElectricPotential]]
     */
-  def getRatedVoltages(
+  def assignRatedVoltages(
       lines: Vector[Line[_ <: LineType]]
-  ): Map[LineType, ComparableQuantity[ElectricPotential]] = {
-    val rawMapping = lines
-      .distinctBy(line => line.lineType)
-      .map(line => determineRatedVoltage(line))
-      .groupMap(_._1)(_._2)
-
-    /* Sanity check, that there is no ambiguous mapping */
-    rawMapping.find {
-      case (_, ratedVoltages) if ratedVoltages.length > 1 =>
-        true
-      case _ =>
-        false
-    } match {
-      case Some(ambiguousEntry) =>
-        throw SimbenchDataModelException(
-          s"Found ambiguous rated voltages for at least one entry: $ambiguousEntry"
-        )
-      case None =>
-        logger.debug(
-          "Great! Found only unambiguous line type to rated voltage mappings."
-        )
-    }
-
-    /* Mapping the line type to the rated voltage of the first entry of the Vector of each raw mapping. That nothing
-     * is missed is ensured by the sanity check beforehand */
-    rawMapping.map {
-      case (lineType, lineTypeVRatedVector) =>
-        lineType -> lineTypeVRatedVector.headOption.getOrElse(
-          throw SimbenchDataModelException(
-            s"Cannot receive rated voltage for line type '$lineType'."
-          )
-        )
-    }
-  }
+  ): Vector[(LineType, ComparableQuantity[ElectricPotential])] =
+    lines.map(line => determineRatedVoltage(line)).distinct
 
   /**
     * Maps the [[LineType]] of the specific line to it's rated voltage based on the line's nodes' rated voltages
