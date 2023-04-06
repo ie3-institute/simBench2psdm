@@ -9,8 +9,8 @@ import edu.ie3.util.quantities.QuantityAdjustments
 
 trait SimbenchHelper extends LazyLogging {
 
-  /**
-    * Adjust the quantity library to be able to "understand" the Scala number system
+  /** Adjust the quantity library to be able to "understand" the Scala number
+    * system
     */
   QuantityAdjustments.adjust()
 

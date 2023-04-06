@@ -7,14 +7,19 @@ import edu.ie3.simbench.model.RawModelData
 
 import scala.io.BufferedSource
 
-/**
-  * Generic csv reader to de-serialise a csv file to a vector of maps from desired field names to their content
+/** Generic csv reader to de-serialise a csv file to a vector of maps from
+  * desired field names to their content
   *
-  * @param modelClass   Model class to read from this file
-  * @param filePath     Path to the csv file to read
-  * @param separator    Separator to use for splitting fields
-  * @param fileEnding   Desired file ending
-  * @param fileEncoding Desired file encoding
+  * @param modelClass
+  *   Model class to read from this file
+  * @param filePath
+  *   Path to the csv file to read
+  * @param separator
+  *   Separator to use for splitting fields
+  * @param fileEnding
+  *   Desired file ending
+  * @param fileEncoding
+  *   Desired file encoding
   */
 final case class CsvReader[T](
     modelClass: Class[T],
@@ -26,11 +31,12 @@ final case class CsvReader[T](
   /* Check, if the object exists, is a file and has the correct file ending */
   IoUtils.checkFileExists(filePath, fileEnding)
 
-  /**
-    * Read the content of the file and generate a vector of it
+  /** Read the content of the file and generate a vector of it
     *
-    * @param desiredFields  Array with strings of desired field names
-    * @return               A vector with raw model data
+    * @param desiredFields
+    *   Array with strings of desired field names
+    * @return
+    *   A vector with raw model data
     */
   def read(desiredFields: Array[HeadLineField]): Vector[RawModelData] = {
     val bufferedSource: BufferedSource =
@@ -52,13 +58,17 @@ final case class CsvReader[T](
     }
   }
 
-  /**
-    * Build the column mapping from the desired fields to their column position in the file. If one mandatory field is
-    * not apparent, an exception is thrown. If more fields are apparent in the file, the rest is simply discarded.
+  /** Build the column mapping from the desired fields to their column position
+    * in the file. If one mandatory field is not apparent, an exception is
+    * thrown. If more fields are apparent in the file, the rest is simply
+    * discarded.
     *
-    * @param headLine       Head line of the file
-    * @param desiredFields  Desired fields to be contained in the file
-    * @return               A map from desired field to column position in the file
+    * @param headLine
+    *   Head line of the file
+    * @param desiredFields
+    *   Desired fields to be contained in the file
+    * @return
+    *   A map from desired field to column position in the file
     */
   private def mapFields(
       headLine: String,
@@ -71,11 +81,10 @@ final case class CsvReader[T](
      * found (cf. filterNot statement). Then only mandatory fields or found optional fields may be apparent. Therefore,
      * the values can be extracted and if that is not possible, an exception is thrown. */
     desiredFields
-      .map(
-        field =>
-          field ->
-            headLineFields
-              .find(apparentField => apparentField._1 == field.id)
+      .map(field =>
+        field ->
+          headLineFields
+            .find(apparentField => apparentField._1 == field.id)
       )
       .filter {
         case (_: OptionalField, option: Option[(String, Int)]) =>
@@ -96,12 +105,15 @@ final case class CsvReader[T](
       .toMap
   }
 
-  /**
-    * Reads the given line and splits it up according to the defined fieldMapping.
+  /** Reads the given line and splits it up according to the defined
+    * fieldMapping.
     *
-    * @param line         Line in the file to read
-    * @param fieldMapping Mapping from desired field to column position
-    * @return             A map from desired field to content of the field
+    * @param line
+    *   Line in the file to read
+    * @param fieldMapping
+    *   Mapping from desired field to column position
+    * @return
+    *   A map from desired field to content of the field
     */
   private def readLine(
       line: String,

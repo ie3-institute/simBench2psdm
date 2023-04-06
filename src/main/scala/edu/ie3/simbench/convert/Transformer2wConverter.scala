@@ -14,13 +14,17 @@ import scala.collection.parallel.CollectionConverters._
 
 case object Transformer2wConverter {
 
-  /**
-    * Converts a [[Vector]] of [[Transformer2W]] into ie3's [[Transformer2WInput]] models
+  /** Converts a [[Vector]] of [[Transformer2W]] into ie3's
+    * [[Transformer2WInput]] models
     *
-    * @param inputs Vector of input models
-    * @param types  Mapping from input model to transformer type
-    * @param nodes  Mapping from input node model to converted node model
-    * @return       A Vector of ie3's [[Transformer2WInput]]
+    * @param inputs
+    *   Vector of input models
+    * @param types
+    *   Mapping from input model to transformer type
+    * @param nodes
+    *   Mapping from input node model to converted node model
+    * @return
+    *   A Vector of ie3's [[Transformer2WInput]]
     */
   def convert(
       inputs: Vector[Transformer2W],
@@ -40,15 +44,20 @@ case object Transformer2wConverter {
       convert(input, transformerType, nodeA, nodeB)
     }.seq
 
-  /**
-    * Converts a SimBench [[Transformer2W]] into a [[Transformer2WInput]].
+  /** Converts a SimBench [[Transformer2W]] into a [[Transformer2WInput]].
     *
-    * @param input            Input model
-    * @param transformerType  Type of the transformer
-    * @param nodeA            Node at the high voltage port
-    * @param nodeB            Node at the low voltage port
-    * @param uuid             UUID to use for the model generation (default: Random UUID)
-    * @return                 A [[Transformer2WInput]] model
+    * @param input
+    *   Input model
+    * @param transformerType
+    *   Type of the transformer
+    * @param nodeA
+    *   Node at the high voltage port
+    * @param nodeB
+    *   Node at the low voltage port
+    * @param uuid
+    *   UUID to use for the model generation (default: Random UUID)
+    * @return
+    *   A [[Transformer2WInput]] model
     */
   def convert(
       input: Transformer2W,

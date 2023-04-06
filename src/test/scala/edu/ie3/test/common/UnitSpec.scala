@@ -12,8 +12,8 @@ trait UnitSpec
     with LazyLogging
     with PrivateMethodTester {
 
-  /**
-    * Adjust the quantity library to be able to "understand" the Scala number system
+  /** Adjust the quantity library to be able to "understand" the Scala number
+    * system
     */
   QuantityAdjustments.adjust()
 }

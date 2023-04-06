@@ -12,14 +12,19 @@ sealed trait Measurement extends EntityModel
 
 object Measurement extends EntityModelCompanionObject[Measurement] {
 
-  /**
-    * Measurement device, that is able to measure different information at a node
+  /** Measurement device, that is able to measure different information at a
+    * node
     *
-    * @param id       Identifier
-    * @param node     Node at which the variable is measured
-    * @param variable The value, that is measured
-    * @param subnet   Subnet it belongs to
-    * @param voltLvl  Voltage level
+    * @param id
+    *   Identifier
+    * @param node
+    *   Node at which the variable is measured
+    * @param variable
+    *   The value, that is measured
+    * @param subnet
+    *   Subnet it belongs to
+    * @param voltLvl
+    *   Voltage level
     */
   final case class NodeMeasurement(
       id: String,
@@ -29,15 +34,21 @@ object Measurement extends EntityModelCompanionObject[Measurement] {
       voltLvl: Int
   ) extends Measurement
 
-  /**
-    * Measurement device, that is able to measure different information at a certain node of a line
+  /** Measurement device, that is able to measure different information at a
+    * certain node of a line
     *
-    * @param id       Identifier
-    * @param line     Line, which is measured
-    * @param node     Node at which the variable is measured
-    * @param variable The value, that is measured
-    * @param subnet   Subnet it belongs to
-    * @param voltLvl  Voltage level
+    * @param id
+    *   Identifier
+    * @param line
+    *   Line, which is measured
+    * @param node
+    *   Node at which the variable is measured
+    * @param variable
+    *   The value, that is measured
+    * @param subnet
+    *   Subnet it belongs to
+    * @param voltLvl
+    *   Voltage level
     */
   final case class LineMeasurement(
       id: String,
@@ -48,15 +59,21 @@ object Measurement extends EntityModelCompanionObject[Measurement] {
       voltLvl: Int
   ) extends Measurement
 
-  /**
-    * Measurement device, that is able to measure different information at a certain node of a two winding transformer
+  /** Measurement device, that is able to measure different information at a
+    * certain node of a two winding transformer
     *
-    * @param id             Identifier
-    * @param transformer2W  Transformer, which is measured
-    * @param node           Node at which the variable is measured
-    * @param variable       The value, that is measured
-    * @param subnet         Subnet it belongs to
-    * @param voltLvl        Voltage level
+    * @param id
+    *   Identifier
+    * @param transformer2W
+    *   Transformer, which is measured
+    * @param node
+    *   Node at which the variable is measured
+    * @param variable
+    *   The value, that is measured
+    * @param subnet
+    *   Subnet it belongs to
+    * @param voltLvl
+    *   Voltage level
     */
   final case class TransformerMeasurement(
       id: String,
@@ -71,34 +88,40 @@ object Measurement extends EntityModelCompanionObject[Measurement] {
   private val ELEMENT_2 = "element2"
   private val VARIABLE = "variable"
 
-  /**
-    * Get an Array of table fields denoting the mapping to the model's attributes
+  /** Get an Array of table fields denoting the mapping to the model's
+    * attributes
     *
-    * @return Array of table headings
+    * @return
+    *   Array of table headings
     */
   override def getFields: Array[HeadLineField] =
     Array(ID, ELEMENT_1, ELEMENT_2, VARIABLE, SUBNET, VOLT_LVL)
       .map(id => MandatoryField(id))
 
-  /**
-    * Factory method to build one model from a mapping from field id to value
+  /** Factory method to build one model from a mapping from field id to value
     *
-    * @param rawData mapping from field id to value
-    * @return A model
+    * @param rawData
+    *   mapping from field id to value
+    * @return
+    *   A model
     */
   override def apply(rawData: RawModelData): Measurement =
     throw SimbenchDataModelException(
       s"No basic implementation of model creation available for ${this.getClass.getSimpleName}"
     )
 
-  /**
-    * Factory method to build one model from a mapping from field id to value
+  /** Factory method to build one model from a mapping from field id to value
     *
-    * @param rawData        mapping from field id to value
-    * @param nodes          Nodes to use for mapping
-    * @param lines          Lines to use for mapping
-    * @param transformers2W Transformers to use for mapping
-    * @return A model
+    * @param rawData
+    *   mapping from field id to value
+    * @param nodes
+    *   Nodes to use for mapping
+    * @param lines
+    *   Lines to use for mapping
+    * @param transformers2W
+    *   Transformers to use for mapping
+    * @return
+    *   A model
     */
   def buildModels(
       rawData: Vector[RawModelData],

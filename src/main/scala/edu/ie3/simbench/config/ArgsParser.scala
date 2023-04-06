@@ -23,16 +23,14 @@ object ArgsParser {
             configLocation = Option(value)
           )
         })
-        .validate(
-          value =>
-            if (value.trim.isEmpty) failure("config location cannot be empty")
-            else success
+        .validate(value =>
+          if (value.trim.isEmpty) failure("config location cannot be empty")
+          else success
         )
-        .validate(
-          value =>
-            if (value.contains("\\"))
-              failure("wrong config path, expected: /, found: \\")
-            else success
+        .validate(value =>
+          if (value.contains("\\"))
+            failure("wrong config path, expected: /, found: \\")
+          else success
         )
         .text("Location of the simbench4simona config file")
         .minOccurs(1)

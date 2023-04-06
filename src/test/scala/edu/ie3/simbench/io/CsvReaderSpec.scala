@@ -124,7 +124,9 @@ class CsvReaderSpec extends UnitSpec {
         csvReader invokePrivate mapFieldsMethod(headline, desiredFields)
       )
 
-      thrown.getMessage.endsWith("does not contain the mandatory field subnet") shouldBe true
+      thrown.getMessage.endsWith(
+        "does not contain the mandatory field subnet"
+      ) shouldBe true
     }
 
     "tolerate, that an optional field is not apparent" in {

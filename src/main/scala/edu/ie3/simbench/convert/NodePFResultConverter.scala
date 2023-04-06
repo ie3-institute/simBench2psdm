@@ -9,8 +9,7 @@ import edu.ie3.simbench.model.datamodel.NodePFResult
 import edu.ie3.util.quantities.PowerSystemUnits.{PU, DEGREE_GEOM}
 import tech.units.indriya.quantity.Quantities
 
-/**
-  * Converts [[NodePFResult]] to [[NodeResult]]
+/** Converts [[NodePFResult]] to [[NodeResult]]
   */
 object NodePFResultConverter {
   def convert(

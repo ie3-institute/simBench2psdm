@@ -2,8 +2,7 @@ package edu.ie3.simbench.model.datamodel.profiles
 
 import edu.ie3.simbench.exception.io.SimbenchDataModelException
 
-/**
-  * Enumeration of available power plant profiles
+/** Enumeration of available power plant profiles
   */
 sealed trait PowerPlantProfileType extends ProfileType
 
@@ -329,12 +328,15 @@ object PowerPlantProfileType {
   case object PowerPlantProfileimp0 extends PowerPlantProfileType
   case object PowerPlantProfileimp1 extends PowerPlantProfileType
 
-  /**
-    * Hands back a suitable [[PowerPlantProfileType]] based on the entries given in SimBench csv files
+  /** Hands back a suitable [[PowerPlantProfileType]] based on the entries given
+    * in SimBench csv files
     *
-    * @param typeString Entry in csv file
-    * @return The matching [[PowerPlantProfileType]]
-    * @throws SimbenchDataModelException if a non valid type string has been provided
+    * @param typeString
+    *   Entry in csv file
+    * @return
+    *   The matching [[PowerPlantProfileType]]
+    * @throws SimbenchDataModelException
+    *   if a non valid type string has been provided
     */
   @throws[SimbenchDataModelException]
   def apply(typeString: String): PowerPlantProfileType =

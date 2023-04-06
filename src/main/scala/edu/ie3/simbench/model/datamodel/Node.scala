@@ -9,20 +9,30 @@ import edu.ie3.simbench.model.datamodel.EntityModel.EntityModelCompanionObject
 import edu.ie3.simbench.model.datamodel.SimbenchModel.SimbenchCompanionObject
 import edu.ie3.simbench.model.datamodel.enums.NodeType
 
-/**
-  * Electrical node
+/** Electrical node
   *
-  * @param id Identifier
-  * @param nodeType Type of the node
-  * @param vmSetp Setpoint for the voltage magnitude in p.u.
-  * @param vaSetp Setpoint for the voltage angle in Degree (Optional)
-  * @param vmR Rated voltage magnitude in kV
-  * @param vmMin Minimum permissible voltage magnitude in p.u.
-  * @param vmMax Maximum permissible voltage magnitude in p.u.
-  * @param substation Substation the node belongs to
-  * @param coordinate Coordinate at which it is located
-  * @param subnet Subnet it belongs to
-  * @param voltLvl Voltage level
+  * @param id
+  *   Identifier
+  * @param nodeType
+  *   Type of the node
+  * @param vmSetp
+  *   Setpoint for the voltage magnitude in p.u.
+  * @param vaSetp
+  *   Setpoint for the voltage angle in Degree (Optional)
+  * @param vmR
+  *   Rated voltage magnitude in kV
+  * @param vmMin
+  *   Minimum permissible voltage magnitude in p.u.
+  * @param vmMax
+  *   Maximum permissible voltage magnitude in p.u.
+  * @param substation
+  *   Substation the node belongs to
+  * @param coordinate
+  *   Coordinate at which it is located
+  * @param subnet
+  *   Subnet it belongs to
+  * @param voltLvl
+  *   Voltage level
   */
 final case class Node(
     id: String,
@@ -38,10 +48,10 @@ final case class Node(
     voltLvl: Int
 ) extends EntityModel {
 
-  /**
-    * Generating the key, to uniquely identify this node
+  /** Generating the key, to uniquely identify this node
     *
-    * @return The node's key as (id, subnet, voltLvl)
+    * @return
+    *   The node's key as (id, subnet, voltLvl)
     */
   def getKey: NodeKey = NodeKey(id, subnet, voltLvl)
 }
@@ -56,10 +66,11 @@ case object Node extends EntityModelCompanionObject[Node] {
   private val SUBSTATION = "substation"
   private val COORDINATE = "coordID"
 
-  /**
-    * Get an Array of table fields denoting the mapping to the model's attributes
+  /** Get an Array of table fields denoting the mapping to the model's
+    * attributes
     *
-    * @return Array of table headings
+    * @return
+    *   Array of table headings
     */
   override def getFields: Array[HeadLineField] =
     Array(
@@ -76,13 +87,17 @@ case object Node extends EntityModelCompanionObject[Node] {
       COORDINATE
     ).map(id => MandatoryField(id))
 
-  /**
-    * Factory method to build a batch of models from a mapping from field id to value
+  /** Factory method to build a batch of models from a mapping from field id to
+    * value
     *
-    * @param rawData      Mapping from field id to value
-    * @param coordinates  Mapping from coordinate id to coordinate itself
-    * @param substations  Mapping from substation id to substation itself
-    * @return A [[Vector]] of models
+    * @param rawData
+    *   Mapping from field id to value
+    * @param coordinates
+    *   Mapping from coordinate id to coordinate itself
+    * @param substations
+    *   Mapping from substation id to substation itself
+    * @return
+    *   A [[Vector]] of models
     */
   def buildModels(
       rawData: Vector[RawModelData],
@@ -96,13 +111,16 @@ case object Node extends EntityModelCompanionObject[Node] {
     }
   }
 
-  /**
-    * Factory method to build one model from a mapping from field id to value
+  /** Factory method to build one model from a mapping from field id to value
     *
-    * @param rawData    mapping from field id to value
-    * @param coordinate Option to a coordinate to use
-    * @param substation Option to a substation to use
-    * @return A [[Node]] model
+    * @param rawData
+    *   mapping from field id to value
+    * @param coordinate
+    *   Option to a coordinate to use
+    * @param substation
+    *   Option to a substation to use
+    * @return
+    *   A [[Node]] model
     */
   def buildModel(
       rawData: RawModelData,
@@ -132,23 +150,26 @@ case object Node extends EntityModelCompanionObject[Node] {
     )
   }
 
-  /**
-    * Factory method to build one model from a mapping from field id to value
+  /** Factory method to build one model from a mapping from field id to value
     *
-    * @param rawData mapping from field id to value
-    * @return A model
+    * @param rawData
+    *   mapping from field id to value
+    * @return
+    *   A model
     */
   override def apply(rawData: RawModelData): Node =
     throw SimbenchDataModelException(
       s"No basic implementation of model creation available for ${this.getClass.getSimpleName}"
     )
 
-  /**
-    * Key to uniquely identify different nodes in the SimBench data set.
+  /** Key to uniquely identify different nodes in the SimBench data set.
     *
-    * @param id       Identifier
-    * @param subnet   Subnet description
-    * @param voltLvl  Voltage level
+    * @param id
+    *   Identifier
+    * @param subnet
+    *   Subnet description
+    * @param voltLvl
+    *   Voltage level
     */
   final case class NodeKey(id: String, subnet: String, voltLvl: Int)
 }

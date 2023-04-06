@@ -7,25 +7,41 @@ import edu.ie3.simbench.model.datamodel.SimbenchModel
 import edu.ie3.simbench.model.datamodel.SimbenchModel.SimbenchCompanionObject
 import edu.ie3.simbench.model.datamodel.enums.BranchElementPort
 
-/**
-  * Modeling a type of a two winding transformer
+/** Modeling a type of a two winding transformer
   *
-  * @param id Identifier
-  * @param sR Rated apparent power in MVA
-  * @param vmHV Rated voltage magnitude at high voltage side
-  * @param vmLV Rated voltage magnitude at low voltage side
-  * @param va0 Phase shifting based on the assembly style of the transformer (e.g. Dy5 => 150Degree) in Degree
-  * @param vmImp Relative voltage magnitude in the short circuit experiment in %
-  * @param pCu Copper losses in short circuit experiment in kW
-  * @param pFe Iron losses in no load experiment in kW
-  * @param iNoLoad No load current in no load experiment in %
-  * @param tapable Is the transformer tapable?
-  * @param tapside Winding at which side the transformer is installed
-  * @param dVm Voltage magnitude increase per step in p.u. / step
-  * @param dVa Voltage angle increase per step in Degree / step
-  * @param tapNeutr Neutral tap position
-  * @param tapMin Minimum permissible tap position
-  * @param tapMax Maximum permissible tap position
+  * @param id
+  *   Identifier
+  * @param sR
+  *   Rated apparent power in MVA
+  * @param vmHV
+  *   Rated voltage magnitude at high voltage side
+  * @param vmLV
+  *   Rated voltage magnitude at low voltage side
+  * @param va0
+  *   Phase shifting based on the assembly style of the transformer (e.g. Dy5 =>
+  *   150Degree) in Degree
+  * @param vmImp
+  *   Relative voltage magnitude in the short circuit experiment in %
+  * @param pCu
+  *   Copper losses in short circuit experiment in kW
+  * @param pFe
+  *   Iron losses in no load experiment in kW
+  * @param iNoLoad
+  *   No load current in no load experiment in %
+  * @param tapable
+  *   Is the transformer tapable?
+  * @param tapside
+  *   Winding at which side the transformer is installed
+  * @param dVm
+  *   Voltage magnitude increase per step in p.u. / step
+  * @param dVa
+  *   Voltage angle increase per step in Degree / step
+  * @param tapNeutr
+  *   Neutral tap position
+  * @param tapMin
+  *   Minimum permissible tap position
+  * @param tapMax
+  *   Maximum permissible tap position
   */
 final case class Transformer2WType(
     id: String,
@@ -64,10 +80,11 @@ case object Transformer2WType
   private val TAP_MIN = "tapMin"
   private val TAP_MAX = "tapMax"
 
-  /**
-    * Get an Array of table fields denoting the mapping to the model's attributes
+  /** Get an Array of table fields denoting the mapping to the model's
+    * attributes
     *
-    * @return Array of table headings
+    * @return
+    *   Array of table headings
     */
   override def getFields: Array[HeadLineField] =
     Array(
@@ -89,11 +106,12 @@ case object Transformer2WType
       TAP_MAX
     ).map(id => MandatoryField(id))
 
-  /**
-    * Factory method to build one model from a mapping from field id to value
+  /** Factory method to build one model from a mapping from field id to value
     *
-    * @param rawData mapping from field id to value
-    * @return A model
+    * @param rawData
+    *   mapping from field id to value
+    * @return
+    *   A model
     */
   override def apply(rawData: RawModelData): Transformer2WType = {
     val id = rawData.get(ID)

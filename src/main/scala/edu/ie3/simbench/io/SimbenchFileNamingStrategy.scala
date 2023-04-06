@@ -18,8 +18,8 @@ import edu.ie3.simbench.model.datamodel.types.{
 
 import scala.util.{Failure, Success, Try}
 
-/**
-  * Describes a sophisticated mapping between classes and equivalent SimBench files
+/** Describes a sophisticated mapping between classes and equivalent SimBench
+  * files
   */
 case object SimbenchFileNamingStrategy {
   private def fileMapping: Map[Class[_], String] =
@@ -50,11 +50,13 @@ case object SimbenchFileNamingStrategy {
       classOf[PowerPlantProfile] -> "PowerPlantProfile"
     )
 
-  /**
-    * Determine the file name based on the provided class
+  /** Determine the file name based on the provided class
     *
-    * @param clazz The class to determine the according file name for
-    * @return [[scala.util.Success]], if the file name can be determine, [[scala.util.Failure]], if not
+    * @param clazz
+    *   The class to determine the according file name for
+    * @return
+    *   [[scala.util.Success]], if the file name can be determine,
+    *   [[scala.util.Failure]], if not
     */
   def getFileName(clazz: Class[_]): Try[String] = {
     fileMapping.get(clazz) match {

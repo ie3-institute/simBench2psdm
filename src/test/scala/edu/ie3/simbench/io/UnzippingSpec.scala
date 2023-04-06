@@ -115,9 +115,8 @@ class UnzippingSpec extends UnitSpec with IoUtils with BeforeAndAfterEach {
       val files = Files.list(secondLevelPath)
       val actualContent = files
         .toScala(LazyList)
-        .map(
-          entry =>
-            fileNameRegexWithAnyEnding.findFirstIn(entry.toString).getOrElse("")
+        .map(entry =>
+          fileNameRegexWithAnyEnding.findFirstIn(entry.toString).getOrElse("")
         )
         .sorted
         .toVector
@@ -165,9 +164,8 @@ class UnzippingSpec extends UnitSpec with IoUtils with BeforeAndAfterEach {
       val files = Files.list(extractionBasePath)
       val actualContent = files
         .toScala(LazyList)
-        .map(
-          entry =>
-            fileNameRegexWithAnyEnding.findFirstIn(entry.toString).getOrElse("")
+        .map(entry =>
+          fileNameRegexWithAnyEnding.findFirstIn(entry.toString).getOrElse("")
         )
         .sorted
         .toVector

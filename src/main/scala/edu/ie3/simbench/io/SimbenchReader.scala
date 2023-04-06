@@ -26,14 +26,18 @@ import scala.concurrent.{
 import scala.reflect.ClassTag
 import scala.util.{Failure, Success}
 
-/**
-  * Reading all simbench models from a given data set
+/** Reading all simbench models from a given data set
   *
-  * @param simbenchCode   Identifier of the SimBench model to read in
-  * @param folderPath     Path to the folder, where the de-compressed files do lay
-  * @param separator      Separator used in the files
-  * @param fileExtension  Extension of the files
-  * @param fileEncoding   Encoding of the files
+  * @param simbenchCode
+  *   Identifier of the SimBench model to read in
+  * @param folderPath
+  *   Path to the folder, where the de-compressed files do lay
+  * @param separator
+  *   Separator used in the files
+  * @param fileExtension
+  *   Extension of the files
+  * @param fileEncoding
+  *   Encoding of the files
   */
 final case class SimbenchReader(
     simbenchCode: String,
@@ -71,10 +75,10 @@ final case class SimbenchReader(
     (classOf[Switch], Switch.getFields)
   )
 
-  /**
-    * Read all models and compose them
+  /** Read all models and compose them
     *
-    * @return A [[GridModel]] containing all read information
+    * @return
+    *   A [[GridModel]] containing all read information
     */
   def readGrid(): GridModel = {
     /* Reading the field to value maps for each of the specified classes
@@ -272,13 +276,17 @@ final case class SimbenchReader(
     )
   }
 
-  /**
-    * Reading all models of the specified class and returning them as an [[Option]]. Some classes are not mandatory,
-    * therefore, an [[Option]] on the result is handed back.
+  /** Reading all models of the specified class and returning them as an
+    * [[Option]]. Some classes are not mandatory, therefore, an [[Option]] on
+    * the result is handed back.
     *
-    * @param modelClass     Class of the models to read
-    * @param desiredFields  The desired fields to get from file
-    * @return               A tuple of modelClass to an Option on a [[Vector]] of raw model data for that class
+    * @param modelClass
+    *   Class of the models to read
+    * @param desiredFields
+    *   The desired fields to get from file
+    * @return
+    *   A tuple of modelClass to an Option on a [[Vector]] of raw model data for
+    *   that class
     */
   private def read[T <: SimbenchModel](
       modelClass: Class[T],
@@ -307,10 +315,10 @@ final case class SimbenchReader(
       }
     }
 
-  /**
-    * Get the field to value maps for all of the specified classes to read.
+  /** Get the field to value maps for all of the specified classes to read.
     *
-    * @return A map of model class to a vector of maps from field to value
+    * @return
+    *   A map of model class to a vector of maps from field to value
     */
   private def getFieldToValueMaps
       : Map[Class[_], Option[Vector[RawModelData]]] = {
@@ -327,16 +335,22 @@ final case class SimbenchReader(
       .toMap
   }
 
-  /**
-    * Building models from implicitly given class tag. If the models may or not be apparent, an empty Vector is
-    * returned. If they are mandatory, a [[IoException]] ist thrown.
+  /** Building models from implicitly given class tag. If the models may or not
+    * be apparent, an empty Vector is returned. If they are mandatory, a
+    * [[IoException]] ist thrown.
     *
-    * @param modelClassToRawData  Mapping from class to specific raw data
-    * @param cls                  Companion object to use for model generation
-    * @param tag                  Implicitly given class tag of the model class to build
-    * @param optional             true, if the models may or not be apparent (Default: true)
-    * @tparam C                   Type of the model class
-    * @return                     A [[Vector]] of models
+    * @param modelClassToRawData
+    *   Mapping from class to specific raw data
+    * @param cls
+    *   Companion object to use for model generation
+    * @param tag
+    *   Implicitly given class tag of the model class to build
+    * @param optional
+    *   true, if the models may or not be apparent (Default: true)
+    * @tparam C
+    *   Type of the model class
+    * @return
+    *   A [[Vector]] of models
     */
   private def buildModels[C <: SimbenchModel](
       modelClassToRawData: Map[Class[_], Option[Vector[RawModelData]]],

@@ -16,23 +16,28 @@ import edu.ie3.simbench.model.datamodel._
 import edu.ie3.util.quantities.PowerSystemUnits.{KILOVOLT, PU}
 import tech.units.indriya.quantity.Quantities
 
-/**
-  * Not covered:
+/** Not covered:
   *   - node type
   *   - voltage angle set point
   *   - substation information
   */
 case object NodeConverter {
 
-  /**
-    * Converts a SimBench node to a PowerSystemDataModel node
+  /** Converts a SimBench node to a PowerSystemDataModel node
     *
-    * @param input               SimBench [[Node]] to convert
-    * @param slackNodeKeys       Vector of keys, undoubtedly identifying slack nodes by (id, subnet, voltLvl)
-    * @param subnetConverter     Subnet converter, that is initialized with the apparent SimBench subnets
-    * @param maybeExplicitSubnet Optional explicit subnet number to assign
-    * @param uuid                UUID to use for the model generation (default: Random UUID)
-    * @return A [[NodeInput]]
+    * @param input
+    *   SimBench [[Node]] to convert
+    * @param slackNodeKeys
+    *   Vector of keys, undoubtedly identifying slack nodes by (id, subnet,
+    *   voltLvl)
+    * @param subnetConverter
+    *   Subnet converter, that is initialized with the apparent SimBench subnets
+    * @param maybeExplicitSubnet
+    *   Optional explicit subnet number to assign
+    * @param uuid
+    *   UUID to use for the model generation (default: Random UUID)
+    * @return
+    *   A [[NodeInput]]
     */
   def convert(
       input: Node,
@@ -67,13 +72,17 @@ case object NodeConverter {
     )
   }
 
-  /**
-    * Deriving the total list of slack node keys from all possible assets introducing slack simulation mode to a node
+  /** Deriving the total list of slack node keys from all possible assets
+    * introducing slack simulation mode to a node
     *
-    * @param externalNets [[Vector]] of [[ExternalNet]]s
-    * @param powerPlants  [[Vector]] of [[PowerPlant]]s
-    * @param res          [[Vector]] of [[RES]]s
-    * @return             [[Vector]] of distinct slack node keys (id, subnet, voltLvl)
+    * @param externalNets
+    *   [[Vector]] of [[ExternalNet]]s
+    * @param powerPlants
+    *   [[Vector]] of [[PowerPlant]]s
+    * @param res
+    *   [[Vector]] of [[RES]]s
+    * @return
+    *   [[Vector]] of distinct slack node keys (id, subnet, voltLvl)
     */
   def getSlackNodeKeys(
       externalNets: Vector[ExternalNet],
@@ -102,14 +111,18 @@ case object NodeConverter {
       extractSlackNodeKeys(res, calcTypeFromRes, nodeFromRes)).distinct
   }
 
-  /**
-    * Extracting the slack node keys from a [[Vector]] of models
+  /** Extracting the slack node keys from a [[Vector]] of models
     *
-    * @param models           [[Vector]] of models
-    * @param getCalcTypeFunc  Partial function to extract calculation type from the model
-    * @param getNode          Partial function to extract the node from the model
-    * @tparam T               Type of the models
-    * @return                 A vector of slack node keys
+    * @param models
+    *   [[Vector]] of models
+    * @param getCalcTypeFunc
+    *   Partial function to extract calculation type from the model
+    * @param getNode
+    *   Partial function to extract the node from the model
+    * @tparam T
+    *   Type of the models
+    * @return
+    *   A vector of slack node keys
     */
   private def extractSlackNodeKeys[T <: EntityModel](
       models: Vector[T],
@@ -122,13 +135,16 @@ case object NodeConverter {
       .map(model => getNode(model).getKey)
   }
 
-  /**
-    * Extract a pair of nodes from the given map of nodes
+  /** Extract a pair of nodes from the given map of nodes
     *
-    * @param nodeAIn  Input model one to use as key
-    * @param nodeBIn  Input model two to use as key
-    * @param nodes    Mapping from SimBench [[Node]] to ie3's [[NodeInput]]
-    * @return         A pair with the matching conversions
+    * @param nodeAIn
+    *   Input model one to use as key
+    * @param nodeBIn
+    *   Input model two to use as key
+    * @param nodes
+    *   Mapping from SimBench [[Node]] to ie3's [[NodeInput]]
+    * @return
+    *   A pair with the matching conversions
     */
   def getNodes(
       nodeAIn: Node,
@@ -140,12 +156,14 @@ case object NodeConverter {
     (nodeA, nodeB)
   }
 
-  /**
-    * Extract one node from the map of SimBench to ie3 data model
+  /** Extract one node from the map of SimBench to ie3 data model
     *
-    * @param nodeIn Input model
-    * @param nodes  Map from SimBench to ie3 data model
-    * @return       The equivalent [[NodeInput]]
+    * @param nodeIn
+    *   Input model
+    * @param nodes
+    *   Map from SimBench to ie3 data model
+    * @return
+    *   The equivalent [[NodeInput]]
     */
   def getNode(nodeIn: Node, nodes: Map[Node, NodeInput]): NodeInput =
     nodes.getOrElse(
@@ -160,22 +178,24 @@ case object NodeConverter {
   }
   object AttributeOverride {
 
-    /**
-      * Denote a subnet override for a node conversion
+    /** Denote a subnet override for a node conversion
       *
-      * @param key          Key of the node to consider this override for
-      * @param targetSubnet The target subnet to use
+      * @param key
+      *   Key of the node to consider this override for
+      * @param targetSubnet
+      *   The target subnet to use
       */
     final case class SubnetOverride(
         override val key: Node.NodeKey,
         targetSubnet: Int
     ) extends AttributeOverride
 
-    /**
-      * Denote, that two nodes are foreseen to be joined
+    /** Denote, that two nodes are foreseen to be joined
       *
-      * @param key      Key of the node to join
-      * @param joinWith Key of other node to join with
+      * @param key
+      *   Key of the node to join
+      * @param joinWith
+      *   Key of other node to join with
       */
     final case class JoinOverride(
         override val key: Node.NodeKey,

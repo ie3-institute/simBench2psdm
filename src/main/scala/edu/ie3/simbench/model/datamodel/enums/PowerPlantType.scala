@@ -2,8 +2,7 @@ package edu.ie3.simbench.model.datamodel.enums
 
 import edu.ie3.simbench.exception.io.SimbenchDataModelException
 
-/**
-  * Available power plant types to SimBench
+/** Available power plant types to SimBench
   */
 sealed trait PowerPlantType
 
@@ -17,12 +16,15 @@ case object PowerPlantType {
   case object Oil extends PowerPlantType
   case object Waste extends PowerPlantType
 
-  /**
-    * Hands back a suitable [[PowerPlantType]] based on the entries given in SimBench csv files
+  /** Hands back a suitable [[PowerPlantType]] based on the entries given in
+    * SimBench csv files
     *
-    * @param typeString Entry in csv file
-    * @return The matching [[PowerPlantType]]
-    * @throws SimbenchDataModelException if a non valid type string has been provided
+    * @param typeString
+    *   Entry in csv file
+    * @return
+    *   The matching [[PowerPlantType]]
+    * @throws SimbenchDataModelException
+    *   if a non valid type string has been provided
     */
   @throws[SimbenchDataModelException]
   def apply(typeString: String): PowerPlantType =

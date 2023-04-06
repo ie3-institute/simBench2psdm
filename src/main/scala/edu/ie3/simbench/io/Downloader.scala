@@ -18,10 +18,11 @@ final case class Downloader(
     failOnExistingFiles: Boolean = true
 ) extends LazyLogging {
 
-  /**
-    * Download the data set for the specified simbenchCode. The code has to be a valid code! It is
-    *  not possible to check, if the URL is correct, because the SimBench website does redirect.
-    * @param simbenchCode A valid SimBench code
+  /** Download the data set for the specified simbenchCode. The code has to be a
+    * valid code! It is not possible to check, if the URL is correct, because
+    * the SimBench website does redirect.
+    * @param simbenchCode
+    *   A valid SimBench code
     */
   def download(simbenchCode: SimbenchCode): Path = {
     val downloadFolderPath = new File(s"$downloadFolder/")

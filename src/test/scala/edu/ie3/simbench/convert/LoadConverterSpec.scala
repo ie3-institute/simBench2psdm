@@ -26,7 +26,9 @@ class LoadConverterSpec extends UnitSpec with ConverterTestData {
       actual.getOperationTime shouldBe expected.getOperationTime
       actual.getOperator shouldBe expected.getOperator
       actual.getqCharacteristics() shouldBe expected.getqCharacteristics()
-      abs(actual.getCosPhiRated - expected.getCosPhiRated) < testingTolerance shouldBe true
+      abs(
+        actual.getCosPhiRated - expected.getCosPhiRated
+      ) < testingTolerance shouldBe true
       actual
         .getsRated()
         .subtract(expected.getsRated())

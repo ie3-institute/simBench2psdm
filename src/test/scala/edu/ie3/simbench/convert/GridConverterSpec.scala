@@ -28,23 +28,25 @@ class GridConverterSpec extends UnitSpec with SwitchTestingData {
           Symbol("determineJoinOverridesForSwitchGroup")
         )
       "determine join overrides in a switch group of only one switch correctly" in {
-        val actual = GridConverter invokePrivate determineJoinOverridesForSwitchGroup(
-          switchGroup2,
-          Vector.empty[Node.NodeKey]
-        )
+        val actual =
+          GridConverter invokePrivate determineJoinOverridesForSwitchGroup(
+            switchGroup2,
+            Vector.empty[Node.NodeKey]
+          )
         actual.size shouldBe 1
-        val nodeKeys = actual.flatMap {
-          case JoinOverride(key, joinWith) => Vector(key, joinWith)
+        val nodeKeys = actual.flatMap { case JoinOverride(key, joinWith) =>
+          Vector(key, joinWith)
         }
         nodeKeys.contains(nodeH.getKey) shouldBe true
         nodeKeys.contains(nodeI.getKey) shouldBe true
       }
 
       "determine join overrides in a switch group of two switches correctly" in {
-        val actual = GridConverter invokePrivate determineJoinOverridesForSwitchGroup(
-          switchGroup0,
-          Vector.empty[Node.NodeKey]
-        )
+        val actual =
+          GridConverter invokePrivate determineJoinOverridesForSwitchGroup(
+            switchGroup0,
+            Vector.empty[Node.NodeKey]
+          )
         actual.size shouldBe 2
 
         val targets = actual.map(_.joinWith).distinct
@@ -53,10 +55,11 @@ class GridConverterSpec extends UnitSpec with SwitchTestingData {
       }
 
       "determine join overrides in a switch group of three switches with central node correctly" in {
-        val actual = GridConverter invokePrivate determineJoinOverridesForSwitchGroup(
-          switchGroup1,
-          Vector.empty[Node.NodeKey]
-        )
+        val actual =
+          GridConverter invokePrivate determineJoinOverridesForSwitchGroup(
+            switchGroup1,
+            Vector.empty[Node.NodeKey]
+          )
         actual.size shouldBe 3
 
         val targets = actual.map(_.joinWith).distinct
@@ -65,10 +68,11 @@ class GridConverterSpec extends UnitSpec with SwitchTestingData {
       }
 
       "determine join overrides in a switch group of two switches correctly, if slack node keys are given" in {
-        val actual = GridConverter invokePrivate determineJoinOverridesForSwitchGroup(
-          switchGroup0,
-          Vector(nodeC.getKey)
-        )
+        val actual =
+          GridConverter invokePrivate determineJoinOverridesForSwitchGroup(
+            switchGroup0,
+            Vector(nodeC.getKey)
+          )
         actual.size shouldBe 2
 
         val targets = actual.map(_.joinWith).distinct
@@ -109,8 +113,8 @@ class GridConverterSpec extends UnitSpec with SwitchTestingData {
           Vector(nodeC.getKey)
         )
 
-        val joinMap = actual.map {
-          case JoinOverride(key, joinWith) => key -> joinWith
+        val joinMap = actual.map { case JoinOverride(key, joinWith) =>
+          key -> joinWith
         }.toMap
 
         joinMap.size shouldBe 6
@@ -126,13 +130,12 @@ class GridConverterSpec extends UnitSpec with SwitchTestingData {
           nodeI.getKey -> nodeH.getKey
         )
 
-        joinMap.foreach {
-          case key -> joinWith =>
-            expected.get(key) match {
-              case Some(expectedJoin) =>
-                joinWith shouldBe expectedJoin
-              case None => fail(s"No mapping expected for node key '$key'")
-            }
+        joinMap.foreach { case key -> joinWith =>
+          expected.get(key) match {
+            case Some(expectedJoin) =>
+              joinWith shouldBe expectedJoin
+            case None => fail(s"No mapping expected for node key '$key'")
+          }
         }
       }
     }
@@ -146,15 +149,17 @@ class GridConverterSpec extends UnitSpec with SwitchTestingData {
         )
         inside(actual) {
           case (
-              gridContainer,
-              timeSeries,
-              timeSeriesMapping,
-              powerFlowResults
+                gridContainer,
+                timeSeries,
+                timeSeriesMapping,
+                powerFlowResults
               ) =>
             /* Evaluate the correctness of the container by counting the occurrence of models (the correct conversion is
              * tested in separate unit tests */
             gridContainer.getGridName shouldBe "1-LV-rural1--0-no_sw"
-            countClassOccurrences(gridContainer.getRawGrid.allEntitiesAsList()) shouldBe Map(
+            countClassOccurrences(
+              gridContainer.getRawGrid.allEntitiesAsList()
+            ) shouldBe Map(
               classOf[NodeInput] -> 15,
               classOf[LineInput] -> 13,
               classOf[Transformer2WInput] -> 1
@@ -165,7 +170,9 @@ class GridConverterSpec extends UnitSpec with SwitchTestingData {
               classOf[FixedFeedInInput] -> 4,
               classOf[LoadInput] -> 13
             )
-            countClassOccurrences(gridContainer.getGraphics.allEntitiesAsList()) shouldBe Map
+            countClassOccurrences(
+              gridContainer.getGraphics.allEntitiesAsList()
+            ) shouldBe Map
               .empty[Class[_ <: UniqueEntity], Int]
 
             /* Evaluate the correctness of the time series by counting the occurrence of models */
@@ -179,8 +186,8 @@ class GridConverterSpec extends UnitSpec with SwitchTestingData {
               .map(_.getUuid)
               .toVector
             /* There is no participant uuid in mapping, that is not among participants */
-            timeSeriesMapping.exists(
-              entry => !participantUuids.contains(entry.getParticipant)
+            timeSeriesMapping.exists(entry =>
+              !participantUuids.contains(entry.getParticipant)
             ) shouldBe false
 
             /* Evaluate the amount of converted power flow results */
@@ -195,9 +202,8 @@ class GridConverterSpec extends UnitSpec with SwitchTestingData {
   ): Map[Class[_ <: UniqueEntity], Int] =
     entities.asScala
       .groupBy(_.getClass)
-      .map(
-        classToOccurrences =>
-          classToOccurrences._1 -> classToOccurrences._2.size
+      .map(classToOccurrences =>
+        classToOccurrences._1 -> classToOccurrences._2.size
       )
       .toSeq
       .sortBy(_._1.getName)

@@ -18,12 +18,15 @@ case object VoltLvlConverter {
     7 -> "lv"
   )
 
-  /**
-    * Converts the given SimBench voltLvl id in conjunction with the rated voltage to a voltage level object
+  /** Converts the given SimBench voltLvl id in conjunction with the rated
+    * voltage to a voltage level object
     *
-    * @param simbenchVoltLvl  SimBench voltage level id
-    * @param vRated           Rated voltage
-    * @return                 Voltage level object
+    * @param simbenchVoltLvl
+    *   SimBench voltage level id
+    * @param vRated
+    *   Rated voltage
+    * @return
+    *   Voltage level object
     */
   def convert(
       simbenchVoltLvl: Int,

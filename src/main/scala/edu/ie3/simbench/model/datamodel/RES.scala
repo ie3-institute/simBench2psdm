@@ -10,19 +10,28 @@ import edu.ie3.simbench.model.datamodel.profiles.ResProfileType
 
 import scala.util.{Failure, Success}
 
-/**
-  * A renewable energy sources asset
+/** A renewable energy sources asset
   *
-  * @param id Identifier
-  * @param node Node at which this entity is connected to
-  * @param resType Type of renewable energy source
-  * @param profile Profile to follow
-  * @param calculationType The way the asset may be accounted for in the simulation
-  * @param p Active power contribution in MW
-  * @param q Reactive power contribution in MVAr
-  * @param sR Rated apparent power in MVA
-  * @param subnet Subnet it belongs to
-  * @param voltLvl Voltage level
+  * @param id
+  *   Identifier
+  * @param node
+  *   Node at which this entity is connected to
+  * @param resType
+  *   Type of renewable energy source
+  * @param profile
+  *   Profile to follow
+  * @param calculationType
+  *   The way the asset may be accounted for in the simulation
+  * @param p
+  *   Active power contribution in MW
+  * @param q
+  *   Reactive power contribution in MVAr
+  * @param sR
+  *   Rated apparent power in MVA
+  * @param subnet
+  *   Subnet it belongs to
+  * @param voltLvl
+  *   Voltage level
   */
 final case class RES(
     id: String,
@@ -46,32 +55,37 @@ case object RES extends EntityModelCompanionObject[RES] {
   private val Q = "qRES"
   private val S_RATED = "sR"
 
-  /**
-    * Get an Array of table fields denoting the mapping to the model's attributes
+  /** Get an Array of table fields denoting the mapping to the model's
+    * attributes
     *
-    * @return Array of table headings
+    * @return
+    *   Array of table headings
     */
   override def getFields: Array[HeadLineField] =
     Array(ID, NODE, TYPE, PROFILE, CALC_TYPE, P, Q, S_RATED, SUBNET, VOLT_LVL)
       .map(id => MandatoryField(id))
 
-  /**
-    * Factory method to build one model from a mapping from field id to value
+  /** Factory method to build one model from a mapping from field id to value
     *
-    * @param rawData mapping from field id to value
-    * @return A model
+    * @param rawData
+    *   mapping from field id to value
+    * @return
+    *   A model
     */
   override def apply(rawData: RawModelData): RES =
     throw SimbenchDataModelException(
       s"No basic implementation of model creation available for ${this.getClass.getSimpleName}"
     )
 
-  /**
-    * Factory method to build a batch of models from a mapping from field id to value
+  /** Factory method to build a batch of models from a mapping from field id to
+    * value
     *
-    * @param rawData  mapping from field id to value
-    * @param nodes    Mapping from node id to node itself
-    * @return A [[Vector]] of models
+    * @param rawData
+    *   mapping from field id to value
+    * @param nodes
+    *   Mapping from node id to node itself
+    * @return
+    *   A [[Vector]] of models
     */
   def buildModels(
       rawData: Vector[RawModelData],
@@ -82,12 +96,14 @@ case object RES extends EntityModelCompanionObject[RES] {
       buildModel(entry, node)
     }
 
-  /**
-    * Factory method to build one model from a mapping from field id to value
+  /** Factory method to build one model from a mapping from field id to value
     *
-    * @param rawData  mapping from field id to value
-    * @param node     Node, at which the res is installed
-    * @return A model
+    * @param rawData
+    *   mapping from field id to value
+    * @param node
+    *   Node, at which the res is installed
+    * @return
+    *   A model
     */
   def buildModel(rawData: RawModelData, node: Node): RES = {
     val (id, subnet, voltLvl) = getBaseInformation(rawData)

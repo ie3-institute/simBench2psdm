@@ -5,8 +5,7 @@ import edu.ie3.simbench.util.ParsableEnumeration
 
 import scala.util.{Failure, Success, Try}
 
-/**
-  * Available renewable energy sources to SimBench
+/** Available renewable energy sources to SimBench
   */
 case object ResType extends ParsableEnumeration {
   val Biomass: Value = Value("biomass")
@@ -32,12 +31,15 @@ case object ResType extends ParsableEnumeration {
   val MvUrban: Value = Value("mv_urban")
   val Mixed: Value = Value("mixed")
 
-  /**
-    * Hands back a suitable [[ResType]] based on the entries given in SimBench csv files
+  /** Hands back a suitable [[ResType]] based on the entries given in SimBench
+    * csv files
     *
-    * @param typeString Entry in csv file
-    * @return The matching [[ResType]]
-    * @throws SimbenchDataModelException if a non valid type string has been provided
+    * @param typeString
+    *   Entry in csv file
+    * @return
+    *   The matching [[ResType]]
+    * @throws SimbenchDataModelException
+    *   if a non valid type string has been provided
     */
   def apply(typeString: String): Try[ResType.Value] = parse(typeString) match {
     case Some(value) => Success(value)

@@ -7,8 +7,7 @@ import edu.ie3.simbench.model.RawModelData
 import edu.ie3.simbench.model.datamodel.EntityModel.EntityModelCompanionObject
 import edu.ie3.simbench.model.datamodel.enums.CalculationType
 
-/**
-  * Model of different types of external nets
+/** Model of different types of external nets
   */
 sealed trait ExternalNet extends ShuntModel {
   val calculationType: CalculationType
@@ -19,17 +18,25 @@ sealed trait ExternalNet extends ShuntModel {
 
 object ExternalNet extends EntityModelCompanionObject[ExternalNet] {
 
-  /**
-    * A simple external net only providing power and some voltage regulation facilities
+  /** A simple external net only providing power and some voltage regulation
+    * facilities
     *
-    * @param id Identifier
-    * @param node [[Node]] it is connected to
-    * @param calculationType [[CalculationType]] to consider in simulation
-    * @param dspf Distributed Slack Power Factor in p.u.
-    * @param pExt Active power contribution in MW
-    * @param qExt Reactive power contribution in MVAr
-    * @param subnet Subnet it belongs to
-    * @param voltLvl Voltage level
+    * @param id
+    *   Identifier
+    * @param node
+    *   [[Node]] it is connected to
+    * @param calculationType
+    *   [[CalculationType]] to consider in simulation
+    * @param dspf
+    *   Distributed Slack Power Factor in p.u.
+    * @param pExt
+    *   Active power contribution in MW
+    * @param qExt
+    *   Reactive power contribution in MVAr
+    * @param subnet
+    *   Subnet it belongs to
+    * @param voltLvl
+    *   Voltage level
     */
   final case class Simple(
       id: String,
@@ -42,18 +49,26 @@ object ExternalNet extends EntityModelCompanionObject[ExternalNet] {
       voltLvl: Int
   ) extends ExternalNet
 
-  /**
-    * Ward equivalent model of the not detailed modeled external grid
+  /** Ward equivalent model of the not detailed modeled external grid
     *
-    * @param id Identifier
-    * @param node [[Node]] it is connected to
-    * @param dspf Distributed Slack Power Factor in p.u.
-    * @param pExt Active power contribution in MW
-    * @param qExt Reactive power contribution in MVAr
-    * @param pWard Active power of the ward model in MW
-    * @param qWard Reactive power of the ward model in MVAr
-    * @param subnet Subnet it belongs to
-    * @param voltLvl Voltage level
+    * @param id
+    *   Identifier
+    * @param node
+    *   [[Node]] it is connected to
+    * @param dspf
+    *   Distributed Slack Power Factor in p.u.
+    * @param pExt
+    *   Active power contribution in MW
+    * @param qExt
+    *   Reactive power contribution in MVAr
+    * @param pWard
+    *   Active power of the ward model in MW
+    * @param qWard
+    *   Reactive power of the ward model in MVAr
+    * @param subnet
+    *   Subnet it belongs to
+    * @param voltLvl
+    *   Voltage level
     */
   final case class Ward(
       id: String,
@@ -69,19 +84,28 @@ object ExternalNet extends EntityModelCompanionObject[ExternalNet] {
     override val calculationType: CalculationType = CalculationType.Ward
   }
 
-  /**
-    * Extended Ward model of the not detailed modeled external grid
+  /** Extended Ward model of the not detailed modeled external grid
     *
-    * @param id Identifier
-    * @param node [[Node]] it is connected to
-    * @param dspf Distributed Slack Power Factor in p.u.
-    * @param pExt Active power contribution in MW
-    * @param qExt Reactive power contribution in MVAr
-    * @param rWardExtended Resistance of the extended Ward model in Ohm
-    * @param xWardExtended Reactance of the extended Ward model in Ohm
-    * @param vmWardExtended Voltage magnitude of the extended Ward model in p.u.
-    * @param subnet Subnet it belongs to
-    * @param voltLvl Voltage level
+    * @param id
+    *   Identifier
+    * @param node
+    *   [[Node]] it is connected to
+    * @param dspf
+    *   Distributed Slack Power Factor in p.u.
+    * @param pExt
+    *   Active power contribution in MW
+    * @param qExt
+    *   Reactive power contribution in MVAr
+    * @param rWardExtended
+    *   Resistance of the extended Ward model in Ohm
+    * @param xWardExtended
+    *   Reactance of the extended Ward model in Ohm
+    * @param vmWardExtended
+    *   Voltage magnitude of the extended Ward model in p.u.
+    * @param subnet
+    *   Subnet it belongs to
+    * @param voltLvl
+    *   Voltage level
     */
   final case class WardExtended(
       id: String,
@@ -109,10 +133,11 @@ object ExternalNet extends EntityModelCompanionObject[ExternalNet] {
   private val X_X_WARD = "xXWard"
   private val V_M_X_WARD = "vmXWard"
 
-  /**
-    * Get an Array of table fields denoting the mapping to the model's attributes
+  /** Get an Array of table fields denoting the mapping to the model's
+    * attributes
     *
-    * @return Array of table headings
+    * @return
+    *   Array of table headings
     */
   override def getFields: Array[HeadLineField] =
     Array(
@@ -131,23 +156,27 @@ object ExternalNet extends EntityModelCompanionObject[ExternalNet] {
       VOLT_LVL
     ).map(id => MandatoryField(id))
 
-  /**
-    * Factory method to build one model from a mapping from field id to value
+  /** Factory method to build one model from a mapping from field id to value
     *
-    * @param rawData mapping from field id to value
-    * @return A model
+    * @param rawData
+    *   mapping from field id to value
+    * @return
+    *   A model
     */
   override def apply(rawData: RawModelData): ExternalNet =
     throw SimbenchDataModelException(
       s"No basic implementation of model creation available for ${this.getClass.getSimpleName}"
     )
 
-  /**
-    * Factory method to build a batch of models from a mapping from field id to value
+  /** Factory method to build a batch of models from a mapping from field id to
+    * value
     *
-    * @param rawData  mapping from field id to value
-    * @param nodes    Mapping of node ids to actual nodes
-    * @return A [[Vector]] of models
+    * @param rawData
+    *   mapping from field id to value
+    * @param nodes
+    *   Mapping of node ids to actual nodes
+    * @return
+    *   A [[Vector]] of models
     */
   def buildModels(
       rawData: Vector[RawModelData],
@@ -158,12 +187,14 @@ object ExternalNet extends EntityModelCompanionObject[ExternalNet] {
       buildModel(entry, node)
     }
 
-  /**
-    * Factory method to build one model from a mapping from field id to value
+  /** Factory method to build one model from a mapping from field id to value
     *
-    * @param rawData  mapping from field id to value
-    * @param node     Node at which the external net is connected
-    * @return A model
+    * @param rawData
+    *   mapping from field id to value
+    * @param node
+    *   Node at which the external net is connected
+    * @return
+    *   A model
     */
   def buildModel(rawData: RawModelData, node: Node): ExternalNet = {
     val (id, subnet, voltLvl) = getBaseInformation(rawData)

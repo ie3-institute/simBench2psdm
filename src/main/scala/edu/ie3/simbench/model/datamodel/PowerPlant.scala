@@ -8,24 +8,38 @@ import edu.ie3.simbench.model.datamodel.EntityModel.EntityModelCompanionObject
 import edu.ie3.simbench.model.datamodel.enums.{CalculationType, PowerPlantType}
 import edu.ie3.simbench.model.datamodel.profiles.PowerPlantProfileType
 
-/**
-  * A power plant
+/** A power plant
   *
-  * @param id Identifier
-  * @param node Node at which this entity is connected to
-  * @param powerPlantType Type of the power plant
-  * @param profile Profile to follow
-  * @param calculationType The way, the power flow calculation is done
-  * @param dspf Distributed Slack Power Factor in p.u.
-  * @param p Active power contribution in MW
-  * @param q Reactive power contribution in MVAr
-  * @param sR Rated apperent power in MVA
-  * @param pMin Minimum permissible active power contribution in MW
-  * @param pMax Maximum permissible active power contribution in MW
-  * @param qMin Minimum permissible reactive power contribution in MVAr
-  * @param qMax Maximum permissible reactive power contribution in MVAr
-  * @param subnet Subnet it belongs to
-  * @param voltLvl Voltage level
+  * @param id
+  *   Identifier
+  * @param node
+  *   Node at which this entity is connected to
+  * @param powerPlantType
+  *   Type of the power plant
+  * @param profile
+  *   Profile to follow
+  * @param calculationType
+  *   The way, the power flow calculation is done
+  * @param dspf
+  *   Distributed Slack Power Factor in p.u.
+  * @param p
+  *   Active power contribution in MW
+  * @param q
+  *   Reactive power contribution in MVAr
+  * @param sR
+  *   Rated apperent power in MVA
+  * @param pMin
+  *   Minimum permissible active power contribution in MW
+  * @param pMax
+  *   Maximum permissible active power contribution in MW
+  * @param qMin
+  *   Minimum permissible reactive power contribution in MVAr
+  * @param qMax
+  *   Maximum permissible reactive power contribution in MVAr
+  * @param subnet
+  *   Subnet it belongs to
+  * @param voltLvl
+  *   Voltage level
   */
 final case class PowerPlant(
     id: String,
@@ -59,10 +73,11 @@ case object PowerPlant extends EntityModelCompanionObject[PowerPlant] {
   private val Q_MIN = "qMin"
   private val Q_MAX = "qMax"
 
-  /**
-    * Get an Array of table fields denoting the mapping to the model's attributes
+  /** Get an Array of table fields denoting the mapping to the model's
+    * attributes
     *
-    * @return Array of table headings
+    * @return
+    *   Array of table headings
     */
   override def getFields: Array[HeadLineField] =
     Array(
@@ -83,23 +98,27 @@ case object PowerPlant extends EntityModelCompanionObject[PowerPlant] {
       VOLT_LVL
     ).map(id => MandatoryField(id))
 
-  /**
-    * Factory method to build one model from a mapping from field id to value
+  /** Factory method to build one model from a mapping from field id to value
     *
-    * @param rawData mapping from field id to value
-    * @return A model
+    * @param rawData
+    *   mapping from field id to value
+    * @return
+    *   A model
     */
   override def apply(rawData: RawModelData): PowerPlant =
     throw SimbenchDataModelException(
       s"No basic implementation of model creation available for ${this.getClass.getSimpleName}"
     )
 
-  /**
-    * Factory method to build a batch of models from a mapping from field id to value
+  /** Factory method to build a batch of models from a mapping from field id to
+    * value
     *
-    * @param rawData  mapping from field id to value
-    * @param nodes    A mapping from node id to node itself
-    * @return A [[Vector]] of models
+    * @param rawData
+    *   mapping from field id to value
+    * @param nodes
+    *   A mapping from node id to node itself
+    * @return
+    *   A [[Vector]] of models
     */
   def buildModels(
       rawData: Vector[RawModelData],
@@ -110,12 +129,14 @@ case object PowerPlant extends EntityModelCompanionObject[PowerPlant] {
       buildModel(entry, node)
     }
 
-  /**
-    * Factory method to build one model from a mapping from field id to value
+  /** Factory method to build one model from a mapping from field id to value
     *
-    * @param rawData  mapping from field id to value
-    * @param node     Node at which the power plant is connected
-    * @return A model
+    * @param rawData
+    *   mapping from field id to value
+    * @param node
+    *   Node at which the power plant is connected
+    * @return
+    *   A model
     */
   def buildModel(rawData: RawModelData, node: Node): PowerPlant = {
     val (id, subnet, voltLvl) = getBaseInformation(rawData)

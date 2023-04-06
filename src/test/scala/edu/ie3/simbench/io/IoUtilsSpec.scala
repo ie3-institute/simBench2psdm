@@ -8,19 +8,33 @@ import edu.ie3.test.common.UnitSpec
 class IoUtilsSpec extends UnitSpec {
   "The I/0 utils" should {
     "harmonize file separators correctly" in {
-      IoUtils.harmonizeFileSeparator("bla/foo/test.ext") shouldBe "bla/foo/test.ext"
-      IoUtils.harmonizeFileSeparator("bla\\foo\\test.ext") shouldBe "bla/foo/test.ext"
-      IoUtils.harmonizeFileSeparator("bla\\foo/test.ext") shouldBe "bla/foo/test.ext"
+      IoUtils.harmonizeFileSeparator(
+        "bla/foo/test.ext"
+      ) shouldBe "bla/foo/test.ext"
+      IoUtils.harmonizeFileSeparator(
+        "bla\\foo\\test.ext"
+      ) shouldBe "bla/foo/test.ext"
+      IoUtils.harmonizeFileSeparator(
+        "bla\\foo/test.ext"
+      ) shouldBe "bla/foo/test.ext"
     }
 
     "ensure appended file separator" in {
-      IoUtils.ensureHarmonizedAndTerminatingFileSeparator("bla/foo/test/ext") shouldBe "bla/foo/test/ext/"
-      IoUtils.ensureHarmonizedAndTerminatingFileSeparator("bla/foo/test/ext/") shouldBe "bla/foo/test/ext/"
-      IoUtils.ensureHarmonizedAndTerminatingFileSeparator("bla\\foo\\test\\ext") shouldBe "bla/foo/test/ext/"
+      IoUtils.ensureHarmonizedAndTerminatingFileSeparator(
+        "bla/foo/test/ext"
+      ) shouldBe "bla/foo/test/ext/"
+      IoUtils.ensureHarmonizedAndTerminatingFileSeparator(
+        "bla/foo/test/ext/"
+      ) shouldBe "bla/foo/test/ext/"
+      IoUtils.ensureHarmonizedAndTerminatingFileSeparator(
+        "bla\\foo\\test\\ext"
+      ) shouldBe "bla/foo/test/ext/"
       IoUtils.ensureHarmonizedAndTerminatingFileSeparator(
         "bla\\foo\\test\\ext\\"
       ) shouldBe "bla/foo/test/ext/"
-      IoUtils.ensureHarmonizedAndTerminatingFileSeparator("bla\\foo/test\\ext/") shouldBe "bla/foo/test/ext/"
+      IoUtils.ensureHarmonizedAndTerminatingFileSeparator(
+        "bla\\foo/test\\ext/"
+      ) shouldBe "bla/foo/test/ext/"
     }
 
     "extract file endings correctly" in {
@@ -64,20 +78,36 @@ class IoUtilsSpec extends UnitSpec {
 
     "detect fully qualified paths correctly" in {
       IoUtils.fullyQualifiedPathRegex.matches("C:\\bla\\file.ext") shouldBe true
-      IoUtils.fullyQualifiedPathRegex.matches("C:\\\\bla\\file.ext") shouldBe true
-      IoUtils.fullyQualifiedPathRegex.matches("C:\\foo\\bar\\file.ext") shouldBe true
-      IoUtils.fullyQualifiedPathRegex.matches("C:\\\\foo\\bar\\file.ext") shouldBe true
-      IoUtils.fullyQualifiedPathRegex.matches("C:\\a@b.com\\foo\\bar\\file.ext") shouldBe true
+      IoUtils.fullyQualifiedPathRegex.matches(
+        "C:\\\\bla\\file.ext"
+      ) shouldBe true
+      IoUtils.fullyQualifiedPathRegex.matches(
+        "C:\\foo\\bar\\file.ext"
+      ) shouldBe true
+      IoUtils.fullyQualifiedPathRegex.matches(
+        "C:\\\\foo\\bar\\file.ext"
+      ) shouldBe true
+      IoUtils.fullyQualifiedPathRegex.matches(
+        "C:\\a@b.com\\foo\\bar\\file.ext"
+      ) shouldBe true
       IoUtils.fullyQualifiedPathRegex.matches(
         "C:\\\\a@b.com\\foo\\bar\\file.ext"
       ) shouldBe true
       IoUtils.fullyQualifiedPathRegex.matches("/bla/file.ext") shouldBe true
-      IoUtils.fullyQualifiedPathRegex.matches("/foo/bar/bla/file.ext") shouldBe true
-      IoUtils.fullyQualifiedPathRegex.matches("/a@b.com/foo/bar/bla/file.ext") shouldBe true
+      IoUtils.fullyQualifiedPathRegex.matches(
+        "/foo/bar/bla/file.ext"
+      ) shouldBe true
+      IoUtils.fullyQualifiedPathRegex.matches(
+        "/a@b.com/foo/bar/bla/file.ext"
+      ) shouldBe true
     }
 
     "compose a fully qualified path correctly" in {
-      IoUtils.composeFullyQualifiedPath("/home/user/test/path", "file", "ext") shouldBe "/home/user/test/path/file.ext"
+      IoUtils.composeFullyQualifiedPath(
+        "/home/user/test/path",
+        "file",
+        "ext"
+      ) shouldBe "/home/user/test/path/file.ext"
     }
 
     "throw an error, if the folder path is not correct" in {

@@ -8,13 +8,15 @@ import edu.ie3.simbench.model.RawModelData
 import edu.ie3.simbench.model.datamodel.profiles.ProfileModel.ProfileCompanionObject
 import edu.ie3.util.TimeUtil
 
-/**
-  * A renewable energy source's profile consisting of an identifier and a mapping of the date to
-  * (p,q) pair
+/** A renewable energy source's profile consisting of an identifier and a
+  * mapping of the date to (p,q) pair
   *
-  * @param id           Identifier of the profile
-  * @param profileType  The type of the profile
-  * @param profile      The actual profile as scaling factor in p.u.
+  * @param id
+  *   Identifier of the profile
+  * @param profileType
+  *   The type of the profile
+  * @param profile
+  *   The actual profile as scaling factor in p.u.
   */
 final case class ResProfile(
     id: String,
@@ -66,10 +68,11 @@ case object ResProfile extends ProfileCompanionObject[ResProfile, BigDecimal] {
   private val HV_MIXED = "hv_mixed"
   private val HV_URBAN = "hv_urban"
 
-  /**
-    * Get an Array of table fields denoting the mapping to the model's attributes
+  /** Get an Array of table fields denoting the mapping to the model's
+    * attributes
     *
-    * @return Array of table headings
+    * @return
+    *   Array of table headings
     */
   override def getFields: Array[HeadLineField] = Array(
     MandatoryField(TIME),
@@ -117,11 +120,13 @@ case object ResProfile extends ProfileCompanionObject[ResProfile, BigDecimal] {
     OptionalField(HV_URBAN)
   )
 
-  /**
-    * Factory method to build a batch of models from a mapping from field id to value
+  /** Factory method to build a batch of models from a mapping from field id to
+    * value
     *
-    * @param rawData mapping from field id to value
-    * @return A [[Vector]] of models
+    * @param rawData
+    *   mapping from field id to value
+    * @return
+    *   A [[Vector]] of models
     */
   override def buildModels(
       rawData: Vector[RawModelData]
@@ -141,7 +146,9 @@ case object ResProfile extends ProfileCompanionObject[ResProfile, BigDecimal] {
         (profileType, time, factor)
       }
     }).flatten /* Flatten everything to have Vector((profileType, time, factor)) */
-      .groupBy(collectionEntry => collectionEntry._1) /* Build a Map(profileType -> (profileType, time, factor)) */
+      .groupBy(collectionEntry =>
+        collectionEntry._1
+      ) /* Build a Map(profileType -> (profileType, time, factor)) */
       .map(profileEntry => {
         /* Extract the needed information to build a LoadProfile for each profile type */
         val profileType = profileEntry._1

@@ -2,8 +2,7 @@ package edu.ie3.simbench.model.datamodel.enums
 
 import edu.ie3.simbench.exception.io.SimbenchDataModelException
 
-/**
-  * Available switch types to SimBench
+/** Available switch types to SimBench
   */
 sealed trait SwitchType
 
@@ -14,12 +13,15 @@ case object SwitchType {
 
   case object LoadSwitch extends SwitchType
 
-  /**
-    * Hands back a suitable [[SwitchType]] based on the entries given in SimBench csv files
+  /** Hands back a suitable [[SwitchType]] based on the entries given in
+    * SimBench csv files
     *
-    * @param typeString Entry in csv file
-    * @return The matching [[SwitchType]]
-    * @throws SimbenchDataModelException if a non valid type string has been provided
+    * @param typeString
+    *   Entry in csv file
+    * @return
+    *   The matching [[SwitchType]]
+    * @throws SimbenchDataModelException
+    *   if a non valid type string has been provided
     */
   @throws[SimbenchDataModelException]
   def apply(typeString: String): SwitchType =

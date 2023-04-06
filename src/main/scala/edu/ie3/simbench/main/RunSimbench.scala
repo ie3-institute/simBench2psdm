@@ -22,8 +22,8 @@ import scala.jdk.CollectionConverters._
 import scala.jdk.FutureConverters.CompletionStageOps
 import scala.util.{Failure, Success}
 
-/**
-  * This is not meant to be final production code. It is more a place for "testing" the full method stack.
+/** This is not meant to be final production code. It is more a place for
+  * "testing" the full method stack.
   */
 object RunSimbench extends SimbenchHelper {
   def main(args: Array[String]): Unit = {

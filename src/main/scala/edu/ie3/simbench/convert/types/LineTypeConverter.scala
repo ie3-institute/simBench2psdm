@@ -19,17 +19,17 @@ import tech.units.indriya.ComparableQuantity
 import tech.units.indriya.quantity.Quantities
 import tech.units.indriya.unit.Units.AMPERE
 
-/**
-  * Currently not supported by ie3's data model:
+/** Currently not supported by ie3's data model:
   *   - line style
   */
 case object LineTypeConverter extends LazyLogging {
 
-  /**
-    * Converts the [[LineType]]s of the given lines into [[LineTypeInput]]s
+  /** Converts the [[LineType]]s of the given lines into [[LineTypeInput]]s
     *
-    * @param lines  [[Vector]] of SimBench [[LineType]]s
-    * @return       A [[Vector]] of [[LineTypeInput]]s
+    * @param lines
+    *   [[Vector]] of SimBench [[LineType]]s
+    * @return
+    *   A [[Vector]] of [[LineTypeInput]]s
     */
   def convert(
       lines: Vector[Line[_ <: LineType]]
@@ -38,29 +38,33 @@ case object LineTypeConverter extends LazyLogging {
     val lineTypes = lines.map(line => line.lineType).distinct
 
     lineTypes
-      .map(
-        lineType =>
-          lineType -> convert(
+      .map(lineType =>
+        lineType -> convert(
+          lineType,
+          ratedVoltageMapping.getOrElse(
             lineType,
-            ratedVoltageMapping.getOrElse(
-              lineType,
-              throw SimbenchDataModelException(
-                s"Cannot find the rated voltage vor line type ${lineType}"
-              )
+            throw SimbenchDataModelException(
+              s"Cannot find the rated voltage vor line type ${lineType}"
             )
           )
+        )
       )
       .toMap
   }
 
-  /**
-    * Converts a given SimBench [[LineType]] into a ie3 [[LineTypeInput]]. The [[LineType.DCLineType]]s are currently
-    * not supported by the ie3 data model. Therefore an [[IllegalArgumentException]] is thrown.
+  /** Converts a given SimBench [[LineType]] into a ie3 [[LineTypeInput]]. The
+    * [[LineType.DCLineType]]s are currently not supported by the ie3 data
+    * model. Therefore an [[IllegalArgumentException]] is thrown.
     *
-    * @param input    SimBench [[LineType]] to convert
-    * @param vRated   Externally provided rated voltage, as the SimBench [[LineType]] does not provide this information
-    * @param uuid     UUID to use for the model generation (default: Random UUID)
-    * @return         A ie3 [[LineTypeInput]]
+    * @param input
+    *   SimBench [[LineType]] to convert
+    * @param vRated
+    *   Externally provided rated voltage, as the SimBench [[LineType]] does not
+    *   provide this information
+    * @param uuid
+    *   UUID to use for the model generation (default: Random UUID)
+    * @return
+    *   A ie3 [[LineTypeInput]]
     */
   def convert(
       input: LineType,
@@ -85,11 +89,14 @@ case object LineTypeConverter extends LazyLogging {
     }
   }
 
-  /**
-    * Extracts a mapping of [[LineType]]s to the rated voltages of those types. Unambiguousness is ensured.
+  /** Extracts a mapping of [[LineType]]s to the rated voltages of those types.
+    * Unambiguousness is ensured.
     *
-    * @param lines  [[Vector]] of [[Line]]s
-    * @return       Mapping of [[LineType]] to [[ComparableQuantity]] of type [[ElectricPotential]]
+    * @param lines
+    *   [[Vector]] of [[Line]]s
+    * @return
+    *   Mapping of [[LineType]] to [[ComparableQuantity]] of type
+    *   [[ElectricPotential]]
     */
   def getRatedVoltages(
       lines: Vector[Line[_ <: LineType]]
@@ -118,21 +125,22 @@ case object LineTypeConverter extends LazyLogging {
 
     /* Mapping the line type to the rated voltage of the first entry of the Vector of each raw mapping. That nothing
      * is missed is ensured by the sanity check beforehand */
-    rawMapping.map {
-      case (lineType, lineTypeVRatedVector) =>
-        lineType -> lineTypeVRatedVector.headOption.getOrElse(
-          throw SimbenchDataModelException(
-            s"Cannot receive rated voltage for line type '$lineType'."
-          )
+    rawMapping.map { case (lineType, lineTypeVRatedVector) =>
+      lineType -> lineTypeVRatedVector.headOption.getOrElse(
+        throw SimbenchDataModelException(
+          s"Cannot receive rated voltage for line type '$lineType'."
         )
+      )
     }
   }
 
-  /**
-    * Maps the [[LineType]] of the specific line to it's rated voltage based on the line's nodes' rated voltages
+  /** Maps the [[LineType]] of the specific line to it's rated voltage based on
+    * the line's nodes' rated voltages
     *
-    * @param line Specific line to examine
-    * @return The rated voltage of the used line type
+    * @param line
+    *   Specific line to examine
+    * @return
+    *   The rated voltage of the used line type
     */
   private def determineRatedVoltage(
       line: Line[_ <: LineType]
