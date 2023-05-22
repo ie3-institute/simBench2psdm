@@ -54,7 +54,7 @@ String deployedArtifacts = "none"
 /// commit hash
 def commitHash = ""
 
-if (env.BRANCH_NAME == "master") {
+if (env.BRANCH_NAME == "main") {
 
     // setup
     getMasterBranchProps()
@@ -71,9 +71,9 @@ if (env.BRANCH_NAME == "master") {
                 stage('checkout from scm') {
                     try {
                         // merged mode
-                        commitHash = gitCheckout(projects.get(0), urls.get(0), 'refs/heads/master', sshCredentialsId).GIT_COMMIT
+                        commitHash = gitCheckout(projects.get(0), urls.get(0), 'refs/heads/main', sshCredentialsId).GIT_COMMIT
                     } catch (exc) {
-                        sh 'exit 1' // failure due to not found master branch
+                        sh 'exit 1' // failure due to not found main branch
                     }
                 }
 
@@ -81,9 +81,6 @@ if (env.BRANCH_NAME == "master") {
                 def jsonObject = getGithubCommitJsonObj(commitHash, orgNames.get(0), projects.get(0))
                 featureBranchName = splitStringToBranchName(jsonObject.commit.message)
 
-                def message = (featureBranchName?.trim()) ?
-                        "master branch build triggered (incl. snapshot deploy) by merging pr from feature branch '${featureBranchName}'"
-                        : "master branch build triggered (incl. snapshot deploy) for commit with message '${jsonObject.commit.message}'"
 
                 // set build display name
                 currentBuild.displayName = ((featureBranchName?.trim()) ? "merge pr branch '${featureBranchName}'" : "commit '" +
@@ -99,7 +96,7 @@ if (env.BRANCH_NAME == "master") {
                 // execute sonarqube code analysis
                 stage('SonarQube analysis') {
                     withSonarQubeEnv() { // Will pick the global server connection from jenkins for sonarqube
-                        gradle("sonarqube -Dsonar.branch.name=master -Dsonar.projectKey=$sonarqubeProjectKey ")
+                        gradle("sonar -Dsonar.branch.name=main -Dsonar.projectKey=$sonarqubeProjectKey ")
                     }
                 }
 
@@ -200,10 +197,10 @@ if (env.BRANCH_NAME == "master") {
                 stage('SonarQube analysis') {
                     withSonarQubeEnv() { // Will pick the global server connection from jenkins for sonarqube
                          // do we have a PR?
-                        String gradleCommand = "sonarqube -Dsonar.projectKey=$sonarqubeProjectKey"
+                        String gradleCommand = "sonar -Dsonar.projectKey=$sonarqubeProjectKey"
 
                         if (env.CHANGE_ID != null) {
-                            gradleCommand = gradleCommand + " -Dsonar.pullrequest.branch=${featureBranchName} -Dsonar.pullrequest.key=${env.CHANGE_ID} -Dsonar.pullrequest.base=master -Dsonar.pullrequest.github.repository=${orgNames.get(0)}/${projects.get(0)} -Dsonar.pullrequest.provider=Github"
+                            gradleCommand = gradleCommand + " -Dsonar.pullrequest.branch=${featureBranchName} -Dsonar.pullrequest.key=${env.CHANGE_ID} -Dsonar.pullrequest.base=main -Dsonar.pullrequest.github.repository=${orgNames.get(0)}/${projects.get(0)} -Dsonar.pullrequest.provider=Github"
                         } else {
                             gradleCommand = gradleCommand + " -Dsonar.branch.name=$featureBranchName"
                         }
