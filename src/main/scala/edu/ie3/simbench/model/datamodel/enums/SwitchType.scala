@@ -14,6 +14,8 @@ case object SwitchType {
 
   case object LoadSwitch extends SwitchType
 
+  case object DisconnectingSwitch extends SwitchType
+
   /**
     * Hands back a suitable [[SwitchType]] based on the entries given in SimBench csv files
     *
@@ -27,6 +29,7 @@ case object SwitchType {
       case "cb"  => CircuitBreaker
       case "lbs" => LoadBreakingSwitch
       case "ls"  => LoadSwitch
+      case "ds"  => DisconnectingSwitch
       case whatever =>
         throw SimbenchDataModelException(
           s"I cannot handle the switch type $whatever"

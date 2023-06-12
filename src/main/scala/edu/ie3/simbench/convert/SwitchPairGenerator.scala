@@ -38,6 +38,7 @@ object SwitchPairGenerator {
       val idMapping = switchPairs
         .map(sp => (sp.loopSwitch.getId, sp.lineSwitches.map(_._2._2.getId)))
         .toMap
+      new File(filePath).mkdirs()
       val uuidFile = Paths.get(filePath, "switch_pair_mapping_uuid.csv").toFile
       val idFile = Paths.get(filePath, "switch_pair_mapping_id.csv").toFile
       Seq((uuidMapping, uuidFile), (idMapping, idFile)).foreach {
@@ -51,7 +52,9 @@ object SwitchPairGenerator {
 
     def writeMapToCSV(map: Map[String, Iterable[String]], file: File): Unit = {
       val pw = new PrintWriter(file)
-      map.foreach { case (k, v) => pw.write(k + "," + v.mkString(" ") + "\n") }
+      map.foreach {
+        case (k, v) => pw.write(k + "," + "\"" + v.mkString(",") + "\"" + "\n")
+      }
       pw.close()
     }
   }
@@ -75,10 +78,16 @@ object SwitchPairGenerator {
     val transformerNodes =
       transformers.flatMap(t => Seq(t.getNodeA, t.getNodeB))
 
+    val nodesWithSwitches =
+      switches.flatMap(sw => Seq(sw.getNodeA, sw.getNodeB))
+
     switches
-      .foldLeft((Seq.empty[SwitchPairs], Set.empty[NodeInput]))(
+      .foldLeft(
+        (Seq.empty[SwitchPairs], Set.empty[NodeInput], nodesWithSwitches)
+      )(
         (currentState, switch) => {
-          val (switchPairs, alreadyVisited) = currentState
+          val (switchPairs, alreadyVisited, currentNodesWithSwitches) =
+            currentState
 
           // get both nodes and respective connected edges
           val switchNodeAndEdges = getConnectedLinesOfSwitch(
@@ -90,26 +99,40 @@ object SwitchPairGenerator {
           ).map(l => (switch.getNodeB, l))
 
           // todo -> fold to update already visited
-          val (visited, lineSwitches) = switchNodeAndEdges.foldLeft(
-            (alreadyVisited, Map.empty[LineInput, (NodeInput, SwitchInput)])
-          )((current, nodeAndEdge) => {
-            val (node, edge) = nodeAndEdge
-            val (currentVisited, currentLineSwitches) = current
-            traverseRing(
-              graph,
-              node,
-              edge,
-              currentVisited,
-              transformerNodes,
-              currentLineSwitches
-            )
-          })
+          val (visited, lineSwitches, nodesWithSwitches) =
+            switchNodeAndEdges.foldLeft(
+              (
+                alreadyVisited,
+                Map.empty[LineInput, (NodeInput, SwitchInput)],
+                currentNodesWithSwitches
+              )
+            )((current, nodeAndEdge) => {
+              val (node, edge) = nodeAndEdge
+              val (
+                currentVisited,
+                currentLineSwitches,
+                currentNodesWithSwitches
+              ) = current
+              traverseRing(
+                graph,
+                node,
+                edge,
+                currentVisited,
+                currentNodesWithSwitches,
+                transformerNodes,
+                currentLineSwitches
+              )
+            })
 
           val switchPair = SwitchPairs(
             switch,
             lineSwitches
           )
-          (switchPairs :+ switchPair, alreadyVisited ++ visited)
+          (
+            switchPairs :+ switchPair,
+            alreadyVisited ++ visited,
+            currentNodesWithSwitches ++ nodesWithSwitches
+          )
         }
       )
       ._1
@@ -130,37 +153,48 @@ object SwitchPairGenerator {
       currentNode: NodeInput,
       currentEdge: LineInput,
       alreadyVisited: Set[NodeInput],
+      nodesWithSwitches: Set[NodeInput], // since SIMONA can't handle nodes with two switches atm
       transformerNodes: Set[NodeInput],
       lineSwitches: Map[LineInput, (NodeInput, SwitchInput)]
-  ): (Set[NodeInput], Map[LineInput, (NodeInput, SwitchInput)]) = {
+  ): (
+      Set[NodeInput],
+      Map[LineInput, (NodeInput, SwitchInput)],
+      Set[NodeInput]
+  ) = {
 
     if (transformerNodes.contains(currentNode) | alreadyVisited.contains(
           currentNode
         ))
-      return (alreadyVisited + currentNode, lineSwitches)
+      return (alreadyVisited + currentNode, lineSwitches, nodesWithSwitches)
 
     val nextNode =
       if (currentEdge.getNodeA == currentNode) currentEdge.getNodeB
       else currentEdge.getNodeA
 
-    val updatedLineSwitches = if (!currentEdge.getId.contains("loop")) {
-      // build auxiliary node and switch in switch direction
-      // we use the next node for building the switch so we don't have two switches at loop line switch node
-      val switchNode = buildAuxSwitchNode(
-        nextNode
-      )
-      val switch = buildSwitch(
-        nextNode,
-        switchNode
-      )
-      lineSwitches ++ Map(
-        currentEdge -> (switchNode, switch)
-      )
-    }
-    // skip building a switch if we are on the loop line, as this already has a connected switch
-    else {
-      lineSwitches
-    }
+    val (updatedLineSwitches, updatedNodesWithSwitches) =
+      if ((!currentEdge.getId.contains("loop")) & (!nodesWithSwitches.contains(
+            nextNode
+          ))) {
+        // build auxiliary node and switch in switch direction
+        // we use the next node for building the switch so we don't have two switches at loop line switch node
+        val switchNode = buildAuxSwitchNode(
+          nextNode
+        )
+        val switch = buildSwitch(
+          nextNode,
+          switchNode
+        )
+        (
+          lineSwitches ++ Map(
+            currentEdge -> (switchNode, switch)
+          ),
+          nodesWithSwitches + nextNode
+        )
+      }
+      // skip building a switch if we are on the loop line, as this already has a connected switch
+      else {
+        (lineSwitches, nodesWithSwitches)
+      }
 
     val edges = graph.incomingEdgesOf(nextNode).asScala.toSet ++ graph
       .outgoingEdgesOf(nextNode)
@@ -168,17 +202,24 @@ object SwitchPairGenerator {
       .toSet
 
     //  continue in all directions except the one we came from
-    edges.foldLeft((alreadyVisited, updatedLineSwitches))((last, nextEdge) => {
+    edges.foldLeft(
+      (alreadyVisited, updatedLineSwitches, updatedNodesWithSwitches)
+    )((last, nextEdge) => {
       // ignore the direction we came from
       if (nextEdge == currentEdge) last
       else {
-        val (currentAlreadyVisited, currentLineSwitches) = last
+        val (
+          currentAlreadyVisited,
+          currentLineSwitches,
+          currentNodesWithSwitches
+        ) = last
         val visited = currentAlreadyVisited + currentNode
         traverseRing(
           graph,
           nextNode,
           nextEdge,
           visited + currentNode,
+          currentNodesWithSwitches,
           transformerNodes,
           currentLineSwitches
         )

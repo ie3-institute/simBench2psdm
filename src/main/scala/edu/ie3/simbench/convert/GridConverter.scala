@@ -224,12 +224,18 @@ case object GridConverter extends LazyLogging {
         "Expected to filter out one line for every switch Line"
       )
 
+      val allSwitches = updatedSwitches ++ lineSwitches
+      if (nodesWithDuplicateSwitches(allSwitches).nonEmpty)
+        throw new IllegalArgumentException(
+          s"Duplicate switches at nodes: ${allSwitches.map(_.getId)}"
+        )
+
       new RawGridElements(
         (connectedNodes.values ++ lineSwitchNodes).toSet.asJava,
         (unchangedLines ++ updatedSwitchLines).asJava,
         transformers2w,
         transformers3w,
-        (updatedSwitches ++ lineSwitches).asJava,
+        allSwitches.asJava,
         measurements
       )
     } else {
@@ -745,13 +751,7 @@ case object GridConverter extends LazyLogging {
   def removeDoubleSwitchesAtNodes(
       switches: Set[SwitchInput]
   ): Set[SwitchInput] = {
-    val switchNodes =
-      switches.toSeq.flatMap(sw => Seq(sw.getNodeA, sw.getNodeB))
-    val duplicateSwitchNodes = switchNodes
-      .groupBy(identity)
-      .collect { case (x, Seq(_, _, _*)) => x }
-      .toSeq
-
+    val duplicateSwitchNodes = nodesWithDuplicateSwitches(switches)
     // remove one switch with duplicate switch nodes
     switches -- duplicateSwitchNodes.map(node => {
       val duplicateSwitches = switches
@@ -767,6 +767,15 @@ case object GridConverter extends LazyLogging {
           swA
       }
     })
+  }
+
+  def nodesWithDuplicateSwitches(switches: Set[SwitchInput]): Seq[NodeInput] = {
+    val switchNodes =
+      switches.toSeq.flatMap(sw => Seq(sw.getNodeA, sw.getNodeB))
+    switchNodes
+      .groupBy(identity)
+      .collect { case (x, Seq(_, _, _*)) => x }
+      .toSeq
   }
 
   def validateConnectivity(

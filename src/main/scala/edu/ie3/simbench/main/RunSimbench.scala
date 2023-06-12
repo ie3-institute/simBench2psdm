@@ -18,6 +18,7 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration.Duration
 import scala.jdk.CollectionConverters._
 import scala.jdk.FutureConverters.CompletionStageOps
+import scala.reflect.io.Directory
 import scala.util.{Failure, Success}
 
 /**
@@ -60,6 +61,12 @@ object RunSimbench extends SimbenchHelper {
         IoUtils.ensureHarmonizedAndTerminatingFileSeparator(
           simbenchConfig.io.output.targetFolder
         )
+
+      val targetDirectory =
+        Paths.get(baseTargetDirectory, simbenchCode, "input")
+      val directory = new Directory(targetDirectory.toFile)
+      directory.deleteRecursively()
+
       val csvSink = if (simbenchConfig.io.output.csv.directoryHierarchy) {
         new CsvFileSink(
           baseTargetDirectory,
@@ -72,7 +79,7 @@ object RunSimbench extends SimbenchHelper {
         )
       } else {
         new CsvFileSink(
-          baseTargetDirectory + simbenchCode,
+          targetDirectory.toString,
           new FileNamingStrategy(),
           false,
           simbenchConfig.io.output.csv.separator
