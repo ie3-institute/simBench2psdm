@@ -1,5 +1,5 @@
 plugins {
-	id "com.jfrog.artifactory" version "4.31.9"
+	id "com.jfrog.artifactory" version "4.32.0"
 	id 'groovy' // groovy support
 	id 'java' // java support
 	id 'scala' // scala support
