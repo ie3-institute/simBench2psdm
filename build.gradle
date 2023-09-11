@@ -7,7 +7,7 @@ plugins {
 	id 'com.diffplug.spotless' version '6.21.0'// code format
 	id "de.undercouch.download" version "5.5.0" // downloads plugin
 	id 'jacoco' // java code coverage plugin
-	id "org.sonarqube" version "4.3.0.3225" // sonarqube
+	id "org.sonarqube" version "4.3.1.3277" // sonarqube
 	id 'org.scoverage' version '8.0.3' // Code coverage plugin for scala
 	id "com.github.maiflai.scalatest" version "0.32" // run scalatest without specific task
 }
