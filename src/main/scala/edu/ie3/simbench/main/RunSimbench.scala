@@ -1,6 +1,6 @@
 package edu.ie3.simbench.main
 
-import java.nio.file.Paths
+import java.nio.file.{Path, Paths}
 import edu.ie3.datamodel.io.naming.{
   DefaultDirectoryHierarchy,
   EntityPersistenceNamingStrategy,
@@ -91,19 +91,20 @@ object RunSimbench extends SimbenchHelper {
         )
       val csvSink = if (simbenchConfig.io.output.csv.directoryHierarchy) {
         new CsvFileSink(
-          baseTargetDirectory,
+          Path.of(baseTargetDirectory),
           new FileNamingStrategy(
             new EntityPersistenceNamingStrategy(),
-            new DefaultDirectoryHierarchy(baseTargetDirectory, simbenchCode)
+            new DefaultDirectoryHierarchy(
+              Path.of(baseTargetDirectory),
+              simbenchCode
+            )
           ),
-          false,
           simbenchConfig.io.output.csv.separator
         )
       } else {
         new CsvFileSink(
-          baseTargetDirectory + simbenchCode,
+          Path.of(baseTargetDirectory + simbenchCode),
           new FileNamingStrategy(),
-          false,
           simbenchConfig.io.output.csv.separator
         )
       }
