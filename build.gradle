@@ -4,7 +4,7 @@ plugins {
 	id 'java' // java support
 	id 'scala' // scala support
 	id 'pmd' // code check, working on source code
-	id 'com.diffplug.spotless' version '6.23.0'// code format
+	id 'com.diffplug.spotless' version '6.23.2'// code format
 	id "de.undercouch.download" version "5.5.0" // downloads plugin
 	id 'jacoco' // java code coverage plugin
 	id "org.sonarqube" version "4.4.1.3373" // sonarqube
