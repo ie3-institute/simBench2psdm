@@ -4,7 +4,7 @@ import edu.ie3.datamodel.models.StandardUnits
 
 import java.util.Objects
 import edu.ie3.simbench.model.datamodel.profiles.{ResProfile, ResProfileType}
-import edu.ie3.test.common.{ConverterTestData, UnitSpec}
+import edu.ie3.test.common.{ConverterTestData, TestTimeUtils, UnitSpec}
 import edu.ie3.test.matchers.QuantityMatchers
 import tech.units.indriya.quantity.Quantities
 
@@ -23,16 +23,24 @@ class ResConverterSpec
       "test profile",
       ResProfileType.LvRural1,
       Map(
-        simbenchTimeUtil.toZonedDateTime("01.01.1990 00:00") -> BigDecimal(
+        TestTimeUtils.simbench.toZonedDateTime(
+          "01.01.1990 00:00"
+        ) -> BigDecimal(
           "0.75"
         ),
-        simbenchTimeUtil.toZonedDateTime("01.01.1990 00:15") -> BigDecimal(
+        TestTimeUtils.simbench.toZonedDateTime(
+          "01.01.1990 00:15"
+        ) -> BigDecimal(
           "0.55"
         ),
-        simbenchTimeUtil.toZonedDateTime("01.01.1990 00:30") -> BigDecimal(
+        TestTimeUtils.simbench.toZonedDateTime(
+          "01.01.1990 00:30"
+        ) -> BigDecimal(
           "0.35"
         ),
-        simbenchTimeUtil.toZonedDateTime("01.01.1990 00:45") -> BigDecimal(
+        TestTimeUtils.simbench.toZonedDateTime(
+          "01.01.1990 00:45"
+        ) -> BigDecimal(
           "0.15"
         )
       )
@@ -52,13 +60,13 @@ class ResConverterSpec
 
     "lead to the correct time series" in {
       val expected = Map(
-        simbenchTimeUtil.toZonedDateTime("01.01.1990 00:00") -> Quantities
+        TestTimeUtils.simbench.toZonedDateTime("01.01.1990 00:00") -> Quantities
           .getQuantity(-120.0, StandardUnits.ACTIVE_POWER_IN),
-        simbenchTimeUtil.toZonedDateTime("01.01.1990 00:15") -> Quantities
+        TestTimeUtils.simbench.toZonedDateTime("01.01.1990 00:15") -> Quantities
           .getQuantity(-88.0, StandardUnits.ACTIVE_POWER_IN),
-        simbenchTimeUtil.toZonedDateTime("01.01.1990 00:30") -> Quantities
+        TestTimeUtils.simbench.toZonedDateTime("01.01.1990 00:30") -> Quantities
           .getQuantity(-56.0, StandardUnits.ACTIVE_POWER_IN),
-        simbenchTimeUtil.toZonedDateTime("01.01.1990 00:45") -> Quantities
+        TestTimeUtils.simbench.toZonedDateTime("01.01.1990 00:45") -> Quantities
           .getQuantity(-24.0, StandardUnits.ACTIVE_POWER_IN)
       )
 

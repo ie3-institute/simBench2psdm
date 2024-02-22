@@ -4,8 +4,7 @@ import edu.ie3.simbench.exception.io.SimbenchDataModelException
 import edu.ie3.simbench.model.RawModelData
 import edu.ie3.simbench.model.datamodel.profiles.LoadProfile
 import edu.ie3.simbench.model.datamodel.profiles.LoadProfileType._
-import edu.ie3.test.common.UnitSpec
-import edu.ie3.util.TimeUtil
+import edu.ie3.test.common.{TestTimeUtils, UnitSpec}
 
 class LoadProfileSpec extends UnitSpec {
   val rawData = Vector(
@@ -48,11 +47,11 @@ class LoadProfileSpec extends UnitSpec {
       "H0A",
       H0A,
       Map(
-        TimeUtil.withDefaults
+        TestTimeUtils.international
           .toZonedDateTime("2016-01-01 00:00:00") -> (BigDecimal(
           "0.276685"
         ), BigDecimal("-0.067519")),
-        TimeUtil.withDefaults
+        TestTimeUtils.international
           .toZonedDateTime("2016-01-01 00:15:00") -> (BigDecimal(
           "0.066011"
         ), BigDecimal("0.060412"))
@@ -62,11 +61,11 @@ class LoadProfileSpec extends UnitSpec {
       "H0B",
       H0B,
       Map(
-        TimeUtil.withDefaults
+        TestTimeUtils.international
           .toZonedDateTime("2016-01-01 00:00:00") -> (BigDecimal(
           "0.065826"
         ), BigDecimal("-0.014175")),
-        TimeUtil.withDefaults
+        TestTimeUtils.international
           .toZonedDateTime("2016-01-01 00:15:00") -> (BigDecimal(
           "0.190476"
         ), BigDecimal("0.212622"))
@@ -76,11 +75,11 @@ class LoadProfileSpec extends UnitSpec {
       "H0C",
       H0C,
       Map(
-        TimeUtil.withDefaults
+        TestTimeUtils.international
           .toZonedDateTime("2016-01-01 00:00:00") -> (BigDecimal(
           "0.237082"
         ), BigDecimal("0.242253")),
-        TimeUtil.withDefaults
+        TestTimeUtils.international
           .toZonedDateTime("2016-01-01 00:15:00") -> (BigDecimal(
           "0.066869"
         ), BigDecimal("0.007691"))
@@ -90,11 +89,11 @@ class LoadProfileSpec extends UnitSpec {
       "L1A",
       L1A,
       Map(
-        TimeUtil.withDefaults
+        TestTimeUtils.international
           .toZonedDateTime("2016-01-01 00:00:00") -> (BigDecimal(
           "0.144231"
         ), BigDecimal("0.125501")),
-        TimeUtil.withDefaults
+        TestTimeUtils.international
           .toZonedDateTime("2016-01-01 00:15:00") -> (BigDecimal(
           "0.416628"
         ), BigDecimal("0.587453"))
@@ -104,11 +103,11 @@ class LoadProfileSpec extends UnitSpec {
       "L2A",
       L2A,
       Map(
-        TimeUtil.withDefaults
+        TestTimeUtils.international
           .toZonedDateTime("2016-01-01 00:00:00") -> (BigDecimal(
           "0.321053"
         ), BigDecimal("0.326352")),
-        TimeUtil.withDefaults
+        TestTimeUtils.international
           .toZonedDateTime("2016-01-01 00:15:00") -> (BigDecimal(
           "0.317544"
         ), BigDecimal("0.346238"))

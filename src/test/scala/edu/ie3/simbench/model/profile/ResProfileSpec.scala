@@ -3,8 +3,7 @@ package edu.ie3.simbench.model.profile
 import edu.ie3.simbench.exception.io.SimbenchDataModelException
 import edu.ie3.simbench.model.RawModelData
 import edu.ie3.simbench.model.datamodel.profiles.{ResProfile, ResProfileType}
-import edu.ie3.test.common.UnitSpec
-import edu.ie3.util.TimeUtil
+import edu.ie3.test.common.{TestTimeUtils, UnitSpec}
 
 class ResProfileSpec extends UnitSpec {
   val rawData = Vector(
@@ -31,9 +30,9 @@ class ResProfileSpec extends UnitSpec {
       "PV6",
       ResProfileType.PV6,
       Map(
-        TimeUtil.withDefaults
+        TestTimeUtils.international
           .toZonedDateTime("2016-01-02 10:15:00") -> BigDecimal("0.078013"),
-        TimeUtil.withDefaults
+        TestTimeUtils.international
           .toZonedDateTime("2016-01-02 10:30:00") -> BigDecimal("0.0770834")
       )
     ),
@@ -41,11 +40,11 @@ class ResProfileSpec extends UnitSpec {
       "PV8",
       ResProfileType.PV8,
       Map(
-        TimeUtil.withDefaults
+        TestTimeUtils.international
           .toZonedDateTime("2016-01-02 10:15:00") -> BigDecimal(
           "0.0550869"
         ),
-        TimeUtil.withDefaults
+        TestTimeUtils.international
           .toZonedDateTime("2016-01-02 10:30:00") -> BigDecimal("0.055754")
       )
     )
