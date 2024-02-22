@@ -59,7 +59,6 @@ import edu.ie3.simbench.model.datamodel.profiles.{
 }
 import edu.ie3.simbench.model.datamodel.types.LineType.{ACLineType, DCLineType}
 import edu.ie3.simbench.model.datamodel.types.{LineType, Transformer2WType}
-import edu.ie3.util.TimeUtil
 import edu.ie3.util.quantities.PowerSystemUnits._
 
 import javax.measure.MetricPrefix
@@ -72,9 +71,6 @@ import tech.units.indriya.quantity.Quantities
 import tech.units.indriya.unit.Units._
 
 trait ConverterTestData {
-
-  protected val simbenchTimeUtil =
-    new TimeUtil(ZoneId.of("UTC"), Locale.GERMANY, "dd.MM.yyyy HH:mm")
 
   /** Case class to denote a consistent pair of input and expected output of a
     * conversion
@@ -712,25 +708,25 @@ trait ConverterTestData {
         "test profile",
         LoadProfileType.L2A,
         Map(
-          TimeUtil.withDefaults
+          TestTimeUtils.international
             .toZonedDateTime("1990-01-01 00:00:00") -> (BigDecimal(
             "0.75"
           ), BigDecimal(
             "0.85"
           )),
-          TimeUtil.withDefaults
+          TestTimeUtils.international
             .toZonedDateTime("1990-01-01 00:15:00") -> (BigDecimal(
             "0.55"
           ), BigDecimal(
             "0.75"
           )),
-          TimeUtil.withDefaults
+          TestTimeUtils.international
             .toZonedDateTime("1990-01-01 00:30:00") -> (BigDecimal(
             "0.35"
           ), BigDecimal(
             "0.65"
           )),
-          TimeUtil.withDefaults
+          TestTimeUtils.international
             .toZonedDateTime("1990-01-01 00:45:00") -> (BigDecimal(
             "0.15"
           ), BigDecimal(

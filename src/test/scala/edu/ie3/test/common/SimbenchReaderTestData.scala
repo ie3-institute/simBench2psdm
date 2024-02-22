@@ -8,7 +8,6 @@ import edu.ie3.simbench.model.datamodel.profiles.LoadProfileType._
 import edu.ie3.simbench.model.datamodel.profiles._
 import edu.ie3.simbench.model.datamodel.types.LineType.ACLineType
 import edu.ie3.simbench.model.datamodel.types.Transformer2WType
-import edu.ie3.util.TimeUtil
 
 trait SimbenchReaderTestData {
 
@@ -269,11 +268,11 @@ trait SimbenchReaderTestData {
       "H0A",
       H0A,
       Map(
-        TimeUtil.withDefaults
+        TestTimeUtils.international
           .toZonedDateTime("2016-01-01 00:00:00") -> (BigDecimal(
           "0.276685"
         ), BigDecimal("-0.067519")),
-        TimeUtil.withDefaults
+        TestTimeUtils.international
           .toZonedDateTime("2016-01-01 00:15:00") -> (BigDecimal(
           "0.066011"
         ), BigDecimal("0.060412"))
@@ -283,11 +282,11 @@ trait SimbenchReaderTestData {
       "H0B",
       H0B,
       Map(
-        TimeUtil.withDefaults
+        TestTimeUtils.international
           .toZonedDateTime("2016-01-01 00:00:00") -> (BigDecimal(
           "0.065826"
         ), BigDecimal("-0.014175")),
-        TimeUtil.withDefaults
+        TestTimeUtils.international
           .toZonedDateTime("2016-01-01 00:15:00") -> (BigDecimal(
           "0.190476"
         ), BigDecimal("0.212622"))
@@ -297,11 +296,11 @@ trait SimbenchReaderTestData {
       "H0C",
       H0C,
       Map(
-        TimeUtil.withDefaults
+        TestTimeUtils.international
           .toZonedDateTime("2016-01-01 00:00:00") -> (BigDecimal(
           "0.237082"
         ), BigDecimal("0.242253")),
-        TimeUtil.withDefaults
+        TestTimeUtils.international
           .toZonedDateTime("2016-01-01 00:15:00") -> (BigDecimal(
           "0.066869"
         ), BigDecimal("0.007691"))
@@ -311,11 +310,11 @@ trait SimbenchReaderTestData {
       "L1A",
       L1A,
       Map(
-        TimeUtil.withDefaults
+        TestTimeUtils.international
           .toZonedDateTime("2016-01-01 00:00:00") -> (BigDecimal(
           "0.144231"
         ), BigDecimal("0.125501")),
-        TimeUtil.withDefaults
+        TestTimeUtils.international
           .toZonedDateTime("2016-01-01 00:15:00") -> (BigDecimal(
           "0.416628"
         ), BigDecimal("0.587453"))
@@ -325,11 +324,11 @@ trait SimbenchReaderTestData {
       "L2A",
       L2A,
       Map(
-        TimeUtil.withDefaults
+        TestTimeUtils.international
           .toZonedDateTime("2016-01-01 00:00:00") -> (BigDecimal(
           "0.321053"
         ), BigDecimal("0.326352")),
-        TimeUtil.withDefaults
+        TestTimeUtils.international
           .toZonedDateTime("2016-01-01 00:15:00") -> (BigDecimal(
           "0.317544"
         ), BigDecimal("0.346238"))
@@ -342,9 +341,9 @@ trait SimbenchReaderTestData {
       "PowerPlantProfile16",
       PowerPlantProfileType.PowerPlantProfile16,
       Map(
-        TimeUtil.withDefaults
+        TestTimeUtils.international
           .toZonedDateTime("2016-01-01 00:00:00") -> BigDecimal("0.7"),
-        TimeUtil.withDefaults
+        TestTimeUtils.international
           .toZonedDateTime("2016-01-01 00:15:00") -> BigDecimal("0.7")
       )
     ),
@@ -352,9 +351,9 @@ trait SimbenchReaderTestData {
       "PowerPlantProfile17",
       PowerPlantProfileType.PowerPlantProfile17,
       Map(
-        TimeUtil.withDefaults
+        TestTimeUtils.international
           .toZonedDateTime("2016-01-01 00:00:00") -> BigDecimal("0.7"),
-        TimeUtil.withDefaults
+        TestTimeUtils.international
           .toZonedDateTime("2016-01-01 00:15:00") -> BigDecimal("0.7")
       )
     )
@@ -365,9 +364,9 @@ trait SimbenchReaderTestData {
       "PV6",
       ResProfileType.PV6,
       Map(
-        TimeUtil.withDefaults
+        TestTimeUtils.international
           .toZonedDateTime("2016-01-02 10:15:00") -> BigDecimal("0.078013"),
-        TimeUtil.withDefaults
+        TestTimeUtils.international
           .toZonedDateTime("2016-01-02 10:30:00") -> BigDecimal("0.0770834")
       )
     ),
@@ -375,11 +374,11 @@ trait SimbenchReaderTestData {
       "PV8",
       ResProfileType.PV8,
       Map(
-        TimeUtil.withDefaults
+        TestTimeUtils.international
           .toZonedDateTime("2016-01-02 10:15:00") -> BigDecimal(
           "0.0550869"
         ),
-        TimeUtil.withDefaults
+        TestTimeUtils.international
           .toZonedDateTime("2016-01-02 10:30:00") -> BigDecimal("0.055754")
       )
     )
