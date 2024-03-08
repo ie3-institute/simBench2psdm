@@ -33,7 +33,7 @@ import edu.ie3.datamodel.models.voltagelevels.GermanVoltageLevelUtils.{
   MV_10KV,
   MV_20KV
 }
-import edu.ie3.datamodel.models.{OperationTime, UniqueEntity}
+import edu.ie3.datamodel.models.{Entity, OperationTime}
 import edu.ie3.datamodel.utils.GridAndGeoUtils
 import edu.ie3.simbench.exception.TestingException
 import edu.ie3.simbench.model.datamodel.Line.ACLine
@@ -84,7 +84,7 @@ trait ConverterTestData {
     * @tparam R
     *   Type of result class
     */
-  final case class ConversionPair[I <: SimbenchModel, R <: UniqueEntity](
+  final case class ConversionPair[I <: SimbenchModel, R <: Entity](
       input: I,
       result: R
   ) {
