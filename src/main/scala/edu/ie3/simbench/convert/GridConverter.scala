@@ -4,15 +4,34 @@ import com.typesafe.scalalogging.LazyLogging
 import edu.ie3.datamodel.io.source.TimeSeriesMappingSource
 import edu.ie3.datamodel.io.source.TimeSeriesMappingSource.MappingEntry
 import edu.ie3.datamodel.models.input.NodeInput
-import edu.ie3.datamodel.models.input.connector.{LineInput, SwitchInput, Transformer2WInput, Transformer3WInput}
-import edu.ie3.datamodel.models.input.container.{GraphicElements, JointGridContainer, RawGridElements, SystemParticipants}
-import edu.ie3.datamodel.models.input.graphics.{LineGraphicInput, NodeGraphicInput}
+import edu.ie3.datamodel.models.input.connector.{
+  LineInput,
+  SwitchInput,
+  Transformer2WInput,
+  Transformer3WInput
+}
+import edu.ie3.datamodel.models.input.container.{
+  GraphicElements,
+  JointGridContainer,
+  RawGridElements,
+  SystemParticipants
+}
+import edu.ie3.datamodel.models.input.graphics.{
+  LineGraphicInput,
+  NodeGraphicInput
+}
 import edu.ie3.datamodel.models.input.system._
 import edu.ie3.datamodel.models.result.NodeResult
 import edu.ie3.datamodel.models.timeseries.individual.IndividualTimeSeries
 import edu.ie3.datamodel.models.value.{PValue, SValue}
-import edu.ie3.simbench.convert.NodeConverter.AttributeOverride.{JoinOverride, SubnetOverride}
-import edu.ie3.simbench.convert.types.{LineTypeConverter, Transformer2wTypeConverter}
+import edu.ie3.simbench.convert.NodeConverter.AttributeOverride.{
+  JoinOverride,
+  SubnetOverride
+}
+import edu.ie3.simbench.convert.types.{
+  LineTypeConverter,
+  Transformer2wTypeConverter
+}
 import edu.ie3.simbench.exception.ConversionException
 import edu.ie3.simbench.model.datamodel._
 
@@ -635,7 +654,7 @@ case object GridConverter extends LazyLogging {
         loadsToTimeSeries.keySet.asJava,
         Set.empty[PvInput].asJava,
         Set.empty[StorageInput].asJava,
-        Set.empty[WecInput].asJava,
+        Set.empty[WecInput].asJava
       ),
       timeSeries,
       mapping
