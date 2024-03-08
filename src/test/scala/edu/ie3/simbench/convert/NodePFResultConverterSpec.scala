@@ -25,21 +25,18 @@ class NodePFResultConverterSpec extends UnitSpec with ConverterTestData {
 
       val actual = NodePFResultConverter.convert(input, node)
 
-      /* UUID is not checked, as it is random */
       actual.getTime shouldBe expected.getTime
       actual.getInputModel shouldBe expected.getInputModel
       actual.getvMag shouldBe actual.getvMag()
       actual.getvAng shouldBe expected.getvAng()
     }
 
-    "convert a single result correctly with specified UUID" in {
-      val uuid = UUID.randomUUID()
+    "convert a single result correctly" in {
       val (input, expected) = getNodeResultPair("1")
       val (_, node) = getNodePair(input.node.id)
 
-      val actual = NodePFResultConverter.convert(input, node, uuid = uuid)
+      val actual = NodePFResultConverter.convert(input, node)
 
-      actual.getUuid shouldBe uuid
       actual.getTime shouldBe expected.getTime
       actual.getInputModel shouldBe expected.getInputModel
       actual.getvMag shouldBe actual.getvMag()
@@ -54,7 +51,6 @@ class NodePFResultConverterSpec extends UnitSpec with ConverterTestData {
       val actual =
         NodePFResultConverter.convert(input, node, timeStamp = timeStamp)
 
-      /* UUID is not checked, as it is random */
       actual.getTime shouldBe timeStamp
       actual.getInputModel shouldBe expected.getInputModel
       actual.getvMag shouldBe actual.getvMag()

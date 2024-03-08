@@ -93,6 +93,7 @@ case object PowerPlantConverter extends ShuntConverter {
       OperationTime.notLimited(),
       node,
       new CosPhiFixed(varCharacteristicString),
+      null,
       sRated,
       cosphi
     ) -> timeSeries
