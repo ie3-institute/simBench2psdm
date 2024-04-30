@@ -4,7 +4,7 @@ import java.util.{Locale, UUID}
 import edu.ie3.datamodel.models.OperationTime
 import edu.ie3.datamodel.models.input.system.LoadInput
 import edu.ie3.datamodel.models.input.system.characteristic.CosPhiFixed
-import edu.ie3.datamodel.models.input.{NodeInput, OperatorInput}
+import edu.ie3.datamodel.models.input.{EmInput, NodeInput, OperatorInput}
 import edu.ie3.datamodel.models.profile.LoadProfile.DefaultLoadProfiles
 import edu.ie3.datamodel.models.timeseries.individual.IndividualTimeSeries
 import edu.ie3.datamodel.models.value.SValue
@@ -76,6 +76,7 @@ case object LoadConverter extends ShuntConverter {
       OperationTime.notLimited(),
       node,
       new CosPhiFixed(varCharacteristicString),
+      null,
       DefaultLoadProfiles.NO_LOAD_PROFILE,
       false,
       eCons,

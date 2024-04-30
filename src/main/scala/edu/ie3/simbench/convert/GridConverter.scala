@@ -3,6 +3,7 @@ package edu.ie3.simbench.convert
 import com.typesafe.scalalogging.LazyLogging
 import edu.ie3.datamodel.io.source.TimeSeriesMappingSource
 import edu.ie3.datamodel.io.source.TimeSeriesMappingSource.MappingEntry
+import edu.ie3.datamodel.models.input.NodeInput
 import edu.ie3.datamodel.models.input.connector.{
   LineInput,
   SwitchInput,
@@ -20,10 +21,9 @@ import edu.ie3.datamodel.models.input.graphics.{
   NodeGraphicInput
 }
 import edu.ie3.datamodel.models.input.system._
-import edu.ie3.datamodel.models.input.NodeInput
 import edu.ie3.datamodel.models.result.NodeResult
 import edu.ie3.datamodel.models.timeseries.individual.IndividualTimeSeries
-import edu.ie3.datamodel.models.value.{PValue, SValue, Value}
+import edu.ie3.datamodel.models.value.{PValue, SValue}
 import edu.ie3.simbench.convert.NodeConverter.AttributeOverride.{
   JoinOverride,
   SubnetOverride
@@ -33,20 +33,11 @@ import edu.ie3.simbench.convert.types.{
   Transformer2wTypeConverter
 }
 import edu.ie3.simbench.exception.ConversionException
-import edu.ie3.simbench.model.datamodel.{
-  GridModel,
-  Line,
-  Node,
-  NodePFResult,
-  Switch,
-  Transformer2W,
-  Transformer3W
-}
+import edu.ie3.simbench.model.datamodel._
 
-import java.util.UUID
 import scala.annotation.tailrec
-import scala.jdk.CollectionConverters._
 import scala.collection.parallel.CollectionConverters._
+import scala.jdk.CollectionConverters._
 
 case object GridConverter extends LazyLogging {
 
@@ -645,7 +636,6 @@ case object GridConverter extends LazyLogging {
       loadsToTimeSeries ++ powerPlantsToTimeSeries ++ resToTimeSeries
     val mapping = participantsToTimeSeries.map { case (model, timeSeries) =>
       new TimeSeriesMappingSource.MappingEntry(
-        UUID.randomUUID(),
         model.getUuid,
         timeSeries.getUuid
       )
@@ -664,8 +654,7 @@ case object GridConverter extends LazyLogging {
         loadsToTimeSeries.keySet.asJava,
         Set.empty[PvInput].asJava,
         Set.empty[StorageInput].asJava,
-        Set.empty[WecInput].asJava,
-        Set.empty[EmInput].asJava
+        Set.empty[WecInput].asJava
       ),
       timeSeries,
       mapping
