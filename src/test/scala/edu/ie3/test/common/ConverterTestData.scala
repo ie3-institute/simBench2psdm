@@ -1,21 +1,19 @@
 package edu.ie3.test.common
 
-import java.time.{ZoneId, ZonedDateTime}
-import java.util.{Locale, UUID}
 import edu.ie3.datamodel.models.StandardUnits.{
   ADMITTANCE_PER_LENGTH,
   ELECTRIC_CURRENT_MAGNITUDE,
   IMPEDANCE_PER_LENGTH,
   RATED_VOLTAGE_MAGNITUDE
 }
+import edu.ie3.datamodel.models.input.connector.`type`.{
+  LineTypeInput,
+  Transformer2WTypeInput
+}
 import edu.ie3.datamodel.models.input.connector.{
   LineInput,
   SwitchInput,
   Transformer2WInput
-}
-import edu.ie3.datamodel.models.input.connector.`type`.{
-  LineTypeInput,
-  Transformer2WTypeInput
 }
 import edu.ie3.datamodel.models.input.system.characteristic.{
   CosPhiFixed,
@@ -35,7 +33,7 @@ import edu.ie3.datamodel.models.voltagelevels.GermanVoltageLevelUtils.{
   MV_10KV,
   MV_20KV
 }
-import edu.ie3.datamodel.models.{OperationTime, UniqueEntity}
+import edu.ie3.datamodel.models.{Entity, OperationTime}
 import edu.ie3.datamodel.utils.GridAndGeoUtils
 import edu.ie3.simbench.exception.TestingException
 import edu.ie3.simbench.model.datamodel.Line.ACLine
@@ -59,10 +57,7 @@ import edu.ie3.simbench.model.datamodel.profiles.{
 }
 import edu.ie3.simbench.model.datamodel.types.LineType.{ACLineType, DCLineType}
 import edu.ie3.simbench.model.datamodel.types.{LineType, Transformer2WType}
-import edu.ie3.util.TimeUtil
 import edu.ie3.util.quantities.PowerSystemUnits._
-
-import javax.measure.MetricPrefix
 import org.locationtech.jts.geom.{
   GeometryFactory,
   Point,
@@ -71,10 +66,11 @@ import org.locationtech.jts.geom.{
 import tech.units.indriya.quantity.Quantities
 import tech.units.indriya.unit.Units._
 
-trait ConverterTestData {
+import java.time.ZonedDateTime
+import java.util.UUID
+import javax.measure.MetricPrefix
 
-  protected val simbenchTimeUtil =
-    new TimeUtil(ZoneId.of("UTC"), Locale.GERMANY, "dd.MM.yyyy HH:mm")
+trait ConverterTestData {
 
   /** Case class to denote a consistent pair of input and expected output of a
     * conversion
@@ -88,7 +84,7 @@ trait ConverterTestData {
     * @tparam R
     *   Type of result class
     */
-  final case class ConversionPair[I <: SimbenchModel, R <: UniqueEntity](
+  final case class ConversionPair[I <: SimbenchModel, R <: Entity](
       input: I,
       result: R
   ) {
@@ -368,7 +364,6 @@ trait ConverterTestData {
         7
       ),
       new NodeResult(
-        UUID.randomUUID(),
         ZonedDateTime.parse("1970-01-01T00:00:00Z"),
         getNodePair("LV1.101 Bus 1")._2.getUuid,
         Quantities.getQuantity(1.04913, PU),
@@ -385,7 +380,6 @@ trait ConverterTestData {
         7
       ),
       new NodeResult(
-        UUID.randomUUID(),
         ZonedDateTime.parse("1970-01-01T00:00:00Z"),
         getNodePair("LV1.101 Bus 1")._2.getUuid,
         Quantities.getQuantity(1.04729, PU),
@@ -712,25 +706,25 @@ trait ConverterTestData {
         "test profile",
         LoadProfileType.L2A,
         Map(
-          TimeUtil.withDefaults
+          TestTimeUtils.international
             .toZonedDateTime("1990-01-01 00:00:00") -> (BigDecimal(
             "0.75"
           ), BigDecimal(
             "0.85"
           )),
-          TimeUtil.withDefaults
+          TestTimeUtils.international
             .toZonedDateTime("1990-01-01 00:15:00") -> (BigDecimal(
             "0.55"
           ), BigDecimal(
             "0.75"
           )),
-          TimeUtil.withDefaults
+          TestTimeUtils.international
             .toZonedDateTime("1990-01-01 00:30:00") -> (BigDecimal(
             "0.35"
           ), BigDecimal(
             "0.65"
           )),
-          TimeUtil.withDefaults
+          TestTimeUtils.international
             .toZonedDateTime("1990-01-01 00:45:00") -> (BigDecimal(
             "0.15"
           ), BigDecimal(
@@ -768,6 +762,7 @@ trait ConverterTestData {
         OperationTime.notLimited(),
         getNodePair("LV1.101 Bus 1")._2,
         new CosPhiFixed("cosPhiFixed:{(0.0,0.93)}"),
+        null,
         DefaultLoadProfiles.NO_LOAD_PROFILE,
         false,
         Quantities.getQuantity(0d, KILOWATTHOUR),
@@ -869,6 +864,7 @@ trait ConverterTestData {
         OperationTime.notLimited(),
         getNodePair("EHV Bus 177")._2,
         new CosPhiFixed("cosPhiFixed:{(0.0,1.0)}"),
+        null,
         Quantities.getQuantity(312.632, MEGAVOLTAMPERE),
         1.0
       )
@@ -898,6 +894,7 @@ trait ConverterTestData {
         OperationTime.notLimited(),
         getNodePair("EHV Bus 177")._2,
         new CosPhiFixed("cosPhiFixed:{(0.0,0.95)}"),
+        null,
         Quantities.getQuantity(312.632, MEGAVOLTAMPERE),
         0.95
       )
@@ -935,6 +932,7 @@ trait ConverterTestData {
         OperationTime.notLimited(),
         getNodePair("MV1.101 Bus 4")._2,
         new CosPhiFixed("cosPhiFixed:{(0.0,1.0)}"),
+        null,
         Quantities.getQuantity(0.16, MEGAVOLTAMPERE),
         1.0
       )

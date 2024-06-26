@@ -1,6 +1,6 @@
 package edu.ie3.simbench.main
 
-import java.nio.file.Paths
+import java.nio.file.{Path, Paths}
 import edu.ie3.datamodel.io.naming.{
   DefaultDirectoryHierarchy,
   EntityPersistenceNamingStrategy,
@@ -96,25 +96,25 @@ object RunSimbench extends SimbenchHelper {
         IoUtils.ensureHarmonizedAndTerminatingFileSeparator(
           simbenchConfig.io.output.targetFolder
         )
-
-      val hierarchyAdjustedBaseDir = if (simbenchConfig.io.output.csv.directoryHierarchy) baseTargetDirectory else baseTargetDirectory + simbenchCode
-
-      val fileNamingStrategy =
-        if (simbenchConfig.io.output.csv.directoryHierarchy) {
+      val csvSink = if (simbenchConfig.io.output.csv.directoryHierarchy) {
+        new CsvFileSink(
+          Path.of(baseTargetDirectory),
           new FileNamingStrategy(
             new EntityPersistenceNamingStrategy(),
-            new DefaultDirectoryHierarchy(baseTargetDirectory, simbenchCode)
-          )
-        } else {
-          new FileNamingStrategy()
-        }
-
-      val csvSink = new CsvFileSink(
-        hierarchyAdjustedBaseDir,
-        fileNamingStrategy,
-        false,
-        simbenchConfig.io.output.csv.separator
-      )
+            new DefaultDirectoryHierarchy(
+              Path.of(baseTargetDirectory),
+              simbenchCode
+            )
+          ),
+          simbenchConfig.io.output.csv.separator
+        )
+      } else {
+        new CsvFileSink(
+          Path.of(baseTargetDirectory + simbenchCode),
+          new FileNamingStrategy(),
+          simbenchConfig.io.output.csv.separator
+        )
+      }
 
       csvSink.persistJointGrid(jointGridContainer)
       timeSeries.foreach(csvSink.persistTimeSeries(_))

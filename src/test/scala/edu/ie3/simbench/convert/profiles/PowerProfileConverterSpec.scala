@@ -8,8 +8,7 @@ import edu.ie3.simbench.model.datamodel.profiles.{
   PowerPlantProfile,
   PowerPlantProfileType
 }
-import edu.ie3.test.common.UnitSpec
-import edu.ie3.util.TimeUtil
+import edu.ie3.test.common.{TestTimeUtils, UnitSpec}
 import edu.ie3.util.quantities.PowerSystemUnits.{KILOVAR, KILOWATT}
 import tech.units.indriya.quantity.Quantities
 
@@ -23,25 +22,25 @@ class PowerProfileConverterSpec extends UnitSpec {
     "test profile",
     LoadProfileType.H0L,
     Map(
-      TimeUtil.withDefaults
+      TestTimeUtils.international
         .toZonedDateTime("1990-01-01 00:00:00") -> (BigDecimal(
         "0.75"
       ), BigDecimal(
         "0.85"
       )),
-      TimeUtil.withDefaults
+      TestTimeUtils.international
         .toZonedDateTime("1990-01-01 00:15:00") -> (BigDecimal(
         "0.55"
       ), BigDecimal(
         "0.75"
       )),
-      TimeUtil.withDefaults
+      TestTimeUtils.international
         .toZonedDateTime("1990-01-01 00:30:00") -> (BigDecimal(
         "0.35"
       ), BigDecimal(
         "0.65"
       )),
-      TimeUtil.withDefaults
+      TestTimeUtils.international
         .toZonedDateTime("1990-01-01 00:45:00") -> (BigDecimal(
         "0.15"
       ), BigDecimal(
@@ -54,19 +53,19 @@ class PowerProfileConverterSpec extends UnitSpec {
     "test profile",
     PowerPlantProfileType.PowerPlantProfile1,
     Map(
-      TimeUtil.withDefaults
+      TestTimeUtils.international
         .toZonedDateTime("1990-01-01 00:00:00") -> BigDecimal(
         "0.75"
       ),
-      TimeUtil.withDefaults
+      TestTimeUtils.international
         .toZonedDateTime("1990-01-01 00:15:00") -> BigDecimal(
         "0.55"
       ),
-      TimeUtil.withDefaults
+      TestTimeUtils.international
         .toZonedDateTime("1990-01-01 00:30:00") -> BigDecimal(
         "0.35"
       ),
-      TimeUtil.withDefaults
+      TestTimeUtils.international
         .toZonedDateTime("1990-01-01 00:45:00") -> BigDecimal(
         "0.15"
       )
@@ -79,22 +78,22 @@ class PowerProfileConverterSpec extends UnitSpec {
       val qRated = Quantities.getQuantity(10d, KILOVAR)
 
       val expected = Map(
-        TimeUtil.withDefaults
+        TestTimeUtils.international
           .toZonedDateTime("1990-01-01 00:00:00") -> new SValue(
           Quantities.getQuantity(75d, KILOWATT),
           Quantities.getQuantity(8.5, KILOVAR)
         ),
-        TimeUtil.withDefaults
+        TestTimeUtils.international
           .toZonedDateTime("1990-01-01 00:15:00") -> new SValue(
           Quantities.getQuantity(55d, KILOWATT),
           Quantities.getQuantity(7.5, KILOVAR)
         ),
-        TimeUtil.withDefaults
+        TestTimeUtils.international
           .toZonedDateTime("1990-01-01 00:30:00") -> new SValue(
           Quantities.getQuantity(35d, KILOWATT),
           Quantities.getQuantity(6.5, KILOVAR)
         ),
-        TimeUtil.withDefaults
+        TestTimeUtils.international
           .toZonedDateTime("1990-01-01 00:45:00") -> new SValue(
           Quantities.getQuantity(15d, KILOWATT),
           Quantities.getQuantity(5.5, KILOVAR)
@@ -154,19 +153,19 @@ class PowerProfileConverterSpec extends UnitSpec {
     val pRated = Quantities.getQuantity(100d, KILOWATT)
 
     val expected = Map(
-      TimeUtil.withDefaults
+      TestTimeUtils.international
         .toZonedDateTime("1990-01-01 00:00:00") -> new PValue(
         Quantities.getQuantity(75d, KILOWATT)
       ),
-      TimeUtil.withDefaults
+      TestTimeUtils.international
         .toZonedDateTime("1990-01-01 00:15:00") -> new PValue(
         Quantities.getQuantity(55d, KILOWATT)
       ),
-      TimeUtil.withDefaults
+      TestTimeUtils.international
         .toZonedDateTime("1990-01-01 00:30:00") -> new PValue(
         Quantities.getQuantity(35d, KILOWATT)
       ),
-      TimeUtil.withDefaults
+      TestTimeUtils.international
         .toZonedDateTime("1990-01-01 00:45:00") -> new PValue(
         Quantities.getQuantity(15d, KILOWATT)
       )
