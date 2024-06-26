@@ -38,7 +38,7 @@ case object ResConverter extends ShuntConverter {
       res: Vector[RES],
       nodes: Map[Node, NodeInput],
       profiles: Map[ResProfileType, ResProfile]
-  ): Map[FixedFeedInInput, IndividualTimeSeries[PValue]] =
+  ): Map[FixedFeedInInput, (IndividualTimeSeries[PValue], String)] =
     res.par
       .map { plant =>
         val node = NodeConverter.getNode(plant.node, nodes)
@@ -62,14 +62,14 @@ case object ResConverter extends ShuntConverter {
     * @param uuid
     *   Option to a specific uuid
     * @return
-    *   A pair of [[FixedFeedInInput]] and matching active power time series
+    *   A pair of [[FixedFeedInInput]] and matching active power time series and time series id
     */
   def convert(
       input: RES,
       node: NodeInput,
       profile: ResProfile,
       uuid: Option[UUID] = None
-  ): (FixedFeedInInput, IndividualTimeSeries[PValue]) = {
+  ): (FixedFeedInInput, (IndividualTimeSeries[PValue], String)) = {
     val p = Quantities.getQuantity(input.p, MEGAWATT)
     val q = Quantities.getQuantity(input.q, MEGAVAR)
     val cosphi = cosPhi(p.getValue.doubleValue(), q.getValue.doubleValue())
@@ -89,6 +89,6 @@ case object ResConverter extends ShuntConverter {
       new CosPhiFixed(varCharacteristicString),
       sRated,
       cosphi
-    ) -> timeSeries
+    ) -> (timeSeries, profile.id)
   }
 }

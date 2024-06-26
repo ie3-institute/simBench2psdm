@@ -7,9 +7,13 @@ import edu.ie3.datamodel.io.naming.{
   FileNamingStrategy
 }
 import edu.ie3.datamodel.io.sink.CsvFileSink
+import edu.ie3.datamodel.models.timeseries.TimeSeries
+import edu.ie3.datamodel.models.timeseries.individual.IndividualTimeSeries
 import edu.ie3.simbench.config.{ConfigValidator, SimbenchConfig}
 import edu.ie3.simbench.convert.GridConverter
 import edu.ie3.simbench.exception.CodeValidationException
+import edu.ie3.simbench.exception.io.IoException
+import edu.ie3.simbench.io.IoUtils.writeMapToCsv
 import edu.ie3.simbench.io.{Downloader, IoUtils, SimbenchReader, Zipper}
 import edu.ie3.simbench.model.SimbenchCode
 import edu.ie3.util.io.FileIOUtils
@@ -20,6 +24,7 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration.Duration
 import scala.jdk.CollectionConverters._
 import scala.jdk.FutureConverters.CompletionStageOps
+import scala.jdk.OptionConverters.RichOptional
 import scala.util.{Failure, Success}
 
 /** This is not meant to be final production code. It is more a place for
@@ -75,6 +80,7 @@ object RunSimbench extends SimbenchHelper {
         jointGridContainer,
         timeSeries,
         timeSeriesMapping,
+        timeSeriesIdMapping,
         powerFlowResults
       ) =
         GridConverter.convert(
@@ -84,34 +90,47 @@ object RunSimbench extends SimbenchHelper {
         )
 
       logger.info(s"$simbenchCode - Writing converted data set to files")
+
       /* Check, if a directory hierarchy is needed or not */
       val baseTargetDirectory =
         IoUtils.ensureHarmonizedAndTerminatingFileSeparator(
           simbenchConfig.io.output.targetFolder
         )
-      val csvSink = if (simbenchConfig.io.output.csv.directoryHierarchy) {
-        new CsvFileSink(
-          baseTargetDirectory,
+
+      val hierarchyAdjustedBaseDir = if (simbenchConfig.io.output.csv.directoryHierarchy) baseTargetDirectory else baseTargetDirectory + simbenchCode
+
+      val fileNamingStrategy =
+        if (simbenchConfig.io.output.csv.directoryHierarchy) {
           new FileNamingStrategy(
             new EntityPersistenceNamingStrategy(),
             new DefaultDirectoryHierarchy(baseTargetDirectory, simbenchCode)
-          ),
-          false,
-          simbenchConfig.io.output.csv.separator
-        )
-      } else {
-        new CsvFileSink(
-          baseTargetDirectory + simbenchCode,
-          new FileNamingStrategy(),
-          false,
-          simbenchConfig.io.output.csv.separator
-        )
-      }
+          )
+        } else {
+          new FileNamingStrategy()
+        }
+
+      val csvSink = new CsvFileSink(
+        hierarchyAdjustedBaseDir,
+        fileNamingStrategy,
+        false,
+        simbenchConfig.io.output.csv.separator
+      )
 
       csvSink.persistJointGrid(jointGridContainer)
       timeSeries.foreach(csvSink.persistTimeSeries(_))
       csvSink.persistAllIgnoreNested(timeSeriesMapping.asJava)
       csvSink.persistAll(powerFlowResults.asJava)
+
+      val timeSeriesPath = fileNamingStrategy
+          .getDirectoryPath(
+            classOf[IndividualTimeSeries[_]]
+          )
+          .toScala match {
+          case Some(timeSeriesDir) => Paths.get(hierarchyAdjustedBaseDir, timeSeriesDir)
+          case None => Paths.get(hierarchyAdjustedBaseDir)
+        }
+
+      writeMapToCsv(timeSeriesIdMapping, timeSeriesPath)
 
       if (simbenchConfig.io.output.compress) {
         logger.info(s"$simbenchCode - Adding files to compressed archive")

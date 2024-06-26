@@ -26,7 +26,7 @@ case object LoadConverter extends ShuntConverter {
       loads: Vector[Load],
       nodes: Map[Node, NodeInput],
       profiles: Map[LoadProfileType, LoadProfile]
-  ): Map[LoadInput, IndividualTimeSeries[SValue]] =
+  ): Map[LoadInput, (IndividualTimeSeries[SValue], String)] =
     loads.par
       .map { load =>
         val node = NodeConverter.getNode(load.node, nodes)
@@ -50,14 +50,14 @@ case object LoadConverter extends ShuntConverter {
     * @param uuid
     *   UUID to use for the model generation (default: Random UUID)
     * @return
-    *   A [[LoadInput]] model
+    *   A [[LoadInput]] model and matching apparent power time series and time series id
     */
   def convert(
       input: Load,
       node: NodeInput,
       profile: LoadProfile,
       uuid: UUID = UUID.randomUUID()
-  ): (LoadInput, IndividualTimeSeries[SValue]) = {
+  ): (LoadInput, (IndividualTimeSeries[SValue], String)) = {
     val id = input.id
     val cosphi = cosPhi(input.pLoad, input.qLoad)
     val varCharacteristicString =
@@ -82,6 +82,6 @@ case object LoadConverter extends ShuntConverter {
       sRated,
       cosphi
     ) ->
-      timeSeries
+      (timeSeries, profile.id)
   }
 }

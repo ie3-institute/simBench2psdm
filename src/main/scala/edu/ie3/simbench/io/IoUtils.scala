@@ -1,9 +1,10 @@
 package edu.ie3.simbench.io
 
 import java.nio.file.{Files, Path, Paths}
-
 import edu.ie3.simbench.exception.io.IoException
 
+import java.io.{PrintWriter}
+import java.util.UUID
 import scala.util.matching.Regex
 
 trait IoUtils {
@@ -208,5 +209,15 @@ object IoUtils extends IoUtils {
         s"The file $filePath is of wrong file type. Only $checkedEnding is supported (case sensitive)."
       )
     }
+  }
+
+  def writeMapToCsv(map: Map[UUID, String], outputDirectory: Path) : Unit= {
+    val file = Paths.get(outputDirectory.toString, "time_series_ids.csv").toFile
+    val writer = new PrintWriter(file)
+    writer.println("UUID,String")
+    for ((uuid, str) <- map) {
+      writer.println(s"${uuid.toString},$str")
+    }
+    writer.close()
   }
 }

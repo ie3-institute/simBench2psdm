@@ -35,13 +35,13 @@ case object PowerPlantConverter extends ShuntConverter {
     *   Collection of [[PowerPlantProfile]]s
     * @return
     *   A mapping from converted power plant to equivalent individual time
-    *   series
+    *   series and its id
     */
   def convert(
       powerPlants: Vector[PowerPlant],
       nodes: Map[Node, NodeInput],
       profiles: Map[PowerPlantProfileType, PowerPlantProfile]
-  ): Map[FixedFeedInInput, IndividualTimeSeries[PValue]] =
+  ): Map[FixedFeedInInput, (IndividualTimeSeries[PValue], String)] =
     powerPlants.par
       .map { powerPlant =>
         val node = NodeConverter.getNode(powerPlant.node, nodes)
@@ -65,14 +65,14 @@ case object PowerPlantConverter extends ShuntConverter {
     * @param uuid
     *   Option to a specific uuid
     * @return
-    *   A pair of [[FixedFeedInInput]] and matching active power time series
+    *   A pair of [[FixedFeedInInput]] and matching active power time series and time series id
     */
   def convert(
       input: PowerPlant,
       node: NodeInput,
       profile: PowerPlantProfile,
       uuid: Option[UUID] = None
-  ): (FixedFeedInInput, IndividualTimeSeries[PValue]) = {
+  ): (FixedFeedInInput, (IndividualTimeSeries[PValue], String)) = {
     val p = Quantities.getQuantity(input.p, MEGAWATT)
     val q = input.q match {
       case Some(value) => Quantities.getQuantity(value, MEGAVAR)
@@ -95,6 +95,6 @@ case object PowerPlantConverter extends ShuntConverter {
       new CosPhiFixed(varCharacteristicString),
       sRated,
       cosphi
-    ) -> timeSeries
+    ) -> (timeSeries, profile.id)
   }
 }

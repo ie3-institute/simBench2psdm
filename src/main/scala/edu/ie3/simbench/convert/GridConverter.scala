@@ -72,6 +72,7 @@ case object GridConverter extends LazyLogging {
       JointGridContainer,
       Vector[IndividualTimeSeries[_ <: PValue]],
       Seq[MappingEntry],
+      Map[UUID, String],
       Vector[NodeResult]
   ) = {
     logger.debug(s"Converting raw grid elements of '${gridInput.simbenchCode}'")
@@ -81,7 +82,12 @@ case object GridConverter extends LazyLogging {
     logger.debug(
       s"Converting system participants and their time series of '${gridInput.simbenchCode}'"
     )
-    val (systemParticipants, timeSeries, timeSeriesMapping) =
+    val (
+      systemParticipants,
+      timeSeries,
+      timeSeriesMapping,
+      timeSeriesIdMapping
+    ) =
       convertParticipants(gridInput, nodeConversion)
 
     logger.debug(
@@ -102,6 +108,7 @@ case object GridConverter extends LazyLogging {
       ),
       timeSeries,
       timeSeriesMapping,
+      timeSeriesIdMapping,
       powerFlowResults
     )
   }
@@ -612,7 +619,7 @@ case object GridConverter extends LazyLogging {
     *   Already known conversion mapping of nodes
     * @return
     *   A collection of converted system participants and their individual time
-    *   series
+    *   series as well as a time series uuid -> id map
     */
   def convertParticipants(
       gridInput: GridModel,
@@ -620,7 +627,8 @@ case object GridConverter extends LazyLogging {
   ): (
       SystemParticipants,
       Vector[IndividualTimeSeries[_ <: PValue]],
-      Seq[MappingEntry]
+      Seq[MappingEntry],
+      Map[UUID, String]
   ) = {
     /* Convert all participant groups */
     logger.debug(
@@ -643,15 +651,20 @@ case object GridConverter extends LazyLogging {
     /* Map participant uuid onto time series */
     val participantsToTimeSeries =
       loadsToTimeSeries ++ powerPlantsToTimeSeries ++ resToTimeSeries
-    val mapping = participantsToTimeSeries.map { case (model, timeSeries) =>
-      new TimeSeriesMappingSource.MappingEntry(
-        UUID.randomUUID(),
-        model.getUuid,
-        timeSeries.getUuid
-      )
+    val mappingEntries = participantsToTimeSeries.map {
+      case (model, (timeSeries, id)) =>
+        new TimeSeriesMappingSource.MappingEntry(
+          UUID.randomUUID(),
+          model.getUuid,
+          timeSeries.getUuid
+        )
     }.toSeq
     val timeSeries: Vector[IndividualTimeSeries[_ >: SValue <: PValue]] =
-      participantsToTimeSeries.map(_._2).toVector
+      participantsToTimeSeries.map(_._2._1).toVector
+
+    val tsIdMap = participantsToTimeSeries.map { case (_, (ts, tsId)) =>
+      (ts.getUuid, tsId)
+    }.toMap
 
     (
       new SystemParticipants(
@@ -668,7 +681,8 @@ case object GridConverter extends LazyLogging {
         Set.empty[EmInput].asJava
       ),
       timeSeries,
-      mapping
+      mappingEntries,
+      tsIdMap
     )
   }
 
@@ -684,7 +698,7 @@ case object GridConverter extends LazyLogging {
   def convertLoads(
       gridInput: GridModel,
       nodeConversion: Map[Node, NodeInput]
-  ): Map[LoadInput, IndividualTimeSeries[SValue]] = {
+  ): Map[LoadInput, (IndividualTimeSeries[SValue], String)] = {
     val loadProfiles = gridInput.loadProfiles
       .map(profile => profile.profileType -> profile)
       .toMap
@@ -703,7 +717,7 @@ case object GridConverter extends LazyLogging {
   def convertPowerPlants(
       gridInput: GridModel,
       nodeConversion: Map[Node, NodeInput]
-  ): Map[FixedFeedInInput, IndividualTimeSeries[PValue]] = {
+  ): Map[FixedFeedInInput, (IndividualTimeSeries[PValue], String)] = {
     val powerPlantProfiles = gridInput.powerPlantProfiles
       .map(profile => profile.profileType -> profile)
       .toMap
@@ -727,7 +741,7 @@ case object GridConverter extends LazyLogging {
   def convertRes(
       gridInput: GridModel,
       nodeConversion: Map[Node, NodeInput]
-  ): Map[FixedFeedInInput, IndividualTimeSeries[PValue]] = {
+  ): Map[FixedFeedInInput, (IndividualTimeSeries[PValue], String)] = {
     val resProfiles =
       gridInput.resProfiles.map(profile => profile.profileType -> profile).toMap
     ResConverter.convert(gridInput.res, nodeConversion, resProfiles)
