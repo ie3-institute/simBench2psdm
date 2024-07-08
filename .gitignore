@@ -153,4 +153,4 @@ testData/download
 !testData/download/targetFolderExistsAndIsFile.zip
 
 # Downloader productive folder
-inputData/download
+input/download

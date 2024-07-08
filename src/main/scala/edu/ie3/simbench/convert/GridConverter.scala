@@ -28,11 +28,13 @@ import edu.ie3.simbench.convert.NodeConverter.AttributeOverride.{
   JoinOverride,
   SubnetOverride
 }
+import edu.ie3.simbench.convert.ResConverter.ConvertedRes
 import edu.ie3.simbench.convert.types.{
   LineTypeConverter,
   Transformer2wTypeConverter
 }
 import edu.ie3.simbench.exception.ConversionException
+import edu.ie3.simbench.io.ParticipantToInput
 import edu.ie3.simbench.model.datamodel._
 
 import scala.annotation.tailrec
@@ -51,6 +53,9 @@ case object GridConverter extends LazyLogging {
     *   Total grid input model to be converted
     * @param removeSwitches
     *   Whether or not to remove switches from the grid structure
+    * @param participantToInput
+    *   Whether or not to convert a given type of participant into actual input
+    *   models
     * @return
     *   A converted [[JointGridContainer]], a [[Vector]] of
     *   [[IndividualTimeSeries]] as well as a [[Vector]] of [[NodeResult]]s
@@ -58,7 +63,8 @@ case object GridConverter extends LazyLogging {
   def convert(
       simbenchCode: String,
       gridInput: GridModel,
-      removeSwitches: Boolean
+      removeSwitches: Boolean,
+      participantToInput: ParticipantToInput
   ): (
       JointGridContainer,
       Vector[IndividualTimeSeries[_ <: PValue]],
@@ -73,7 +79,7 @@ case object GridConverter extends LazyLogging {
       s"Converting system participants and their time series of '${gridInput.simbenchCode}'"
     )
     val (systemParticipants, timeSeries, timeSeriesMapping) =
-      convertParticipants(gridInput, nodeConversion)
+      convertParticipants(gridInput, nodeConversion, participantToInput)
 
     logger.debug(
       s"Converting power flow results of '${gridInput.simbenchCode}'"
@@ -601,13 +607,17 @@ case object GridConverter extends LazyLogging {
     *   Total grid input model to convert
     * @param nodeConversion
     *   Already known conversion mapping of nodes
+    * @param participantToInput
+    *   Whether or not to convert a given type of participant into actual input
+    *   models
     * @return
     *   A collection of converted system participants and their individual time
     *   series
     */
   def convertParticipants(
       gridInput: GridModel,
-      nodeConversion: Map[Node, NodeInput]
+      nodeConversion: Map[Node, NodeInput],
+      participantToInput: ParticipantToInput
   ): (
       SystemParticipants,
       Vector[IndividualTimeSeries[_ <: PValue]],
@@ -626,14 +636,14 @@ case object GridConverter extends LazyLogging {
     logger.debug(
       s"Done converting ${gridInput.powerPlants.size} power plants including time series"
     )
-    val resToTimeSeries = convertRes(gridInput, nodeConversion)
+    val res = convertRes(gridInput, nodeConversion, participantToInput)
     logger.debug(
       s"Done converting ${gridInput.res.size} RES including time series"
     )
 
     /* Map participant uuid onto time series */
     val participantsToTimeSeries =
-      loadsToTimeSeries ++ powerPlantsToTimeSeries ++ resToTimeSeries
+      loadsToTimeSeries ++ powerPlantsToTimeSeries ++ res.fixedFeedInInput
     val mapping = participantsToTimeSeries.map { case (model, timeSeries) =>
       new TimeSeriesMappingSource.MappingEntry(
         model.getUuid,
@@ -649,10 +659,10 @@ case object GridConverter extends LazyLogging {
         Set.empty[ChpInput].asJava,
         Set.empty[EvcsInput].asJava,
         Set.empty[EvInput].asJava,
-        (powerPlantsToTimeSeries.keySet ++ resToTimeSeries.keySet).asJava,
+        (powerPlantsToTimeSeries.keySet ++ res.fixedFeedInInput.keySet).asJava,
         Set.empty[HpInput].asJava,
         loadsToTimeSeries.keySet.asJava,
-        Set.empty[PvInput].asJava,
+        res.pvInput.asJava,
         Set.empty[StorageInput].asJava,
         Set.empty[WecInput].asJava
       ),
@@ -709,16 +719,25 @@ case object GridConverter extends LazyLogging {
     *   Total grid input model to convert
     * @param nodeConversion
     *   Already known conversion mapping of nodes
+    * @param participantToInput
+    *   Whether or not to convert a given type of participant into actual input
+    *   models
     * @return
     *   A mapping from renewable energy source system to their assigned,
     *   specific time series
     */
   def convertRes(
       gridInput: GridModel,
-      nodeConversion: Map[Node, NodeInput]
-  ): Map[FixedFeedInInput, IndividualTimeSeries[PValue]] = {
+      nodeConversion: Map[Node, NodeInput],
+      participantToInput: ParticipantToInput
+  ): ConvertedRes = {
     val resProfiles =
       gridInput.resProfiles.map(profile => profile.profileType -> profile).toMap
-    ResConverter.convert(gridInput.res, nodeConversion, resProfiles)
+    ResConverter.convert(
+      gridInput.res,
+      nodeConversion,
+      resProfiles,
+      participantToInput
+    )
   }
 }
