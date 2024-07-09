@@ -1,12 +1,8 @@
 package edu.ie3.simbench.convert
 
-import java.util.{Locale, UUID}
-import edu.ie3.datamodel.models.OperationTime
+import edu.ie3.datamodel.models.{OperationTime, StandardUnits}
+import edu.ie3.datamodel.models.input.system.characteristic.CosPhiFixed
 import edu.ie3.datamodel.models.input.system.{FixedFeedInInput, PvInput}
-import edu.ie3.datamodel.models.input.system.characteristic.{
-  CosPhiFixed,
-  ReactivePowerCharacteristic
-}
 import edu.ie3.datamodel.models.input.{NodeInput, OperatorInput}
 import edu.ie3.datamodel.models.timeseries.individual.IndividualTimeSeries
 import edu.ie3.datamodel.models.value.PValue
@@ -15,7 +11,6 @@ import edu.ie3.simbench.convert.profiles.{
   PvProfileConverter
 }
 import edu.ie3.simbench.io.ParticipantToInput
-import edu.ie3.simbench.model.datamodel.enums.ResType
 import edu.ie3.simbench.model.datamodel.enums.ResType.{PV, PvMv}
 import edu.ie3.simbench.model.datamodel.profiles.{ResProfile, ResProfileType}
 import edu.ie3.simbench.model.datamodel.{Node, RES}
@@ -27,9 +22,8 @@ import edu.ie3.util.quantities.PowerSystemUnits.{
 import tech.units.indriya.ComparableQuantity
 import tech.units.indriya.quantity.Quantities
 
-import java.util
-import javax.measure.quantity.{Angle, Dimensionless, Power}
-import scala.Option.when
+import java.util.{Locale, UUID}
+import javax.measure.quantity.Dimensionless
 import scala.collection.parallel.CollectionConverters._
 
 case object ResConverter extends ShuntConverter {
@@ -111,8 +105,26 @@ case object ResConverter extends ShuntConverter {
     val timeSeries = PowerProfileConverter.convert(profile, p.multiply(-1))
 
     /* build pv parameter from time series */
-    val (albedo, azimuth, etaConv, elevationAngle, kG, kT) =
-      PvProfileConverter.convert(timeSeries)
+    // TODO: Check these values, that vn_simona defaults to
+    val etaConv: ComparableQuantity[Dimensionless] = Quantities.getQuantity(
+      97,
+      StandardUnits.EFFICIENCY
+    ) // vn_simona uses 95%, 97% and 98%
+    val albedo: Double = 0.20000000298023224 // see vn_simona
+    val kG: Double = 0.8999999761581421 // see vn_simona
+    val kT: Double = 1.0 // see vn_simona
+
+    /* calculate the power values before the converter */
+    val powerBeforeConverter =
+      PvProfileConverter.calculatePowerBeforeConverter(timeSeries, etaConv)
+
+    /* calculate the angles of the pv input */
+    val (azimuth, elevationAngle) =
+      PvProfileConverter.calculateAngles(
+        powerBeforeConverter,
+        sRated,
+        profile.profileType
+      )
 
     new PvInput(
       uuid.getOrElse(UUID.randomUUID()),
