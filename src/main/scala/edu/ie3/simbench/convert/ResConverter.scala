@@ -116,14 +116,22 @@ case object ResConverter extends ShuntConverter {
 
     /* calculate the power values before the converter */
     val powerBeforeConverter =
-      PvProfileConverter.calculatePowerBeforeConverter(timeSeries, etaConv)
+      PvProfileConverter.calculatePowerBeforeConverter(
+        timeSeries,
+        etaConv,
+        kG,
+        kT
+      )
 
     /* calculate the angles of the pv input */
-    val (azimuth, elevationAngle) =
-      PvProfileConverter.calculateAngles(
+    val azimuth = PvProfileConverter.getAzimuth(profile.profileType)
+
+    val elevationAngle =
+      PvProfileConverter.calculateElevationAngle(
         powerBeforeConverter,
         sRated,
-        profile.profileType
+        profile.profileType,
+        azimuth
       )
 
     new PvInput(
