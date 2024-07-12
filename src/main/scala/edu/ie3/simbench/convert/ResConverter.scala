@@ -8,7 +8,8 @@ import edu.ie3.datamodel.models.timeseries.individual.IndividualTimeSeries
 import edu.ie3.datamodel.models.value.PValue
 import edu.ie3.simbench.convert.profiles.{
   PowerProfileConverter,
-  PvProfileConverter
+  PvProfileConverter,
+  ResProfileConverter
 }
 import edu.ie3.simbench.io.ParticipantToInput
 import edu.ie3.simbench.model.datamodel.enums.ResType.{PV, PvMv}
@@ -123,12 +124,15 @@ case object ResConverter extends ShuntConverter {
         kT
       )
 
+    val maxFeedIn = ResProfileConverter.findMaxFeedIn(powerBeforeConverter)
+
     /* calculate the angles of the pv input */
     val azimuth = PvProfileConverter.getAzimuth(profile.profileType)
 
+    /* calculate the elevation angle */
     val elevationAngle =
       PvProfileConverter.calculateElevationAngle(
-        powerBeforeConverter,
+        maxFeedIn,
         sRated,
         profile.profileType,
         azimuth

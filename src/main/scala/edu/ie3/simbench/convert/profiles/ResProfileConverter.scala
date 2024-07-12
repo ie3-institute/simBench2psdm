@@ -1,9 +1,19 @@
 package edu.ie3.simbench.convert.profiles
 
+import edu.ie3.datamodel.models.timeseries.individual.{
+  IndividualTimeSeries,
+  TimeBasedValue
+}
+import edu.ie3.datamodel.models.value.PValue
 import edu.ie3.simbench.exception.ConversionException
 import edu.ie3.simbench.model.datamodel.profiles.ResProfileType
 import edu.ie3.util.geo.GeoUtils
 import org.locationtech.jts.geom.Coordinate
+
+import edu.ie3.util.quantities.QuantityUtils._
+
+import scala.jdk.CollectionConverters.SetHasAsScala
+import scala.jdk.OptionConverters.RichOptional
 
 object ResProfileConverter {
   // default coordinates for two locations
@@ -11,6 +21,13 @@ object ResProfileConverter {
     GeoUtils.buildCoordinate(52.366667, 9.733333)
   private val luebeckCoordinate: Coordinate =
     GeoUtils.buildCoordinate(53.866667, 10.683333)
+
+  def findMaxFeedIn(
+      timeSeries: IndividualTimeSeries[PValue]
+  ): Option[TimeBasedValue[PValue]] =
+    timeSeries.getEntries.asScala.minByOption { value =>
+      value.getValue.getP.toScala.getOrElse(0.asKiloWatt).getValue.doubleValue()
+    }
 
   /** Determines the [[Coordinate]] of a
     * [[edu.ie3.simbench.model.datamodel.RES]] based on its [[ResProfileType]]

@@ -85,8 +85,8 @@ object PvProfileConverter {
   }
 
   /** Calculates the elevation angle of a [[PvInput]].
-    * @param timeSeries
-    *   with power values
+    * @param maxFeedIn
+    *   option for the maximum occurred feed in
     * @param sRated
     *   the rated maximum power of the model
     * @param profile
@@ -98,39 +98,20 @@ object PvProfileConverter {
     *   the azimuth and the elevation angle in radians
     */
   def calculateElevationAngle(
-      timeSeries: IndividualTimeSeries[PValue],
+      maxFeedIn: Option[TimeBasedValue[PValue]],
       sRated: ComparableQuantity[Power],
       profile: ResProfileType,
       azimuth: ComparableQuantity[Angle]
   ): ComparableQuantity[Angle] = {
-    val ratedPower = sRated.to(StandardUnits.S_RATED).getValue.doubleValue()
-
-    val values = timeSeries.getEntries.asScala.toList.flatMap {
-      timeBasedValue =>
-        timeBasedValue.getValue.getP.toScala.map(value =>
-          (timeBasedValue.getTime, value)
-        )
-    }
-
     val position: Coordinate = ResProfileConverter.getCoordinate(profile)
 
-    val march21 = getMaxFeedIn(values, 3)
-    val june21 = getMaxFeedIn(values, 6)
-    val september21 = getMaxFeedIn(values, 9)
-    val dezember21 = getMaxFeedIn(values, 12)
-
-    Quantities.getQuantity(35d, StandardUnits.SOLAR_ELEVATION_ANGLE)
-  }
-
-  private def getMaxFeedIn(
-      timeSeriesEntries: Seq[(ZonedDateTime, ComparableQuantity[Power])],
-      month: Int,
-      dayOfTheMonth: Int = 21
-  ): Option[(ZonedDateTime, ComparableQuantity[Power])] = {
-    val powerValues = timeSeriesEntries.filter(value =>
-      value._1.getMonth.getValue == month && value._1.getDayOfMonth == dayOfTheMonth
+    // TODO: Adjust angle with power value and rated power
+    // angle for horizontal irradiance
+    val angleInDegrees = position.getY - 15
+    Quantities.getQuantity(
+      Math.toRadians(angleInDegrees),
+      StandardUnits.SOLAR_ELEVATION_ANGLE
     )
 
-    powerValues.minByOption(_._2.getValue.doubleValue())
   }
 }

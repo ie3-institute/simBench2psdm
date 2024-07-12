@@ -3,8 +3,7 @@ package edu.ie3.simbench.io
 import edu.ie3.simbench.config.SimbenchConfig
 
 final case class ParticipantToInput(
-    pvInput: Boolean,
-    wecInput: Boolean = false
+    pvInput: Boolean
 )
 
 object ParticipantToInput {
