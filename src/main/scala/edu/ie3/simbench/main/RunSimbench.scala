@@ -10,7 +10,13 @@ import edu.ie3.datamodel.io.sink.CsvFileSink
 import edu.ie3.simbench.config.{ConfigValidator, SimbenchConfig}
 import edu.ie3.simbench.convert.GridConverter
 import edu.ie3.simbench.exception.CodeValidationException
-import edu.ie3.simbench.io.{Downloader, IoUtils, SimbenchReader, Zipper}
+import edu.ie3.simbench.io.{
+  Downloader,
+  IoUtils,
+  ParticipantToInput,
+  SimbenchReader,
+  Zipper
+}
 import edu.ie3.simbench.model.SimbenchCode
 import edu.ie3.util.io.FileIOUtils
 import org.apache.commons.io.FilenameUtils
@@ -35,6 +41,8 @@ object RunSimbench extends SimbenchHelper {
 
     /* Validate the config */
     ConfigValidator.checkValidity(simbenchConfig)
+
+    val participantToInput = ParticipantToInput(simbenchConfig.conversion)
 
     simbenchConfig.io.simbenchCodes.foreach { simbenchCode =>
       logger.info(s"$simbenchCode - Downloading data set from SimBench website")
@@ -80,7 +88,8 @@ object RunSimbench extends SimbenchHelper {
         GridConverter.convert(
           simbenchCode,
           simbenchModel,
-          simbenchConfig.conversion.removeSwitches
+          simbenchConfig.conversion.removeSwitches,
+          participantToInput
         )
 
       logger.info(s"$simbenchCode - Writing converted data set to files")
@@ -110,7 +119,7 @@ object RunSimbench extends SimbenchHelper {
       }
 
       csvSink.persistJointGrid(jointGridContainer)
-      timeSeries.foreach(csvSink.persistTimeSeries(_))
+      // timeSeries.foreach(csvSink.persistTimeSeries(_))
       csvSink.persistAllIgnoreNested(timeSeriesMapping.asJava)
       csvSink.persistAll(powerFlowResults.asJava)
 
