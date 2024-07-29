@@ -55,11 +55,11 @@ object ResProfileConverter {
   def getCoordinate(profileType: ResProfileType): Coordinate =
     profileType match {
       case ResProfileType.PV1 => hanoverCoordinate // hanover (first place)
-      case ResProfileType.PV2 => luebeckCoordinate // lübeck (first place)
+      case ResProfileType.PV2 => luebeckCoordinate // luebeck (first place)
       case ResProfileType.PV3 => hanoverCoordinate // hanover (first place)
       case ResProfileType.PV4 => hanoverCoordinate // hanover (second place)
-      case ResProfileType.PV5 => luebeckCoordinate // lübeck (second place)
-      case ResProfileType.PV6 => luebeckCoordinate // lübeck (third place)
+      case ResProfileType.PV5 => luebeckCoordinate // luebeck (second place)
+      case ResProfileType.PV6 => luebeckCoordinate // luebeck (third place)
       case ResProfileType.PV7 => hanoverCoordinate // hanover (second place)
       case ResProfileType.PV8 => hanoverCoordinate // hanover (second place)
       case other =>
