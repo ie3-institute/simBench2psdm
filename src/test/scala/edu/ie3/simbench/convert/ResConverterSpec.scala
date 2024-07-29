@@ -1,11 +1,14 @@
 package edu.ie3.simbench.convert
 
-import edu.ie3.datamodel.models.StandardUnits
+import edu.ie3.datamodel.models.{OperationTime, StandardUnits}
+import edu.ie3.datamodel.models.input.OperatorInput
+import edu.ie3.datamodel.models.input.system.characteristic.CosPhiFixed
 
-import java.util.Objects
+import java.util.{Locale, Objects}
 import edu.ie3.simbench.model.datamodel.profiles.{ResProfile, ResProfileType}
 import edu.ie3.test.common.{ConverterTestData, TestTimeUtils, UnitSpec}
 import edu.ie3.test.matchers.QuantityMatchers
+import edu.ie3.util.quantities.QuantityUtils.RichQuantityDouble
 import tech.units.indriya.quantity.Quantities
 
 import scala.jdk.OptionConverters.RichOptional
@@ -85,6 +88,63 @@ class ResConverterSpec
             fail(s"Unable to get expected time series entry for time '$time'")
         }
       }
+    }
+
+    "convert pv plants correctly" in {
+
+      val pvPlant = pvRes
+      val pvNode = getNodePair("LV4.101 Bus 19")._2
+
+      val pvProfile: ResProfile = ResProfile(
+        "PV profile",
+        ResProfileType.PV3,
+        Map(
+          TestTimeUtils.simbench.toZonedDateTime(
+            "01.01.1990 00:00"
+          ) -> BigDecimal(
+            "0.75"
+          ),
+          TestTimeUtils.simbench.toZonedDateTime(
+            "01.01.1990 00:15"
+          ) -> BigDecimal(
+            "0.55"
+          ),
+          TestTimeUtils.simbench.toZonedDateTime(
+            "01.01.1990 00:30"
+          ) -> BigDecimal(
+            "0.35"
+          ),
+          TestTimeUtils.simbench.toZonedDateTime(
+            "01.01.1990 00:45"
+          ) -> BigDecimal(
+            "0.15"
+          )
+        )
+      )
+
+      val result = ResConverter.convertPv(
+        pvPlant,
+        pvNode,
+        pvProfile
+      )
+
+      result.getId shouldBe "LV4.101 SGen 1_pv"
+      result.getOperator shouldBe OperatorInput.NO_OPERATOR_ASSIGNED
+      result.getOperationTime shouldBe OperationTime.notLimited()
+      result.getNode shouldBe pvNode
+      result.getqCharacteristics() shouldBe new CosPhiFixed(
+        "cosPhiFixed:{(0.0,1.0)}"
+      )
+      result.getControllingEm.toScala shouldBe None
+      result.getAlbedo shouldBe 0.20000000298023224
+      result.getAzimuth shouldBe 0.asDegreeGeom
+      result.getEtaConv shouldBe 97.asPercent
+      result.getElevationAngle shouldBe 0.652171369646312.asDegreeGeom
+      result.getkG() shouldBe 0.8999999761581421
+      result.getkT() shouldBe 1.0
+      result.isMarketReaction shouldBe false
+      result.getsRated() shouldBe 6.48.asKiloVoltAmpere
+      result.getCosPhiRated shouldBe 1.0
     }
   }
 }

@@ -17,17 +17,33 @@ import scala.jdk.OptionConverters.RichOptional
 
 object ResProfileConverter {
   // default coordinates for two locations
-  private val hanoverCoordinate: Coordinate =
+  val hanoverCoordinate: Coordinate =
     GeoUtils.buildCoordinate(52.366667, 9.733333)
-  private val luebeckCoordinate: Coordinate =
+  val luebeckCoordinate: Coordinate =
     GeoUtils.buildCoordinate(53.866667, 10.683333)
 
+  /** Determines the maximum feed in of the time series.
+    * @param timeSeries
+    *   given time series
+    * @return
+    *   time based value with the maximum feed in
+    */
   def findMaxFeedIn(
       timeSeries: IndividualTimeSeries[PValue]
   ): Option[TimeBasedValue[PValue]] =
-    timeSeries.getEntries.asScala.minByOption { value =>
-      value.getValue.getP.toScala.getOrElse(0.asKiloWatt).getValue.doubleValue()
-    }
+    timeSeries.getEntries.asScala
+      .filter { value =>
+        value.getValue.getP.toScala
+          .getOrElse(1.asKiloWatt)
+          .getValue
+          .doubleValue() < 0
+      }
+      .minByOption { value =>
+        value.getValue.getP.toScala
+          .getOrElse(0.asKiloWatt)
+          .getValue
+          .doubleValue()
+      }
 
   /** Determines the [[Coordinate]] of a
     * [[edu.ie3.simbench.model.datamodel.RES]] based on its [[ResProfileType]]
@@ -48,7 +64,7 @@ object ResProfileConverter {
       case ResProfileType.PV8 => hanoverCoordinate // hanover (second place)
       case other =>
         throw ConversionException(
-          s"There are no coordinates for the profile type $other."
+          s"There is no coordinate for the profile type $other."
         )
     }
 
@@ -68,7 +84,7 @@ object ResProfileConverter {
       case ResProfileType.PV7 | ResProfileType.PV8 => CompassDirection.West
       case other =>
         throw ConversionException(
-          s"There are no coordinates for the profile type $other."
+          s"There is no compass direction for the profile type $other."
         )
     }
 

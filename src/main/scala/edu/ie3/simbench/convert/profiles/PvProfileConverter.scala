@@ -18,10 +18,8 @@ import org.locationtech.jts.geom.Coordinate
 import tech.units.indriya.ComparableQuantity
 import tech.units.indriya.quantity.Quantities
 
-import java.time.ZonedDateTime
 import javax.measure.quantity.{Angle, Dimensionless, Power}
 import scala.jdk.CollectionConverters._
-import scala.jdk.OptionConverters._
 
 object PvProfileConverter {
 
@@ -95,7 +93,7 @@ object PvProfileConverter {
     * @param azimuth
     *   of the [[PvInput]]
     * @return
-    *   the azimuth and the elevation angle in radians
+    *   the elevation angle in radians
     */
   def calculateElevationAngle(
       maxFeedIn: Option[TimeBasedValue[PValue]],
@@ -105,7 +103,7 @@ object PvProfileConverter {
   ): ComparableQuantity[Angle] = {
     val position: Coordinate = ResProfileConverter.getCoordinate(profile)
 
-    // TODO: Adjust angle with power value and rated power
+    // TODO: Adjust angle with power value, rated power and azimuth
     // angle for horizontal irradiance
     val angleInDegrees = position.getY - 15
     Quantities.getQuantity(
