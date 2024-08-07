@@ -50,7 +50,8 @@ case object LoadConverter extends ShuntConverter {
     * @param uuid
     *   UUID to use for the model generation (default: Random UUID)
     * @return
-    *   A [[LoadInput]] model and matching apparent power time series and time series id
+    *   A [[LoadInput]] model and matching apparent power time series and time
+    *   series id
     */
   def convert(
       input: Load,

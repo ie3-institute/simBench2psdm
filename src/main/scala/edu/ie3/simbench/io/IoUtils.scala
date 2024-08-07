@@ -211,7 +211,7 @@ object IoUtils extends IoUtils {
     }
   }
 
-  def writeMapToCsv(map: Map[UUID, String], outputDirectory: Path) : Unit= {
+  def writeMapToCsv(map: Map[UUID, String], outputDirectory: Path): Unit = {
     val file = Paths.get(outputDirectory.toString, "time_series_ids.csv").toFile
     val writer = new PrintWriter(file)
     writer.println("UUID,String")

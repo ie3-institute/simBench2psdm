@@ -35,6 +35,7 @@ import edu.ie3.simbench.convert.types.{
 import edu.ie3.simbench.exception.ConversionException
 import edu.ie3.simbench.model.datamodel._
 
+import java.util.UUID
 import scala.annotation.tailrec
 import scala.collection.parallel.CollectionConverters._
 import scala.jdk.CollectionConverters._
@@ -645,7 +646,6 @@ case object GridConverter extends LazyLogging {
     val mappingEntries = participantsToTimeSeries.map {
       case (model, (timeSeries, id)) =>
         new TimeSeriesMappingSource.MappingEntry(
-
           model.getUuid,
           timeSeries.getUuid
         )

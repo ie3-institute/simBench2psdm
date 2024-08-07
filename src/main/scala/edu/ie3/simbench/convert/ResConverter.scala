@@ -62,7 +62,8 @@ case object ResConverter extends ShuntConverter {
     * @param uuid
     *   Option to a specific uuid
     * @return
-    *   A pair of [[FixedFeedInInput]] and matching active power time series and time series id
+    *   A pair of [[FixedFeedInInput]] and matching active power time series and
+    *   time series id
     */
   def convert(
       input: RES,
