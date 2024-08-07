@@ -46,7 +46,7 @@ repositories {
 
 dependencies {
 	/* PowerSystemDataModel */
-	implementation('com.github.ie3-institute:PowerSystemDataModel:5.0.1') {
+	implementation('com.github.ie3-institute:PowerSystemDataModel:5.1.0') {
 		exclude group: 'org.apache.logging.log4j'
 		exclude group: 'org.slf4j'
 		/* Exclude our own nested dependencies */
@@ -61,7 +61,7 @@ dependencies {
 		exclude group: 'com.github.ie3-institute'
 	}
 
-	implementation 'org.codehaus.groovy:groovy:3.0.21'
+	implementation 'org.codehaus.groovy:groovy:3.0.22'
 
 	implementation 'tech.units:indriya:2.2'
 	implementation 'org.locationtech.jts:jts-core:1.19.0'
