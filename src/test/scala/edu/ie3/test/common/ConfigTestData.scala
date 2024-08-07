@@ -10,9 +10,10 @@ trait ConfigTestData {
     new SimbenchConfig.CsvConfig(false, "UTF-8", ".csv", ";"),
     new Input.Download(
       "http://141.51.193.167/simbench/gui/usecase/download",
-      false,
-      "testData/download/"
-    )
+      false
+    ),
+    "testData/download/",
+    true
   )
   val validIoOutputConfig = new SimbenchConfig.Io.Output(
     false,

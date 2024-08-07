@@ -18,7 +18,7 @@ ext {
 
 	scalaVersion = '2.13'
 	scalaBinaryVersion = '2.13.14'
-	tscfgVersion = '0.9.986'
+	tscfgVersion = '1.0.0'
 	slf4jVersion = '2.0.13'
 
 	scriptsLocation = 'gradle' + File.separator + 'scripts' + File.separator //location of script plugins
@@ -87,8 +87,8 @@ dependencies {
 	implementation 'org.mockito:mockito-core:5.12.0' // mocking framework
 
 	// config //
-	implementation 'com.typesafe:config:+'
-	implementation "com.github.carueda:tscfg_2.13:${tscfgVersion}"
+	implementation 'com.typesafe:config:1.4.3'
+	implementation "com.github.carueda:tscfg_2.13:$tscfgVersion"
 
 	// cmd args parser //
 	implementation "com.github.scopt:scopt_${scalaVersion}:+"
