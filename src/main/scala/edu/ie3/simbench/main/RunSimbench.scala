@@ -96,9 +96,12 @@ object RunSimbench extends SimbenchHelper {
         IoUtils.ensureHarmonizedAndTerminatingFileSeparator(
           simbenchConfig.io.output.targetFolder
         )
+
+      val sbCodeAdjustedDir = Path.of(baseTargetDirectory + simbenchCode)
+
       val csvSink = if (simbenchConfig.io.output.csv.directoryHierarchy) {
         new CsvFileSink(
-          Path.of(baseTargetDirectory),
+          sbCodeAdjustedDir,
           new FileNamingStrategy(
             new EntityPersistenceNamingStrategy(),
             new DefaultDirectoryHierarchy(
@@ -110,7 +113,7 @@ object RunSimbench extends SimbenchHelper {
         )
       } else {
         new CsvFileSink(
-          Path.of(baseTargetDirectory + simbenchCode),
+          sbCodeAdjustedDir,
           new FileNamingStrategy(),
           simbenchConfig.io.output.csv.separator
         )
@@ -121,14 +124,17 @@ object RunSimbench extends SimbenchHelper {
       csvSink.persistAllIgnoreNested(timeSeriesMapping.asJava)
       csvSink.persistAll(powerFlowResults.asJava)
 
+      val fileNamingStrategy = new FileNamingStrategy()
+
       val timeSeriesPath = fileNamingStrategy
-          .getDirectoryPath(
-            classOf[IndividualTimeSeries[_]]
-          )
-          .toScala match {
-          case Some(timeSeriesDir) => Paths.get(hierarchyAdjustedBaseDir, timeSeriesDir)
-          case None => Paths.get(hierarchyAdjustedBaseDir)
-        }
+        .getDirectoryPath(
+          classOf[IndividualTimeSeries[_]]
+        )
+        .toScala match {
+        case Some(timeSeriesDir) =>
+          sbCodeAdjustedDir.resolve(timeSeriesDir)
+        case None => sbCodeAdjustedDir
+      }
 
       writeMapToCsv(timeSeriesIdMapping, timeSeriesPath)
 
