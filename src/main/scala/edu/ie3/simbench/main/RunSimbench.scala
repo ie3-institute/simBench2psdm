@@ -1,11 +1,7 @@
 package edu.ie3.simbench.main
 
 import java.nio.file.{Path, Paths}
-import edu.ie3.datamodel.io.naming.{
-  DefaultDirectoryHierarchy,
-  EntityPersistenceNamingStrategy,
-  FileNamingStrategy
-}
+import edu.ie3.datamodel.io.naming.{DefaultDirectoryHierarchy, EntityPersistenceNamingStrategy, FileNamingStrategy}
 import edu.ie3.datamodel.io.sink.CsvFileSink
 import edu.ie3.datamodel.models.timeseries.TimeSeries
 import edu.ie3.datamodel.models.timeseries.individual.IndividualTimeSeries
@@ -19,6 +15,7 @@ import edu.ie3.simbench.model.SimbenchCode
 import edu.ie3.util.io.FileIOUtils
 import org.apache.commons.io.FilenameUtils
 
+import java.io.File
 import scala.concurrent.Await
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration.Duration
@@ -42,25 +39,26 @@ object RunSimbench extends SimbenchHelper {
     ConfigValidator.checkValidity(simbenchConfig)
 
     simbenchConfig.io.simbenchCodes.foreach { simbenchCode =>
-      logger.info(s"$simbenchCode - Downloading data set from SimBench website")
-      val downloader =
-        Downloader(
-          simbenchConfig.io.input.download.folder,
-          simbenchConfig.io.input.download.baseUrl,
-          simbenchConfig.io.input.download.failOnExistingFiles
+
+      val validSimbenchCode = SimbenchCode(simbenchCode).getOrElse(
+        throw CodeValidationException(
+          s"'$simbenchCode' is no valid SimBench code."
         )
-      val downloadedFile =
-        downloader.download(
-          SimbenchCode(simbenchCode).getOrElse(
-            throw CodeValidationException(
-              s"'$simbenchCode' is no valid SimBench code."
-            )
+      )
+      val downloadFolder = simbenchConfig.io.input.download.folder
+
+      val downloadFolderPath = new File(s"$downloadFolder/")
+      val downloadedFile = Paths.get(
+            s"${downloadFolderPath.getAbsolutePath}/${validSimbenchCode.code}.zip"
           )
-        )
+
+      logger.info(s"$downloadedFile")
+
+
       val dataFolder =
         Zipper.unzip(
           downloadedFile,
-          downloader.downloadFolder,
+          downloadFolder,
           simbenchConfig.io.input.download.failOnExistingFiles,
           flattenDirectories = true
         )
