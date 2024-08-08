@@ -87,6 +87,12 @@ final case class SimbenchReader(
      * Await is okay here */
     val modelClassToRawData = getFieldToValueMaps
 
+    if (modelClassToRawData.forall(_._2.isEmpty)) {
+      throw SimbenchDataModelException(
+        s"Model is empty. Please check the provided data."
+      )
+    }
+
     /* Extracting all profiles */
     val loadProfiles = buildModels(modelClassToRawData, LoadProfile)
     val powerPlantProfiles = buildModels(modelClassToRawData, PowerPlantProfile)

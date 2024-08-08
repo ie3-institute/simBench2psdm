@@ -84,19 +84,20 @@ trait SimbenchHelper extends LazyLogging {
     println("--m-m-------------------m-m--")
   }
 
-  /** Method for reading in or downloading the specified simbench grid model.
+  /** Method for returning the grid path. If downloading is used, the specified
+    * simbench grid model will be automatically downloaded.
     * @param simbenchCode
     *   of the grid
     * @param cfg
-    *   config that specifies the folder and the download optione
+    *   config that specifies the folder and the download option
     * @return
-    *   the read [[GridModel]]
+    *   the path to the grid
     */
-  private[main] def readGridModel(
+  private[main] def getGridPath(
       simbenchCode: String,
       cfg: SimbenchConfig.Io.Input
-  ): GridModel = {
-    val dataFolder = (cfg.localFile, cfg.download) match {
+  ): Path = {
+    (cfg.localFile, cfg.download) match {
       case (Some(local), None) =>
         if (local.isZipped) {
           Zipper.unzip(
@@ -135,17 +136,6 @@ trait SimbenchHelper extends LazyLogging {
           flattenDirectories = true
         )
     }
-
-    logger.info(s"$simbenchCode - Reading in the SimBench data set")
-    val simbenchReader = SimbenchReader(
-      simbenchCode,
-      dataFolder,
-      cfg.csv.separator,
-      cfg.csv.fileEnding,
-      cfg.csv.fileEncoding
-    )
-
-    simbenchReader.readGrid()
   }
 
   /** Method for creating a [[CsvFileSink]]

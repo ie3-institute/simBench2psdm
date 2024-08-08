@@ -2,6 +2,7 @@ package edu.ie3.simbench.main
 
 import edu.ie3.simbench.config.{ConfigValidator, SimbenchConfig}
 import edu.ie3.simbench.convert.GridConverter
+import edu.ie3.simbench.io.SimbenchReader
 
 import scala.jdk.CollectionConverters._
 
@@ -20,7 +21,18 @@ object RunSimbench extends SimbenchHelper {
     ConfigValidator.checkValidity(simbenchConfig)
 
     simbenchConfig.io.simbenchCodes.foreach { simbenchCode =>
-      val simbenchModel = readGridModel(simbenchCode, simbenchConfig.io.input)
+      val gridPath = getGridPath(simbenchCode, simbenchConfig.io.input)
+
+      logger.info(s"$simbenchCode - Reading in the SimBench data set")
+      val simbenchReader = SimbenchReader(
+        simbenchCode,
+        gridPath,
+        simbenchConfig.io.input.csv.separator,
+        simbenchConfig.io.input.csv.fileEnding,
+        simbenchConfig.io.input.csv.fileEncoding
+      )
+
+      val simbenchModel = simbenchReader.readGrid()
 
       logger.info(s"$simbenchCode - Converting to PowerSystemDataModel")
       val (
