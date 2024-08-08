@@ -36,6 +36,7 @@ case object ConfigValidator {
   @throws[SimbenchException]
   private def checkValidity(io: SimbenchConfig.Io): Unit = {
     checkSimbenchCodes(io.simbenchCodes)
+    checkFileSource(io.input)
   }
 
   /** Checks the validity of the provided codes with the help of the permissible
@@ -52,6 +53,24 @@ case object ConfigValidator {
         case Success(_)         =>
         case Failure(exception) => throw exception
       }
+    }
+  }
+
+  @throws[SimbenchException]
+  private def checkFileSource(cfg: SimbenchConfig.Io.Input): Unit = {
+    val sources = Vector(
+      cfg.localFile,
+      cfg.download
+    ).filter(_.isDefined)
+
+    sources.size match {
+      case 0 =>
+        throw new SimbenchConfigException(s"No file sources defined in: $cfg")
+      case 1 =>
+      case n =>
+        throw new SimbenchConfigException(
+          s"Too many file sources ($n) defined in: $cfg"
+        )
     }
   }
 }

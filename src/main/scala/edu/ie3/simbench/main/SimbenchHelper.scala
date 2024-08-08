@@ -2,10 +2,29 @@ package edu.ie3.simbench.main
 
 import com.typesafe.config.{ConfigFactory, Config => TypesafeConfig}
 import com.typesafe.scalalogging.LazyLogging
-import edu.ie3.simbench.config.ArgsParser
+import edu.ie3.datamodel.io.naming.{
+  DefaultDirectoryHierarchy,
+  EntityPersistenceNamingStrategy,
+  FileNamingStrategy
+}
+import edu.ie3.datamodel.io.sink.CsvFileSink
 import edu.ie3.simbench.config.ArgsParser.Arguments
+import edu.ie3.simbench.config.{ArgsParser, SimbenchConfig}
+import edu.ie3.simbench.exception.CodeValidationException
 import edu.ie3.simbench.exception.io.SimbenchConfigException
+import edu.ie3.simbench.io.{Downloader, IoUtils, SimbenchReader, Zipper}
+import edu.ie3.simbench.model.SimbenchCode
+import edu.ie3.simbench.model.datamodel.GridModel
+import edu.ie3.util.io.FileIOUtils
 import edu.ie3.util.quantities.QuantityAdjustments
+import org.apache.commons.io.FilenameUtils
+
+import java.nio.file.{Path, Paths}
+import scala.concurrent.Await
+import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.duration.Duration
+import scala.jdk.FutureConverters.CompletionStageOps
+import scala.util.{Failure, Success}
 
 trait SimbenchHelper extends LazyLogging {
 
@@ -63,5 +82,140 @@ trait SimbenchHelper extends LazyLogging {
     println(" (o o)                 (o o) ")
     println("(  V  ) SimBench2PDSM (  V  )")
     println("--m-m-------------------m-m--")
+  }
+
+  /** Method for reading in or downloading the specified simbench grid model.
+    * @param simbenchCode
+    *   of the grid
+    * @param cfg
+    *   config that specifies the folder and the download optione
+    * @return
+    *   the read [[GridModel]]
+    */
+  private[main] def readGridModel(
+      simbenchCode: String,
+      cfg: SimbenchConfig.Io.Input
+  ): GridModel = {
+    val dataFolder = (cfg.localFile, cfg.download) match {
+      case (Some(local), None) =>
+        if (local.isZipped) {
+          Zipper.unzip(
+            Path.of(cfg.folder, simbenchCode + ".zip"),
+            cfg.folder,
+            local.failOnExistingFiles,
+            flattenDirectories = true
+          )
+        } else {
+          Path.of(cfg.folder, simbenchCode)
+        }
+      case (None, Some(download)) =>
+        logger.info(
+          s"$simbenchCode - Downloading data set from SimBench website"
+        )
+
+        val downloader =
+          Downloader(
+            cfg.folder,
+            download.baseUrl,
+            download.failOnExistingFiles
+          )
+        val downloadedFile =
+          downloader.download(
+            SimbenchCode(simbenchCode).getOrElse(
+              throw CodeValidationException(
+                s"'$simbenchCode' is no valid SimBench code."
+              )
+            )
+          )
+
+        Zipper.unzip(
+          downloadedFile,
+          downloader.downloadFolder,
+          download.failOnExistingFiles,
+          flattenDirectories = true
+        )
+    }
+
+    logger.info(s"$simbenchCode - Reading in the SimBench data set")
+    val simbenchReader = SimbenchReader(
+      simbenchCode,
+      dataFolder,
+      cfg.csv.separator,
+      cfg.csv.fileEnding,
+      cfg.csv.fileEncoding
+    )
+
+    simbenchReader.readGrid()
+  }
+
+  /** Method for creating a [[CsvFileSink]]
+    * @param simbenchCode
+    *   for the folder name
+    * @param simbenchConfig
+    *   config
+    * @return
+    *   a file sink and the baseTargetDirectory
+    */
+  private[main] def createCsvSink(
+      simbenchCode: String,
+      simbenchConfig: SimbenchConfig
+  ): (CsvFileSink, String) = {
+    /* Check, if a directory hierarchy is needed or not */
+    val baseTargetDirectory =
+      IoUtils.ensureHarmonizedAndTerminatingFileSeparator(
+        simbenchConfig.io.output.targetFolder
+      )
+
+    val csvSink = if (simbenchConfig.io.output.csv.directoryHierarchy) {
+      new CsvFileSink(
+        Path.of(baseTargetDirectory),
+        new FileNamingStrategy(
+          new EntityPersistenceNamingStrategy(),
+          new DefaultDirectoryHierarchy(
+            Path.of(baseTargetDirectory),
+            simbenchCode
+          )
+        ),
+        simbenchConfig.io.output.csv.separator
+      )
+    } else {
+      new CsvFileSink(
+        Path.of(baseTargetDirectory + simbenchCode),
+        new FileNamingStrategy(),
+        simbenchConfig.io.output.csv.separator
+      )
+    }
+
+    (csvSink, baseTargetDirectory)
+  }
+
+  /** Method to compress a given PSDM grid.
+    * @param simbenchCode
+    *   of the grid
+    * @param baseTargetDirectory
+    *   of the grid
+    */
+  private[main] def compressCsv(
+      simbenchCode: String,
+      baseTargetDirectory: String
+  ): Unit = {
+    logger.info(s"$simbenchCode - Adding files to compressed archive")
+    val rawOutputPath = Paths.get(baseTargetDirectory + simbenchCode)
+    val archivePath = Paths.get(
+      FilenameUtils.concat(baseTargetDirectory, simbenchCode + ".tar.gz")
+    )
+    val compressFuture =
+      FileIOUtils.compressDir(rawOutputPath, archivePath).asScala
+    compressFuture.onComplete {
+      case Success(_) =>
+        FileIOUtils.deleteRecursively(rawOutputPath)
+      case Failure(exception) =>
+        logger.error(
+          s"Compression of output files to '$archivePath' has failed. Keep raw data.",
+          exception
+        )
+    }
+
+    Await.ready(compressFuture, Duration("180s"))
   }
 }
