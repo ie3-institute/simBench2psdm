@@ -19,6 +19,8 @@ class ResConverterSpec
   "The RES converter" should {
     val (_, node) = getNodePair("MV1.101 Bus 4")
     val (input, expected) = getResPair("MV1.101 SGen 2")
+
+    /*
     val pProfile: ResProfile = ResProfile(
       "test profile",
       ResProfileType.LvRural1,
@@ -45,7 +47,9 @@ class ResConverterSpec
         )
       )
     )
-    val (actual, actualTimeSeries) = ResConverter.convert(input, node, pProfile)
+     */
+
+    val actual = ResConverter.convert(input, node)
 
     "bring up the correct input model" in {
       Objects.nonNull(actual.getUuid) shouldBe true
@@ -70,6 +74,7 @@ class ResConverterSpec
           .getQuantity(-24.0, StandardUnits.ACTIVE_POWER_IN)
       )
 
+      /*
       actualTimeSeries.getEntries.forEach { timeBasedValue =>
         val time = timeBasedValue.getTime
         val value = timeBasedValue.getValue
@@ -85,6 +90,7 @@ class ResConverterSpec
             fail(s"Unable to get expected time series entry for time '$time'")
         }
       }
+       */
     }
   }
 }

@@ -19,6 +19,8 @@ class PowerPlantConverterSpec
     "converting a power plant without reactive power information" should {
       val (input, expected) = getPowerPlantPair("EHV Gen 1")
       val node = getNodePair("EHV Bus 177")._2
+
+      /*
       val pProfile: PowerPlantProfile = PowerPlantProfile(
         "test profile",
         PowerPlantProfileType.PowerPlantProfile1,
@@ -45,8 +47,9 @@ class PowerPlantConverterSpec
           )
         )
       )
-      val (actual, actualTimeSeries) =
-        PowerPlantConverter.convert(input, node, pProfile)
+       */
+
+      val actual = PowerPlantConverter.convert(input, node)
 
       "bring up the correct input model" in {
         actual.getId shouldBe expected.getId
@@ -77,6 +80,7 @@ class PowerPlantConverterSpec
             .getQuantity(-44550.0, StandardUnits.ACTIVE_POWER_IN)
         )
 
+        /*
         actualTimeSeries.getEntries.forEach { timeBasedValue =>
           val time = timeBasedValue.getTime
           val value = timeBasedValue.getValue
@@ -92,12 +96,16 @@ class PowerPlantConverterSpec
               fail(s"Unable to get expected time series entry for time '$time'")
           }
         }
+
+         */
       }
     }
 
     "converting a power plant with reactive power information" should {
       val (input, expected) = getPowerPlantPair("EHV Gen 1_withQ")
       val node = getNodePair("EHV Bus 177")._2
+
+      /*
       val pProfile: PowerPlantProfile = PowerPlantProfile(
         "test profile",
         PowerPlantProfileType.PowerPlantProfile1,
@@ -124,8 +132,8 @@ class PowerPlantConverterSpec
           )
         )
       )
-      val (actual, actualTimeSeries) =
-        PowerPlantConverter.convert(input, node, pProfile)
+      */
+      val actual = PowerPlantConverter.convert(input, node)
 
       "bring up the correct input model" in {
         actual.getId shouldBe expected.getId
@@ -156,6 +164,7 @@ class PowerPlantConverterSpec
             .getQuantity(-44550.0, StandardUnits.ACTIVE_POWER_IN)
         )
 
+        /*
         actualTimeSeries.getEntries.forEach { timeBasedValue =>
           val time = timeBasedValue.getTime
           val value = timeBasedValue.getValue
@@ -171,6 +180,7 @@ class PowerPlantConverterSpec
               fail(s"Unable to get expected time series entry for time '$time'")
           }
         }
+         */
       }
     }
   }

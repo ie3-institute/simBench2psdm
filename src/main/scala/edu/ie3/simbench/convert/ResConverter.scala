@@ -1,7 +1,5 @@
 package edu.ie3.simbench.convert
 
-import java.util.{Locale, UUID}
-
 import edu.ie3.datamodel.models.OperationTime
 import edu.ie3.datamodel.models.input.system.FixedFeedInInput
 import edu.ie3.datamodel.models.input.system.characteristic.CosPhiFixed
@@ -18,6 +16,7 @@ import edu.ie3.util.quantities.PowerSystemUnits.{
 }
 import tech.units.indriya.quantity.Quantities
 
+import java.util.{Locale, UUID}
 import scala.collection.parallel.CollectionConverters._
 
 case object ResConverter extends ShuntConverter {
@@ -38,16 +37,31 @@ case object ResConverter extends ShuntConverter {
       res: Vector[RES],
       nodes: Map[Node, NodeInput],
       profiles: Map[ResProfileType, ResProfile]
-  ): Map[FixedFeedInInput, IndividualTimeSeries[PValue]] =
+  ): Map[FixedFeedInInput, IndividualTimeSeries[PValue]] = {
+
+    val modelScalings = res
+      .map { input =>
+        input.profile -> input.p
+      }
+      .groupBy(_._1)
+      .map { entry => entry._1 -> entry._2.map(_._2).toSet }
+
+    val convertedTimeSeries = PowerProfileConverter.convertP(
+      modelScalings,
+      profiles
+    )
+
+    println(s"Res: ${convertedTimeSeries.size}")
+
     res.par
       .map { plant =>
         val node = NodeConverter.getNode(plant.node, nodes)
-        val profile =
-          PowerProfileConverter.getProfile(plant.profile, profiles)
-        convert(plant, node, profile)
+        val series = convertedTimeSeries((plant.profile, plant.p))
+        convert(plant, node) -> series
       }
       .seq
       .toMap
+  }
 
   /** Converts a single renewable energy source system to a fixed feed in model
     * due to lacking information to sophistically guess typical types of assets.
@@ -57,8 +71,6 @@ case object ResConverter extends ShuntConverter {
     *   Input model
     * @param node
     *   Node, the renewable energy source system is connected to
-    * @param profile
-    *   SimBench renewable energy source system profile
     * @param uuid
     *   Option to a specific uuid
     * @return
@@ -67,18 +79,14 @@ case object ResConverter extends ShuntConverter {
   def convert(
       input: RES,
       node: NodeInput,
-      profile: ResProfile,
       uuid: Option[UUID] = None
-  ): (FixedFeedInInput, IndividualTimeSeries[PValue]) = {
+  ): FixedFeedInInput = {
     val p = Quantities.getQuantity(input.p, MEGAWATT)
     val q = Quantities.getQuantity(input.q, MEGAVAR)
     val cosphi = cosPhi(p.getValue.doubleValue(), q.getValue.doubleValue())
     val varCharacteristicString =
       "cosPhiFixed:{(0.0,%#.2f)}".formatLocal(Locale.ENGLISH, cosphi)
     val sRated = Quantities.getQuantity(input.sR, MEGAVOLTAMPERE)
-
-    /* Flip the sign, as infeed is negative in PowerSystemDataModel */
-    val timeSeries = PowerProfileConverter.convert(profile, p.multiply(-1))
 
     new FixedFeedInInput(
       uuid.getOrElse(UUID.randomUUID()),
@@ -90,6 +98,6 @@ case object ResConverter extends ShuntConverter {
       null,
       sRated,
       cosphi
-    ) -> timeSeries
+    )
   }
 }
