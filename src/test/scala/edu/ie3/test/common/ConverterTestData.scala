@@ -113,14 +113,26 @@ trait ConverterTestData {
       ),
       geometryFactory.createPoint(new JTSCoordinate(11.4097, 53.6413))
     ),
-    "coordinate_2" -> (Coordinate(
-      "coordinate_2",
-      BigDecimal("11.411"),
-      BigDecimal("53.6407"),
-      "LV1.101",
-      7
+    "coordinate_2" -> (
+      Coordinate(
+        "coordinate_2",
+        BigDecimal("11.411"),
+        BigDecimal("53.6407"),
+        "LV1.101",
+        7
+      ),
+      geometryFactory.createPoint(new JTSCoordinate(11.411, 53.6407))
     ),
-    geometryFactory.createPoint(new JTSCoordinate(11.411, 53.6407)))
+    "coord_32" -> (
+      Coordinate(
+        "coord_32",
+        BigDecimal("11.3942"),
+        BigDecimal("53.6381"),
+        "LV4.101",
+        7
+      ),
+      geometryFactory.createPoint(new JTSCoordinate(11.3942, 53.6381))
+    )
   )
 
   def getCoordinatePair(key: String): (Coordinate, Point) =
@@ -337,6 +349,32 @@ trait ConverterTestData {
         Quantities.getQuantity(1d, PU),
         false,
         getCoordinatePair("coordinate_2")._2,
+        LV,
+        2
+      )
+    ),
+    "LV4.101 Bus 19" -> ConversionPair(
+      Node(
+        "LV4.101 Bus 19",
+        NodeType.BusBar,
+        None,
+        None,
+        BigDecimal("0.4"),
+        BigDecimal("0.9"),
+        BigDecimal("1.1"),
+        None,
+        Some(getCoordinatePair("coord_32")._1),
+        "LV4.101",
+        7
+      ),
+      new NodeInput(
+        UUID.randomUUID(),
+        "LV4.101 Bus 19",
+        OperatorInput.NO_OPERATOR_ASSIGNED,
+        OperationTime.notLimited(),
+        Quantities.getQuantity(1d, PU),
+        false,
+        getCoordinatePair("coord_32")._2,
         LV,
         2
       )
@@ -910,6 +948,19 @@ trait ConverterTestData {
         )
       )
       .getPair
+
+  val pvRes = RES(
+    "LV4.101 SGen 1",
+    getNodePair("LV4.101 Bus 19")._1,
+    ResType.PV,
+    ResProfileType.PV5,
+    CalculationType.PQ,
+    BigDecimal("0.00648"),
+    BigDecimal("0"),
+    BigDecimal("0.00648"),
+    "LV4.101",
+    7
+  )
 
   val res = Map(
     "MV1.101 SGen 2" -> ConversionPair(
