@@ -10,7 +10,6 @@ import edu.ie3.simbench.model.SimbenchCode
 
 import scala.language.postfixOps
 import scala.sys.process._
-import scala.util.{Failure, Success, Try}
 
 final case class Downloader(
     downloadFolder: String,
