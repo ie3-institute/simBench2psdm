@@ -19,7 +19,7 @@ class LoadConverterSpec extends UnitSpec with ConverterTestData {
   "The load converter" should {
     "convert a single model correctly" in {
       /* Time series conversion is tested in a single test */
-      val (actual, _) = LoadConverter.convert(input, node, inputProfile)
+      val actual = LoadConverter.convert(input, node)
 
       actual.getId shouldBe actual.getId
       actual.getNode shouldBe expected.getNode
