@@ -1,6 +1,9 @@
 package edu.ie3.simbench.convert.profiles
 
-import edu.ie3.datamodel.models.timeseries.individual.{IndividualTimeSeries, TimeBasedValue}
+import edu.ie3.datamodel.models.timeseries.individual.{
+  IndividualTimeSeries,
+  TimeBasedValue
+}
 import edu.ie3.datamodel.models.value.{PValue, SValue}
 import edu.ie3.simbench.exception.ConversionException
 import edu.ie3.simbench.model.datamodel.profiles.{ProfileModel, ProfileType}
@@ -25,7 +28,10 @@ case object PowerProfileConverter {
     *   a map of profile type and scaling factors to [[IndividualTimeSeries]]
     *   with active and reactive power for each time step
     */
-  def convertS[T <: ProfileType, P <: ProfileModel[T, (BigDecimal, BigDecimal)]](
+  def convertS[
+      T <: ProfileType,
+      P <: ProfileModel[T, (BigDecimal, BigDecimal)]
+  ](
       modelScalings: Map[T, Set[(BigDecimal, BigDecimal)]],
       profiles: Map[T, P]
   ): Map[(T, BigDecimal, BigDecimal), IndividualTimeSeries[SValue]] =

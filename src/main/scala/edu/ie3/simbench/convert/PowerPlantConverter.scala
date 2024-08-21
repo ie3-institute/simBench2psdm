@@ -1,5 +1,7 @@
 package edu.ie3.simbench.convert
 
+import com.typesafe.scalalogging.LazyLogging
+
 import java.util.{Locale, UUID}
 import edu.ie3.datamodel.models.OperationTime
 import edu.ie3.datamodel.models.input.system.FixedFeedInInput
@@ -22,7 +24,7 @@ import tech.units.indriya.quantity.Quantities
 
 import scala.collection.parallel.CollectionConverters._
 
-case object PowerPlantConverter extends ShuntConverter {
+case object PowerPlantConverter extends ShuntConverter with LazyLogging {
 
   /** Convert a full set of power plants
     *
@@ -54,7 +56,10 @@ case object PowerPlantConverter extends ShuntConverter {
       profiles
     )
 
-    println(s"PowerPlant: ${convertedTimeSeries.size}")
+    logger.debug(
+      "Resulting power plant time series: {]",
+      convertedTimeSeries.size
+    )
 
     powerPlants.par
       .map { powerPlant =>

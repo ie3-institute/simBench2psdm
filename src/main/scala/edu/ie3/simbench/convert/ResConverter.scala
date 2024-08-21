@@ -1,5 +1,6 @@
 package edu.ie3.simbench.convert
 
+import com.typesafe.scalalogging.LazyLogging
 import edu.ie3.datamodel.models.OperationTime
 import edu.ie3.datamodel.models.input.system.FixedFeedInInput
 import edu.ie3.datamodel.models.input.system.characteristic.CosPhiFixed
@@ -19,7 +20,7 @@ import tech.units.indriya.quantity.Quantities
 import java.util.{Locale, UUID}
 import scala.collection.parallel.CollectionConverters._
 
-case object ResConverter extends ShuntConverter {
+case object ResConverter extends ShuntConverter with LazyLogging {
 
   /** Convert a full set of renewable energy source system
     *
@@ -51,7 +52,7 @@ case object ResConverter extends ShuntConverter {
       profiles
     )
 
-    println(s"Res: ${convertedTimeSeries.size}")
+    logger.debug("Resulting RES time series: {]", convertedTimeSeries.size)
 
     res.par
       .map { plant =>

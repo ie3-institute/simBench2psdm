@@ -1,5 +1,6 @@
 package edu.ie3.simbench.convert
 
+import com.typesafe.scalalogging.LazyLogging
 import edu.ie3.datamodel.models.OperationTime
 import edu.ie3.datamodel.models.input.system.LoadInput
 import edu.ie3.datamodel.models.input.system.characteristic.CosPhiFixed
@@ -16,7 +17,7 @@ import tech.units.indriya.quantity.Quantities
 import java.util.{Locale, UUID}
 import scala.collection.parallel.CollectionConverters._
 
-case object LoadConverter extends ShuntConverter {
+case object LoadConverter extends ShuntConverter with LazyLogging {
   def convert(
       loads: Vector[Load],
       nodes: Map[Node, NodeInput],
@@ -35,7 +36,7 @@ case object LoadConverter extends ShuntConverter {
       profiles
     )
 
-    println(s"Load: ${convertedTimeSeries.size}")
+    logger.debug("Resulting load time series: {]", convertedTimeSeries.size)
 
     loads.par
       .map { load =>

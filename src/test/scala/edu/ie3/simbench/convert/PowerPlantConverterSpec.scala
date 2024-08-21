@@ -1,6 +1,7 @@
 package edu.ie3.simbench.convert
 
 import edu.ie3.datamodel.models.StandardUnits
+import edu.ie3.simbench.model.datamodel.profiles.PowerPlantProfileType.PowerPlantProfile1
 import edu.ie3.simbench.model.datamodel.profiles.{
   PowerPlantProfile,
   PowerPlantProfileType
@@ -18,9 +19,8 @@ class PowerPlantConverterSpec
   "The power plant converter" when {
     "converting a power plant without reactive power information" should {
       val (input, expected) = getPowerPlantPair("EHV Gen 1")
-      val node = getNodePair("EHV Bus 177")._2
+      val (node, nodeInput) = getNodePair("EHV Bus 177")
 
-      /*
       val pProfile: PowerPlantProfile = PowerPlantProfile(
         "test profile",
         PowerPlantProfileType.PowerPlantProfile1,
@@ -47,17 +47,24 @@ class PowerPlantConverterSpec
           )
         )
       )
-       */
 
-      val actual = PowerPlantConverter.convert(input, node)
+      val profiles: Map[PowerPlantProfileType, PowerPlantProfile] =
+        Map(PowerPlantProfile1 -> pProfile)
+      val actual = PowerPlantConverter.convert(
+        Vector(input),
+        Map(node -> nodeInput),
+        profiles
+      )
+      val actualPowerPlant = actual.keySet.toSeq(0)
+      val actualTimeSeries = actual(actualPowerPlant)
 
       "bring up the correct input model" in {
-        actual.getId shouldBe expected.getId
-        actual.getNode shouldBe expected.getNode
-        actual.getOperator shouldBe expected.getOperator
-        actual.getqCharacteristics shouldBe expected.getqCharacteristics
-        actual.getsRated shouldBe expected.getsRated
-        actual.getCosPhiRated shouldBe expected.getCosPhiRated
+        actualPowerPlant.getId shouldBe expected.getId
+        actualPowerPlant.getNode shouldBe expected.getNode
+        actualPowerPlant.getOperator shouldBe expected.getOperator
+        actualPowerPlant.getqCharacteristics shouldBe expected.getqCharacteristics
+        actualPowerPlant.getsRated shouldBe expected.getsRated
+        actualPowerPlant.getCosPhiRated shouldBe expected.getCosPhiRated
       }
 
       "lead to the correct time series" in {
@@ -80,7 +87,6 @@ class PowerPlantConverterSpec
             .getQuantity(-44550.0, StandardUnits.ACTIVE_POWER_IN)
         )
 
-        /*
         actualTimeSeries.getEntries.forEach { timeBasedValue =>
           val time = timeBasedValue.getTime
           val value = timeBasedValue.getValue
@@ -96,16 +102,13 @@ class PowerPlantConverterSpec
               fail(s"Unable to get expected time series entry for time '$time'")
           }
         }
-
-         */
       }
     }
 
     "converting a power plant with reactive power information" should {
       val (input, expected) = getPowerPlantPair("EHV Gen 1_withQ")
-      val node = getNodePair("EHV Bus 177")._2
+      val (node, nodeInput) = getNodePair("EHV Bus 177")
 
-      /*
       val pProfile: PowerPlantProfile = PowerPlantProfile(
         "test profile",
         PowerPlantProfileType.PowerPlantProfile1,
@@ -132,16 +135,24 @@ class PowerPlantConverterSpec
           )
         )
       )
-      */
-      val actual = PowerPlantConverter.convert(input, node)
+
+      val profiles: Map[PowerPlantProfileType, PowerPlantProfile] =
+        Map(PowerPlantProfile1 -> pProfile)
+      val actual = PowerPlantConverter.convert(
+        Vector(input),
+        Map(node -> nodeInput),
+        profiles
+      )
+      val actualPowerPlant = actual.keySet.toSeq(0)
+      val actualTimeSeries = actual(actualPowerPlant)
 
       "bring up the correct input model" in {
-        actual.getId shouldBe expected.getId
-        actual.getNode shouldBe expected.getNode
-        actual.getOperator shouldBe expected.getOperator
-        actual.getqCharacteristics shouldBe expected.getqCharacteristics
-        actual.getsRated shouldBe expected.getsRated
-        actual.getCosPhiRated shouldBe expected.getCosPhiRated
+        actualPowerPlant.getId shouldBe expected.getId
+        actualPowerPlant.getNode shouldBe expected.getNode
+        actualPowerPlant.getOperator shouldBe expected.getOperator
+        actualPowerPlant.getqCharacteristics shouldBe expected.getqCharacteristics
+        actualPowerPlant.getsRated shouldBe expected.getsRated
+        actualPowerPlant.getCosPhiRated shouldBe expected.getCosPhiRated
       }
 
       "lead to the correct time series" in {
@@ -164,7 +175,6 @@ class PowerPlantConverterSpec
             .getQuantity(-44550.0, StandardUnits.ACTIVE_POWER_IN)
         )
 
-        /*
         actualTimeSeries.getEntries.forEach { timeBasedValue =>
           val time = timeBasedValue.getTime
           val value = timeBasedValue.getValue
@@ -180,7 +190,6 @@ class PowerPlantConverterSpec
               fail(s"Unable to get expected time series entry for time '$time'")
           }
         }
-         */
       }
     }
   }

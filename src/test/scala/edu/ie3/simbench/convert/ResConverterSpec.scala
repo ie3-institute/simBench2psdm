@@ -1,6 +1,8 @@
 package edu.ie3.simbench.convert
 
 import edu.ie3.datamodel.models.StandardUnits
+import edu.ie3.simbench.model.datamodel.enums.ResType
+import edu.ie3.simbench.model.datamodel.enums.ResType.LvRural1
 
 import java.util.Objects
 import edu.ie3.simbench.model.datamodel.profiles.{ResProfile, ResProfileType}
@@ -17,10 +19,9 @@ class ResConverterSpec
   implicit val quantityMatchingTolerance: Double = 1e-4
 
   "The RES converter" should {
-    val (_, node) = getNodePair("MV1.101 Bus 4")
+    val (node, nodeInput) = getNodePair("MV1.101 Bus 4")
     val (input, expected) = getResPair("MV1.101 SGen 2")
 
-    /*
     val pProfile: ResProfile = ResProfile(
       "test profile",
       ResProfileType.LvRural1,
@@ -47,19 +48,23 @@ class ResConverterSpec
         )
       )
     )
-     */
 
-    val actual = ResConverter.convert(input, node)
+    val profiles: Map[ResProfileType, ResProfile] =
+      Map(ResProfileType.LvRural1 -> pProfile)
+    val actual =
+      ResConverter.convert(Vector(input), Map(node -> nodeInput), profiles)
+    val actualRes = actual.keySet.toSeq(0)
+    val actualTimeSeries = actual(actualRes)
 
     "bring up the correct input model" in {
-      Objects.nonNull(actual.getUuid) shouldBe true
-      actual.getId shouldBe expected.getId
-      actual.getOperator shouldBe expected.getOperator
-      actual.getOperationTime shouldBe expected.getOperationTime
-      actual.getNode shouldBe expected.getNode
-      actual.getqCharacteristics shouldBe expected.getqCharacteristics
-      actual.getsRated shouldBe expected.getsRated
-      actual.getCosPhiRated shouldBe expected.getCosPhiRated
+      Objects.nonNull(actualRes.getUuid) shouldBe true
+      actualRes.getId shouldBe expected.getId
+      actualRes.getOperator shouldBe expected.getOperator
+      actualRes.getOperationTime shouldBe expected.getOperationTime
+      actualRes.getNode shouldBe expected.getNode
+      actualRes.getqCharacteristics shouldBe expected.getqCharacteristics
+      actualRes.getsRated shouldBe expected.getsRated
+      actualRes.getCosPhiRated shouldBe expected.getCosPhiRated
     }
 
     "lead to the correct time series" in {
@@ -74,7 +79,6 @@ class ResConverterSpec
           .getQuantity(-24.0, StandardUnits.ACTIVE_POWER_IN)
       )
 
-      /*
       actualTimeSeries.getEntries.forEach { timeBasedValue =>
         val time = timeBasedValue.getTime
         val value = timeBasedValue.getValue
@@ -90,7 +94,6 @@ class ResConverterSpec
             fail(s"Unable to get expected time series entry for time '$time'")
         }
       }
-       */
     }
   }
 }
