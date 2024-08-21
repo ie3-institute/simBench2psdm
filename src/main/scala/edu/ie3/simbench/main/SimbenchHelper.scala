@@ -142,7 +142,7 @@ trait SimbenchHelper extends LazyLogging {
     * @param simbenchCode
     *   for the folder name
     * @param simbenchConfig
-    *   config
+    *   config that specifies the output path
     * @return
     *   a file sink and the baseTargetDirectory
     */
