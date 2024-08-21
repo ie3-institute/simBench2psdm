@@ -15,7 +15,6 @@ import edu.ie3.simbench.model.SimbenchCode
 import edu.ie3.util.io.FileIOUtils
 import org.apache.commons.io.FilenameUtils
 
-import scala.collection.parallel.CollectionConverters.ImmutableIterableIsParallelizable
 import scala.concurrent.Await
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration.Duration
@@ -39,8 +38,6 @@ object RunSimbench extends SimbenchHelper {
 
     simbenchConfig.io.simbenchCodes.foreach { simbenchCode =>
       logger.info(s"$simbenchCode - Downloading data set from SimBench website")
-
-      /*
       val downloader =
         Downloader(
           simbenchConfig.io.input.download.folder,
@@ -62,12 +59,11 @@ object RunSimbench extends SimbenchHelper {
           simbenchConfig.io.input.download.failOnExistingFiles,
           flattenDirectories = true
         )
-       */
 
       logger.info(s"$simbenchCode - Reading in the SimBench data set")
       val simbenchReader = SimbenchReader(
         simbenchCode,
-        Path.of("input/download").resolve(simbenchCode),
+        dataFolder,
         simbenchConfig.io.input.csv.separator,
         simbenchConfig.io.input.csv.fileEnding,
         simbenchConfig.io.input.csv.fileEncoding
