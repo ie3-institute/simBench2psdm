@@ -10,7 +10,7 @@ import edu.ie3.datamodel.io.sink.CsvFileSink
 import edu.ie3.simbench.config.{ConfigValidator, SimbenchConfig}
 import edu.ie3.simbench.convert.GridConverter
 import edu.ie3.simbench.exception.CodeValidationException
-import edu.ie3.simbench.io.{Downloader, IoUtils, SimbenchReader, Zipper}
+import edu.ie3.simbench.io.{Downloader, Extractor, IoUtils, SimbenchReader, Zipper}
 import edu.ie3.simbench.model.SimbenchCode
 import edu.ie3.util.io.FileIOUtils
 import org.apache.commons.io.FilenameUtils
@@ -36,12 +36,17 @@ object RunSimbench extends SimbenchHelper {
     /* Validate the config */
     ConfigValidator.checkValidity(simbenchConfig)
 
+    val extractor = new Extractor(simbenchConfig)
+    extractor.download()
+    val uuidMap = extractor.extractUUIDMap()
+
     simbenchConfig.io.simbenchCodes.foreach { simbenchCode =>
       logger.info(s"$simbenchCode - Downloading data set from SimBench website")
       val downloader =
         Downloader(
           simbenchConfig.io.input.download.folder,
           simbenchConfig.io.input.download.baseUrl,
+          uuidMap,
           simbenchConfig.io.input.download.failOnExistingFiles
         )
       val downloadedFile =

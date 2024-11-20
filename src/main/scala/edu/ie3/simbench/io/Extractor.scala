@@ -1,24 +1,24 @@
 package edu.ie3.simbench.io
 
 import java.net.URL
-import java.io.File
+import edu.ie3.simbench.config.SimbenchConfig
 import java.nio.file.{Files, Paths, StandardCopyOption}
 import scala.io.Source
 import scala.util.matching.Regex
 
-final case class ExtractorConfig(downloadLink: String, outputPath: String)
-
-class Extractor(config: ExtractorConfig) {
+class Extractor(simbenchConfig: SimbenchConfig) {
 
   def download(): Unit = {
     val url = new URL("https://daks.uni-kassel.de/bitstreams/b1fb0ccf-94a1-4d5e-921c-5f9fa44e5371/download")
     val inputStream = url.openStream()
 
     try {
-      val path = Paths.get(config.outputPath)
+      val downloadFolder = simbenchConfig.io.input.download.folder
+      val outputPath = s"$downloadFolder/simbench_datalinks.csv"
+      val path = Paths.get(outputPath)
       Files.createDirectories(path.getParent)
       Files.copy(inputStream, path, StandardCopyOption.REPLACE_EXISTING)
-      println(s"File downloaded successfully to ${config.outputPath}")
+      println(s"File downloaded successfully to $outputPath")
     } finally {
       inputStream.close()
     }
@@ -28,9 +28,11 @@ class Extractor(config: ExtractorConfig) {
    * Extracts a map of simbench-code to UUID from the downloaded file.
    */
   def extractUUIDMap(): Map[String, String] = {
+    val downloadFolder = simbenchConfig.io.input.download.folder
+    val outputPath = s"$downloadFolder/simbench_datalinks.csv"
     val uuidPattern: Regex = """[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}""".r
 
-    val source = Source.fromFile(config.outputPath)
+    val source = Source.fromFile(outputPath)
     val lines = source.getLines().toList
 
     val header = lines.head.split(",").map(_.trim)
@@ -50,7 +52,7 @@ class Extractor(config: ExtractorConfig) {
         val code = columns(codeIndex)
         val csv = columns(csvIndex)
         val uuidOpt = uuidPattern.findFirstIn(csv)
-        uuidOpt.map(uuid => code -> uuid) // Create key-value pair only if UUID exists
+        uuidOpt.map(uuid => code -> uuid)
       } else None
     }.toMap
 

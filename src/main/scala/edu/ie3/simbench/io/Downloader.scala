@@ -10,11 +10,11 @@ import edu.ie3.simbench.model.SimbenchCode
 
 import scala.language.postfixOps
 import scala.sys.process._
-import scala.util.{Failure, Success, Try}
 
 final case class Downloader(
     downloadFolder: String,
     baseUrl: String,
+    uuidMap: Map[String, String],
     failOnExistingFiles: Boolean = true
 ) extends LazyLogging {
 
@@ -45,8 +45,12 @@ final case class Downloader(
       logger.debug(s"Overwrite existing file ${downloadFile.getName}")
     }
 
+    val uuid = uuidMap.getOrElse(simbenchCode.code,
+      throw DownloaderException(s"UUID not found for SimBench code: ${simbenchCode.code}")
+    )
+
     val url = new URL(
-      s"$baseUrl/?Simbench_Code=${simbenchCode.code}"
+      s"$baseUrl/$uuid/download"
     )
     url #> downloadFile !!
 
