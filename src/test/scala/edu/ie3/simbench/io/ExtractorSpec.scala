@@ -47,7 +47,11 @@ class ExtractorSpec extends UnitSpec with IoUtils with Matchers {
     "[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}".r
 
   // Utility to create test files
-  private def createTestFile(folder: String, fileName: String, content: String): File = {
+  private def createTestFile(
+      folder: String,
+      fileName: String,
+      content: String
+  ): File = {
     val dir = new File(folder)
     if (!dir.exists()) dir.mkdirs()
     val file = new File(s"$folder/$fileName")
@@ -84,7 +88,11 @@ class ExtractorSpec extends UnitSpec with IoUtils with Matchers {
 
     "extractUUIDMap should throw an exception if required columns are missing" in {
       val invalidFolder = "testData/invalidStructure"
-      createTestFile(invalidFolder, "simbench_datalinks.csv", "Invalid,Content\nOnly,OneColumn")
+      createTestFile(
+        invalidFolder,
+        "simbench_datalinks.csv",
+        "Invalid,Content\nOnly,OneColumn"
+      )
       val invalidConfig = simbenchConfig.copy(
         io = simbenchConfig.io.copy(
           input = simbenchConfig.io.input.copy(
@@ -95,7 +103,8 @@ class ExtractorSpec extends UnitSpec with IoUtils with Matchers {
         )
       )
       val invalidExtractor = new Extractor(invalidConfig)
-      an[IllegalArgumentException] should be thrownBy invalidExtractor.extractUUIDMap()
+      an[IllegalArgumentException] should be thrownBy invalidExtractor
+        .extractUUIDMap()
       deleteFolder(invalidFolder)
     }
 
