@@ -45,7 +45,8 @@ class DownloaderSpec extends UnitSpec with IoUtils {
       val downloader: Downloader = Downloader(
         "testData/download/",
         "https://daks.uni-kassel.de/bitstreams",
-        uuidMap
+        uuidMap,
+        failOnExistingFiles = true
       )
 
       val targetSimbenchCode = SimbenchCode("1-LV-urban6--0-sw").getOrElse(

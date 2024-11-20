@@ -12,9 +12,13 @@ import scala.language.{existentials, postfixOps}
 import scala.util.{Failure, Success, Try}
 
 class UnzippingSpec extends UnitSpec with IoUtils with BeforeAndAfterEach {
+  val uuidMap: Map[String, String] = Map(
+    "1-LV-rural1--2-no_sw" -> "b5a74521-26fc-4282-9e05-00370b1fa6cb"
+  )
   val downloader: Downloader = Downloader(
     "testData/download/",
-    "http://141.51.193.167/simbench/gui/usecase/download",
+    "https://daks.uni-kassel.de/bitstreams",
+    uuidMap,
     failOnExistingFiles = false
   )
 
