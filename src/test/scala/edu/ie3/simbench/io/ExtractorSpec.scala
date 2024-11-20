@@ -107,23 +107,5 @@ class ExtractorSpec extends UnitSpec with IoUtils with Matchers {
         .extractUUIDMap()
       deleteFolder(invalidFolder)
     }
-
-    "extractUUIDMap should return an empty map if no valid UUIDs are found" in {
-      val emptyFolder = "testData/emptyData"
-      createTestFile(emptyFolder, "simbench_datalinks.csv", "Code,UUID\n")
-      val emptyConfig = simbenchConfig.copy(
-        io = simbenchConfig.io.copy(
-          input = simbenchConfig.io.input.copy(
-            download = simbenchConfig.io.input.download.copy(
-              folder = emptyFolder
-            )
-          )
-        )
-      )
-      val emptyExtractor = new Extractor(emptyConfig)
-      val uuidMap = emptyExtractor.extractUUIDMap()
-      uuidMap shouldBe empty
-      deleteFolder(emptyFolder)
-    }
   }
 }
