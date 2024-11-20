@@ -45,8 +45,11 @@ final case class Downloader(
       logger.debug(s"Overwrite existing file ${downloadFile.getName}")
     }
 
-    val uuid = uuidMap.getOrElse(simbenchCode.code,
-      throw DownloaderException(s"UUID not found for SimBench code: ${simbenchCode.code}")
+    val uuid = uuidMap.getOrElse(
+      simbenchCode.code,
+      throw DownloaderException(
+        s"UUID not found for SimBench code: ${simbenchCode.code}"
+      )
     )
 
     val url = new URL(

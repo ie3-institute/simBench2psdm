@@ -9,7 +9,9 @@ import scala.util.matching.Regex
 class Extractor(simbenchConfig: SimbenchConfig) {
 
   def download(): Unit = {
-    val url = new URL("https://daks.uni-kassel.de/bitstreams/b1fb0ccf-94a1-4d5e-921c-5f9fa44e5371/download")
+    val url = new URL(
+      "https://daks.uni-kassel.de/bitstreams/b1fb0ccf-94a1-4d5e-921c-5f9fa44e5371/download"
+    )
     val inputStream = url.openStream()
 
     try {
@@ -24,13 +26,13 @@ class Extractor(simbenchConfig: SimbenchConfig) {
     }
   }
 
-  /**
-   * Extracts a map of simbench-code to UUID from the downloaded file.
-   */
+  /** Extracts a map of simbench-code to UUID from the downloaded file.
+    */
   def extractUUIDMap(): Map[String, String] = {
     val downloadFolder = simbenchConfig.io.input.download.folder
     val outputPath = s"$downloadFolder/simbench_datalinks.csv"
-    val uuidPattern: Regex = """[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}""".r
+    val uuidPattern: Regex =
+      """[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}""".r
 
     val source = Source.fromFile(outputPath)
     val lines = source.getLines().toList
@@ -42,7 +44,9 @@ class Extractor(simbenchConfig: SimbenchConfig) {
     val csvIndex = header.indexOf("csv")
 
     if (codeIndex == -1 || csvIndex == -1) {
-      throw new IllegalArgumentException("The required columns ('code', 'csv') are missing.")
+      throw new IllegalArgumentException(
+        "The required columns ('code', 'csv') are missing."
+      )
     }
 
     // Extract the map
