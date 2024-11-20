@@ -5,17 +5,17 @@ import edu.ie3.simbench.config.SimbenchConfig.Io
 import edu.ie3.simbench.config.SimbenchConfig.Io.{Input, Output}
 import edu.ie3.simbench.config.SimbenchConfig.Io.Input.Download
 
-import java.io.File
+import java.io.{File, PrintWriter}
 import org.scalatest.matchers.should.Matchers
 import edu.ie3.test.common.UnitSpec
-
 import scala.util.matching.Regex
 
 class ExtractorSpec extends UnitSpec with IoUtils with Matchers {
+  // Define configurations for the extractor
   val download: Download = Download(
     baseUrl = "https://daks.uni-kassel.de/bitstreams",
     failOnExistingFiles = false,
-    folder = "testData/download"
+    folder = "testData/download" // Valid download location
   )
   val input: Input = Input(
     csv = SimbenchConfig.CsvConfig(
@@ -46,6 +46,24 @@ class ExtractorSpec extends UnitSpec with IoUtils with Matchers {
   val uuidPattern: Regex =
     "[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}".r
 
+  // Utility to create test files
+  private def createTestFile(folder: String, fileName: String, content: String): File = {
+    val dir = new File(folder)
+    if (!dir.exists()) dir.mkdirs()
+    val file = new File(s"$folder/$fileName")
+    val writer = new PrintWriter(file)
+    writer.write(content)
+    writer.close()
+    file
+  }
+
+  // Utility to clean up test files
+  private def deleteFolder(folder: String): Unit = {
+    val dir = new File(folder)
+    if (dir.exists()) dir.listFiles().foreach(_.delete())
+    dir.delete()
+  }
+
   "The extraction" should {
     "download should save the file to the specified location" in {
       extractor.download()
@@ -65,26 +83,30 @@ class ExtractorSpec extends UnitSpec with IoUtils with Matchers {
     }
 
     "extractUUIDMap should throw an exception if required columns are missing" in {
+      val invalidFolder = "testData/invalidStructure"
+      createTestFile(invalidFolder, "simbench_datalinks.csv", "Invalid,Content\nOnly,OneColumn")
       val invalidConfig = simbenchConfig.copy(
         io = simbenchConfig.io.copy(
           input = simbenchConfig.io.input.copy(
             download = simbenchConfig.io.input.download.copy(
-              folder = "invalidFolder"
+              folder = invalidFolder
             )
           )
         )
       )
       val invalidExtractor = new Extractor(invalidConfig)
-      an[IllegalArgumentException] should be thrownBy invalidExtractor
-        .extractUUIDMap()
+      an[IllegalArgumentException] should be thrownBy invalidExtractor.extractUUIDMap()
+      deleteFolder(invalidFolder)
     }
 
     "extractUUIDMap should return an empty map if no valid UUIDs are found" in {
+      val emptyFolder = "testData/emptyData"
+      createTestFile(emptyFolder, "simbench_datalinks.csv", "Code,UUID\n")
       val emptyConfig = simbenchConfig.copy(
         io = simbenchConfig.io.copy(
           input = simbenchConfig.io.input.copy(
             download = simbenchConfig.io.input.download.copy(
-              folder = "emptyFolder"
+              folder = emptyFolder
             )
           )
         )
@@ -93,6 +115,7 @@ class ExtractorSpec extends UnitSpec with IoUtils with Matchers {
       emptyExtractor.download()
       val uuidMap = emptyExtractor.extractUUIDMap()
       uuidMap shouldBe empty
+      deleteFolder(emptyFolder)
     }
   }
 }
