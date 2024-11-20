@@ -13,7 +13,7 @@ import scala.util.{Failure, Success, Try}
 
 class UnzippingSpec extends UnitSpec with IoUtils with BeforeAndAfterEach {
   val uuidMap: Map[String, String] = Map(
-    "1-LV-rural1--2-no_sw" -> "b5a74521-26fc-4282-9e05-00370b1fa6cb"
+    "1-LV-urban6--0-sw" -> "a5a1d286-99a8-431c-9b2b-943f86467f22"
   )
   val downloader: Downloader = Downloader(
     "testData/download/",
