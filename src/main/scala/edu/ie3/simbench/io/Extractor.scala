@@ -11,7 +11,9 @@ final case class ExtractorConfig(downloadLink: String, outputPath: String)
 class Extractor(config: ExtractorConfig) {
 
   def download(): Unit = {
-    val url = new URL("https://daks.uni-kassel.de/bitstreams/b1fb0ccf-94a1-4d5e-921c-5f9fa44e5371/download")
+    val url = new URL(
+      "https://daks.uni-kassel.de/bitstreams/b1fb0ccf-94a1-4d5e-921c-5f9fa44e5371/download"
+    )
     val inputStream = url.openStream()
 
     try {
@@ -24,11 +26,11 @@ class Extractor(config: ExtractorConfig) {
     }
   }
 
-  /**
-   * Extracts a map of simbench-code to UUID from the downloaded file.
-   */
+  /** Extracts a map of simbench-code to UUID from the downloaded file.
+    */
   def extractUUIDMap(): Map[String, String] = {
-    val uuidPattern: Regex = """[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}""".r
+    val uuidPattern: Regex =
+      """[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}""".r
 
     val source = Source.fromFile(config.outputPath)
     val lines = source.getLines().toList
@@ -40,7 +42,9 @@ class Extractor(config: ExtractorConfig) {
     val csvIndex = header.indexOf("csv")
 
     if (codeIndex == -1 || csvIndex == -1) {
-      throw new IllegalArgumentException("The required columns ('code', 'csv') are missing.")
+      throw new IllegalArgumentException(
+        "The required columns ('code', 'csv') are missing."
+      )
     }
 
     // Extract the map
@@ -50,7 +54,9 @@ class Extractor(config: ExtractorConfig) {
         val code = columns(codeIndex)
         val csv = columns(csvIndex)
         val uuidOpt = uuidPattern.findFirstIn(csv)
-        uuidOpt.map(uuid => code -> uuid) // Create key-value pair only if UUID exists
+        uuidOpt.map(uuid =>
+          code -> uuid
+        ) // Create key-value pair only if UUID exists
       } else None
     }.toMap
 
