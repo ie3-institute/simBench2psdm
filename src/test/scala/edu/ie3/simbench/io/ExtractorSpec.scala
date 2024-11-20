@@ -121,7 +121,6 @@ class ExtractorSpec extends UnitSpec with IoUtils with Matchers {
         )
       )
       val emptyExtractor = new Extractor(emptyConfig)
-      emptyExtractor.download()
       val uuidMap = emptyExtractor.extractUUIDMap()
       uuidMap shouldBe empty
       deleteFolder(emptyFolder)
