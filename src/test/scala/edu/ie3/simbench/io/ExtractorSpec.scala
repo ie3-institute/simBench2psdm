@@ -68,8 +68,8 @@ class ExtractorSpec extends UnitSpec with IoUtils with Matchers {
     dir.delete()
   }
 
-  "The extraction" should {
-    "download should save the file to the specified location" in {
+  "The extractor" should {
+    "ensure that the download correctly downloads and saves the expected data file" in {
       extractor.download()
       val downloadedFile = new File(
         s"${simbenchConfig.io.input.download.directory}/simbench_datalinks.csv"
@@ -77,7 +77,7 @@ class ExtractorSpec extends UnitSpec with IoUtils with Matchers {
       downloadedFile.exists() shouldBe true
     }
 
-    "extractUUIDMap should return a correct map of codes to UUIDs" in {
+    "return a correct map of codes to UUIDs" in {
       extractor.download()
       val uuidMap = extractor.extractUUIDMap()
       uuidMap should contain key "1-LV-urban6--0-sw"
@@ -86,7 +86,7 @@ class ExtractorSpec extends UnitSpec with IoUtils with Matchers {
       uuidMap("1-LV-rural1--2-no_sw") should fullyMatch regex uuidPattern
     }
 
-    "extractUUIDMap should throw an exception if required columns are missing" in {
+    "check that an appropriate exception (IllegalArgumentException) is thrown when attempting to extract data that does not contain the required columns" in {
       val invalidDir = "testData/invalidStructure"
       createTestFile(
         invalidDir,
@@ -107,7 +107,7 @@ class ExtractorSpec extends UnitSpec with IoUtils with Matchers {
         .extractUUIDMap()
       deleteDir(invalidDir)
     }
-    "extractUUIDMap should handle cases with no valid UUIDs" in {
+    "handle cases with no valid UUIDs" in {
       val invalidUUIDPath = "testData/invalidUUIDs"
       createTestFile(
         invalidUUIDPath,
