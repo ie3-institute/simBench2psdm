@@ -15,7 +15,7 @@ class ExtractorSpec extends UnitSpec with IoUtils with Matchers {
   val download: Download = Download(
     baseUrl = "https://daks.uni-kassel.de/bitstreams",
     failOnExistingFiles = false,
-    folder = "testData/download" // Valid download location
+    directory = "testData/download" // Valid download location
   )
   val input: Input = Input(
     csv = SimbenchConfig.CsvConfig(
@@ -34,7 +34,7 @@ class ExtractorSpec extends UnitSpec with IoUtils with Matchers {
       fileEnding = ".csv",
       separator = ";"
     ),
-    targetFolder = "convertedData"
+    targetDir = "convertedData"
   )
   val io: Io = Io(input = input, output = output, simbenchCodes = List.empty)
   val simbenchConfig: SimbenchConfig = SimbenchConfig(
@@ -48,13 +48,13 @@ class ExtractorSpec extends UnitSpec with IoUtils with Matchers {
 
   // Utility to create test files
   private def createTestFile(
-      folder: String,
+      directory: String,
       fileName: String,
       content: String
   ): File = {
-    val dir = new File(folder)
+    val dir = new File(directory)
     if (!dir.exists()) dir.mkdirs()
-    val file = new File(s"$folder/$fileName")
+    val file = new File(s"$directory/$fileName")
     val writer = new PrintWriter(file)
     writer.write(content)
     writer.close()
@@ -62,8 +62,8 @@ class ExtractorSpec extends UnitSpec with IoUtils with Matchers {
   }
 
   // Utility to clean up test files
-  private def deleteFolder(folder: String): Unit = {
-    val dir = new File(folder)
+  private def deleteDir(directory: String): Unit = {
+    val dir = new File(directory)
     if (dir.exists()) dir.listFiles().foreach(_.delete())
     dir.delete()
   }
@@ -72,7 +72,7 @@ class ExtractorSpec extends UnitSpec with IoUtils with Matchers {
     "download should save the file to the specified location" in {
       extractor.download()
       val downloadedFile = new File(
-        s"${simbenchConfig.io.input.download.folder}/simbench_datalinks.csv"
+        s"${simbenchConfig.io.input.download.directory}/simbench_datalinks.csv"
       )
       downloadedFile.exists() shouldBe true
     }
@@ -87,9 +87,9 @@ class ExtractorSpec extends UnitSpec with IoUtils with Matchers {
     }
 
     "extractUUIDMap should throw an exception if required columns are missing" in {
-      val invalidFolder = "testData/invalidStructure"
+      val invalidDir = "testData/invalidStructure"
       createTestFile(
-        invalidFolder,
+        invalidDir,
         "simbench_datalinks.csv",
         "Invalid,Content\nOnly,OneColumn"
       )
@@ -97,7 +97,7 @@ class ExtractorSpec extends UnitSpec with IoUtils with Matchers {
         io = simbenchConfig.io.copy(
           input = simbenchConfig.io.input.copy(
             download = simbenchConfig.io.input.download.copy(
-              folder = invalidFolder
+              directory = invalidDir
             )
           )
         )
@@ -105,7 +105,28 @@ class ExtractorSpec extends UnitSpec with IoUtils with Matchers {
       val invalidExtractor = new Extractor(invalidConfig)
       an[IllegalArgumentException] should be thrownBy invalidExtractor
         .extractUUIDMap()
-      deleteFolder(invalidFolder)
+      deleteDir(invalidDir)
+    }
+    "extractUUIDMap should handle cases with no valid UUIDs" in {
+      val invalidUUIDPath = "testData/invalidUUIDs"
+      createTestFile(
+        invalidUUIDPath,
+        "simbench_datalinks.csv",
+        "code,csv\n1-LV-urban6--0-sw,invalid_uuid\n1-LV-rural1--2-no_sw,another_invalid_uuid"
+      )
+      val invalidUUIDConfig = simbenchConfig.copy(
+        io = simbenchConfig.io.copy(
+          input = simbenchConfig.io.input.copy(
+            download = simbenchConfig.io.input.download.copy(
+              directory = invalidUUIDPath
+            )
+          )
+        )
+      )
+      val invalidUUIDExtractor = new Extractor(invalidUUIDConfig)
+      val uuidMap = invalidUUIDExtractor.extractUUIDMap()
+      uuidMap shouldBe empty
+      deleteDir(invalidUUIDPath)
     }
   }
 }

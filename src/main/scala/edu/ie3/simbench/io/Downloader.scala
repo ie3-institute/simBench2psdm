@@ -12,7 +12,7 @@ import scala.language.postfixOps
 import scala.sys.process._
 
 final case class Downloader(
-    downloadFolder: String,
+    downloadDir: String,
     baseUrl: String,
     uuidMap: Map[String, String],
     failOnExistingFiles: Boolean = true
@@ -25,13 +25,13 @@ final case class Downloader(
     *   A valid SimBench code
     */
   def download(simbenchCode: SimbenchCode): Path = {
-    val downloadFolderPath = new File(s"$downloadFolder/")
+    val downloadDirPath = new File(s"$downloadDir/")
     val downloadPath =
       Paths.get(
-        s"${downloadFolderPath.getAbsolutePath}/${simbenchCode.code}.zip"
+        s"${downloadDirPath.getAbsolutePath}/${simbenchCode.code}.zip"
       )
     val downloadFile = downloadPath.toFile
-    if (downloadFolderPath.mkdirs()) {
+    if (downloadDirPath.mkdirs()) {
       logger.debug("Created all non existing folders")
     }
 

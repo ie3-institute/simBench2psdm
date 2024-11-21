@@ -5,8 +5,9 @@ import edu.ie3.simbench.config.SimbenchConfig
 import java.nio.file.{Files, Paths, StandardCopyOption}
 import scala.io.Source
 import scala.util.matching.Regex
+import com.typesafe.scalalogging.LazyLogging
 
-class Extractor(simbenchConfig: SimbenchConfig) {
+class Extractor(simbenchConfig: SimbenchConfig) extends LazyLogging {
 
   def download(): Unit = {
     val url = new URL(
@@ -15,12 +16,12 @@ class Extractor(simbenchConfig: SimbenchConfig) {
     val inputStream = url.openStream()
 
     try {
-      val downloadFolder = simbenchConfig.io.input.download.folder
+      val downloadFolder = simbenchConfig.io.input.download.directory
       val outputPath = s"$downloadFolder/simbench_datalinks.csv"
       val path = Paths.get(outputPath)
       Files.createDirectories(path.getParent)
       Files.copy(inputStream, path, StandardCopyOption.REPLACE_EXISTING)
-      println(s"File downloaded successfully to $outputPath")
+      logger.debug(s"File downloaded successfully to $outputPath")
     } finally {
       inputStream.close()
     }
@@ -29,8 +30,8 @@ class Extractor(simbenchConfig: SimbenchConfig) {
   /** Extracts a map of simbench-code to UUID from the downloaded file.
     */
   def extractUUIDMap(): Map[String, String] = {
-    val downloadFolder = simbenchConfig.io.input.download.folder
-    val outputPath = s"$downloadFolder/simbench_datalinks.csv"
+    val downloadDir = simbenchConfig.io.input.download.directory
+    val outputPath = s"$downloadDir/simbench_datalinks.csv"
     val uuidPattern: Regex =
       """[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}""".r
 

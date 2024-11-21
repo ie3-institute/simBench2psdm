@@ -50,7 +50,7 @@ object RunSimbench extends SimbenchHelper {
       logger.info(s"$simbenchCode - Downloading data set from SimBench website")
       val downloader =
         Downloader(
-          simbenchConfig.io.input.download.folder,
+          simbenchConfig.io.input.download.directory,
           simbenchConfig.io.input.download.baseUrl,
           uuidMap,
           simbenchConfig.io.input.download.failOnExistingFiles
@@ -66,7 +66,7 @@ object RunSimbench extends SimbenchHelper {
       val dataFolder =
         Zipper.unzip(
           downloadedFile,
-          downloader.downloadFolder,
+          downloader.downloadDir,
           simbenchConfig.io.input.download.failOnExistingFiles,
           flattenDirectories = true
         )
@@ -98,7 +98,7 @@ object RunSimbench extends SimbenchHelper {
       /* Check, if a directory hierarchy is needed or not */
       val baseTargetDirectory =
         IoUtils.ensureHarmonizedAndTerminatingFileSeparator(
-          simbenchConfig.io.output.targetFolder
+          simbenchConfig.io.output.targetDir
         )
       val csvSink = if (simbenchConfig.io.output.csv.directoryHierarchy) {
         new CsvFileSink(

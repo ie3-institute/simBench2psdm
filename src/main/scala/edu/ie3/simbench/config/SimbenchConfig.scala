@@ -68,7 +68,7 @@ object SimbenchConfig {
       final case class Download(
           baseUrl: java.lang.String,
           failOnExistingFiles: scala.Boolean,
-          folder: java.lang.String
+          directory: java.lang.String
       )
       object Download {
         def apply(
@@ -84,7 +84,7 @@ object SimbenchConfig {
               c.hasPathOrNull("failOnExistingFiles") && c.getBoolean(
                 "failOnExistingFiles"
               ),
-            folder =
+            directory =
               if (c.hasPathOrNull("folder")) c.getString("folder")
               else "inputData/download/"
           )
@@ -116,7 +116,7 @@ object SimbenchConfig {
     final case class Output(
         compress: scala.Boolean,
         csv: SimbenchConfig.CsvConfig,
-        targetFolder: java.lang.String
+        targetDir: java.lang.String
     )
     object Output {
       def apply(
@@ -132,7 +132,7 @@ object SimbenchConfig {
             parentPath + "csv.",
             $tsCfgValidator
           ),
-          targetFolder =
+          targetDir =
             if (c.hasPathOrNull("targetFolder")) c.getString("targetFolder")
             else "convertedData"
         )
