@@ -13,9 +13,13 @@ import scala.language.postfixOps
 import scala.util.{Failure, Success, Try}
 
 class DownloaderSpec extends UnitSpec with IoUtils {
+  val uuidMap: Map[String, String] = Map(
+    "1-LV-urban6--0-sw" -> "a5a1d286-99a8-431c-9b2b-943f86467f22"
+  )
   val downloader: Downloader = Downloader(
     "testData/download/",
-    "http://141.51.193.167/simbench/gui/usecase/download",
+    "https://daks.uni-kassel.de/bitstreams",
+    uuidMap,
     failOnExistingFiles = false
   )
 
@@ -40,7 +44,8 @@ class DownloaderSpec extends UnitSpec with IoUtils {
     "fail downloading an already existing archive, when asked to do so" in {
       val downloader: Downloader = Downloader(
         "testData/download/",
-        "http://141.51.193.167/simbench/gui/usecase/download",
+        "https://daks.uni-kassel.de/bitstreams",
+        uuidMap,
         failOnExistingFiles = true
       )
 
