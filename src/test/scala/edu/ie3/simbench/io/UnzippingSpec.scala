@@ -12,16 +12,20 @@ import scala.language.{existentials, postfixOps}
 import scala.util.{Failure, Success, Try}
 
 class UnzippingSpec extends UnitSpec with IoUtils with BeforeAndAfterEach {
+  val uuidMap: Map[String, String] = Map(
+    "1-LV-urban6--0-sw" -> "a5a1d286-99a8-431c-9b2b-943f86467f22"
+  )
   val downloader: Downloader = Downloader(
     "testData/download/",
-    "http://141.51.193.167/simbench/gui/usecase/download",
+    "https://daks.uni-kassel.de/bitstreams",
+    uuidMap,
     failOnExistingFiles = false
   )
 
   private val archiveFilePath: Path =
-    Paths.get(pwd, s"${downloader.downloadFolder}1-LV-rural1--0-no_sw.zip")
+    Paths.get(pwd, s"${downloader.downloadDir}1-LV-rural1--0-no_sw.zip")
   private val extractionBasePath: Path =
-    Paths.get(pwd, s"${downloader.downloadFolder}1-LV-rural1--0-no_sw")
+    Paths.get(pwd, s"${downloader.downloadDir}1-LV-rural1--0-no_sw")
   private val secondLevelPath: Path =
     Paths.get(s"${extractionBasePath.toAbsolutePath}/1-LV-rural1--0-no_sw")
 
@@ -31,7 +35,7 @@ class UnzippingSpec extends UnitSpec with IoUtils with BeforeAndAfterEach {
       val thrown = intercept[IoException] {
         Zipper.unzip(
           path,
-          downloader.downloadFolder,
+          downloader.downloadDir,
           downloader.failOnExistingFiles
         )
       }
@@ -44,7 +48,7 @@ class UnzippingSpec extends UnitSpec with IoUtils with BeforeAndAfterEach {
       val thrown = intercept[IoException] {
         Zipper.unzip(
           path,
-          downloader.downloadFolder,
+          downloader.downloadDir,
           downloader.failOnExistingFiles
         )
       }
@@ -53,15 +57,15 @@ class UnzippingSpec extends UnitSpec with IoUtils with BeforeAndAfterEach {
     }
 
     "throw an exception, if the file is not a zip archive" in {
-      Files.createDirectories(Paths.get(pwd, s"${downloader.downloadFolder}"))
+      Files.createDirectories(Paths.get(pwd, s"${downloader.downloadDir}"))
       val filePath = Files.createFile(
-        Paths.get(pwd, s"${downloader.downloadFolder}/test.txt")
+        Paths.get(pwd, s"${downloader.downloadDir}/test.txt")
       )
 
       intercept[IoException] {
         Zipper.unzip(
           filePath,
-          downloader.downloadFolder,
+          downloader.downloadDir,
           downloader.failOnExistingFiles
         )
       }
@@ -73,12 +77,12 @@ class UnzippingSpec extends UnitSpec with IoUtils with BeforeAndAfterEach {
     "throw an exception, if the target folder exists and is a file" in {
       val filePath =
         Paths.get(
-          s"${downloader.downloadFolder}targetFolderExistsAndIsFile.zip"
+          s"${downloader.downloadDir}targetFolderExistsAndIsFile.zip"
         )
       val thrown = intercept[ZipperException] {
         Zipper.unzip(
           filePath,
-          downloader.downloadFolder,
+          downloader.downloadDir,
           downloader.failOnExistingFiles
         )
       }
@@ -88,7 +92,7 @@ class UnzippingSpec extends UnitSpec with IoUtils with BeforeAndAfterEach {
     "unzip the data without flattening the directory structure correctly" in {
       val actualBasePath = Zipper.unzip(
         archiveFilePath,
-        downloader.downloadFolder,
+        downloader.downloadDir,
         downloader.failOnExistingFiles
       )
       actualBasePath.toAbsolutePath shouldBe extractionBasePath.toAbsolutePath
@@ -138,7 +142,7 @@ class UnzippingSpec extends UnitSpec with IoUtils with BeforeAndAfterEach {
       val actualBasePath =
         Zipper.unzip(
           archiveFilePath,
-          downloader.downloadFolder,
+          downloader.downloadDir,
           downloader.failOnExistingFiles,
           flattenDirectories = true
         )
@@ -189,7 +193,7 @@ class UnzippingSpec extends UnitSpec with IoUtils with BeforeAndAfterEach {
       val targetFolderPath =
         Zipper.unzip(
           archiveFilePath,
-          downloader.downloadFolder,
+          downloader.downloadDir,
           failOnExistingFiles = false,
           flattenDirectories = true
         )
@@ -197,7 +201,7 @@ class UnzippingSpec extends UnitSpec with IoUtils with BeforeAndAfterEach {
         intercept[ZipperException] {
           Zipper.unzip(
             archiveFilePath,
-            downloader.downloadFolder,
+            downloader.downloadDir,
             failOnExistingFiles = true,
             flattenDirectories = true
           )
@@ -216,7 +220,7 @@ class UnzippingSpec extends UnitSpec with IoUtils with BeforeAndAfterEach {
       val targetFolderPath =
         Zipper.unzip(
           archiveFilePath,
-          downloader.downloadFolder,
+          downloader.downloadDir,
           failOnExistingFiles = false,
           flattenDirectories = true
         )
@@ -224,7 +228,7 @@ class UnzippingSpec extends UnitSpec with IoUtils with BeforeAndAfterEach {
         noException shouldBe thrownBy {
           Zipper.unzip(
             archiveFilePath,
-            downloader.downloadFolder,
+            downloader.downloadDir,
             failOnExistingFiles = false,
             flattenDirectories = true
           )
