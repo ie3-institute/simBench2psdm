@@ -1,6 +1,5 @@
 package edu.ie3.simbench.main
 
-import java.nio.file.{Path, Paths}
 import edu.ie3.datamodel.io.naming.{
   DefaultDirectoryHierarchy,
   EntityPersistenceNamingStrategy,
@@ -10,24 +9,12 @@ import edu.ie3.datamodel.io.sink.CsvFileSink
 import edu.ie3.simbench.config.{ConfigValidator, SimbenchConfig}
 import edu.ie3.simbench.convert.GridConverter
 import edu.ie3.simbench.exception.CodeValidationException
-import edu.ie3.simbench.io.{
-  Downloader,
-  Extractor,
-  IoUtils,
-  SimbenchReader,
-  Zipper
-}
-import edu.ie3.simbench.io.{
-  Downloader,
-  IoUtils,
-  ParticipantToInput,
-  SimbenchReader,
-  Zipper
-}
+import edu.ie3.simbench.io._
 import edu.ie3.simbench.model.SimbenchCode
 import edu.ie3.util.io.FileIOUtils
 import org.apache.commons.io.FilenameUtils
 
+import java.nio.file.{Path, Paths}
 import scala.concurrent.Await
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration.Duration
