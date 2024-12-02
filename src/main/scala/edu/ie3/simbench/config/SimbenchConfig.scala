@@ -69,7 +69,7 @@ object SimbenchConfig {
       final case class Download(
           baseUrl: java.lang.String,
           failOnExistingFiles: scala.Boolean,
-          folder: java.lang.String
+          directory: java.lang.String
       )
       object Download {
         def apply(
@@ -80,12 +80,12 @@ object SimbenchConfig {
           SimbenchConfig.Io.Input.Download(
             baseUrl =
               if (c.hasPathOrNull("baseUrl")) c.getString("baseUrl")
-              else "http://141.51.193.167/simbench/gui/usecase/download",
+              else "https://daks.uni-kassel.de/bitstreams",
             failOnExistingFiles =
               c.hasPathOrNull("failOnExistingFiles") && c.getBoolean(
                 "failOnExistingFiles"
               ),
-            folder =
+            directory =
               if (c.hasPathOrNull("folder")) c.getString("folder")
               else "input/download/"
           )
@@ -117,7 +117,7 @@ object SimbenchConfig {
     final case class Output(
         compress: scala.Boolean,
         csv: SimbenchConfig.CsvConfig,
-        targetFolder: java.lang.String
+        targetDir: java.lang.String
     )
     object Output {
       def apply(
@@ -133,7 +133,7 @@ object SimbenchConfig {
             parentPath + "csv.",
             $tsCfgValidator
           ),
-          targetFolder =
+          targetDir =
             if (c.hasPathOrNull("targetFolder")) c.getString("targetFolder")
             else "output"
         )

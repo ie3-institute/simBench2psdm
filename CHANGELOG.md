@@ -13,6 +13,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [1.0.0] - 2021-08-03
 ### Added
 -   Basic functionality to convert SimBench data sets to [PowerSystemDataModel](https://github.com/ie3-institute/powersystemdatamodel)
+-   Added an Extractor to preprocess and handle the new download link from Uni Kassel, enabling seamless processing of
+	the simbench_datalinks.csv file [#267](https://github.com/ie3-institute/simBench2psdm/issues/267)
 
 [Unreleased]: https://github.com/ie3-institute/simbench2psdm/compare/v1.0...HEAD
 [1.0.0]: https://github.com/ie3-institute/simbench2psdm/releases/tag/1.0

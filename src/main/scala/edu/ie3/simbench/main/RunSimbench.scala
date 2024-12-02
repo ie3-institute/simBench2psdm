@@ -12,6 +12,13 @@ import edu.ie3.simbench.convert.GridConverter
 import edu.ie3.simbench.exception.CodeValidationException
 import edu.ie3.simbench.io.{
   Downloader,
+  Extractor,
+  IoUtils,
+  SimbenchReader,
+  Zipper
+}
+import edu.ie3.simbench.io.{
+  Downloader,
   IoUtils,
   ParticipantToInput,
   SimbenchReader,
@@ -42,14 +49,19 @@ object RunSimbench extends SimbenchHelper {
     /* Validate the config */
     ConfigValidator.checkValidity(simbenchConfig)
 
+    val extractor = new Extractor(simbenchConfig)
+    extractor.download()
+    val uuidMap = extractor.extractUUIDMap()
+
     val participantToInput = ParticipantToInput(simbenchConfig.conversion)
 
     simbenchConfig.io.simbenchCodes.foreach { simbenchCode =>
       logger.info(s"$simbenchCode - Downloading data set from SimBench website")
       val downloader =
         Downloader(
-          simbenchConfig.io.input.download.folder,
+          simbenchConfig.io.input.download.directory,
           simbenchConfig.io.input.download.baseUrl,
+          uuidMap,
           simbenchConfig.io.input.download.failOnExistingFiles
         )
       val downloadedFile =
@@ -63,7 +75,7 @@ object RunSimbench extends SimbenchHelper {
       val dataFolder =
         Zipper.unzip(
           downloadedFile,
-          downloader.downloadFolder,
+          downloader.downloadDir,
           simbenchConfig.io.input.download.failOnExistingFiles,
           flattenDirectories = true
         )
@@ -96,7 +108,7 @@ object RunSimbench extends SimbenchHelper {
       /* Check, if a directory hierarchy is needed or not */
       val baseTargetDirectory =
         IoUtils.ensureHarmonizedAndTerminatingFileSeparator(
-          simbenchConfig.io.output.targetFolder
+          simbenchConfig.io.output.targetDir
         )
       val csvSink = if (simbenchConfig.io.output.csv.directoryHierarchy) {
         new CsvFileSink(
@@ -119,7 +131,7 @@ object RunSimbench extends SimbenchHelper {
       }
 
       csvSink.persistJointGrid(jointGridContainer)
-      // timeSeries.foreach(csvSink.persistTimeSeries(_))
+      timeSeries.foreach(csvSink.persistTimeSeries(_))
       csvSink.persistAllIgnoreNested(timeSeriesMapping.asJava)
       csvSink.persistAll(powerFlowResults.asJava)
 
