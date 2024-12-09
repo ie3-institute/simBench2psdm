@@ -12,9 +12,8 @@ import edu.ie3.simbench.config.ArgsParser.Arguments
 import edu.ie3.simbench.config.{ArgsParser, SimbenchConfig}
 import edu.ie3.simbench.exception.CodeValidationException
 import edu.ie3.simbench.exception.io.SimbenchConfigException
-import edu.ie3.simbench.io.{Downloader, IoUtils, SimbenchReader, Zipper}
+import edu.ie3.simbench.io.{Downloader, Extractor, IoUtils, Zipper}
 import edu.ie3.simbench.model.SimbenchCode
-import edu.ie3.simbench.model.datamodel.GridModel
 import edu.ie3.util.io.FileIOUtils
 import edu.ie3.util.quantities.QuantityAdjustments
 import org.apache.commons.io.FilenameUtils
@@ -101,24 +100,35 @@ trait SimbenchHelper extends LazyLogging {
       case (Some(local), None) =>
         if (local.isZipped) {
           Zipper.unzip(
-            Path.of(cfg.folder, simbenchCode + ".zip"),
-            cfg.folder,
+            Path.of(cfg.directory, simbenchCode + ".zip"),
+            cfg.directory,
             local.failOnExistingFiles,
             flattenDirectories = true
           )
         } else {
-          Path.of(cfg.folder, simbenchCode)
+          Path.of(cfg.directory, simbenchCode)
         }
       case (None, Some(download)) =>
         logger.info(
           s"$simbenchCode - Downloading data set from SimBench website"
         )
 
+        val extractor = new Extractor(cfg)
+        extractor.download()
+        val uuidMap = extractor.extractUUIDMap()
+
+        val downloadCfg = cfg.download.getOrElse(
+          throw new SimbenchConfigException(
+            s"There was no download configuration provided!"
+          )
+        )
+
         val downloader =
           Downloader(
-            cfg.folder,
-            download.baseUrl,
-            download.failOnExistingFiles
+            cfg.directory,
+            downloadCfg.baseUrl,
+            uuidMap,
+            downloadCfg.failOnExistingFiles
           )
         val downloadedFile =
           downloader.download(
@@ -131,7 +141,7 @@ trait SimbenchHelper extends LazyLogging {
 
         Zipper.unzip(
           downloadedFile,
-          downloader.downloadFolder,
+          downloader.downloadDir,
           download.failOnExistingFiles,
           flattenDirectories = true
         )
@@ -153,7 +163,7 @@ trait SimbenchHelper extends LazyLogging {
     /* Check, if a directory hierarchy is needed or not */
     val baseTargetDirectory =
       IoUtils.ensureHarmonizedAndTerminatingFileSeparator(
-        simbenchConfig.io.output.targetFolder
+        simbenchConfig.io.output.targetDir
       )
 
     val csvSink = if (simbenchConfig.io.output.csv.directoryHierarchy) {

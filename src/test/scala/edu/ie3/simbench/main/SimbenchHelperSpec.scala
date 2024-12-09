@@ -15,7 +15,7 @@ class SimbenchHelperSpec
     "return the specified grid path correctly" in {
       val code = "1-LV-rural1--0-no_sw"
 
-      val config = validIoInputConfigWithLocalFileSource.copy(folder =
+      val config = validIoInputConfigWithLocalFileSource.copy(directory =
         "testData/localSource/"
       )
 
@@ -24,7 +24,7 @@ class SimbenchHelperSpec
         config
       ) shouldBe Path.of("testData", "localSource", code)
 
-      FileIOUtils.deleteRecursively(Path.of(config.folder, code))
+      FileIOUtils.deleteRecursively(Path.of(config.directory, code))
     }
   }
 }

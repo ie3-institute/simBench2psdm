@@ -31,10 +31,6 @@ object RunSimbench extends SimbenchHelper {
     /* Validate the config */
     ConfigValidator.checkValidity(simbenchConfig)
 
-    val extractor = new Extractor(simbenchConfig)
-    extractor.download()
-    val uuidMap = extractor.extractUUIDMap()
-
     simbenchConfig.io.simbenchCodes.foreach { simbenchCode =>
       val gridPath = getGridPath(simbenchCode, simbenchConfig.io.input)
 
