@@ -13,6 +13,7 @@ import tech.units.indriya.quantity.Quantities
 
 import java.util.UUID
 import javax.measure.quantity.Power
+import scala.collection.parallel.CollectionConverters.ImmutableIterableIsParallelizable
 import scala.jdk.CollectionConverters._
 
 case object PowerProfileConverter {
@@ -35,16 +36,19 @@ case object PowerProfileConverter {
       modelScalings: Map[T, Set[(BigDecimal, BigDecimal)]],
       profiles: Map[T, P]
   ): Map[(T, BigDecimal, BigDecimal), IndividualTimeSeries[SValue]] =
-    profiles.keySet.flatMap { key =>
-      val profile: P = profiles(key)
+    profiles.keySet.par
+      .flatMap { key =>
+        val profile: P = profiles(key)
 
-      modelScalings(key).map { case (pLoad, qLoad) =>
-        val p = Quantities.getQuantity(pLoad, MEGAWATT)
-        val q = Quantities.getQuantity(qLoad, MEGAVAR)
+        modelScalings(key).map { case (pLoad, qLoad) =>
+          val p = Quantities.getQuantity(pLoad, MEGAWATT)
+          val q = Quantities.getQuantity(qLoad, MEGAVAR)
 
-        (key, pLoad, qLoad) -> PowerProfileConverter.convert(profile, p, q)
+          (key, pLoad, qLoad) -> PowerProfileConverter.convert(profile, p, q)
+        }
       }
-    }.toMap
+      .seq
+      .toMap
 
   /** Converts a given profile with a tuple of BigDecimal as data to a ie3's
     * data model time series denoting a tuple of active and reactive power. The
@@ -91,18 +95,22 @@ case object PowerProfileConverter {
       modelScalings: Map[T, Set[BigDecimal]],
       profiles: Map[T, P]
   ): Map[(T, BigDecimal), IndividualTimeSeries[PValue]] =
-    profiles.keySet.flatMap { key =>
-      val profile: P = profiles(key)
+    profiles.keySet.par
+      .flatMap { key =>
+        val profile: P = profiles(key)
 
-      modelScalings(key).map { pLoad =>
-        val p = Quantities.getQuantity(pLoad, MEGAWATT)
+        modelScalings(key).map { pLoad =>
+          val p = Quantities.getQuantity(pLoad, MEGAWATT)
 
-        /* Flip the sign, as infeed is negative in PowerSystemDataModel */
-        val timeSeries = PowerProfileConverter.convert(profile, p.multiply(-1))
+          /* Flip the sign, as infeed is negative in PowerSystemDataModel */
+          val timeSeries =
+            PowerProfileConverter.convert(profile, p.multiply(-1))
 
-        (key, pLoad) -> timeSeries
+          (key, pLoad) -> timeSeries
+        }
       }
-    }.toMap
+      .seq
+      .toMap
 
   /** Converts a given profile with s single BigDecimal as data to a ie3's data
     * model time series denoting active power. The SimBench model gives only
