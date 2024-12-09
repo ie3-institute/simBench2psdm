@@ -1,18 +1,16 @@
 package edu.ie3.simbench.io
 
-import java.io.File
-import java.nio.file.Paths
 import edu.ie3.simbench.exception.CodeValidationException
 import edu.ie3.simbench.exception.io.DownloaderException
 import edu.ie3.simbench.model.SimbenchCode
 import edu.ie3.test.common.UnitSpec
 import edu.ie3.util.io.FileIOUtils
-import org.scalatest.Ignore
 
+import java.io.File
+import java.nio.file.Paths
 import scala.language.postfixOps
 import scala.util.{Failure, Success, Try}
 
-@Ignore
 class DownloaderSpec extends UnitSpec with IoUtils {
   val uuidMap: Map[String, String] = Map(
     "1-LV-urban6--0-sw" -> "a5a1d286-99a8-431c-9b2b-943f86467f22"
