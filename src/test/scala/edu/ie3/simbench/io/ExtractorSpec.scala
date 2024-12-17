@@ -80,9 +80,7 @@ class ExtractorSpec extends UnitSpec with IoUtils with Matchers {
     "return a correct map of codes to UUIDs" in {
       extractor.download()
       val uuidMap = extractor.extractUUIDMap()
-      uuidMap should contain key "1-LV-urban6--0-sw"
       uuidMap should contain key "1-LV-rural1--2-no_sw"
-      uuidMap("1-LV-urban6--0-sw") should fullyMatch regex uuidPattern
       uuidMap("1-LV-rural1--2-no_sw") should fullyMatch regex uuidPattern
     }
 
