@@ -61,7 +61,7 @@ case object GridConverter extends LazyLogging {
       removeSwitches: Boolean
   ): (
       JointGridContainer,
-      Vector[IndividualTimeSeries[_ <: PValue]],
+      Set[IndividualTimeSeries[_ <: PValue]],
       Seq[MappingEntry],
       Vector[NodeResult]
   ) = {
@@ -610,7 +610,7 @@ case object GridConverter extends LazyLogging {
       nodeConversion: Map[Node, NodeInput]
   ): (
       SystemParticipants,
-      Vector[IndividualTimeSeries[_ <: PValue]],
+      Set[IndividualTimeSeries[_ <: PValue]],
       Seq[MappingEntry]
   ) = {
     /* Convert all participant groups */
@@ -640,8 +640,8 @@ case object GridConverter extends LazyLogging {
         timeSeries.getUuid
       )
     }.toSeq
-    val timeSeries: Vector[IndividualTimeSeries[_ >: SValue <: PValue]] =
-      participantsToTimeSeries.map(_._2).toVector
+    val timeSeries: Set[IndividualTimeSeries[_ <: PValue]] =
+      participantsToTimeSeries.map(_._2).toSet
 
     (
       new SystemParticipants(
