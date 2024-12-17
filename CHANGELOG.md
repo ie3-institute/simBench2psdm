@@ -5,7 +5,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
-
+### Added
+-   Added Bao and Staudt to list of reviewers [#277](https://github.com/ie3-institute/simBench2psdm/issues/277)
 ## [1.0.0] - 2021-08-03
 ### Added
 -   Basic functionality to convert SimBench data sets to [PowerSystemDataModel](https://github.com/ie3-institute/powersystemdatamodel)
