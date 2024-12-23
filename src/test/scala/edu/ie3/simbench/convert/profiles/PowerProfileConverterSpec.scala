@@ -141,62 +141,62 @@ class PowerProfileConverterSpec extends UnitSpec {
               }
             case None =>
               throw ConversionException(
-                s"Cannot find a time series entry for ${time}"
+                s"Cannot find a time series entry for $time"
               )
           }
         ) < testingTolerance
       }
     }
-  }
 
-  "correctly convert an active power time series" in {
-    val pRated = Quantities.getQuantity(100d, KILOWATT)
+    "correctly convert an active power time series" in {
+      val pRated = Quantities.getQuantity(100d, KILOWATT)
 
-    val expected = Map(
-      TestTimeUtils.international
-        .toZonedDateTime("1990-01-01 00:00:00") -> new PValue(
-        Quantities.getQuantity(75d, KILOWATT)
-      ),
-      TestTimeUtils.international
-        .toZonedDateTime("1990-01-01 00:15:00") -> new PValue(
-        Quantities.getQuantity(55d, KILOWATT)
-      ),
-      TestTimeUtils.international
-        .toZonedDateTime("1990-01-01 00:30:00") -> new PValue(
-        Quantities.getQuantity(35d, KILOWATT)
-      ),
-      TestTimeUtils.international
-        .toZonedDateTime("1990-01-01 00:45:00") -> new PValue(
-        Quantities.getQuantity(15d, KILOWATT)
+      val expected = Map(
+        TestTimeUtils.international
+          .toZonedDateTime("1990-01-01 00:00:00") -> new PValue(
+          Quantities.getQuantity(75d, KILOWATT)
+        ),
+        TestTimeUtils.international
+          .toZonedDateTime("1990-01-01 00:15:00") -> new PValue(
+          Quantities.getQuantity(55d, KILOWATT)
+        ),
+        TestTimeUtils.international
+          .toZonedDateTime("1990-01-01 00:30:00") -> new PValue(
+          Quantities.getQuantity(35d, KILOWATT)
+        ),
+        TestTimeUtils.international
+          .toZonedDateTime("1990-01-01 00:45:00") -> new PValue(
+          Quantities.getQuantity(15d, KILOWATT)
+        )
       )
-    )
 
-    val actual = PowerProfileConverter.convert(pProfile, pRated)
+      val actual = PowerProfileConverter.convert(pProfile, pRated)
 
-    expected.foreach { case (time, pValue) =>
-      abs(
-        actual
-          .getValue(time)
-          .toScala match {
-          case Some(value) =>
-            (value.getP.toScala, pValue.getP.toScala) match {
-              case (Some(lhs), Some(rhs)) =>
-                lhs
-                  .subtract(rhs)
-                  .to(KILOWATT)
-                  .getValue
-                  .doubleValue()
-              case _ =>
-                throw ConversionException(
-                  s"Unable to calculate difference between expected und actual time series, as one of both entries is not available for time $time"
-                )
-            }
-          case None =>
-            throw ConversionException(
-              s"Cannot find a time series entry for $time"
-            )
-        }
-      ) < testingTolerance
+      expected.foreach { case (time, pValue) =>
+        abs(
+          actual
+            .getValue(time)
+            .toScala match {
+            case Some(value) =>
+              (value.getP.toScala, pValue.getP.toScala) match {
+                case (Some(lhs), Some(rhs)) =>
+                  lhs
+                    .subtract(rhs)
+                    .to(KILOWATT)
+                    .getValue
+                    .doubleValue()
+                case _ =>
+                  throw ConversionException(
+                    s"Unable to calculate difference between expected und actual time series, as one of both entries is not available for time $time"
+                  )
+              }
+            case None =>
+              throw ConversionException(
+                s"Cannot find a time series entry for $time"
+              )
+          }
+        ) < testingTolerance
+      }
     }
   }
 }

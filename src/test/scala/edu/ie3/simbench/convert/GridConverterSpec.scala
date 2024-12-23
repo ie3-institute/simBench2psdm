@@ -176,7 +176,7 @@ class GridConverterSpec extends UnitSpec with SwitchTestingData {
               .empty[Class[_ <: UniqueEntity], Int]
 
             /* Evaluate the correctness of the time series by counting the occurrence of models */
-            timeSeries.size shouldBe 17
+            timeSeries.size shouldBe 16
 
             /* Evaluate the existence of time series mappings for all participants */
             timeSeriesMapping.size shouldBe 17
