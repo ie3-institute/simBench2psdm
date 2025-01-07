@@ -47,7 +47,6 @@ object RunSimbench extends SimbenchHelper {
     val uuidMap = extractor.extractUUIDMap()
 
     simbenchConfig.io.simbenchCodes.foreach { simbenchCode =>
-
       // todo: replace these two if statements with a proper handling of switches
       if (!simbenchConfig.conversion.removeSwitches) {
         logger.warn(s"Currently, removing switches might be necessary.")
