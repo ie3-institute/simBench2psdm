@@ -18,7 +18,7 @@ ext {
 
 	scalaVersion = '2.13'
 	scalaBinaryVersion = '2.13.15'
-	tscfgVersion = '1.1.3'
+	tscfgVersion = '1.2.1'
 	slf4jVersion = '2.0.16'
 
 	scriptsLocation = 'gradle' + File.separator + 'scripts' + File.separator //location of script plugins
@@ -63,7 +63,7 @@ dependencies {
 
 	implementation 'org.codehaus.groovy:groovy:3.0.23'
 
-	implementation 'tech.units:indriya:2.2.1'
+	implementation 'tech.units:indriya:2.2.2'
 	implementation 'org.locationtech.jts:jts-core:1.20.0'
 	implementation 'commons-io:commons-io:2.18.0'
 
@@ -78,13 +78,13 @@ dependencies {
 	// NEW scala libs //
 	// CORE Scala //
 	implementation "org.scala-lang:scala-library:$scalaBinaryVersion"
-	implementation 'org.scala-lang.modules:scala-parallel-collections_2.13:1.0.4'
+	implementation 'org.scala-lang.modules:scala-parallel-collections_2.13:1.1.0'
 
 	// TEST Scala //
 	testImplementation "org.scalatest:scalatest_${scalaVersion}:3.2.19"
 	testImplementation 'com.vladsch.flexmark:flexmark-all:0.64.8'
 	testImplementation "org.pegdown:pegdown:1.6.0" // HTML report for scalatest
-	implementation 'org.mockito:mockito-core:5.14.2' // mocking framework
+	implementation 'org.mockito:mockito-core:5.15.2' // mocking framework
 
 	// config //
 	implementation 'com.typesafe:config:1.4.3'
