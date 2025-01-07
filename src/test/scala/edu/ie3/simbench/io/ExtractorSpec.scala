@@ -38,7 +38,8 @@ class ExtractorSpec extends UnitSpec with IoUtils with Matchers {
   )
   val io: Io = Io(input = input, output = output, simbenchCodes = List.empty)
   val simbenchConfig: SimbenchConfig = SimbenchConfig(
-    conversion = SimbenchConfig.Conversion(removeSwitches = false),
+    conversion =
+      SimbenchConfig.Conversion(convertPv = false, removeSwitches = false),
     io = io
   )
 
