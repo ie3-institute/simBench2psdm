@@ -47,6 +47,14 @@ object RunSimbench extends SimbenchHelper {
     val uuidMap = extractor.extractUUIDMap()
 
     simbenchConfig.io.simbenchCodes.foreach { simbenchCode =>
+      // todo: replace these two if statements with a proper handling of switches
+      if (!simbenchConfig.conversion.removeSwitches) {
+        logger.warn(s"Currently, removing switches might be necessary.")
+      }
+      if (simbenchCode.contains("-sw")) {
+        logger.warn(s"Using a simbench grid with '-sw' might not work.")
+      }
+
       logger.info(s"$simbenchCode - Downloading data set from SimBench website")
       val downloader =
         Downloader(
