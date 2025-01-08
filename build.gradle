@@ -78,7 +78,7 @@ dependencies {
 	// NEW scala libs //
 	// CORE Scala //
 	implementation "org.scala-lang:scala-library:$scalaBinaryVersion"
-	implementation 'org.scala-lang.modules:scala-parallel-collections_2.13:1.1.0'
+	implementation 'org.scala-lang.modules:scala-parallel-collections_2.13:1.2.0'
 
 	// TEST Scala //
 	testImplementation "org.scalatest:scalatest_${scalaVersion}:3.2.19"
