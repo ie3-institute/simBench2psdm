@@ -1,7 +1,8 @@
 package edu.ie3.simbench.convert
 
-import java.util.{Locale, UUID}
+import com.typesafe.scalalogging.LazyLogging
 
+import java.util.{Locale, UUID}
 import edu.ie3.datamodel.models.OperationTime
 import edu.ie3.datamodel.models.input.system.FixedFeedInInput
 import edu.ie3.datamodel.models.input.system.characteristic.CosPhiFixed
@@ -23,7 +24,7 @@ import tech.units.indriya.quantity.Quantities
 
 import scala.collection.parallel.CollectionConverters._
 
-case object PowerPlantConverter extends ShuntConverter {
+case object PowerPlantConverter extends ShuntConverter with LazyLogging {
 
   /** Convert a full set of power plants
     *
@@ -41,16 +42,34 @@ case object PowerPlantConverter extends ShuntConverter {
       powerPlants: Vector[PowerPlant],
       nodes: Map[Node, NodeInput],
       profiles: Map[PowerPlantProfileType, PowerPlantProfile]
-  ): Map[FixedFeedInInput, IndividualTimeSeries[PValue]] =
+  ): Map[FixedFeedInInput, IndividualTimeSeries[PValue]] = {
+
+    val modelScalings = powerPlants
+      .map { input =>
+        input.profile -> input.p
+      }
+      .groupBy(_._1)
+      .map { entry => entry._1 -> entry._2.map(_._2).toSet }
+
+    val convertedTimeSeries = PowerProfileConverter.convertP(
+      modelScalings,
+      profiles
+    )
+
+    logger.debug(
+      "Resulting power plant time series: {]",
+      convertedTimeSeries.size
+    )
+
     powerPlants.par
       .map { powerPlant =>
         val node = NodeConverter.getNode(powerPlant.node, nodes)
-        val profile =
-          PowerProfileConverter.getProfile(powerPlant.profile, profiles)
-        convert(powerPlant, node, profile)
+        val series = convertedTimeSeries((powerPlant.profile, powerPlant.p))
+        convert(powerPlant, node) -> series
       }
       .seq
       .toMap
+  }
 
   /** Converts a single power plant model to a fixed feed in model, as the power
     * system data model does not reflect power plants, yet. Voltage regulation
@@ -60,8 +79,6 @@ case object PowerPlantConverter extends ShuntConverter {
     *   Input model
     * @param node
     *   Node, the power plant is connected to
-    * @param profile
-    *   SimBench power plant profile
     * @param uuid
     *   Option to a specific uuid
     * @return
@@ -70,9 +87,8 @@ case object PowerPlantConverter extends ShuntConverter {
   def convert(
       input: PowerPlant,
       node: NodeInput,
-      profile: PowerPlantProfile,
       uuid: Option[UUID] = None
-  ): (FixedFeedInInput, IndividualTimeSeries[PValue]) = {
+  ): FixedFeedInInput = {
     val p = Quantities.getQuantity(input.p, MEGAWATT)
     val q = input.q match {
       case Some(value) => Quantities.getQuantity(value, MEGAVAR)
@@ -82,9 +98,6 @@ case object PowerPlantConverter extends ShuntConverter {
     val varCharacteristicString =
       "cosPhiFixed:{(0.0,%#.2f)}".formatLocal(Locale.ENGLISH, cosphi)
     val sRated = Quantities.getQuantity(input.sR, MEGAVOLTAMPERE)
-
-    /* Flip the sign, as infeed is negative in PowerSystemDataModel */
-    val timeSeries = PowerProfileConverter.convert(profile, p.multiply(-1))
 
     new FixedFeedInInput(
       uuid.getOrElse(UUID.randomUUID()),
@@ -96,6 +109,6 @@ case object PowerPlantConverter extends ShuntConverter {
       null,
       sRated,
       cosphi
-    ) -> timeSeries
+    )
   }
 }

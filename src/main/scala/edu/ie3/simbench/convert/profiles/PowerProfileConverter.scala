@@ -1,7 +1,5 @@
 package edu.ie3.simbench.convert.profiles
 
-import java.util.UUID
-
 import edu.ie3.datamodel.models.timeseries.individual.{
   IndividualTimeSeries,
   TimeBasedValue
@@ -9,12 +7,48 @@ import edu.ie3.datamodel.models.timeseries.individual.{
 import edu.ie3.datamodel.models.value.{PValue, SValue}
 import edu.ie3.simbench.exception.ConversionException
 import edu.ie3.simbench.model.datamodel.profiles.{ProfileModel, ProfileType}
-import javax.measure.quantity.Power
+import edu.ie3.util.quantities.PowerSystemUnits.{MEGAVAR, MEGAWATT}
 import tech.units.indriya.ComparableQuantity
+import tech.units.indriya.quantity.Quantities
 
+import java.util.UUID
+import javax.measure.quantity.Power
+import scala.collection.parallel.CollectionConverters.ImmutableIterableIsParallelizable
 import scala.jdk.CollectionConverters._
 
 case object PowerProfileConverter {
+
+  /** Converts the given profiles with the given model scalings into ie3's data
+    * model time series.
+    *
+    * @param modelScalings
+    *   models with active and reactive power scalings
+    * @param profiles
+    *   to convert
+    * @return
+    *   a map of profile type and scaling factors to [[IndividualTimeSeries]]
+    *   with active and reactive power for each time step
+    */
+  def convertS[
+      T <: ProfileType,
+      P <: ProfileModel[T, (BigDecimal, BigDecimal)]
+  ](
+      modelScalings: Map[T, Set[(BigDecimal, BigDecimal)]],
+      profiles: Map[T, P]
+  ): Map[(T, BigDecimal, BigDecimal), IndividualTimeSeries[SValue]] =
+    profiles.keySet.par
+      .flatMap { key =>
+        val profile: P = profiles(key)
+
+        modelScalings(key).map { case (pLoad, qLoad) =>
+          val p = Quantities.getQuantity(pLoad, MEGAWATT)
+          val q = Quantities.getQuantity(qLoad, MEGAVAR)
+
+          (key, pLoad, qLoad) -> PowerProfileConverter.convert(profile, p, q)
+        }
+      }
+      .seq
+      .toMap
 
   /** Converts a given profile with a tuple of BigDecimal as data to a ie3's
     * data model time series denoting a tuple of active and reactive power. The
@@ -46,6 +80,38 @@ case object PowerProfileConverter {
     new IndividualTimeSeries[SValue](UUID.randomUUID(), values.asJava)
   }
 
+  /** Converts the given profiles with the given model scalings into ie3's data
+    * model time series.
+    *
+    * @param modelScalings
+    *   models with active power scaling
+    * @param profiles
+    *   to convert
+    * @return
+    *   a map of profile type and scaling factor to [[IndividualTimeSeries]]
+    *   with active power for each time step
+    */
+  def convertP[T <: ProfileType, P <: ProfileModel[T, BigDecimal]](
+      modelScalings: Map[T, Set[BigDecimal]],
+      profiles: Map[T, P]
+  ): Map[(T, BigDecimal), IndividualTimeSeries[PValue]] =
+    profiles.keySet.par
+      .flatMap { key =>
+        val profile: P = profiles(key)
+
+        modelScalings(key).map { pLoad =>
+          val p = Quantities.getQuantity(pLoad, MEGAWATT)
+
+          /* Flip the sign, as infeed is negative in PowerSystemDataModel */
+          val timeSeries =
+            PowerProfileConverter.convert(profile, p.multiply(-1))
+
+          (key, pLoad) -> timeSeries
+        }
+      }
+      .seq
+      .toMap
+
   /** Converts a given profile with s single BigDecimal as data to a ie3's data
     * model time series denoting active power. The SimBench model gives only
     * scaling factors for active power, which will scale the maximum active
@@ -56,8 +122,7 @@ case object PowerProfileConverter {
     * @param pRated
     *   Reference active power to meet the peak point of the profile
     * @return
-    *   A [[IndividualTimeSeries]] with active and reactive power for each time
-    *   step
+    *   A [[IndividualTimeSeries]] with active power for each time step
     */
   def convert(
       profileModel: ProfileModel[_ <: ProfileType, BigDecimal],
