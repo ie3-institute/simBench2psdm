@@ -5,15 +5,15 @@ import edu.ie3.simbench.config.SimbenchConfig.Io
 import edu.ie3.simbench.config.SimbenchConfig.Io.{Input, Output}
 import edu.ie3.simbench.config.SimbenchConfig.Io.Input.Download
 import edu.ie3.test.common.UnitSpec
-import org.scalatest.{BeforeAndAfterAll, BeforeAndAfterEach}
 import org.scalatest.matchers.should.Matchers
+import org.scalatest.{BeforeAndAfterAll, BeforeAndAfterEach}
 
 import java.nio.file.{Files, Path}
 import scala.util.Try
 import scala.util.matching.Regex
 
 class ExtractorSpec
-    extends UnitSpec
+  extends UnitSpec
     with IoUtils
     with Matchers
     with BeforeAndAfterAll
@@ -21,14 +21,51 @@ class ExtractorSpec
 
   private var tempDir: Path = _
 
+  private var extractor: Extractor = _
+  private var uuidPattern: Regex = _
+
   override def beforeAll(): Unit = {
     super.beforeAll()
-    tempDir = Files.createTempDirectory("extractorTest")
-  }
 
-  override def afterAll(): Unit = {
-    Try(deleteRecursively(tempDir))
-    super.afterAll()
+    tempDir = Files.createTempDirectory("extractorTest")
+
+    val download: Download = Download(
+      baseUrl = "https://daks.uni-kassel.de/bitstreams",
+      failOnExistingFiles = false,
+      directory = tempDir.toString
+    )
+
+    val input: Input = Input(
+      csv = SimbenchConfig.CsvConfig(
+        directoryHierarchy = false,
+        fileEncoding = "UTF-8",
+        fileEnding = ".csv",
+        separator = ";"
+      ),
+      download = download
+    )
+
+    val output: Output = Output(
+      compress = true,
+      csv = SimbenchConfig.CsvConfig(
+        directoryHierarchy = false,
+        fileEncoding = "UTF-8",
+        fileEnding = ".csv",
+        separator = ";"
+      ),
+      targetDir = "convertedData"
+    )
+
+    val io: Io = Io(input = input, output = output, simbenchCodes = List.empty)
+
+    val simbenchConfig: SimbenchConfig = SimbenchConfig(
+      conversion = SimbenchConfig.Conversion(removeSwitches = false),
+      io = io
+    )
+
+    extractor = new Extractor(simbenchConfig)
+
+    uuidPattern = "[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}".r
   }
 
   override def beforeEach(): Unit = {
@@ -37,6 +74,11 @@ class ExtractorSpec
 
   override def afterEach(): Unit = {
     super.afterEach()
+  }
+
+  override def afterAll(): Unit = {
+    Try(deleteRecursively(tempDir))
+    super.afterAll()
   }
 
   private def deleteRecursively(path: Path): Unit = {
@@ -55,55 +97,9 @@ class ExtractorSpec
     filePath
   }
 
-  /* ------------------------------------------------------------
-   * Example config for Extractor
-   * ------------------------------------------------------------ */
-  private val download: Download = Download(
-    baseUrl = "https://daks.uni-kassel.de/bitstreams",
-    failOnExistingFiles = false,
-    directory = tempDir.toString
-  )
-
-  private val input: Input = Input(
-    csv = SimbenchConfig.CsvConfig(
-      directoryHierarchy = false,
-      fileEncoding = "UTF-8",
-      fileEnding = ".csv",
-      separator = ";"
-    ),
-    download = download
-  )
-
-  private val output: Output = Output(
-    compress = true,
-    csv = SimbenchConfig.CsvConfig(
-      directoryHierarchy = false,
-      fileEncoding = "UTF-8",
-      fileEnding = ".csv",
-      separator = ";"
-    ),
-    targetDir = "convertedData"
-  )
-
-  private val io: Io = Io(
-    input = input,
-    output = output,
-    simbenchCodes = List.empty
-  )
-
-  private val simbenchConfig: SimbenchConfig = SimbenchConfig(
-    conversion = SimbenchConfig.Conversion(removeSwitches = false),
-    io = io
-  )
-
-  private val extractor = new Extractor(simbenchConfig)
-
-  private val uuidPattern: Regex =
-    "[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}".r
-
-  /* ------------------------------------------------------------
-   * Test Cases
-   * ------------------------------------------------------------ */
+  /* ------------------------------------------------------------------
+   * Testcases
+   * ------------------------------------------------------------------ */
 
   "The extractor" should {
 
@@ -115,7 +111,6 @@ class ExtractorSpec
 
     "return a correct map of codes to UUIDs" in {
       extractor.download()
-
       val uuidMap = extractor.extractUUIDMap()
       uuidMap("1-LV-urban6--0-sw") should fullyMatch regex uuidPattern
       uuidMap should contain key "1-LV-rural1--2-no_sw"
@@ -123,10 +118,7 @@ class ExtractorSpec
     }
 
     "throw an IllegalArgumentException when CSV does not contain the required columns" in {
-      createTestFile(
-        "simbench_datalinks.csv",
-        "Invalid,Content\nOnly,OneColumn"
-      )
+      createTestFile("simbench_datalinks.csv", "Invalid,Content\nOnly,OneColumn")
 
       an[IllegalArgumentException] should be thrownBy {
         extractor.extractUUIDMap()
