@@ -13,7 +13,7 @@ import scala.util.Try
 import scala.util.matching.Regex
 
 class ExtractorSpec
-  extends UnitSpec
+    extends UnitSpec
     with IoUtils
     with Matchers
     with BeforeAndAfterAll
@@ -65,7 +65,8 @@ class ExtractorSpec
 
     extractor = new Extractor(simbenchConfig)
 
-    uuidPattern = "[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}".r
+    uuidPattern =
+      "[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}".r
   }
 
   override def beforeEach(): Unit = {
@@ -118,7 +119,10 @@ class ExtractorSpec
     }
 
     "throw an IllegalArgumentException when CSV does not contain the required columns" in {
-      createTestFile("simbench_datalinks.csv", "Invalid,Content\nOnly,OneColumn")
+      createTestFile(
+        "simbench_datalinks.csv",
+        "Invalid,Content\nOnly,OneColumn"
+      )
 
       an[IllegalArgumentException] should be thrownBy {
         extractor.extractUUIDMap()
