@@ -13,7 +13,7 @@ import scala.util.Try
 import scala.util.matching.Regex
 
 class ExtractorSpec
-  extends UnitSpec
+    extends UnitSpec
     with IoUtils
     with Matchers
     with BeforeAndAfterAll
