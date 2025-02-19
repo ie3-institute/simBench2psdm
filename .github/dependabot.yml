@@ -9,7 +9,7 @@ updates:
     target-branch: main
     reviewers:
       - t-ober
-      -  jo-bao
+      - jo-bao
       - sebastian-peter
       - danielfeismann
       - staudtMarius
