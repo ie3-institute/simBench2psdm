@@ -4,129 +4,136 @@ import edu.ie3.simbench.config.SimbenchConfig
 import edu.ie3.simbench.config.SimbenchConfig.Io
 import edu.ie3.simbench.config.SimbenchConfig.Io.{Input, Output}
 import edu.ie3.simbench.config.SimbenchConfig.Io.Input.Download
-
-import java.io.{File, PrintWriter}
-import org.scalatest.matchers.should.Matchers
 import edu.ie3.test.common.UnitSpec
+import org.scalatest.matchers.should.Matchers
+import org.scalatest.{BeforeAndAfterAll, BeforeAndAfterEach}
+
+import java.nio.file.{Files, Path}
+import scala.util.Try
 import scala.util.matching.Regex
 
-class ExtractorSpec extends UnitSpec with IoUtils with Matchers {
-  // Define configurations for the extractor
-  val download: Download = Download(
-    baseUrl = "https://daks.uni-kassel.de/bitstreams",
-    failOnExistingFiles = false,
-    directory = "testData/download" // Valid download location
-  )
-  val input: Input = Input(
-    csv = SimbenchConfig.CsvConfig(
-      directoryHierarchy = false,
-      fileEncoding = "UTF-8",
-      fileEnding = ".csv",
-      separator = ";"
-    ),
-    download = download
-  )
-  val output: Output = Output(
-    compress = true,
-    csv = SimbenchConfig.CsvConfig(
-      directoryHierarchy = false,
-      fileEncoding = "UTF-8",
-      fileEnding = ".csv",
-      separator = ";"
-    ),
-    targetDir = "convertedData"
-  )
-  val io: Io = Io(input = input, output = output, simbenchCodes = List.empty)
-  val simbenchConfig: SimbenchConfig = SimbenchConfig(
-    conversion = SimbenchConfig.Conversion(removeSwitches = false),
-    io = io
-  )
+class ExtractorSpec
+    extends UnitSpec
+    with IoUtils
+    with Matchers
+    with BeforeAndAfterAll
+    with BeforeAndAfterEach {
 
-  val extractor = new Extractor(simbenchConfig)
-  val uuidPattern: Regex =
-    "[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}".r
+  private lazy val tempDir: Path =
+    Files.createTempDirectory("extractorTest")
 
-  // Utility to create test files
-  private def createTestFile(
-      directory: String,
-      fileName: String,
-      content: String
-  ): File = {
-    val dir = new File(directory)
-    if (!dir.exists()) dir.mkdirs()
-    val file = new File(s"$directory/$fileName")
-    val writer = new PrintWriter(file)
-    writer.write(content)
-    writer.close()
-    file
+  private lazy val extractor: Extractor = {
+    val download: Download = Download(
+      baseUrl = "https://daks.uni-kassel.de/bitstreams",
+      failOnExistingFiles = false,
+      directory = tempDir.toString
+    )
+
+    val input: Input = Input(
+      csv = SimbenchConfig.CsvConfig(
+        directoryHierarchy = false,
+        fileEncoding = "UTF-8",
+        fileEnding = ".csv",
+        separator = ";"
+      ),
+      download = download
+    )
+
+    val output: Output = Output(
+      compress = true,
+      csv = SimbenchConfig.CsvConfig(
+        directoryHierarchy = false,
+        fileEncoding = "UTF-8",
+        fileEnding = ".csv",
+        separator = ";"
+      ),
+      targetDir = "convertedData"
+    )
+
+    val io: Io = Io(input = input, output = output, simbenchCodes = List.empty)
+
+    val simbenchConfig: SimbenchConfig = SimbenchConfig(
+      conversion = SimbenchConfig.Conversion(removeSwitches = false),
+      io = io
+    )
+
+    new Extractor(simbenchConfig)
   }
 
-  // Utility to clean up test files
-  private def deleteDir(directory: String): Unit = {
-    val dir = new File(directory)
-    if (dir.exists()) dir.listFiles().foreach(_.delete())
-    dir.delete()
+  private lazy val uuidPattern: Regex =
+    "[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}".r
+
+  override def beforeAll(): Unit = {
+    super.beforeAll()
+    val _ = tempDir
+    val _ = extractor
+    val _ = uuidPattern
+  }
+
+  override def afterAll(): Unit = {
+    Try(deleteRecursively(tempDir))
+    super.afterAll()
+  }
+
+  override def beforeEach(): Unit = {
+    super.beforeEach()
+  }
+
+  override def afterEach(): Unit = {
+    super.afterEach()
+  }
+
+  private def deleteRecursively(path: Path): Unit = {
+    val file = path.toFile
+    if (file.exists()) {
+      if (file.isDirectory) {
+        file.listFiles().foreach(child => deleteRecursively(child.toPath))
+      }
+      file.delete()
+    }
+  }
+
+  private def createTestFile(fileName: String, content: String): Path = {
+    val filePath = tempDir.resolve(fileName)
+    Files.write(filePath, content.getBytes("UTF-8"))
+    filePath
   }
 
   "The extractor" should {
+
     "ensure that the download correctly downloads and saves the expected data file" in {
       extractor.download()
-      val downloadedFile = new File(
-        s"${simbenchConfig.io.input.download.directory}/simbench_datalinks.csv"
-      )
+      val downloadedFile = tempDir.resolve("simbench_datalinks.csv").toFile
       downloadedFile.exists() shouldBe true
     }
 
     "return a correct map of codes to UUIDs" in {
       extractor.download()
       val uuidMap = extractor.extractUUIDMap()
-      uuidMap should contain key "1-LV-urban6--0-sw"
-      uuidMap should contain key "1-LV-rural1--2-no_sw"
       uuidMap("1-LV-urban6--0-sw") should fullyMatch regex uuidPattern
+      uuidMap should contain key "1-LV-rural1--2-no_sw"
       uuidMap("1-LV-rural1--2-no_sw") should fullyMatch regex uuidPattern
     }
 
-    "check that an appropriate exception (IllegalArgumentException) is thrown when attempting to extract data that does not contain the required columns" in {
-      val invalidDir = "testData/invalidStructure"
+    "throw an IllegalArgumentException when CSV does not contain the required columns" in {
       createTestFile(
-        invalidDir,
         "simbench_datalinks.csv",
         "Invalid,Content\nOnly,OneColumn"
       )
-      val invalidConfig = simbenchConfig.copy(
-        io = simbenchConfig.io.copy(
-          input = simbenchConfig.io.input.copy(
-            download = simbenchConfig.io.input.download.copy(
-              directory = invalidDir
-            )
-          )
-        )
-      )
-      val invalidExtractor = new Extractor(invalidConfig)
-      an[IllegalArgumentException] should be thrownBy invalidExtractor
-        .extractUUIDMap()
-      deleteDir(invalidDir)
+
+      an[IllegalArgumentException] should be thrownBy {
+        extractor.extractUUIDMap()
+      }
     }
+
     "handle cases with no valid UUIDs" in {
-      val invalidUUIDPath = "testData/invalidUUIDs"
       createTestFile(
-        invalidUUIDPath,
         "simbench_datalinks.csv",
         "code,csv\n1-LV-urban6--0-sw,invalid_uuid\n1-LV-rural1--2-no_sw,another_invalid_uuid"
       )
-      val invalidUUIDConfig = simbenchConfig.copy(
-        io = simbenchConfig.io.copy(
-          input = simbenchConfig.io.input.copy(
-            download = simbenchConfig.io.input.download.copy(
-              directory = invalidUUIDPath
-            )
-          )
-        )
-      )
-      val invalidUUIDExtractor = new Extractor(invalidUUIDConfig)
-      val uuidMap = invalidUUIDExtractor.extractUUIDMap()
+
+      val uuidMap = extractor.extractUUIDMap()
       uuidMap shouldBe empty
-      deleteDir(invalidUUIDPath)
     }
   }
 }

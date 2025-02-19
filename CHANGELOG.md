@@ -5,6 +5,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+### Changed
+-   Redesigned the `ExtractorSpec.scala`, to clear test files between different tests. [#299](https://github.com/ie3-institute/simBench2psdm/issues/299)
 
 ## [1.0.0] - 2021-08-03
 ### Added
