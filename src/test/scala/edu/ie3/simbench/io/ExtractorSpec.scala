@@ -19,16 +19,10 @@ class ExtractorSpec
     with BeforeAndAfterAll
     with BeforeAndAfterEach {
 
-  private var tempDir: Path = _
+  private lazy val tempDir: Path =
+    Files.createTempDirectory("extractorTest")
 
-  private var extractor: Extractor = _
-  private var uuidPattern: Regex = _
-
-  override def beforeAll(): Unit = {
-    super.beforeAll()
-
-    tempDir = Files.createTempDirectory("extractorTest")
-
+  private lazy val extractor: Extractor = {
     val download: Download = Download(
       baseUrl = "https://daks.uni-kassel.de/bitstreams",
       failOnExistingFiles = false,
@@ -63,10 +57,22 @@ class ExtractorSpec
       io = io
     )
 
-    extractor = new Extractor(simbenchConfig)
+    new Extractor(simbenchConfig)
+  }
 
-    uuidPattern =
-      "[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}".r
+  private lazy val uuidPattern: Regex =
+    "[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}".r
+
+  override def beforeAll(): Unit = {
+    super.beforeAll()
+    val _ = tempDir
+    val _ = extractor
+    val _ = uuidPattern
+  }
+
+  override def afterAll(): Unit = {
+    Try(deleteRecursively(tempDir))
+    super.afterAll()
   }
 
   override def beforeEach(): Unit = {
@@ -75,11 +81,6 @@ class ExtractorSpec
 
   override def afterEach(): Unit = {
     super.afterEach()
-  }
-
-  override def afterAll(): Unit = {
-    Try(deleteRecursively(tempDir))
-    super.afterAll()
   }
 
   private def deleteRecursively(path: Path): Unit = {
@@ -97,10 +98,6 @@ class ExtractorSpec
     Files.write(filePath, content.getBytes("UTF-8"))
     filePath
   }
-
-  /* ------------------------------------------------------------------
-   * Testcases
-   * ------------------------------------------------------------------ */
 
   "The extractor" should {
 
