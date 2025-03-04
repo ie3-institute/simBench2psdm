@@ -187,7 +187,7 @@ class GridConverterSpec extends UnitSpec with SwitchTestingData {
               .toVector
             /* There is no participant uuid in mapping, that is not among participants */
             timeSeriesMapping.exists(entry =>
-              !participantUuids.contains(entry.participant())
+              !participantUuids.contains(entry.getAsset)
             ) shouldBe false
 
             /* Evaluate the amount of converted power flow results */

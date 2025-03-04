@@ -83,7 +83,6 @@ case object LoadConverter extends ShuntConverter with LazyLogging {
       new CosPhiFixed(varCharacteristicString),
       null,
       DefaultLoadProfiles.NO_LOAD_PROFILE,
-      false,
       eCons,
       sRated,
       cosphi
