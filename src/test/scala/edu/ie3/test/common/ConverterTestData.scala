@@ -764,7 +764,6 @@ trait ConverterTestData {
         new CosPhiFixed("cosPhiFixed:{(0.0,0.93)}"),
         null,
         DefaultLoadProfiles.NO_LOAD_PROFILE,
-        false,
         Quantities.getQuantity(0d, KILOWATTHOUR),
         Quantities.getQuantity(15.0538, KILOVOLTAMPERE),
         0.93
