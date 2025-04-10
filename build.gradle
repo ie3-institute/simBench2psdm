@@ -102,7 +102,7 @@ dependencies {
 }
 
 wrapper {
-	gradleVersion = '7.6'
+	gradleVersion = '8.13'
 }
 
 tasks.withType(JavaCompile).configureEach {
