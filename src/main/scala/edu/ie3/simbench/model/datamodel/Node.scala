@@ -6,7 +6,6 @@ import edu.ie3.simbench.io.HeadLineField.MandatoryField
 import edu.ie3.simbench.model.RawModelData
 import edu.ie3.simbench.model.datamodel.Node.NodeKey
 import edu.ie3.simbench.model.datamodel.EntityModel.EntityModelCompanionObject
-import edu.ie3.simbench.model.datamodel.SimbenchModel.SimbenchCompanionObject
 import edu.ie3.simbench.model.datamodel.enums.NodeType
 
 /** Electrical node

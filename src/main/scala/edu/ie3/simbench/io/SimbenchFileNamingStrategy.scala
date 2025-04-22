@@ -22,14 +22,14 @@ import scala.util.{Failure, Success, Try}
   * files
   */
 case object SimbenchFileNamingStrategy {
-  private def fileMapping: Map[Class[_], String] =
+  private def fileMapping: Map[Class[?], String] =
     Map(
       classOf[Coordinate] -> "Coordinates",
       classOf[ExternalNet] -> "ExternalNet",
       classOf[Simple] -> "ExternalNet",
       classOf[Ward] -> "ExternalNet",
       classOf[WardExtended] -> "ExternalNet",
-      classOf[Line[_]] -> "Line",
+      classOf[Line[?]] -> "Line",
       classOf[ACLine] -> "Line",
       classOf[DCLine] -> "Line",
       classOf[LineType] -> "LineType",
@@ -58,7 +58,7 @@ case object SimbenchFileNamingStrategy {
     *   [[scala.util.Success]], if the file name can be determine,
     *   [[scala.util.Failure]], if not
     */
-  def getFileName(clazz: Class[_]): Try[String] = {
+  def getFileName(clazz: Class[?]): Try[String] = {
     fileMapping.get(clazz) match {
       case Some(filename) => Success(filename)
       case None =>

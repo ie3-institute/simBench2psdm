@@ -19,7 +19,7 @@ import scala.concurrent.{ExecutionContext, ExecutionContextExecutor, Future}
 import scala.util.{Failure, Success}
 
 class SimbenchReaderSpec extends UnitSpec with SimbenchReaderTestData {
-  implicit val ec: ExecutionContextExecutor = ExecutionContext.global
+  given ec: ExecutionContextExecutor = ExecutionContext.global
 
   val classLoader: ClassLoader = this.getClass.getClassLoader
   /* Replace leading file separator, if it is a Windows-Folderpath (/C: etc.) */
@@ -164,7 +164,7 @@ class SimbenchReaderSpec extends UnitSpec with SimbenchReaderTestData {
 
     "get the field to value maps correctly" in {
       val fieldToValuesMethod = PrivateMethod[
-        Map[Class[_], Option[Vector[RawModelData]]]
+        Map[Class[?], Option[Vector[RawModelData]]]
       ](Symbol("getFieldToValueMaps"))
       val fieldToValuesMap = reader invokePrivate fieldToValuesMethod()
 
@@ -225,11 +225,11 @@ class SimbenchReaderSpec extends UnitSpec with SimbenchReaderTestData {
         .length shouldBe 21
       fieldToValuesMap
         .getOrElse(
-          classOf[Line[_ <: LineType]],
-          fail(s"No entry available for class ${classOf[Line[_ <: LineType]]}")
+          classOf[Line[? <: LineType]],
+          fail(s"No entry available for class ${classOf[Line[? <: LineType]]}")
         )
         .getOrElse(
-          fail(s"Entry for class ${classOf[Line[_ <: LineType]]} is empty.")
+          fail(s"Entry for class ${classOf[Line[? <: LineType]]} is empty.")
         )
         .length shouldBe 1
       fieldToValuesMap
