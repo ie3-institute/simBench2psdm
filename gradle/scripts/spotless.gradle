@@ -17,15 +17,6 @@ spotless {
 		scalafmt().configFile('.scalafmt.conf')
 	}
 
-	/* cf. https://github.com/diffplug/spotless/tree/master/plugin-gradle */
-	groovy {
-		licenseHeader ie3LicHead
-		excludeJava() // excludes all Java sources within the Groovy source dirs from formatting
-		// the Groovy Eclipse formatter extends the Java Eclipse formatter,
-		// so it formats Java files by default (unless `excludeJava` is used).
-		greclipse()
-	}
-
 	groovyGradle {
 		// same as groovy, but for .gradle (defaults to '*.gradle')
 		target '*.gradle', 'gradle/scripts/*.gradle'
