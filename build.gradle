@@ -34,7 +34,6 @@ apply from: scriptsLocation + 'spotless.gradle'
 apply from: scriptsLocation + 'checkJavaVersion.gradle'
 apply from: scriptsLocation + 'tscfg.gradle' // config tasks
 apply from: scriptsLocation + 'scoverage.gradle'
-apply from: scriptsLocation + 'tests.gradle'
 
 repositories {
 	mavenCentral()
@@ -95,10 +94,6 @@ dependencies {
 
 	/* Handling compressed archives */
 	implementation "org.apache.commons:commons-compress:+"
-}
-
-wrapper {
-	gradleVersion = '8.13'
 }
 
 tasks.withType(JavaCompile) {
