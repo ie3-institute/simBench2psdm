@@ -7,7 +7,7 @@ import edu.ie3.datamodel.models.input.connector.SwitchInput
 import edu.ie3.datamodel.models.input.{NodeInput, OperatorInput}
 import edu.ie3.simbench.model.datamodel.{Node, Switch}
 
-import scala.collection.parallel.CollectionConverters._
+import scala.collection.parallel.CollectionConverters.*
 
 case object SwitchConverter {
 

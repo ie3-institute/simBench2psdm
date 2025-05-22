@@ -5,7 +5,7 @@ import edu.ie3.simbench.exception.io.IoException
 import scala.util.{Failure, Success, Try}
 
 final case class RawModelData(
-    modelClass: Class[_],
+    modelClass: Class[?],
     fieldToValues: Map[String, String]
 ) {
 

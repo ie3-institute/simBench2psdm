@@ -4,7 +4,7 @@ import java.nio.file.Paths
 
 import edu.ie3.simbench.exception.io.IoException
 import edu.ie3.simbench.model.RawModelData
-import edu.ie3.simbench.model.datamodel._
+import edu.ie3.simbench.model.datamodel.*
 import edu.ie3.simbench.model.datamodel.profiles.{
   LoadProfile,
   PowerPlantProfile,
@@ -13,7 +13,7 @@ import edu.ie3.simbench.model.datamodel.profiles.{
 import edu.ie3.simbench.model.datamodel.types.LineType.{ACLineType, DCLineType}
 import edu.ie3.simbench.model.datamodel.types.{LineType, Transformer2WType}
 import edu.ie3.test.common.{SimbenchReaderTestData, UnitSpec}
-import org.scalatest.Inside._
+import org.scalatest.Inside.*
 
 import scala.concurrent.{ExecutionContext, ExecutionContextExecutor, Future}
 import scala.util.{Failure, Success}
@@ -29,10 +29,10 @@ class SimbenchReaderSpec extends UnitSpec with SimbenchReaderTestData {
   val reader: SimbenchReader =
     SimbenchReader("simpleDataset", Paths.get(checkedFolderPath))
   val readModelClassMethod: PrivateMethod[
-    Future[(Class[_ <: SimbenchModel], Vector[Map[String, String]])]
+    Future[(Class[? <: SimbenchModel], Vector[Map[String, String]])]
   ] =
     PrivateMethod[Future[
-      (Class[_ <: SimbenchModel], Vector[Map[String, String]])
+      (Class[? <: SimbenchModel], Vector[Map[String, String]])
     ]](Symbol("read"))
 
   "The SimBench data set reader" should {

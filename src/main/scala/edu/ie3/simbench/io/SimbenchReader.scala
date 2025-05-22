@@ -6,7 +6,7 @@ import com.typesafe.scalalogging.LazyLogging
 import edu.ie3.simbench.exception.io.{IoException, SimbenchDataModelException}
 import edu.ie3.simbench.model.RawModelData
 import edu.ie3.simbench.model.datamodel.SimbenchModel.SimbenchCompanionObject
-import edu.ie3.simbench.model.datamodel._
+import edu.ie3.simbench.model.datamodel.*
 import edu.ie3.simbench.model.datamodel.profiles.{
   LoadProfile,
   PowerPlantProfile,
@@ -360,7 +360,7 @@ final case class SimbenchReader(
     modelClassToRawData.getOrElse(tag.runtimeClass, None) match {
       case Some(rawData) => cls.buildModels(rawData)
       case None =>
-        if (optional) {
+        if optional then {
           logger.debug(
             s"No information available for ${tag.runtimeClass.getSimpleName}"
           )

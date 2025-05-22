@@ -32,7 +32,7 @@ case object LineTypeConverter extends LazyLogging {
     *   A [[Vector]] of [[LineTypeInput]]s
     */
   def convert(
-      lines: Vector[Line[_ <: LineType]]
+      lines: Vector[Line[? <: LineType]]
   ): Map[LineType, LineTypeInput] = {
     val ratedVoltageMapping = getRatedVoltages(lines)
     val lineTypes = lines.map(line => line.lineType).distinct
@@ -147,7 +147,7 @@ case object LineTypeConverter extends LazyLogging {
   ): (LineType, ComparableQuantity[ElectricPotential]) = {
     val vRatedA = Quantities.getQuantity(line.nodeA.vmR, KILOVOLT)
     val vRatedB = Quantities.getQuantity(line.nodeB.vmR, KILOVOLT)
-    if (vRatedA != vRatedB)
+    if vRatedA != vRatedB then
       throw SimbenchDataModelException(
         s"The line ${line.id} connects two nodes with different rated voltages, which physically is not possible"
       )

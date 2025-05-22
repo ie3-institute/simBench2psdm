@@ -3,7 +3,7 @@ package edu.ie3.simbench.io
 import edu.ie3.simbench.exception.io.SimbenchFileNamingException
 import edu.ie3.simbench.model.datamodel.ExternalNet.{Simple, Ward, WardExtended}
 import edu.ie3.simbench.model.datamodel.Line.{ACLine, DCLine}
-import edu.ie3.simbench.model.datamodel._
+import edu.ie3.simbench.model.datamodel.*
 import edu.ie3.simbench.model.datamodel.profiles.{
   LoadProfile,
   PowerPlantProfile,

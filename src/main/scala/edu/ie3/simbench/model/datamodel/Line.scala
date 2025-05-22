@@ -16,7 +16,7 @@ sealed trait Line[T <: LineType] extends EntityModel {
   val loadingMax: BigDecimal
 }
 
-object Line extends EntityModelCompanionObject[Line[_ <: LineType]] {
+object Line extends EntityModelCompanionObject[Line[? <: LineType]] {
 
   /** AC line model
     *
@@ -101,7 +101,7 @@ object Line extends EntityModelCompanionObject[Line[_ <: LineType]] {
     * @return
     *   A model
     */
-  override def apply(rawData: RawModelData): Line[_ <: LineType] =
+  override def apply(rawData: RawModelData): Line[? <: LineType] =
     throw SimbenchDataModelException(
       s"No basic implementation of model creation available for ${this.getClass.getSimpleName}"
     )
@@ -122,7 +122,7 @@ object Line extends EntityModelCompanionObject[Line[_ <: LineType]] {
       rawData: Vector[RawModelData],
       nodes: Map[String, Node],
       lineTypes: Map[String, LineType]
-  ): Vector[Line[_ <: LineType]] =
+  ): Vector[Line[? <: LineType]] =
     for (entry <- rawData) yield {
       val (nodeA, nodeB) =
         getNodes(entry.get(NODE_A), entry.get(NODE_B), nodes)
@@ -154,7 +154,7 @@ object Line extends EntityModelCompanionObject[Line[_ <: LineType]] {
       nodeA: Node,
       nodeB: Node,
       lineType: LineType
-  ): Line[_ <: LineType] = {
+  ): Line[? <: LineType] = {
     val (id, subnet, voltLvl) = getBaseInformation(rawData)
     val length = rawData.getBigDecimal(LENGTH)
     val loadingMax = rawData.getBigDecimal(LOADING_MAX)
