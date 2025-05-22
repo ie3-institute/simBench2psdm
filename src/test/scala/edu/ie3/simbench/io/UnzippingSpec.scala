@@ -7,7 +7,7 @@ import edu.ie3.test.common.UnitSpec
 import edu.ie3.util.io.FileIOUtils
 import org.scalatest.BeforeAndAfterEach
 
-import scala.jdk.StreamConverters._
+import scala.jdk.StreamConverters.*
 import scala.language.{existentials, postfixOps}
 import scala.util.{Failure, Success, Try}
 

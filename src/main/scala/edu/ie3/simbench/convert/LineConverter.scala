@@ -15,7 +15,7 @@ import edu.ie3.simbench.model.datamodel.{Line, Node}
 import edu.ie3.util.quantities.PowerSystemUnits.KILOMETRE
 import tech.units.indriya.quantity.Quantities
 
-import scala.collection.parallel.CollectionConverters._
+import scala.collection.parallel.CollectionConverters.*
 
 case object LineConverter extends LazyLogging {
 
@@ -31,7 +31,7 @@ case object LineConverter extends LazyLogging {
     *   A [[Vector]] of [[LineInput]]s
     */
   def convert(
-      inputs: Vector[Line[_ <: LineType]],
+      inputs: Vector[Line[? <: LineType]],
       types: Map[LineType, LineTypeInput],
       nodes: Map[Node, NodeInput]
   ): Vector[LineInput] =
@@ -67,7 +67,7 @@ case object LineConverter extends LazyLogging {
     *   A [[LineInput]] model
     */
   def convert(
-      input: Line[_ <: LineType],
+      input: Line[? <: LineType],
       lineType: LineTypeInput,
       nodeA: NodeInput,
       nodeB: NodeInput,

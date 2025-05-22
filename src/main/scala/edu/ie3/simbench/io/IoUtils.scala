@@ -42,10 +42,8 @@ trait IoUtils {
   val ensureHarmonizedAndTerminatingFileSeparator: String => String =
     (path: String) => {
       val harmonizedInput = harmonizeFileSeparator(path)
-      if (harmonizedInput.endsWith("/"))
-        harmonizedInput
-      else
-        harmonizedInput + "/"
+      if harmonizedInput.endsWith("/") then harmonizedInput
+      else harmonizedInput + "/"
     }
 
   /** Removes the dot from a file provided file ending string
@@ -124,7 +122,7 @@ trait IoUtils {
     val checkedFolderPath = harmonizeFileSeparator(
       trimFirstSeparatorInWindowsPath(trimLastSeparator(folderPath))
     )
-    if (!folderPathWithoutLastSeparator.matches(checkedFolderPath))
+    if !folderPathWithoutLastSeparator.matches(checkedFolderPath) then
       throw IoException(
         s"Cannot determine correct fully qualified folder path from $folderPath"
       )
@@ -166,7 +164,7 @@ object IoUtils extends IoUtils {
 
     val fullyQualifiedPath =
       checkedFolderPath + "/" + checkedFileName + "." + checkedExtension
-    if (!fullyQualifiedPathRegex.matches(fullyQualifiedPath))
+    if !fullyQualifiedPathRegex.matches(fullyQualifiedPath) then
       throw IoException(
         s"The composed fully qualified path ($fullyQualifiedPath) is not an actual qualified path..."
       )
@@ -197,13 +195,13 @@ object IoUtils extends IoUtils {
   def checkFileExists(filePath: Path, ending: String): Unit = {
     val checkedEnding = "." + getFileExtensionWithoutDot(ending)
 
-    if (!Files.exists(filePath)) {
+    if !Files.exists(filePath) then {
       throw IoException(s"The file $filePath does not exist.")
     }
-    if (Files.isDirectory(filePath)) {
+    if Files.isDirectory(filePath) then {
       throw IoException(s"The file $filePath is a directory.")
     }
-    if (!filePath.toAbsolutePath.toString.endsWith(checkedEnding)) {
+    if !filePath.toAbsolutePath.toString.endsWith(checkedEnding) then {
       throw IoException(
         s"The file $filePath is of wrong file type. Only $checkedEnding is supported (case sensitive)."
       )
