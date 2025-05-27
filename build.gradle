@@ -61,7 +61,7 @@ dependencies {
 		exclude group: 'com.github.ie3-institute'
 	}
 
-	implementation 'org.codehaus.groovy:groovy:3.0.24'
+	implementation 'org.codehaus.groovy:groovy:3.0.25'
 
 	implementation 'tech.units:indriya:2.2.3'
 	implementation 'org.locationtech.jts:jts-core:1.20.0'
