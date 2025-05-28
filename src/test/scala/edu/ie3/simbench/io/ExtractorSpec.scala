@@ -85,8 +85,8 @@ class ExtractorSpec
 
   private def deleteRecursively(path: Path): Unit = {
     val file = path.toFile
-    if (file.exists()) {
-      if (file.isDirectory) {
+    if file.exists() then {
+      if file.isDirectory then {
         file.listFiles().foreach(child => deleteRecursively(child.toPath))
       }
       file.delete()

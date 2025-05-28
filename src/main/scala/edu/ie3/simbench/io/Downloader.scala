@@ -9,7 +9,7 @@ import edu.ie3.simbench.exception.io.DownloaderException
 import edu.ie3.simbench.model.SimbenchCode
 
 import scala.language.postfixOps
-import scala.sys.process._
+import scala.sys.process.*
 
 final case class Downloader(
     downloadDir: String,
@@ -31,15 +31,15 @@ final case class Downloader(
         s"${downloadDirPath.getAbsolutePath}/${simbenchCode.code}.zip"
       )
     val downloadFile = downloadPath.toFile
-    if (downloadDirPath.mkdirs()) {
+    if downloadDirPath.mkdirs() then {
       logger.debug("Created all non existing folders")
     }
 
-    if (failOnExistingFiles && downloadFile.exists())
+    if failOnExistingFiles && downloadFile.exists() then
       throw DownloaderException(
         s"Cannot download to file '${downloadFile.getName}', as it already exists"
       )
-    else if (downloadFile.createNewFile()) {
+    else if downloadFile.createNewFile() then {
       logger.debug(s"Created new empty file ${downloadFile.getName}")
     } else {
       logger.debug(s"Overwrite existing file ${downloadFile.getName}")

@@ -18,7 +18,7 @@ class LineSpec extends UnitSpec with ConverterTestData {
 
   val rawData = Vector(
     RawModelData(
-      classOf[Line[_]],
+      classOf[Line[?]],
       Map(
         "id" -> "LV1.101 Line 10",
         "nodeA" -> "LV1.101 Bus 4",
@@ -31,7 +31,7 @@ class LineSpec extends UnitSpec with ConverterTestData {
       )
     ),
     RawModelData(
-      classOf[Line[_]],
+      classOf[Line[?]],
       Map(
         "id" -> "LV1.101 Line 10",
         "nodeA" -> "LV1.101 Bus 1",

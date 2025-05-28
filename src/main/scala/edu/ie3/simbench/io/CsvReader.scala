@@ -72,7 +72,7 @@ final case class CsvReader[T](
     */
   private def mapFields(
       headLine: String,
-      desiredFields: Array[_ <: HeadLineField]
+      desiredFields: Array[? <: HeadLineField]
   ): Map[String, Int] = {
     /* Split for the single apparent fields in the file and map it to their indices */
     val headLineFields = headLine.split(separator).map(_.trim).zipWithIndex
@@ -120,7 +120,7 @@ final case class CsvReader[T](
       fieldMapping: Map[String, Int]
   ): Map[String, String] = {
     val fields = line.split(separator).map(_.trim)
-    if (fields.length < fieldMapping.values.max + 1)
+    if fields.length < fieldMapping.values.max + 1 then
       throw IoException(
         s"The line of the file $filePath does not contain the correct amount of fields (apparent = ${fields.length}, " +
           s"needed = ${fieldMapping.values.max + 1}).\nLine affected: $line"

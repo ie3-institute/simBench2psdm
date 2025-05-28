@@ -47,7 +47,7 @@ case object ConfigValidator {
     */
   @throws[CodeValidationException]
   private def checkSimbenchCodes(codes: List[java.lang.String]): Unit = {
-    for (code <- codes) {
+    for code <- codes do {
       SimbenchCode.isValid(code) match {
         case Success(_)         =>
         case Failure(exception) => throw exception
