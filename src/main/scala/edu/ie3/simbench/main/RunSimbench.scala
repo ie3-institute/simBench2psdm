@@ -24,7 +24,7 @@ import org.apache.commons.io.FilenameUtils
 import scala.concurrent.Await
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration.Duration
-import scala.jdk.CollectionConverters._
+import scala.jdk.CollectionConverters.*
 import scala.jdk.FutureConverters.CompletionStageOps
 import scala.util.{Failure, Success}
 
@@ -48,10 +48,10 @@ object RunSimbench extends SimbenchHelper {
 
     simbenchConfig.io.simbenchCodes.foreach { simbenchCode =>
       // todo: replace these two if statements with a proper handling of switches
-      if (!simbenchConfig.conversion.removeSwitches) {
+      if !simbenchConfig.conversion.removeSwitches then {
         logger.warn(s"Currently, removing switches might be necessary.")
       }
-      if (simbenchCode.contains("-sw")) {
+      if simbenchCode.contains("-sw") then {
         logger.warn(s"Using a simbench grid with '-sw' might not work.")
       }
 
@@ -108,7 +108,7 @@ object RunSimbench extends SimbenchHelper {
         IoUtils.ensureHarmonizedAndTerminatingFileSeparator(
           simbenchConfig.io.output.targetDir
         )
-      val csvSink = if (simbenchConfig.io.output.csv.directoryHierarchy) {
+      val csvSink = if simbenchConfig.io.output.csv.directoryHierarchy then {
         new CsvFileSink(
           Path.of(baseTargetDirectory),
           new FileNamingStrategy(
@@ -133,7 +133,7 @@ object RunSimbench extends SimbenchHelper {
       csvSink.persistAllIgnoreNested(timeSeriesMapping.asJava)
       csvSink.persistAll(powerFlowResults.asJava)
 
-      if (simbenchConfig.io.output.compress) {
+      if simbenchConfig.io.output.compress then {
         logger.info(s"$simbenchCode - Adding files to compressed archive")
         val rawOutputPath = Paths.get(baseTargetDirectory + simbenchCode)
         val archivePath = Paths.get(

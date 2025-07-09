@@ -16,11 +16,9 @@ trait ShuntConverter {
     */
   def cosPhi(p: BigDecimal, q: BigDecimal): Double = {
     round({
-      if (p == BigDecimal("0.0")) {
-        if (q == BigDecimal("0.0"))
-          1d
-        else
-          signum(q.doubleValue) * Double.MaxValue
+      if p == BigDecimal("0.0") then {
+        if q == BigDecimal("0.0") then 1d
+        else signum(q.doubleValue) * Double.MaxValue
 
       } else {
         cos(atan((q / p).doubleValue))

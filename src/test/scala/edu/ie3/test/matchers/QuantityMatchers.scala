@@ -17,7 +17,7 @@ trait QuantityMatchers {
     )
   }
 
-  def equalWithTolerance[Q <: Quantity[Q]](right: Quantity[Q])(implicit
+  def equalWithTolerance[Q <: Quantity[Q]](right: Quantity[Q])(using
       quantityMatchingTolerance: Double = 1e-10
   ) = new QuantityMatcher(right, quantityMatchingTolerance)
 }

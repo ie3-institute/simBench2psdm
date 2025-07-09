@@ -22,7 +22,7 @@ import edu.ie3.util.quantities.PowerSystemUnits.{
 }
 import tech.units.indriya.quantity.Quantities
 
-import scala.collection.parallel.CollectionConverters._
+import scala.collection.parallel.CollectionConverters.*
 
 case object PowerPlantConverter extends ShuntConverter with LazyLogging {
 
