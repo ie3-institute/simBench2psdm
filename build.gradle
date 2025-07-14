@@ -4,10 +4,10 @@ plugins {
 	id 'java' // java support
 	id 'scala' // scala support
 	id 'pmd' // code check, working on source code
-	id 'com.diffplug.spotless' version '7.0.2'// code format
+	id 'com.diffplug.spotless' version '7.1.0'// code format
 	id "de.undercouch.download" version "5.6.0" // downloads plugin
 	id 'jacoco' // java code coverage plugin
-	id "org.sonarqube" version "6.1.0.5360" // sonarqube
+	id "org.sonarqube" version "6.2.0.5505" // sonarqube
 	id 'org.scoverage' version '8.1' // Code coverage plugin for scala
 	id 'net.thauvin.erik.gradle.semver' version '1.0.4' // semantic versioning
 	id "com.github.maiflai.scalatest" version "0.33" // run scalatest without specific task
@@ -65,11 +65,11 @@ dependencies {
 		exclude group: 'com.github.ie3-institute'
 	}
 
-	implementation 'org.codehaus.groovy:groovy:3.0.24'
+	implementation 'org.codehaus.groovy:groovy:3.0.25'
 
-	implementation 'tech.units:indriya:2.2.2'
+	implementation 'tech.units:indriya:2.2.3'
 	implementation 'org.locationtech.jts:jts-core:1.20.0'
-	implementation 'commons-io:commons-io:2.18.0'
+	implementation 'commons-io:commons-io:2.19.0'
 
 	// logging
 	implementation 'org.apache.logging.log4j:log4j-api:+' // log4j
@@ -88,7 +88,7 @@ dependencies {
 	testImplementation "org.scalatest:scalatest_${scalaVersion}:3.2.19"
 	testImplementation 'com.vladsch.flexmark:flexmark-all:0.64.8'
 	testImplementation "org.pegdown:pegdown:1.6.0" // HTML report for scalatest
-	implementation 'org.mockito:mockito-core:5.17.0' // mocking framework
+	implementation 'org.mockito:mockito-core:5.18.0' // mocking framework
 
 	// config //
 	implementation 'com.typesafe:config:+'
