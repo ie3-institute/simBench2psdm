@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 ### Added
 -   Added Bao and Staudt to list of reviewers [#277](https://github.com/ie3-institute/simBench2psdm/issues/277)
+-   Added semantic versioning for GHA [#324](https://github.com/ie3-institute/simBench2psdm/issues/324)
 
 ### Changed
 -   Redesigned the `ExtractorSpec.scala`, to clear test files between different tests. [#299](https://github.com/ie3-institute/simBench2psdm/issues/299)
