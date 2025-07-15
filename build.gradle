@@ -107,3 +107,8 @@ wrapper {
 tasks.withType(JavaCompile).configureEach {
 	options.encoding = 'UTF-8'
 }
+
+tasks.named('test') {
+	dependsOn tasks.named('compileScoverageGroovy')
+	dependsOn tasks.named('processScoverageResources')
+}
