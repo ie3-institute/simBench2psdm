@@ -12,7 +12,7 @@ import edu.ie3.simbench.model.datamodel.enums.CalculationType.{
   Ward,
   WardExtended
 }
-import edu.ie3.simbench.model.datamodel._
+import edu.ie3.simbench.model.datamodel.*
 import edu.ie3.util.quantities.PowerSystemUnits.{KILOVOLT, PU}
 import tech.units.indriya.quantity.Quantities
 

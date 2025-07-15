@@ -20,7 +20,7 @@ import edu.ie3.datamodel.models.input.graphics.{
   LineGraphicInput,
   NodeGraphicInput
 }
-import edu.ie3.datamodel.models.input.system._
+import edu.ie3.datamodel.models.input.system.*
 import edu.ie3.datamodel.models.result.NodeResult
 import edu.ie3.datamodel.models.timeseries.individual.IndividualTimeSeries
 import edu.ie3.datamodel.models.value.{PValue, SValue}
@@ -33,11 +33,11 @@ import edu.ie3.simbench.convert.types.{
   Transformer2wTypeConverter
 }
 import edu.ie3.simbench.exception.ConversionException
-import edu.ie3.simbench.model.datamodel._
+import edu.ie3.simbench.model.datamodel.*
 
 import scala.annotation.tailrec
-import scala.collection.parallel.CollectionConverters._
-import scala.jdk.CollectionConverters._
+import scala.collection.parallel.CollectionConverters.*
+import scala.jdk.CollectionConverters.*
 
 case object GridConverter extends LazyLogging {
 
@@ -61,7 +61,7 @@ case object GridConverter extends LazyLogging {
       removeSwitches: Boolean
   ): (
       JointGridContainer,
-      Set[IndividualTimeSeries[_ <: PValue]],
+      Set[IndividualTimeSeries[? <: PValue]],
       Seq[MappingEntry],
       Vector[NodeResult]
   ) = {
@@ -130,11 +130,10 @@ case object GridConverter extends LazyLogging {
       gridInput.lines,
       subnetConverter
     )
-    val joinOverrides = if (removeSwitches) {
+    val joinOverrides = if removeSwitches then {
       /* If switches are meant to be removed, join all nodes at closed switches */
       determineJoinOverrides(gridInput.switches, slackNodeKeys)
-    } else
-      Vector.empty
+    } else Vector.empty
 
     val nodeConversion =
       convertNodes(
@@ -156,10 +155,9 @@ case object GridConverter extends LazyLogging {
       "Creation of three winding transformers is not yet implemented."
     )
     val switches =
-      if (!removeSwitches)
+      if !removeSwitches then
         SwitchConverter.convert(gridInput.switches, nodeConversion).toSet.asJava
-      else
-        Set.empty[SwitchInput].asJava
+      else Set.empty[SwitchInput].asJava
     val measurements = MeasurementConverter
       .convert(gridInput.measurements, nodeConversion)
       .toSet
@@ -284,8 +282,7 @@ case object GridConverter extends LazyLogging {
   ): Vector[SubnetOverride] = {
     /* If the start node is among the junctions, do not travel further (Attention: Start node should not be among
      * junctions when the traversing starts, otherwise nothing will happen at all.) */
-    if (junctions.contains(startNode))
-      return overrides
+    if junctions.contains(startNode) then return overrides
 
     /* Get all switches, that are connected to the current starting point. If the other end of the switch is a junction,
      * don't follow this path, as the other side wouldn't be touched anyways. */
@@ -297,7 +294,7 @@ case object GridConverter extends LazyLogging {
       case _ => false
     }
 
-    if (nextSwitches.isEmpty) {
+    if nextSwitches.isEmpty then {
       /* There is no further switch, therefore the end is reached -> return the new mapping. Please note, as the subnet
        * of the current node is only altered, if there is a next switch available, dead end nodes are not altered. */
       overrides
@@ -585,7 +582,7 @@ case object GridConverter extends LazyLogging {
       branchNodes.contains(convertedNode)
     } match {
       case (connectedNodes, unconnectedNodes) =>
-        if (unconnectedNodes.nonEmpty)
+        if unconnectedNodes.nonEmpty then
           logger.warn(
             "The nodes with following keys are not part of any branch (aka. isolated) and will be neglected in the sequel.\n\t{}",
             unconnectedNodes.map(_._1.getKey).mkString("\n\t")
@@ -610,7 +607,7 @@ case object GridConverter extends LazyLogging {
       nodeConversion: Map[Node, NodeInput]
   ): (
       SystemParticipants,
-      Set[IndividualTimeSeries[_ <: PValue]],
+      Set[IndividualTimeSeries[? <: PValue]],
       Seq[MappingEntry]
   ) = {
     /* Convert all participant groups */
@@ -640,7 +637,7 @@ case object GridConverter extends LazyLogging {
         timeSeries.getUuid
       )
     }.toSeq
-    val timeSeries: Set[IndividualTimeSeries[_ <: PValue]] =
+    val timeSeries: Set[IndividualTimeSeries[? <: PValue]] =
       participantsToTimeSeries.map(_._2).toSet
 
     (

@@ -10,7 +10,7 @@ import edu.ie3.simbench.exception.ConversionException
 import edu.ie3.simbench.model.datamodel.types.Transformer2WType
 import edu.ie3.simbench.model.datamodel.{Node, Transformer2W}
 
-import scala.collection.parallel.CollectionConverters._
+import scala.collection.parallel.CollectionConverters.*
 
 case object Transformer2wConverter {
 

@@ -11,7 +11,7 @@ import edu.ie3.simbench.model.datamodel.types.LineType
 final case class GridModel(
     simbenchCode: String,
     externalNets: Vector[ExternalNet],
-    lines: Vector[Line[_ <: LineType]],
+    lines: Vector[Line[? <: LineType]],
     loads: Vector[Load],
     loadProfiles: Vector[LoadProfile],
     measurements: Vector[Measurement],
