@@ -141,6 +141,7 @@ class IoUtilsSpec extends UnitSpec {
       val folderPath = Paths.get(IoUtils.pwd, "testData/download")
       val filePath = Paths.get(IoUtils.pwd, "testData/download/test.txt")
       Files.createDirectories(folderPath)
+      Files.deleteIfExists(filePath)
       val file = Files.createFile(filePath)
 
       intercept[IoException] {
