@@ -12,6 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 -   Redesigned the `ExtractorSpec.scala`, to clear test files between different tests. [#299](https://github.com/ie3-institute/simBench2psdm/issues/299)
+-   Removed Jenkins Pipeline. Now using GitHub Actions [#328](https://github.com/ie3-institute/simBench2psdm/issues/328)
 
 ## [1.0.0] - 2021-08-03
 ### Added
