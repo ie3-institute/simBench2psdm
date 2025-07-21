@@ -293,9 +293,7 @@ case object SimbenchCode {
     *   True, if it is a valid SimBench code, false if not.
     */
   def isValid(code: String): Try[Boolean] = {
-    if (validSimbenchCodes.contains(code))
-      Success(true)
-    else
-      Failure(CodeValidationException(s"$code is no valid SimbenchCode"))
+    if validSimbenchCodes.contains(code) then Success(true)
+    else Failure(CodeValidationException(s"$code is no valid SimbenchCode"))
   }
 }

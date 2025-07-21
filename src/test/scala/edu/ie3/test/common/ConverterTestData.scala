@@ -42,13 +42,13 @@ import edu.ie3.simbench.model.datamodel.Measurement.{
   NodeMeasurement,
   TransformerMeasurement
 }
-import edu.ie3.simbench.model.datamodel._
+import edu.ie3.simbench.model.datamodel.*
 import edu.ie3.simbench.model.datamodel.enums.BranchElementPort.HV
 import edu.ie3.simbench.model.datamodel.enums.CalculationType.PVm
 import edu.ie3.simbench.model.datamodel.enums.MeasurementVariable.Voltage
 import edu.ie3.simbench.model.datamodel.enums.NodeType.{BusBar, DoubleBusBar}
 import edu.ie3.simbench.model.datamodel.enums.PowerPlantType.Lignite
-import edu.ie3.simbench.model.datamodel.enums._
+import edu.ie3.simbench.model.datamodel.enums.*
 import edu.ie3.simbench.model.datamodel.profiles.PowerPlantProfileType.PowerPlantProfile1
 import edu.ie3.simbench.model.datamodel.profiles.{
   LoadProfile,
@@ -57,14 +57,14 @@ import edu.ie3.simbench.model.datamodel.profiles.{
 }
 import edu.ie3.simbench.model.datamodel.types.LineType.{ACLineType, DCLineType}
 import edu.ie3.simbench.model.datamodel.types.{LineType, Transformer2WType}
-import edu.ie3.util.quantities.PowerSystemUnits._
+import edu.ie3.util.quantities.PowerSystemUnits.*
 import org.locationtech.jts.geom.{
   GeometryFactory,
   Point,
-  Coordinate => JTSCoordinate
+  Coordinate as JTSCoordinate
 }
 import tech.units.indriya.quantity.Quantities
-import tech.units.indriya.unit.Units._
+import tech.units.indriya.unit.Units.*
 
 import java.time.ZonedDateTime
 import java.util.UUID
@@ -560,7 +560,7 @@ trait ConverterTestData {
     )
   )
 
-  def getLinePair(key: String): (Line[_ <: LineType], LineInput) =
+  def getLinePair(key: String): (Line[? <: LineType], LineInput) =
     lines
       .getOrElse(
         key,

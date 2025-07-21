@@ -26,13 +26,13 @@ object SimbenchConfig {
             "directoryHierarchy"
           ),
         fileEncoding =
-          if (c.hasPathOrNull("fileEncoding")) c.getString("fileEncoding")
+          if c.hasPathOrNull("fileEncoding") then c.getString("fileEncoding")
           else "UTF-8",
         fileEnding =
-          if (c.hasPathOrNull("fileEnding")) c.getString("fileEnding")
+          if c.hasPathOrNull("fileEnding") then c.getString("fileEnding")
           else ".csv",
         separator =
-          if (c.hasPathOrNull("separator")) c.getString("separator") else ";"
+          if c.hasPathOrNull("separator") then c.getString("separator") else ";"
       )
     }
   }
@@ -78,14 +78,14 @@ object SimbenchConfig {
         ): SimbenchConfig.Io.Input.Download = {
           SimbenchConfig.Io.Input.Download(
             baseUrl =
-              if (c.hasPathOrNull("baseUrl")) c.getString("baseUrl")
+              if c.hasPathOrNull("baseUrl") then c.getString("baseUrl")
               else "https://daks.uni-kassel.de/bitstreams",
             failOnExistingFiles =
               c.hasPathOrNull("failOnExistingFiles") && c.getBoolean(
                 "failOnExistingFiles"
               ),
             directory =
-              if (c.hasPathOrNull("folder")) c.getString("folder")
+              if c.hasPathOrNull("folder") then c.getString("folder")
               else "inputData/download/"
           )
         }
@@ -98,13 +98,13 @@ object SimbenchConfig {
       ): SimbenchConfig.Io.Input = {
         SimbenchConfig.Io.Input(
           csv = SimbenchConfig.CsvConfig(
-            if (c.hasPathOrNull("csv")) c.getConfig("csv")
+            if c.hasPathOrNull("csv") then c.getConfig("csv")
             else com.typesafe.config.ConfigFactory.parseString("csv{}"),
             parentPath + "csv.",
             $tsCfgValidator
           ),
           download = SimbenchConfig.Io.Input.Download(
-            if (c.hasPathOrNull("download")) c.getConfig("download")
+            if c.hasPathOrNull("download") then c.getConfig("download")
             else com.typesafe.config.ConfigFactory.parseString("download{}"),
             parentPath + "download.",
             $tsCfgValidator
@@ -127,13 +127,13 @@ object SimbenchConfig {
         SimbenchConfig.Io.Output(
           compress = !c.hasPathOrNull("compress") || c.getBoolean("compress"),
           csv = SimbenchConfig.CsvConfig(
-            if (c.hasPathOrNull("csv")) c.getConfig("csv")
+            if c.hasPathOrNull("csv") then c.getConfig("csv")
             else com.typesafe.config.ConfigFactory.parseString("csv{}"),
             parentPath + "csv.",
             $tsCfgValidator
           ),
           targetDir =
-            if (c.hasPathOrNull("targetFolder")) c.getString("targetFolder")
+            if c.hasPathOrNull("targetFolder") then c.getString("targetFolder")
             else "convertedData"
         )
       }
@@ -146,13 +146,13 @@ object SimbenchConfig {
     ): SimbenchConfig.Io = {
       SimbenchConfig.Io(
         input = SimbenchConfig.Io.Input(
-          if (c.hasPathOrNull("input")) c.getConfig("input")
+          if c.hasPathOrNull("input") then c.getConfig("input")
           else com.typesafe.config.ConfigFactory.parseString("input{}"),
           parentPath + "input.",
           $tsCfgValidator
         ),
         output = SimbenchConfig.Io.Output(
-          if (c.hasPathOrNull("output")) c.getConfig("output")
+          if c.hasPathOrNull("output") then c.getConfig("output")
           else com.typesafe.config.ConfigFactory.parseString("output{}"),
           parentPath + "output.",
           $tsCfgValidator
@@ -168,13 +168,13 @@ object SimbenchConfig {
     val parentPath: java.lang.String = ""
     val $result = SimbenchConfig(
       conversion = SimbenchConfig.Conversion(
-        if (c.hasPathOrNull("conversion")) c.getConfig("conversion")
+        if c.hasPathOrNull("conversion") then c.getConfig("conversion")
         else com.typesafe.config.ConfigFactory.parseString("conversion{}"),
         parentPath + "conversion.",
         $tsCfgValidator
       ),
       io = SimbenchConfig.Io(
-        if (c.hasPathOrNull("io")) c.getConfig("io")
+        if c.hasPathOrNull("io") then c.getConfig("io")
         else com.typesafe.config.ConfigFactory.parseString("io{}"),
         parentPath + "io.",
         $tsCfgValidator
@@ -189,7 +189,7 @@ object SimbenchConfig {
       parentPath: java.lang.String,
       $tsCfgValidator: $TsCfgValidator
   ): scala.List[java.lang.String] = {
-    import scala.jdk.CollectionConverters._
+    import scala.jdk.CollectionConverters.*
     cl.asScala.map(cv => $_str(cv)).toList
   }
   private def $_expE(
@@ -200,7 +200,7 @@ object SimbenchConfig {
     new java.lang.RuntimeException(
       s"${cv.origin.lineNumber}: " +
         "expecting: " + exp + " got: " +
-        (if (u.isInstanceOf[java.lang.String]) "\"" + u + "\"" else u)
+        (if u.isInstanceOf[java.lang.String] then "\"" + u + "\"" else u)
     )
   }
 
@@ -208,7 +208,7 @@ object SimbenchConfig {
     java.lang.String.valueOf(cv.unwrapped())
   }
 
-  private final class $TsCfgValidator {
+  final class $TsCfgValidator {
     private val badPaths =
       scala.collection.mutable.ArrayBuffer[java.lang.String]()
 
@@ -228,7 +228,7 @@ object SimbenchConfig {
     }
 
     def validate(): Unit = {
-      if (badPaths.nonEmpty) {
+      if badPaths.nonEmpty then {
         throw new com.typesafe.config.ConfigException(
           badPaths.mkString("Invalid configuration:\n    ", "\n    ", "")
         ) {}

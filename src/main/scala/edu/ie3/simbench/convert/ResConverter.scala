@@ -18,7 +18,7 @@ import edu.ie3.util.quantities.PowerSystemUnits.{
 import tech.units.indriya.quantity.Quantities
 
 import java.util.{Locale, UUID}
-import scala.collection.parallel.CollectionConverters._
+import scala.collection.parallel.CollectionConverters.*
 
 case object ResConverter extends ShuntConverter with LazyLogging {
 

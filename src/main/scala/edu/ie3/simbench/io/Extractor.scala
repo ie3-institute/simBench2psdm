@@ -44,7 +44,7 @@ class Extractor(simbenchConfig: SimbenchConfig) extends LazyLogging {
     val codeIndex = header.indexOf("code")
     val csvIndex = header.indexOf("csv")
 
-    if (codeIndex == -1 || csvIndex == -1) {
+    if codeIndex == -1 || csvIndex == -1 then {
       throw new IllegalArgumentException(
         "The required columns ('code', 'csv') are missing."
       )
@@ -53,7 +53,7 @@ class Extractor(simbenchConfig: SimbenchConfig) extends LazyLogging {
     // Extract the map
     val dataMap: Map[String, String] = data.flatMap { line =>
       val columns = line.split(",").map(_.trim)
-      if (columns.length > csvIndex) {
+      if columns.length > csvIndex then {
         val code = columns(codeIndex)
         val csv = columns(csvIndex)
         val uuidOpt = uuidPattern.findFirstIn(csv)
