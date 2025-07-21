@@ -330,7 +330,7 @@ final case class SimbenchReader(
               read(clazz, fields)
             }
         ),
-        Duration("20 s")
+        Duration("15 s")
       )
       .toMap
   }
