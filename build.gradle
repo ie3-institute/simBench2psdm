@@ -4,7 +4,7 @@ plugins {
 	id 'java' // java support
 	id 'scala' // scala support
 	id 'pmd' // code check, working on source code
-	id 'com.diffplug.spotless' version '7.1.0'// code format
+	id 'com.diffplug.spotless' version '7.2.0'// code format
 	id "de.undercouch.download" version "5.6.0" // downloads plugin
 	id 'jacoco' // java code coverage plugin
 	id "org.sonarqube" version "6.2.0.5505" // sonarqube
@@ -68,7 +68,7 @@ dependencies {
 
 	implementation 'tech.units:indriya:2.2.3'
 	implementation 'org.locationtech.jts:jts-core:1.20.0'
-	implementation 'commons-io:commons-io:2.19.0'
+	implementation 'commons-io:commons-io:2.20.0'
 
 	// logging
 	implementation 'org.apache.logging.log4j:log4j-api:+' // log4j
