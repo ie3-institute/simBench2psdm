@@ -48,7 +48,7 @@ case object Zipper extends IoUtils with LazyLogging {
 
     val zipFile = new ZipFile(zipArchive.toFile)
     val entries = zipFile.getEntries()
-    while (entries.hasMoreElements) {
+    while entries.hasMoreElements do {
       handleZipEntry(
         entries.nextElement(),
         zipFile,
@@ -74,9 +74,9 @@ case object Zipper extends IoUtils with LazyLogging {
       folderPath: Path,
       failOnNonEmptyFolder: Boolean
   ): Unit = {
-    if (!Files.exists(folderPath)) {
+    if !Files.exists(folderPath) then {
       Files.createDirectories(folderPath)
-    } else if (!Files.isDirectory(folderPath)) {
+    } else if !Files.isDirectory(folderPath) then {
       throw ZipperException(
         s"'$folderPath' already exists, but is not a directory"
       )
@@ -84,8 +84,8 @@ case object Zipper extends IoUtils with LazyLogging {
       /* Check if the folder is not empty */
       val folderStream = Files.newDirectoryStream(folderPath.toAbsolutePath)
       val folderEntryIterator = folderStream.iterator()
-      if (folderEntryIterator.hasNext) {
-        if (failOnNonEmptyFolder)
+      if folderEntryIterator.hasNext then {
+        if failOnNonEmptyFolder then
           throw ZipperException(
             s"Directory '$folderPath' is not empty"
           )
@@ -131,7 +131,7 @@ case object Zipper extends IoUtils with LazyLogging {
         )
         Files.createDirectories(subfolder)
       case (false, _) =>
-        val entryName = if (flattenDirectories) {
+        val entryName = if flattenDirectories then {
           fileNameRegexWithAnyEnding
             .findFirstIn(entry.getName)
             .getOrElse(
@@ -144,7 +144,7 @@ case object Zipper extends IoUtils with LazyLogging {
         }
         val forseenTagetFilePath =
           Paths.get(s"${targetFolder.toAbsolutePath.toString}/$entryName")
-        if (Files.exists(forseenTagetFilePath)) {
+        if Files.exists(forseenTagetFilePath) then {
           logger.warn(s"Target file $forseenTagetFilePath already exists")
         }
         val targetFilePath = Files.createFile(forseenTagetFilePath)

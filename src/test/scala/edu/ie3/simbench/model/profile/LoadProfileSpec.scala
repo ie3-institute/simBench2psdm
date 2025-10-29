@@ -3,7 +3,7 @@ package edu.ie3.simbench.model.profile
 import edu.ie3.simbench.exception.io.SimbenchDataModelException
 import edu.ie3.simbench.model.RawModelData
 import edu.ie3.simbench.model.datamodel.profiles.LoadProfile
-import edu.ie3.simbench.model.datamodel.profiles.LoadProfileType._
+import edu.ie3.simbench.model.datamodel.profiles.LoadProfileType.*
 import edu.ie3.test.common.{TestTimeUtils, UnitSpec}
 
 class LoadProfileSpec extends UnitSpec {

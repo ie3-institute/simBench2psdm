@@ -3,8 +3,8 @@ package edu.ie3.simbench.config
 import java.io.File
 import java.nio.file.Paths
 
-import com.typesafe.config.{ConfigFactory, Config => TypesafeConfig}
-import scopt.{OptionParser => scoptOptionParser}
+import com.typesafe.config.{ConfigFactory, Config as TypesafeConfig}
+import scopt.OptionParser as scoptOptionParser
 
 object ArgsParser {
   // case class for allowed arguments
@@ -24,11 +24,11 @@ object ArgsParser {
           )
         })
         .validate(value =>
-          if (value.trim.isEmpty) failure("config location cannot be empty")
+          if value.trim.isEmpty then failure("config location cannot be empty")
           else success
         )
         .validate(value =>
-          if (value.contains("\\"))
+          if value.contains("\\") then
             failure("wrong config path, expected: /, found: \\")
           else success
         )
@@ -48,7 +48,7 @@ object ArgsParser {
 
   private def parseTypesafeConfig(fileName: String): TypesafeConfig = {
     val file = Paths.get(fileName).toFile
-    if (!file.exists())
+    if !file.exists() then
       throw new Exception(s"Missing config file on path $fileName")
     parseTypesafeConfig(file)
   }

@@ -68,7 +68,7 @@ case object Transformer2wTypeConverter {
         3
       )) // Short circuit impedance of the total branch in Ohm
     val rSc = pCu / (3 * iRated * iRated) // Short circuit resistance in Ohm
-    if (rSc > zSc)
+    if rSc > zSc then
       throw ConversionException(
         s"Cannot convert two winding transformer type $id into ie3 type, as the conversion of short circuit parameters is not possible."
       )
@@ -81,7 +81,7 @@ case object Transformer2wTypeConverter {
     val vM = vmHV / sqrt(3) // Voltage at the main field admittance in V
     val yNoLoad = iNoLoad / vM // No load admittance in Ohm
     val gNoLoad = pFe / (3 * vM * vM) // No load conductance in Ohm
-    if (gNoLoad > yNoLoad)
+    if gNoLoad > yNoLoad then
       throw ConversionException(
         s"Cannot convert two winding transformer type $id into ie3 type, as the conversion of no load parameters is not possible."
       )

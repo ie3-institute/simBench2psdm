@@ -3,7 +3,7 @@ package edu.ie3.simbench.convert
 import edu.ie3.datamodel.models.input.NodeInput
 import edu.ie3.simbench.model.datamodel.Coordinate
 import edu.ie3.test.common.UnitSpec
-import org.locationtech.jts.geom.{GeometryFactory, Coordinate => JTSCoordinate}
+import org.locationtech.jts.geom.{GeometryFactory, Coordinate as JTSCoordinate}
 
 class CoordinateConverterSpec extends UnitSpec {
   "The coordinate converter" should {

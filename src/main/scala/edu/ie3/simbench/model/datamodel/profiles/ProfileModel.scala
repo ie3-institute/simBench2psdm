@@ -28,7 +28,7 @@ trait ProfileModel[T <: ProfileType, D] extends SimbenchModel {
 object ProfileModel {
 
   abstract class ProfileCompanionObject[C <: ProfileModel[
-    _ <: ProfileType,
+    ? <: ProfileType,
     D
   ], D]
       extends SimbenchCompanionObject[C] {

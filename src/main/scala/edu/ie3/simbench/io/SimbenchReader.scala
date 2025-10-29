@@ -6,7 +6,7 @@ import com.typesafe.scalalogging.LazyLogging
 import edu.ie3.simbench.exception.io.{IoException, SimbenchDataModelException}
 import edu.ie3.simbench.model.RawModelData
 import edu.ie3.simbench.model.datamodel.SimbenchModel.SimbenchCompanionObject
-import edu.ie3.simbench.model.datamodel._
+import edu.ie3.simbench.model.datamodel.*
 import edu.ie3.simbench.model.datamodel.profiles.{
   LoadProfile,
   PowerPlantProfile,
@@ -53,7 +53,7 @@ final case class SimbenchReader(
   val checkedFileExtension: String =
     IoUtils.getFileExtensionWithoutDot(fileExtension)
 
-  implicit val ec: ExecutionContextExecutor = ExecutionContext.global
+  given ec: ExecutionContextExecutor = ExecutionContext.global
 
   /* Define the classes to read */
   private val classesToRead = Vector(
@@ -65,7 +65,7 @@ final case class SimbenchReader(
     (classOf[ExternalNet], ExternalNet.getFields),
     (classOf[ACLineType], ACLineType.getFields),
     (classOf[DCLineType], DCLineType.getFields),
-    (classOf[Line[_ <: LineType]], Line.getFields),
+    (classOf[Line[? <: LineType]], Line.getFields),
     (classOf[Load], Load.getFields),
     (classOf[Node], Node.getFields),
     (classOf[NodePFResult], NodePFResult.getFields),
@@ -135,7 +135,7 @@ final case class SimbenchReader(
           "Cannot build nodes, as no raw data has been received."
         )
     }
-    val lines = modelClassToRawData.getOrElse(classOf[Line[_]], None) match {
+    val lines = modelClassToRawData.getOrElse(classOf[Line[?]], None) match {
       case Some(rawData) => Line.buildModels(rawData, nodes, lineTypes)
       case None =>
         throw IoException(
@@ -321,7 +321,7 @@ final case class SimbenchReader(
     *   A map of model class to a vector of maps from field to value
     */
   private def getFieldToValueMaps
-      : Map[Class[_], Option[Vector[RawModelData]]] = {
+      : Map[Class[?], Option[Vector[RawModelData]]] = {
     Await
       .result(
         Future.sequence(
@@ -344,7 +344,7 @@ final case class SimbenchReader(
     * @param cls
     *   Companion object to use for model generation
     * @param tag
-    *   Implicitly given class tag of the model class to build
+    *   Given class tag of the model class to build
     * @param optional
     *   true, if the models may or not be apparent (Default: true)
     * @tparam C
@@ -353,14 +353,14 @@ final case class SimbenchReader(
     *   A [[Vector]] of models
     */
   private def buildModels[C <: SimbenchModel](
-      modelClassToRawData: Map[Class[_], Option[Vector[RawModelData]]],
+      modelClassToRawData: Map[Class[?], Option[Vector[RawModelData]]],
       cls: SimbenchCompanionObject[C],
       optional: Boolean = true
-  )(implicit tag: ClassTag[C]): Vector[C] = {
+  )(using tag: ClassTag[C]): Vector[C] = {
     modelClassToRawData.getOrElse(tag.runtimeClass, None) match {
       case Some(rawData) => cls.buildModels(rawData)
       case None =>
-        if (optional) {
+        if optional then {
           logger.debug(
             s"No information available for ${tag.runtimeClass.getSimpleName}"
           )
