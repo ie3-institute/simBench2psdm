@@ -4,7 +4,6 @@
  */
 scoverage {
 	scoverageVersion = "2.4.2"
-	scoverageScalaVersion = scalaBinaryVersion
 	coverageOutputHTML = false
 	coverageOutputXML = true
 	coverageOutputCobertura = false
