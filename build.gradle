@@ -28,8 +28,8 @@ ext {
 group = 'com.github.ie3-institute'
 description = 'simbench2psdm'
 java{
-    sourceCompatibility = javaVersion
-    targetCompatibility = javaVersion
+	sourceCompatibility = javaVersion
+	targetCompatibility = javaVersion
 }
 
 apply from: scriptsLocation + 'pmd.gradle'
