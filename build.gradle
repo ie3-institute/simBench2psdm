@@ -27,8 +27,10 @@ ext {
 
 group = 'com.github.ie3-institute'
 description = 'simbench2psdm'
-sourceCompatibility = javaVersion
-targetCompatibility = javaVersion
+java{
+    sourceCompatibility = javaVersion
+    targetCompatibility = javaVersion
+}
 
 apply from: scriptsLocation + 'pmd.gradle'
 apply from: scriptsLocation + 'spotless.gradle'
@@ -41,10 +43,10 @@ apply from: scriptsLocation + 'mavenCentralPublish.gradle'
 
 repositories {
 	mavenCentral()
-	maven { url 'https://www.jitpack.io' } // allows github repos as dependencies
+	maven { url = 'https://www.jitpack.io' } // allows github repos as dependencies
 
 	// sonatype snapshots repo // todo remove
-	maven { url 'https://oss.sonatype.org/service/local/repositories/snapshots/content' }
+	maven { url = 'https://oss.sonatype.org/service/local/repositories/snapshots/content' }
 }
 
 dependencies {
