@@ -15,7 +15,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fixed Version Check logic for Dependabot PRs [#330](https://github.com/ie3-institute/simBench2psdm/issues/330)
 - Removed Jenkins Pipeline. Now using GitHub Actions [#328](https://github.com/ie3-institute/simBench2psdm/issues/328)
 - Switch to Java 21 [#343](https://github.com/ie3-institute/simBench2psdm/issues/343)
--   Updated to `scala3` [#313](https://github.com/ie3-institute/simBench2psdm/issues/313)
+- Updated to `scala3` [#313](https://github.com/ie3-institute/simBench2psdm/issues/313)
 
 ## [1.0.0] - 2021-08-03
 ### Added
