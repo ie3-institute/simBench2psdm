@@ -14,7 +14,7 @@ import tech.units.indriya.quantity.Quantities
 import java.util.UUID
 import javax.measure.quantity.Power
 import scala.collection.parallel.CollectionConverters.ImmutableIterableIsParallelizable
-import scala.jdk.CollectionConverters._
+import scala.jdk.CollectionConverters.*
 
 case object PowerProfileConverter {
 
@@ -67,7 +67,7 @@ case object PowerProfileConverter {
     *   for each time step
     */
   def convert(
-      profileModel: ProfileModel[_ <: ProfileType, (BigDecimal, BigDecimal)],
+      profileModel: ProfileModel[? <: ProfileType, (BigDecimal, BigDecimal)],
       pRated: ComparableQuantity[Power],
       qRated: ComparableQuantity[Power]
   ): IndividualTimeSeries[SValue] = {
@@ -125,7 +125,7 @@ case object PowerProfileConverter {
     *   A [[IndividualTimeSeries]] with active power for each time step
     */
   def convert(
-      profileModel: ProfileModel[_ <: ProfileType, BigDecimal],
+      profileModel: ProfileModel[? <: ProfileType, BigDecimal],
       pRated: ComparableQuantity[Power]
   ): IndividualTimeSeries[PValue] = {
     val values = profileModel.profile.map { case (zdt, pScaling) =>

@@ -3,7 +3,7 @@ package edu.ie3.simbench.convert
 import edu.ie3.datamodel.models.input.NodeInput
 import edu.ie3.simbench.model.datamodel.Coordinate
 import edu.ie3.util.geo.GeoUtils
-import org.locationtech.jts.geom.{Point, Coordinate => JTSCoordinate}
+import org.locationtech.jts.geom.{Point, Coordinate as JTSCoordinate}
 
 /** Converts a SimBench coordinate to the needed geometry position of
   * PowerSystemDataModel

@@ -64,16 +64,14 @@ case object MeasurementConverter extends LazyLogging {
           )
         )
         /* If there are at least two measurements, check if both together serve for functions, that can be joined */
-        if (measurementGroup.size > 1) {
+        if measurementGroup.size > 1 then {
           val coveredVariables = measurementGroup.map(_.variable).toSet
           /* If both current and voltage are measured, power can be measured, too */
           val voltageMeasured = coveredVariables.contains(Voltage)
           val (pMeasured, qMeasured) = {
-            if (
-              coveredVariables
+            if coveredVariables
                 .contains(Current) && coveredVariables.contains(Voltage)
-            )
-              (true, true)
+            then (true, true)
             else
               (
                 coveredVariables.contains(ActivePower),

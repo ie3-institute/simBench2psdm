@@ -12,7 +12,7 @@ import edu.ie3.test.common.{TestTimeUtils, UnitSpec}
 import edu.ie3.util.quantities.PowerSystemUnits.{KILOVAR, KILOWATT}
 import tech.units.indriya.quantity.Quantities
 
-import scala.jdk.OptionConverters._
+import scala.jdk.OptionConverters.*
 import scala.math.abs
 
 class PowerProfileConverterSpec extends UnitSpec {

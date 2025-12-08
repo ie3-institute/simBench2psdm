@@ -17,8 +17,8 @@ ext {
 	//version (changing these should be considered thoroughly!)
 	javaVersion = JavaVersion.VERSION_21
 
-	scalaVersion = '2.13'
-	scalaBinaryVersion = '2.13.18'
+	scalaVersion = '3'
+	scalaBinaryVersion = '3.7.0'
 	tscfgVersion = '1.2.5'
 	slf4jVersion = '2.0.17'
 
@@ -27,7 +27,7 @@ ext {
 
 group = 'com.github.ie3-institute'
 description = 'simbench2psdm'
-java {
+java{
 	sourceCompatibility = javaVersion
 	targetCompatibility = javaVersion
 }
@@ -43,10 +43,10 @@ apply from: scriptsLocation + 'mavenCentralPublish.gradle'
 
 repositories {
 	mavenCentral()
-	maven { url 'https://www.jitpack.io' } // allows github repos as dependencies
+	maven { url = 'https://www.jitpack.io' } // allows github repos as dependencies
 
 	// sonatype snapshots repo // todo remove
-	maven { url 'https://oss.sonatype.org/service/local/repositories/snapshots/content' }
+	maven { url = 'https://oss.sonatype.org/service/local/repositories/snapshots/content' }
 }
 
 dependencies {
@@ -59,7 +59,7 @@ dependencies {
 	}
 
 	/* util functions */
-	implementation('com.github.ie3-institute:PowerSystemUtils:2.2.1') {
+	implementation('com.github.ie3-institute:PowerSystemUtils:3.1.0') {
 		exclude group: 'org.apache.logging.log4j'
 		exclude group: 'org.slf4j'
 		/* Exclude our own nested dependencies */
@@ -82,8 +82,8 @@ dependencies {
 
 	// NEW scala libs //
 	// CORE Scala //
-	implementation "org.scala-lang:scala-library:$scalaBinaryVersion"
-	implementation 'org.scala-lang.modules:scala-parallel-collections_2.13:1.2.0'
+	implementation "org.scala-lang:scala3-library_3:$scalaBinaryVersion"
+	implementation "org.scala-lang.modules:scala-parallel-collections_$scalaVersion:1.2.0"
 
 	// TEST Scala //
 	testImplementation "org.scalatest:scalatest_${scalaVersion}:3.2.19"
@@ -93,7 +93,7 @@ dependencies {
 
 	// config //
 	implementation 'com.typesafe:config:+'
-	implementation "com.github.carueda:tscfg_2.13:${tscfgVersion}"
+	implementation "com.github.carueda:tscfg_$scalaVersion:${tscfgVersion}"
 
 	// cmd args parser //
 	implementation "com.github.scopt:scopt_${scalaVersion}:+"
