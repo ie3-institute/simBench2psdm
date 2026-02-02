@@ -50,7 +50,7 @@ case object GridConverter extends LazyLogging {
     * @param gridInput
     *   Total grid input model to be converted
     * @param removeSwitches
-    *   Whether or not to remove switches from the grid structure
+    *   Whether to remove switches from the grid structure
     * @return
     *   A converted [[JointGridContainer]], a [[Vector]] of
     *   [[IndividualTimeSeries]] as well as a [[Vector]] of [[NodeResult]]s
@@ -102,7 +102,7 @@ case object GridConverter extends LazyLogging {
     * @param gridInput
     *   Total grid input model to convert
     * @param removeSwitches
-    *   Whether or not to remove switches from the grid structure
+    *   Whether to remove switches from the grid structure
     * @return
     *   All grid elements in converted form + a mapping from old to new node
     *   models
@@ -111,7 +111,7 @@ case object GridConverter extends LazyLogging {
       gridInput: GridModel,
       removeSwitches: Boolean
   ): (RawGridElements, Map[Node, NodeInput]) = {
-    /* Set up a sub net converter, by crawling all nodes */
+    /* Set up a subnet converter, by crawling all nodes */
     val subnetConverter = SubnetConverter(
       gridInput.nodes.map(node => (node.vmR, node.subnet))
     )
@@ -468,7 +468,7 @@ case object GridConverter extends LazyLogging {
       .seq
       .toMap
 
-    /* Finally convert all left over nodes */
+    /* Finally convert all leftover nodes */
     conversionWithJoinedNodes ++ singleNodes.par
       .map(node =>
         node -> NodeConverter.convert(

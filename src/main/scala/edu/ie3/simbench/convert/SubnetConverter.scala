@@ -5,16 +5,16 @@ import edu.ie3.simbench.exception.ConversionException
 
 import scala.util.matching.Regex
 
-/** SimBench's concept of "sub net" is a little bit different to ie3 power
-  * system data model's understanding of it. This class does the mapping between
-  * the SimBench and the power system data model understanding. Therefore,
-  * SimBench nodes' subnet and rated voltage information are used and mapped
-  * onto an integer.
+/** SimBench's concept of "subnet" is a little bit different to ie3 power system
+  * data model's understanding of it. This class does the mapping between the
+  * SimBench and the power system data model understanding. Therefore, SimBench
+  * nodes' subnet and rated voltage information are used and mapped onto an
+  * integer.
   *
   * The pair of rated voltage and subnet string is in first order sorted
   * descending with respect to the rated voltage and in second order ascending
-  * in it's id and mapped against an ascending integer counting from 1 onwards.
-  * In general the subnet ids in SimBench look like "EHV1" or "LV5". However,
+  * in its id and mapped against an ascending integer counting from 1 onward. In
+  * general the subnet ids in SimBench look like "EHV1" or "LV5". However,
   * within substations the ids like "EHV1_HV1" are used. For usage in power
   * system data model those ids are not taken into account, but in later
   * identification split up to the distinct part. E.g. if a node with 220 kV
@@ -101,7 +101,7 @@ final case class SubnetConverter(ratedVoltageIdPairs: Vector[RatedVoltId]) {
     * @param id
     *   Identifier of the subnet
     * @return
-    *   Int representation of the SimBench sub net
+    *   Int representation of the SimBench subnet
     */
   def convert(ratedVoltage: BigDecimal, id: String): Int = {
     id match {
