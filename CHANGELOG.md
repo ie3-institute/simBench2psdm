@@ -17,7 +17,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Removed Jenkins Pipeline. Now using GitHub Actions [#328](https://github.com/ie3-institute/simBench2psdm/issues/328)
 - Switch to Java 21 [#343](https://github.com/ie3-institute/simBench2psdm/issues/343)
 - Updated to `scala3` [#313](https://github.com/ie3-institute/simBench2psdm/issues/313)
-- Adapt grid creation to be inline with new subgrid number concept [#334](https://github.com/ie3-institute/simBench2psdm/issues/334) 
+- Adapt grid creation to be inline with new subgrid number concept [#334](https://github.com/ie3-institute/simBench2psdm/issues/334)
 
 ## [1.0.0] - 2021-08-03
 ### Added
