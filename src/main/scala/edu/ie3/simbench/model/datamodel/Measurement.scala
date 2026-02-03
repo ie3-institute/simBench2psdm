@@ -52,7 +52,7 @@ object Measurement extends EntityModelCompanionObject[Measurement] {
     */
   final case class LineMeasurement(
       id: String,
-      line: Line[_ <: LineType],
+      line: Line[? <: LineType],
       node: Node,
       variable: MeasurementVariable,
       subnet: String,
@@ -126,7 +126,7 @@ object Measurement extends EntityModelCompanionObject[Measurement] {
   def buildModels(
       rawData: Vector[RawModelData],
       nodes: Map[String, Node],
-      lines: Map[String, Line[_ <: LineType]],
+      lines: Map[String, Line[? <: LineType]],
       transformers2W: Map[String, Transformer2W]
   ): Vector[Measurement] =
     for (entry <- rawData) yield {
@@ -134,7 +134,7 @@ object Measurement extends EntityModelCompanionObject[Measurement] {
       val node = getNode(entry.get(ELEMENT_1), nodes)
       val variable = MeasurementVariable(entry.get(VARIABLE))
       val element2 = entry.get(ELEMENT_2)
-      if (element2.toLowerCase == "null" || element2.isEmpty)
+      if element2.toLowerCase == "null" || element2.isEmpty then
         NodeMeasurement(id, node, variable, subnet, voltLvl)
       else
         lines.get(element2) match {

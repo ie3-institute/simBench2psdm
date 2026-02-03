@@ -7,11 +7,6 @@ updates:
       time: "05:00"
     open-pull-requests-limit: 10
     target-branch: main
-    reviewers:
-      - t-ober
-      - sensarmad
-      - sebastian-peter
-      - danielfeismann
     ignore:
       - dependency-name: org.jgrapht:jgrapht-core
         versions:

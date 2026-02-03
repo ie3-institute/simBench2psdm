@@ -1,8 +1,6 @@
 package edu.ie3.simbench.convert
 
 import edu.ie3.datamodel.models.StandardUnits
-import edu.ie3.simbench.model.datamodel.enums.ResType
-import edu.ie3.simbench.model.datamodel.enums.ResType.LvRural1
 
 import java.util.Objects
 import edu.ie3.simbench.model.datamodel.profiles.{ResProfile, ResProfileType}
@@ -16,7 +14,7 @@ class ResConverterSpec
     extends UnitSpec
     with QuantityMatchers
     with ConverterTestData {
-  implicit val quantityMatchingTolerance: Double = 1e-4
+  given quantityMatchingTolerance: Double = 1e-4
 
   "The RES converter" should {
     val (node, nodeInput) = getNodePair("MV1.101 Bus 4")

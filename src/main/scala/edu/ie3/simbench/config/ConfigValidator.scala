@@ -52,7 +52,7 @@ case object ConfigValidator {
       throw new SimbenchConfigException(s"No simbench codes were provided!")
     }
 
-    for (code <- codes) {
+    for code <- codes do {
       SimbenchCode.isValid(code) match {
         case Success(_)         =>
         case Failure(exception) => throw exception

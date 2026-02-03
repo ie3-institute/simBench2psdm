@@ -4,49 +4,54 @@ plugins {
 	id 'java' // java support
 	id 'scala' // scala support
 	id 'pmd' // code check, working on source code
-	id 'com.diffplug.spotless' version '7.0.2'// code format
+	id 'com.diffplug.spotless' version '8.2.1'// code format
 	id "de.undercouch.download" version "5.6.0" // downloads plugin
 	id 'jacoco' // java code coverage plugin
-	id "org.sonarqube" version "6.0.1.5171" // sonarqube
+	id "org.sonarqube" version "7.2.2.6593" // sonarqube
 	id 'org.scoverage' version '8.1' // Code coverage plugin for scala
-	id "com.github.maiflai.scalatest" version "0.32" // run scalatest without specific task
+	id 'net.thauvin.erik.gradle.semver' version '1.0.4' // semantic versioning
+	id "com.github.maiflai.scalatest" version "0.33" // run scalatest without specific task
 }
 
 ext {
 	//version (changing these should be considered thoroughly!)
-	javaVersion = JavaVersion.VERSION_17
+	javaVersion = JavaVersion.VERSION_21
 
-	scalaVersion = '2.13'
-	scalaBinaryVersion = '2.13.16'
-	tscfgVersion = '1.2.4'
-	slf4jVersion = '2.0.16'
+	scalaVersion = '3'
+	scalaBinaryVersion = '3.7.4'
+	tscfgVersion = '1.2.5'
+	slf4jVersion = '2.0.17'
 
 	scriptsLocation = 'gradle' + File.separator + 'scripts' + File.separator //location of script plugins
 }
 
 group = 'com.github.ie3-institute'
 description = 'simbench2psdm'
-version = '1.1-SNAPSHOT'
-sourceCompatibility = javaVersion
-targetCompatibility = javaVersion
+java{
+	sourceCompatibility = javaVersion
+	targetCompatibility = javaVersion
+}
 
 apply from: scriptsLocation + 'pmd.gradle'
 apply from: scriptsLocation + 'spotless.gradle'
 apply from: scriptsLocation + 'checkJavaVersion.gradle'
 apply from: scriptsLocation + 'tscfg.gradle' // config tasks
 apply from: scriptsLocation + 'scoverage.gradle'
+apply from: scriptsLocation + 'semVer.gradle'
+apply from: scriptsLocation + 'branchName.gradle'
+apply from: scriptsLocation + 'mavenCentralPublish.gradle'
 
 repositories {
 	mavenCentral()
-	maven { url 'https://www.jitpack.io' } // allows github repos as dependencies
+	maven { url = 'https://www.jitpack.io' } // allows github repos as dependencies
 
 	// sonatype snapshots repo // todo remove
-	maven { url 'https://oss.sonatype.org/service/local/repositories/snapshots/content' }
+	maven { url = 'https://oss.sonatype.org/service/local/repositories/snapshots/content' }
 }
 
 dependencies {
 	/* PowerSystemDataModel */
-	implementation('com.github.ie3-institute:PowerSystemDataModel:5.1.0') {
+	implementation('com.github.ie3-institute:PowerSystemDataModel:8.1.0') {
 		exclude group: 'org.apache.logging.log4j'
 		exclude group: 'org.slf4j'
 		/* Exclude our own nested dependencies */
@@ -54,18 +59,18 @@ dependencies {
 	}
 
 	/* util functions */
-	implementation('com.github.ie3-institute:PowerSystemUtils:2.2.1') {
+	implementation('com.github.ie3-institute:PowerSystemUtils:3.1.0') {
 		exclude group: 'org.apache.logging.log4j'
 		exclude group: 'org.slf4j'
 		/* Exclude our own nested dependencies */
 		exclude group: 'com.github.ie3-institute'
 	}
 
-	implementation 'org.codehaus.groovy:groovy:3.0.23'
+	implementation 'org.codehaus.groovy:groovy:3.0.25'
 
-	implementation 'tech.units:indriya:2.2.2'
+	implementation 'tech.units:indriya:2.2.3'
 	implementation 'org.locationtech.jts:jts-core:1.20.0'
-	implementation 'commons-io:commons-io:2.18.0'
+	implementation 'commons-io:commons-io:2.21.0'
 
 	// logging
 	implementation 'org.apache.logging.log4j:log4j-api:+' // log4j
@@ -77,18 +82,18 @@ dependencies {
 
 	// NEW scala libs //
 	// CORE Scala //
-	implementation "org.scala-lang:scala-library:$scalaBinaryVersion"
-	implementation 'org.scala-lang.modules:scala-parallel-collections_2.13:1.2.0'
+	implementation "org.scala-lang:scala3-library_3:$scalaBinaryVersion"
+	implementation "org.scala-lang.modules:scala-parallel-collections_$scalaVersion:1.2.0"
 
 	// TEST Scala //
 	testImplementation "org.scalatest:scalatest_${scalaVersion}:3.2.19"
 	testImplementation 'com.vladsch.flexmark:flexmark-all:0.64.8'
 	testImplementation "org.pegdown:pegdown:1.6.0" // HTML report for scalatest
-	implementation 'org.mockito:mockito-core:5.15.2' // mocking framework
+	implementation 'org.mockito:mockito-core:5.21.0' // mocking framework
 
 	// config //
 	implementation 'com.typesafe:config:+'
-	implementation "com.github.carueda:tscfg_2.13:${tscfgVersion}"
+	implementation "com.github.carueda:tscfg_$scalaVersion:${tscfgVersion}"
 
 	// cmd args parser //
 	implementation "com.github.scopt:scopt_${scalaVersion}:+"
@@ -97,10 +102,11 @@ dependencies {
 	implementation "org.apache.commons:commons-compress:+"
 }
 
-wrapper {
-	gradleVersion = '7.6'
+tasks.withType(JavaCompile).configureEach {
+	options.encoding = 'UTF-8'
 }
 
-tasks.withType(JavaCompile) {
-	options.encoding = 'UTF-8'
+tasks.named('test') {
+	dependsOn tasks.named('compileScoverageGroovy')
+	dependsOn tasks.named('processScoverageResources')
 }

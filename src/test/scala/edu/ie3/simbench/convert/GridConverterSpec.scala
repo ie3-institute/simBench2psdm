@@ -10,9 +10,9 @@ import edu.ie3.simbench.convert.NodeConverter.AttributeOverride.JoinOverride
 import edu.ie3.simbench.io.SimbenchReader
 import edu.ie3.simbench.model.datamodel.{GridModel, Node, Switch}
 import edu.ie3.test.common.{SwitchTestingData, UnitSpec}
-import org.scalatest.Inside._
+import org.scalatest.Inside.*
 
-import scala.jdk.CollectionConverters._
+import scala.jdk.CollectionConverters.*
 
 class GridConverterSpec extends UnitSpec with SwitchTestingData {
   val simbenchReader: SimbenchReader = SimbenchReader(
@@ -94,9 +94,9 @@ class GridConverterSpec extends UnitSpec with SwitchTestingData {
         actual.flatten.distinct.size shouldBe 6
 
         actual.sortBy(_.size).foreach { group =>
-          if (group.contains(switchAB)) {
+          if group.contains(switchAB) then {
             group.contains(switchBC) shouldBe true
-          } else if (group.contains(switchDE)) {
+          } else if group.contains(switchDE) then {
             group.contains(switchDF) shouldBe true
             group.contains(switchDG) shouldBe true
           } else {
@@ -173,7 +173,7 @@ class GridConverterSpec extends UnitSpec with SwitchTestingData {
             countClassOccurrences(
               gridContainer.getGraphics.allEntitiesAsList()
             ) shouldBe Map
-              .empty[Class[_ <: UniqueEntity], Int]
+              .empty[Class[? <: UniqueEntity], Int]
 
             /* Evaluate the correctness of the time series by counting the occurrence of models */
             timeSeries.size shouldBe 16
@@ -187,7 +187,7 @@ class GridConverterSpec extends UnitSpec with SwitchTestingData {
               .toVector
             /* There is no participant uuid in mapping, that is not among participants */
             timeSeriesMapping.exists(entry =>
-              !participantUuids.contains(entry.participant())
+              !participantUuids.contains(entry.getAsset)
             ) shouldBe false
 
             /* Evaluate the amount of converted power flow results */
@@ -198,8 +198,8 @@ class GridConverterSpec extends UnitSpec with SwitchTestingData {
   }
 
   def countClassOccurrences(
-      entities: util.List[_ <: UniqueEntity]
-  ): Map[Class[_ <: UniqueEntity], Int] =
+      entities: util.List[? <: UniqueEntity]
+  ): Map[Class[? <: UniqueEntity], Int] =
     entities.asScala
       .groupBy(_.getClass)
       .map(classToOccurrences =>

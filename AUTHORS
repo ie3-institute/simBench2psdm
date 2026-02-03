@@ -1,6 +1,12 @@
 Copyright (c) 2020, Institute of Energy Systems, Energy Efficiency and Energy Economics (ie3)
 All rights reserved.
 
+# Authors
+This file lists all authors that have been involved in the development of simbench2psdm either based due their
+involvement in related research projects, as research assistants or by making voluntarily contributions.
+
+### Research Associates
+#### Initial Work / 1. Generation
 Lead Developers:
     - Chris Kittl
 
@@ -10,3 +16,12 @@ Main Contributers:
 Coordination:
     - Chris Kittl
     - Johannes Hiry
+
+#### 2. Generation
+    - Sebastian Peter
+    - Daniel Feismann
+    - Marius Staudt
+
+### Scientific Assistants
+- Philipp Schmelter
+- Karthik Karanam
