@@ -182,7 +182,7 @@ trait ConverterTestData {
         false,
         NodeInput.DEFAULT_GEO_POSITION,
         MV_10KV,
-        2
+        1
       )
     ),
     "EHV Bus 177" -> ConversionPair(

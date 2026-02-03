@@ -21,10 +21,10 @@ class SubnetConverterSpec extends UnitSpec with TableDrivenPropertyChecks {
         Map(
           (BigDecimal("380"), "EHV") -> 1,
           (BigDecimal("20"), "MV1") -> 2,
-          (BigDecimal("20"), "MV2") -> 3,
-          (BigDecimal("10"), "MV") -> 4,
-          (BigDecimal("0.4"), "LV") -> 5,
-          (BigDecimal("0.4"), "LV1") -> 6
+          (BigDecimal("20"), "MV2") -> 2,
+          (BigDecimal("10"), "MV") -> 3,
+          (BigDecimal("0.4"), "LV") -> 4,
+          (BigDecimal("0.4"), "LV1") -> 4
         )
 
       val actual = converter.mapping
@@ -43,9 +43,9 @@ class SubnetConverterSpec extends UnitSpec with TableDrivenPropertyChecks {
         ("ratedVoltage", "id", "expected"),
         (BigDecimal("380"), "EHV", 1),
         (BigDecimal("20"), "MV1", 2),
-        (BigDecimal("0.4"), "LV1", 6),
+        (BigDecimal("0.4"), "LV1", 4),
         (BigDecimal("20"), "MV1_LV1", 2),
-        (BigDecimal("0.4"), "MV1_LV1", 6)
+        (BigDecimal("0.4"), "MV1_LV1", 4)
       )
 
       forAll(testData) {
