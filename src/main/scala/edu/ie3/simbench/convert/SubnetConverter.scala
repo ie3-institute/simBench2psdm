@@ -80,19 +80,31 @@ final case class SubnetConverter(ratedVoltageIdPairs: Vector[RatedVoltId]) {
     }
     .distinct
     .sortWith {
-      /* Sort the input descending in rated voltage and ascending in id */
-      case ((thisRatedVolt, thisId), (thatRatedVolt, thatId)) =>
+      // sort descending in rated voltage and ascending in id
+      case ((thisRatedVolt,thisId),(thatRatedVolt,thatId)) =>
         thisRatedVolt.compareTo(thatRatedVolt) match {
           case 1  => true
           case -1 => false
           case 0  => thisId < thatId
         }
     }
-    .zipWithIndex
-    .map { case (ratedVoltIdPair, subGridId) =>
-      ratedVoltIdPair -> (subGridId + 1)
-    }
-    .toMap
+    // 🔹 group all entries with equal numeric voltage together
+    .groupBy(_._1)
+    // 🔹 sort groups descending by their voltage value
+    .toSeq.sortBy(-_._1)
+    // 🔹 assign one subgrid number per voltage group
+    .foldLeft((Map.empty[(BigDecimal,String),Int], 0)) {
+      case ((acc,currentNumber),(volt,pairs)) =>
+        val nextNumber = currentNumber + 1
+
+        val updatedAcc = pairs.foldLeft(acc) {
+          case (innerAcc,pair @ (_,id)) =>
+            innerAcc + (pair -> nextNumber)
+        }
+
+        (updatedAcc,nextNumber)
+    }._1
+
 
   /** Get the converted subnet as Int
     *
