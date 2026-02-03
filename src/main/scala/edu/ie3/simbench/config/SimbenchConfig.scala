@@ -124,7 +124,7 @@ object SimbenchConfig {
             if c.hasPathOrNull("directory") then c.getString("directory")
             else "input/download/",
           download =
-            if (c.hasPathOrNull("download"))
+            if c.hasPathOrNull("download") then
               scala.Some(
                 SimbenchConfig.Io.Input.Download(
                   c.getConfig("download"),
@@ -134,7 +134,7 @@ object SimbenchConfig {
               )
             else None,
           localFile =
-            if (c.hasPathOrNull("localFile"))
+            if c.hasPathOrNull("localFile") then
               scala.Some(
                 SimbenchConfig.Io.Input.LocalFile(
                   c.getConfig("localFile"),

@@ -13,7 +13,7 @@ import scala.util.Try
 import scala.util.matching.Regex
 
 class ExtractorSpec
-  extends UnitSpec
+    extends UnitSpec
     with IoUtils
     with Matchers
     with BeforeAndAfterAll
@@ -24,8 +24,7 @@ class ExtractorSpec
 
   val download: Download = Download(
     baseUrl = "https://daks.uni-kassel.de/bitstreams",
-    failOnExistingFiles = false,
-    directory = tempDir.toString
+    failOnExistingFiles = false
   )
 
   val input: Input = Input(
@@ -35,7 +34,9 @@ class ExtractorSpec
       fileEnding = ".csv",
       separator = ";"
     ),
-    download = download
+    directory = tempDir.toString,
+    download = Some(download),
+    localFile = None
   )
 
   val output: Output = Output(

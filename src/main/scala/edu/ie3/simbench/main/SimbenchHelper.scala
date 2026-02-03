@@ -98,7 +98,7 @@ trait SimbenchHelper extends LazyLogging {
   ): Path = {
     (cfg.localFile, cfg.download) match {
       case (Some(local), None) =>
-        if (local.isZipped) {
+        if local.isZipped then {
           Zipper.unzip(
             Path.of(cfg.directory, simbenchCode + ".zip"),
             cfg.directory,
@@ -166,7 +166,7 @@ trait SimbenchHelper extends LazyLogging {
         simbenchConfig.io.output.targetDir
       )
 
-    val csvSink = if (simbenchConfig.io.output.csv.directoryHierarchy) {
+    val csvSink = if simbenchConfig.io.output.csv.directoryHierarchy then {
       new CsvFileSink(
         Path.of(baseTargetDirectory),
         new FileNamingStrategy(

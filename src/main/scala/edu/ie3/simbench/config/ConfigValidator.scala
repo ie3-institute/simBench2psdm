@@ -48,7 +48,7 @@ case object ConfigValidator {
     */
   @throws[CodeValidationException]
   private def checkSimbenchCodes(codes: List[java.lang.String]): Unit = {
-    if (codes.isEmpty) {
+    if codes.isEmpty then {
       throw new SimbenchConfigException(s"No simbench codes were provided!")
     }
 

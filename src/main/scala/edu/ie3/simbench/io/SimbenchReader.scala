@@ -87,7 +87,7 @@ final case class SimbenchReader(
      * Await is okay here */
     val modelClassToRawData = getFieldToValueMaps
 
-    if (modelClassToRawData.forall(_._2.isEmpty)) {
+    if modelClassToRawData.forall(_._2.isEmpty) then {
       throw SimbenchDataModelException(
         s"Model is empty. Please check the provided data."
       )

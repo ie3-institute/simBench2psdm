@@ -80,7 +80,7 @@ object RunSimbench extends SimbenchHelper {
       csvSink.persistAllIgnoreNested(timeSeriesMapping.asJava)
       csvSink.persistAll(powerFlowResults.asJava)
 
-      if (simbenchConfig.io.output.compress) {
+      if simbenchConfig.io.output.compress then {
         compressCsv(simbenchCode, baseTargetDirectory)
       }
     }
