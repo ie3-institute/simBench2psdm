@@ -69,8 +69,13 @@ final case class SubnetConverter(ratedVoltageIdPairs: Vector[RatedVoltId]) {
                     )
                 }
             }
-
-          case _ => (ratedVoltage, firstSubnetId)
+          case (Some(secondSubnetId), None) =>
+            throw new IllegalArgumentException(
+              s"Cannot handle subnet id '$secondSubnetId', as it does not contain voltage level information"
+            )
+          case _ =>
+            /* Use the original information, but without feeder information */
+            (ratedVoltage, firstSubnetId)
         }
     }
 
