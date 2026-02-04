@@ -15,7 +15,8 @@ class SubnetConverterSpec extends UnitSpec with TableDrivenPropertyChecks {
       (BigDecimal("0.4"), "LV1"),
       (BigDecimal("20"), "MV1_LV1"),
       (BigDecimal("110"), "HV1"),
-      (BigDecimal("20"), "MV4.101")
+      (BigDecimal("20"), "MV4.101"),
+      (BigDecimal("20"), "MV1.101") // test false condition
     )
     val converter = SubnetConverter(ratedVoltageIdPairs)
 
@@ -25,6 +26,7 @@ class SubnetConverterSpec extends UnitSpec with TableDrivenPropertyChecks {
           (BigDecimal("380"), "EHV") -> 1,
           (BigDecimal("110"), "HV1") -> 2,
           (BigDecimal("20"), "MV1") -> 3,
+          (BigDecimal("20"), "MV1.101") -> 3,
           (BigDecimal("20"), "MV2") -> 4,
           (BigDecimal("20"), "MV4.101") -> 5,
           (BigDecimal("10"), "MV") -> 6,
