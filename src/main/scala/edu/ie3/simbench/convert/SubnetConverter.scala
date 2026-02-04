@@ -137,7 +137,7 @@ final case class SubnetConverter(ratedVoltageIdPairs: Vector[RatedVoltId]) {
       .collectFirst {
         case ("ehv", (lb, ub)) if v > lb && v <= ub => "EHV"
         case ("hv", (lb, ub)) if v > lb && v <= ub  => "HV"
-        case ("mv", (lb, ub)) if v > lb && v <= ub  => "MV"
+        case ("mv", (lb, ub)) if v >= lb && v <= ub  => "MV"
         case ("lv", (lb, ub)) if v >= lb && v < ub  => "LV"
       }
       .getOrElse("UNKNOWN")
