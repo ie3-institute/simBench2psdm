@@ -50,7 +50,7 @@ case object GridConverter extends LazyLogging {
     * @param gridInput
     *   Total grid input model to be converted
     * @param removeSwitches
-    *   Whether or not to remove switches from the grid structure
+    *   Whether to remove switches from the grid structure
     * @return
     *   A converted [[JointGridContainer]], a [[Vector]] of
     *   [[IndividualTimeSeries]] as well as a [[Vector]] of [[NodeResult]]s
@@ -102,7 +102,7 @@ case object GridConverter extends LazyLogging {
     * @param gridInput
     *   Total grid input model to convert
     * @param removeSwitches
-    *   Whether or not to remove switches from the grid structure
+    *   Whether to remove switches from the grid structure
     * @return
     *   All grid elements in converted form + a mapping from old to new node
     *   models
@@ -111,7 +111,7 @@ case object GridConverter extends LazyLogging {
       gridInput: GridModel,
       removeSwitches: Boolean
   ): (RawGridElements, Map[Node, NodeInput]) = {
-    /* Set up a sub net converter, by crawling all nodes */
+    /* Set up a subnet converter, by crawling all nodes */
     val subnetConverter = SubnetConverter(
       gridInput.nodes.map(node => (node.vmR, node.subnet))
     )
@@ -122,14 +122,6 @@ case object GridConverter extends LazyLogging {
       gridInput.res
     )
 
-    /* Collect overriding attributes for node conversion, based on special constellations within the grid */
-    val subnetOverrides = determineSubnetOverrides(
-      gridInput.transformers2w,
-      gridInput.transformers3w,
-      gridInput.switches,
-      gridInput.lines,
-      subnetConverter
-    )
     val joinOverrides = if removeSwitches then {
       /* If switches are meant to be removed, join all nodes at closed switches */
       determineJoinOverrides(gridInput.switches, slackNodeKeys)
@@ -140,7 +132,6 @@ case object GridConverter extends LazyLogging {
         gridInput.nodes,
         slackNodeKeys,
         subnetConverter,
-        subnetOverrides,
         joinOverrides
       )
 
@@ -182,150 +173,6 @@ case object GridConverter extends LazyLogging {
       ),
       connectedNodes
     )
-  }
-
-  /** Determine all relevant subnet override information. SimBench has a
-    * different notion of where the border of a subnet is. This is especially
-    * the case, if there is switch gear "upstream" of a transformer. For
-    * SimBench all nodes upstream of the transformer belong to the higher grid.
-    * However, for PowerSystemDataModel we expect the switch gear to belong to
-    * the lower grid (the transformer is in), as in a partitioned simulation,
-    * one most likely will control the switches in a manner, that the lower grid
-    * needs for. Therefore, for all nodes that are upstream of a transformer's
-    * hv node and connected via switches, explicit subnet numbers are provided.
-    *
-    * @param transformers2w
-    *   Collection of two winding transformers
-    * @param transformers3w
-    *   Collection of three winding transformers
-    * @param switches
-    *   Collection of switches
-    * @param lines
-    *   Collection of lines
-    * @param subnetConverter
-    *   Converter to determine subnet numbers
-    * @return
-    *   A collection of [[SubnetOverride]]s
-    */
-  private def determineSubnetOverrides(
-      transformers2w: Vector[Transformer2W],
-      transformers3w: Vector[Transformer3W],
-      switches: Vector[Switch],
-      lines: Vector[Line[_]],
-      subnetConverter: SubnetConverter
-  ): Vector[SubnetOverride] = {
-    /* All nodes, at which a branch element is connected */
-    val junctions =
-      (lines.flatMap(line => Vector(line.nodeA, line.nodeB)) ++ transformers2w
-        .flatMap(transformer =>
-          Vector(transformer.nodeHV, transformer.nodeLV)
-        ) ++ transformers3w.flatMap(transformer =>
-        Vector(transformer.nodeHV, transformer.nodeLV, transformer.nodeMV)
-      )).distinct
-
-    transformers2w.flatMap { transformer =>
-      val relevantSubnet = subnetConverter.convert(
-        transformer.nodeLV.vmR,
-        transformer.nodeLV.subnet
-      )
-      val startNode = transformer.nodeHV
-      determineSubnetOverrides(
-        startNode,
-        switches,
-        junctions.filterNot(_ == startNode),
-        relevantSubnet
-      )
-    } ++ transformers3w.flatMap { transformer =>
-      val relevantSubnet = subnetConverter.convert(
-        transformer.nodeHV.vmR,
-        transformer.nodeHV.subnet
-      )
-      val startNode = transformer.nodeHV
-      determineSubnetOverrides(
-        startNode,
-        switches,
-        junctions.filterNot(_ == startNode),
-        relevantSubnet
-      )
-    }
-  }
-
-  /** Traveling along a switch chain starting from a starting node and stopping
-    * at dead ends and those nodes, that are marked explicitly as junctions.
-    * During this travel, every node we come along gets a [[SubnetOverride]]
-    * instance assigned, marking, that later in node conversion, this explicit
-    * subnet number shall be used. The subnet at junctions and dead ends is not
-    * altered. Adding the traveled nodes to the list of junctions, prevents from
-    * running in circles forever. Pay attention, that when starting from the hv
-    * node of a transformer, it may not be included in the set of junction
-    * nodes, if it is not part of any other junction.
-    *
-    * @param startNode
-    *   Node, where the traversal begins
-    * @param switches
-    *   Collection of all switches
-    * @param junctions
-    *   Collection of nodes, that are junctions
-    * @param relevantSubnet
-    *   The explicit subnet number to use later
-    * @param overrides
-    *   Current collection of overrides (for recursive usage)
-    * @return
-    *   A collection of [[SubnetOverride]]s for this traversal
-    */
-  private def determineSubnetOverrides(
-      startNode: Node,
-      switches: Vector[Switch],
-      junctions: Vector[Node],
-      relevantSubnet: Int,
-      overrides: Vector[SubnetOverride] = Vector.empty
-  ): Vector[SubnetOverride] = {
-    /* If the start node is among the junctions, do not travel further (Attention: Start node should not be among
-     * junctions when the traversing starts, otherwise nothing will happen at all.) */
-    if junctions.contains(startNode) then return overrides
-
-    /* Get all switches, that are connected to the current starting point. If the other end of the switch is a junction,
-     * don't follow this path, as the other side wouldn't be touched anyways. */
-    val nextSwitches = switches.filter {
-      case Switch(_, nodeA, nodeB, _, _, _, _, _) if nodeA == startNode =>
-        !junctions.contains(nodeB)
-      case Switch(_, nodeA, nodeB, _, _, _, _, _) if nodeB == startNode =>
-        !junctions.contains(nodeA)
-      case _ => false
-    }
-
-    if nextSwitches.isEmpty then {
-      /* There is no further switch, therefore the end is reached -> return the new mapping. Please note, as the subnet
-       * of the current node is only altered, if there is a next switch available, dead end nodes are not altered. */
-      overrides
-    } else {
-      /* Copy new node and add it to the mapping */
-      val subnetOverride = SubnetOverride(startNode.getKey, relevantSubnet)
-      val updatedOverrides = overrides :+ subnetOverride
-      val updatedJunctions = junctions.appended(startNode)
-
-      /* For all possible next upcoming switches -> Traverse along each branch (depth first search) */
-      nextSwitches.foldLeft(updatedOverrides) {
-        case (currentOverride, switch) =>
-          /* Determine the next node */
-          val nextNode =
-            Vector(switch.nodeA, switch.nodeB).find(_ != startNode) match {
-              case Some(value) => value
-              case None =>
-                throw ConversionException(
-                  s"Cannot traverse along '$switch', as the next node cannot be determined."
-                )
-            }
-
-          return determineSubnetOverrides(
-            nextNode,
-            switches,
-            updatedJunctions,
-            relevantSubnet,
-            currentOverride
-          )
-      }
-    }
   }
 
   /** Determine join overrides for all nodes, that are connected by closed
@@ -415,8 +262,6 @@ case object GridConverter extends LazyLogging {
     * @param subnetConverter
     *   Converter holding the mapping information from simbench to power system
     *   data model sub grid
-    * @param subnetOverrides
-    *   Collection of explicit subnet assignments
     * @param joinOverrides
     *   Collection of pairs of nodes, that are meant to be joined
     * @return
@@ -426,12 +271,8 @@ case object GridConverter extends LazyLogging {
       nodes: Vector[Node],
       slackNodeKeys: Vector[Node.NodeKey],
       subnetConverter: SubnetConverter,
-      subnetOverrides: Vector[SubnetOverride],
       joinOverrides: Vector[JoinOverride]
   ): Map[Node, NodeInput] = {
-    val nodeToExplicitSubnet = subnetOverrides.map {
-      case SubnetOverride(key, subnet) => key -> subnet
-    }.toMap
 
     /* First convert all nodes, that are target of node joins */
     val nodeToJoinMap = joinOverrides.map { case JoinOverride(key, joinWith) =>
@@ -445,8 +286,7 @@ case object GridConverter extends LazyLogging {
         node -> NodeConverter.convert(
           node,
           slackNodeKeys,
-          subnetConverter,
-          nodeToExplicitSubnet.get(node.getKey)
+          subnetConverter
         )
       )
       .seq
@@ -468,14 +308,13 @@ case object GridConverter extends LazyLogging {
       .seq
       .toMap
 
-    /* Finally convert all left over nodes */
+    /* Finally convert all leftover nodes */
     conversionWithJoinedNodes ++ singleNodes.par
       .map(node =>
         node -> NodeConverter.convert(
           node,
           slackNodeKeys,
-          subnetConverter,
-          nodeToExplicitSubnet.get(node.getKey)
+          subnetConverter
         )
       )
       .seq
