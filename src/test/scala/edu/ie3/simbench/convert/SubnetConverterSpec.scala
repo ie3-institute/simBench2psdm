@@ -43,9 +43,9 @@ class SubnetConverterSpec extends UnitSpec with TableDrivenPropertyChecks {
         ("ratedVoltage", "id", "expected"),
         (BigDecimal("380"), "EHV", 1),
         (BigDecimal("20"), "MV1", 2),
-        (BigDecimal("0.4"), "LV1", 5),
+        (BigDecimal("0.4"), "LV1", 6),
         (BigDecimal("20"), "MV1_LV1", 2),
-        (BigDecimal("0.4"), "MV1_LV1", 5)
+        (BigDecimal("0.4"), "MV1_LV1", 6)
       )
 
       forAll(testData) {
