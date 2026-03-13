@@ -124,7 +124,6 @@ class NodeConverterSpec extends UnitSpec with ConverterTestData {
           slackNode,
           slackNodeKeys,
           subnetConverter,
-          None,
           uuid
         )
 
@@ -143,7 +142,6 @@ class NodeConverterSpec extends UnitSpec with ConverterTestData {
           otherNode,
           slackNodeKeys,
           subnetConverter,
-          None,
           uuid
         )
       actual.getId shouldBe otherNodeExpected.getId
