@@ -4,10 +4,10 @@ plugins {
 	id 'java' // java support
 	id 'scala' // scala support
 	id 'pmd' // code check, working on source code
-	id 'com.diffplug.spotless' version '8.2.1'// code format
+	id 'com.diffplug.spotless' version '8.4.0'// code format
 	id "de.undercouch.download" version "5.7.0" // downloads plugin
 	id 'jacoco' // java code coverage plugin
-	id "org.sonarqube" version "7.2.2.6593" // sonarqube
+	id "org.sonarqube" version "7.2.3.7755" // sonarqube
 	id 'org.scoverage' version '8.1' // Code coverage plugin for scala
 	id 'net.thauvin.erik.gradle.semver' version '1.0.4' // semantic versioning
 	id "com.github.maiflai.scalatest" version "0.33" // run scalatest without specific task
@@ -86,10 +86,10 @@ dependencies {
 	implementation "org.scala-lang.modules:scala-parallel-collections_$scalaVersion:1.2.0"
 
 	// TEST Scala //
-	testImplementation "org.scalatest:scalatest_${scalaVersion}:3.2.19"
+	testImplementation "org.scalatest:scalatest_${scalaVersion}:3.2.20"
 	testImplementation 'com.vladsch.flexmark:flexmark-all:0.64.8'
 	testImplementation "org.pegdown:pegdown:1.6.0" // HTML report for scalatest
-	implementation 'org.mockito:mockito-core:5.21.0' // mocking framework
+	implementation 'org.mockito:mockito-core:5.23.0' // mocking framework
 
 	// config //
 	implementation 'com.typesafe:config:+'
