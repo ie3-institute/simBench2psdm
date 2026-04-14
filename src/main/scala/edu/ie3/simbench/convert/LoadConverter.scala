@@ -5,7 +5,7 @@ import edu.ie3.datamodel.models.OperationTime
 import edu.ie3.datamodel.models.input.system.LoadInput
 import edu.ie3.datamodel.models.input.system.characteristic.CosPhiFixed
 import edu.ie3.datamodel.models.input.{NodeInput, OperatorInput}
-import edu.ie3.datamodel.models.profile.LoadProfile.DefaultLoadProfiles
+import edu.ie3.datamodel.models.profile.PowerProfileKey
 import edu.ie3.datamodel.models.timeseries.individual.IndividualTimeSeries
 import edu.ie3.datamodel.models.value.SValue
 import edu.ie3.simbench.convert.profiles.PowerProfileConverter
@@ -48,7 +48,7 @@ case object LoadConverter extends ShuntConverter with LazyLogging {
       .toMap
   }
 
-  /** Converts a single SimBench [[Load]] to ie3's [[LoadInput]]. Currently not
+  /** Converts a single SimBench [[Load]] to ie3's [[LoadInput]]. Currently, not
     * sufficiently covered:
     *   - Consumed energy throughout the year
     *   - different VAr characteristics
@@ -82,7 +82,7 @@ case object LoadConverter extends ShuntConverter with LazyLogging {
       node,
       new CosPhiFixed(varCharacteristicString),
       null,
-      DefaultLoadProfiles.NO_LOAD_PROFILE,
+      PowerProfileKey.NO_KEY_ASSIGNED,
       eCons,
       sRated,
       cosphi
