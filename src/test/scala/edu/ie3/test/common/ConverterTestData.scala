@@ -25,7 +25,7 @@ import edu.ie3.datamodel.models.input.{
   NodeInput,
   OperatorInput
 }
-import edu.ie3.datamodel.models.profile.LoadProfile.DefaultLoadProfiles
+import edu.ie3.datamodel.models.profile.PowerProfileKey
 import edu.ie3.datamodel.models.result.NodeResult
 import edu.ie3.datamodel.models.voltagelevels.GermanVoltageLevelUtils
 import edu.ie3.datamodel.models.voltagelevels.GermanVoltageLevelUtils.{
@@ -763,7 +763,7 @@ trait ConverterTestData {
         getNodePair("LV1.101 Bus 1")._2,
         new CosPhiFixed("cosPhiFixed:{(0.0,0.93)}"),
         null,
-        DefaultLoadProfiles.NO_LOAD_PROFILE,
+        PowerProfileKey.NO_KEY_ASSIGNED,
         Quantities.getQuantity(0d, KILOWATTHOUR),
         Quantities.getQuantity(15.0538, KILOVOLTAMPERE),
         0.93
