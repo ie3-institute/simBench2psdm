@@ -22,43 +22,41 @@ class ExtractorSpec
   private lazy val tempDir: Path =
     Files.createTempDirectory("extractorTest")
 
-  private lazy val extractor: Extractor = {
-    val download: Download = Download(
-      baseUrl = "https://daks.uni-kassel.de/bitstreams",
-      failOnExistingFiles = false,
-      directory = tempDir.toString
-    )
+  val download: Download = Download(
+    baseUrl = "https://daks.uni-kassel.de/bitstreams",
+    failOnExistingFiles = false
+  )
 
-    val input: Input = Input(
-      csv = SimbenchConfig.CsvConfig(
-        directoryHierarchy = false,
-        fileEncoding = "UTF-8",
-        fileEnding = ".csv",
-        separator = ";"
-      ),
-      download = download
-    )
+  val input: Input = Input(
+    csv = SimbenchConfig.CsvConfig(
+      directoryHierarchy = false,
+      fileEncoding = "UTF-8",
+      fileEnding = ".csv",
+      separator = ";"
+    ),
+    directory = tempDir.toString,
+    download = Some(download),
+    localFile = None
+  )
 
-    val output: Output = Output(
-      compress = true,
-      csv = SimbenchConfig.CsvConfig(
-        directoryHierarchy = false,
-        fileEncoding = "UTF-8",
-        fileEnding = ".csv",
-        separator = ";"
-      ),
-      targetDir = "convertedData"
-    )
+  val output: Output = Output(
+    compress = true,
+    csv = SimbenchConfig.CsvConfig(
+      directoryHierarchy = false,
+      fileEncoding = "UTF-8",
+      fileEnding = ".csv",
+      separator = ";"
+    ),
+    targetDir = "convertedData"
+  )
+  val io: Io = Io(input = input, output = output, simbenchCodes = List.empty)
 
-    val io: Io = Io(input = input, output = output, simbenchCodes = List.empty)
+  val simbenchConfig: SimbenchConfig = SimbenchConfig(
+    conversion = SimbenchConfig.Conversion(removeSwitches = false),
+    io = io
+  )
 
-    val simbenchConfig: SimbenchConfig = SimbenchConfig(
-      conversion = SimbenchConfig.Conversion(removeSwitches = false),
-      io = io
-    )
-
-    new Extractor(simbenchConfig)
-  }
+  val extractor = new Extractor(input)
 
   private lazy val uuidPattern: Regex =
     "[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}".r
