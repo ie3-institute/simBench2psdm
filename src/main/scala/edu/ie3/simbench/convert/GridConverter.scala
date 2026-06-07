@@ -12,14 +12,9 @@ import edu.ie3.datamodel.models.input.connector.{
 }
 import edu.ie3.datamodel.models.input.container.{
   EnergyManagementUnits,
-  GraphicElements,
   JointGridContainer,
   RawGridElements,
   SystemParticipants
-}
-import edu.ie3.datamodel.models.input.graphics.{
-  LineGraphicInput,
-  NodeGraphicInput
 }
 import edu.ie3.datamodel.models.input.system.*
 import edu.ie3.datamodel.models.result.NodeResult
@@ -91,11 +86,7 @@ case object GridConverter extends LazyLogging {
         simbenchCode,
         rawGridElements,
         systemParticipants,
-        energyManagementUnits,
-        new GraphicElements(
-          Set.empty[NodeGraphicInput].asJava,
-          Set.empty[LineGraphicInput].asJava
-        )
+        energyManagementUnits
       ),
       timeSeries,
       timeSeriesMapping,
