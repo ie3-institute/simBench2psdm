@@ -107,9 +107,9 @@ trait SwitchTestingData {
     voltLvl = 7,
     substation = None
   )
-  val switchGroup0 = Vector(switchAB, switchBC)
+  val switchGroup0: Vector[Switch] = Vector(switchAB, switchBC)
 
-  /* Second switch chain between nodes D, E, F und G */
+  /* Second switch chain between nodes D, E, F and G */
   val switchDE: Switch = Switch(
     "switchDE",
     nodeD,
@@ -140,7 +140,7 @@ trait SwitchTestingData {
     voltLvl = 7,
     substation = None
   )
-  val switchGroup1 = Vector(switchDE, switchDF, switchDG)
+  val switchGroup1: Vector[Switch] = Vector(switchDE, switchDF, switchDG)
 
   /* Third switch "chain" between node H and I */
   val switchHI: Switch = Switch(
@@ -153,8 +153,8 @@ trait SwitchTestingData {
     voltLvl = 7,
     substation = None
   )
-  val switchGroup2 = Vector(switchHI)
+  val switchGroup2: Vector[Switch] = Vector(switchHI)
 
-  val switches =
+  val switches: Vector[Switch] =
     Vector(switchAB, switchBC, switchDE, switchDF, switchDG, switchHI)
 }
