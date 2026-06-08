@@ -170,10 +170,6 @@ class GridConverterSpec extends UnitSpec with SwitchTestingData {
               classOf[FixedFeedInInput] -> 4,
               classOf[LoadInput] -> 13
             )
-            countClassOccurrences(
-              gridContainer.getGraphics.allEntitiesAsList()
-            ) shouldBe Map
-              .empty[Class[? <: UniqueEntity], Int]
 
             /* Evaluate the correctness of the time series by counting the occurrence of models */
             timeSeries.size shouldBe 16

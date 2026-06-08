@@ -11,14 +11,10 @@ import edu.ie3.datamodel.models.input.connector.{
   Transformer3WInput
 }
 import edu.ie3.datamodel.models.input.container.{
-  GraphicElements,
+  EnergyManagementUnits,
   JointGridContainer,
   RawGridElements,
   SystemParticipants
-}
-import edu.ie3.datamodel.models.input.graphics.{
-  LineGraphicInput,
-  NodeGraphicInput
 }
 import edu.ie3.datamodel.models.input.system.*
 import edu.ie3.datamodel.models.result.NodeResult
@@ -81,15 +77,16 @@ case object GridConverter extends LazyLogging {
     val powerFlowResults =
       convertNodeResults(gridInput.nodePFResults, nodeConversion)
 
+    val energyManagementUnits = new EnergyManagementUnits(
+      Set.empty[EnergyManagementUnits].asJava
+    )
+
     (
       new JointGridContainer(
         simbenchCode,
         rawGridElements,
         systemParticipants,
-        new GraphicElements(
-          Set.empty[NodeGraphicInput].asJava,
-          Set.empty[LineGraphicInput].asJava
-        )
+        energyManagementUnits
       ),
       timeSeries,
       timeSeriesMapping,
@@ -107,7 +104,7 @@ case object GridConverter extends LazyLogging {
     *   All grid elements in converted form + a mapping from old to new node
     *   models
     */
-  def convertGridElements(
+  private def convertGridElements(
       gridInput: GridModel,
       removeSwitches: Boolean
   ): (RawGridElements, Map[Node, NodeInput]) = {
@@ -441,7 +438,7 @@ case object GridConverter extends LazyLogging {
     *   A collection of converted system participants and their individual time
     *   series
     */
-  def convertParticipants(
+  private def convertParticipants(
       gridInput: GridModel,
       nodeConversion: Map[Node, NodeInput]
   ): (
@@ -487,6 +484,7 @@ case object GridConverter extends LazyLogging {
         Set.empty[EvInput].asJava,
         (powerPlantsToTimeSeries.keySet ++ resToTimeSeries.keySet).asJava,
         Set.empty[HpInput].asJava,
+        Set.empty[AcInput].asJava,
         loadsToTimeSeries.keySet.asJava,
         Set.empty[PvInput].asJava,
         Set.empty[StorageInput].asJava,
@@ -506,7 +504,7 @@ case object GridConverter extends LazyLogging {
     * @return
     *   A mapping from loads to their assigned, specific time series
     */
-  def convertLoads(
+  private def convertLoads(
       gridInput: GridModel,
       nodeConversion: Map[Node, NodeInput]
   ): Map[LoadInput, IndividualTimeSeries[SValue]] = {
@@ -525,7 +523,7 @@ case object GridConverter extends LazyLogging {
     * @return
     *   A mapping from power plants to their assigned, specific time series
     */
-  def convertPowerPlants(
+  private def convertPowerPlants(
       gridInput: GridModel,
       nodeConversion: Map[Node, NodeInput]
   ): Map[FixedFeedInInput, IndividualTimeSeries[PValue]] = {
@@ -549,7 +547,7 @@ case object GridConverter extends LazyLogging {
     *   A mapping from renewable energy source system to their assigned,
     *   specific time series
     */
-  def convertRes(
+  private def convertRes(
       gridInput: GridModel,
       nodeConversion: Map[Node, NodeInput]
   ): Map[FixedFeedInInput, IndividualTimeSeries[PValue]] = {
