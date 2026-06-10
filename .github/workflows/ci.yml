@@ -11,14 +11,12 @@ on:
       - 'docs/**'
     branches:
       - main
-      - dev
       - 'hotfix/*'
       - 'rel/*'
       - 'dependabot/*'
   pull_request:
     branches:
       - main
-      - dev
     types:
       - opened
       - synchronize

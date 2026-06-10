@@ -1,5 +1,3 @@
-import org.gradle.api.GradleException
-
 tasks.register('stagingAtMavenCentralPortal') {
 	group = 'publishing'
 	description = 'Stages uploaded artifacts to Maven Central Portal for manual approval'
