@@ -1,25 +1,24 @@
 /* Maven publish - start */
+
 tasks.register("sourcesJar", Jar) {
 	archiveClassifier.set("sources")
-	from(sourceSets.main.allJava)
+	from sourceSets.main.allJava
 }
 
 tasks.register("javadocJar", Jar) {
-	dependsOn(tasks.named("javadoc"))
+	dependsOn tasks.named("javadoc", Javadoc)
 	archiveClassifier.set("javadoc")
-	from(tasks.named("javadoc").get().destinationDir)
+	from { tasks.named("javadoc", Javadoc).get().destinationDir }
 }
 
-if (project.hasProperty('user') && project.hasProperty('password')) {
-	signing {
-		required { !version.endsWith('SNAPSHOT') }
-		if(required)
-			sign(publishing.publications)
-	}
+if (project.hasProperty('mavenCentralUser') && project.hasProperty('mavenCentralPassword') && project.hasProperty('deployVersion')) {
+
+	// snapshot version differs from normal version
+	String versionString = project.getProperty('deployVersion')
 
 	publishing {
 		publications {
-			mavenJava(MavenPublication) {
+			create("mavenJava", MavenPublication) {
 
 				versionMapping {
 					// resolves dynamic versioning to current version number
@@ -62,38 +61,40 @@ if (project.hasProperty('user') && project.hasProperty('password')) {
 				}
 
 				removeTestDependenciesFromPom(pom)
-				groupId group
-				artifactId 'simBench2psdm'
-				version version
+				groupId = group
+				artifactId = 'simBench2psdm'
+				version = versionString
 
 				from components.java
-				artifact sourcesJar
-				artifact javadocJar
+				artifact tasks.named("sourcesJar")
+				artifact tasks.named("javadocJar")
 			}
 		}
 		repositories {
 			maven {
-				def releasesRepoUrl = "https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/"
-				def snapshotsRepoUrl = "https://s01.oss.sonatype.org/content/repositories/snapshots/"
-				url = version.endsWith('SNAPSHOT') ? snapshotsRepoUrl : releasesRepoUrl
+				name = "MavenCentral"
+				url = "https://ossrh-staging-api.central.sonatype.com/service/local/staging/deploy/maven2/"
 				credentials {
-					username project.getProperty('user')
-					password project.getProperty('password')
+					username = project.findProperty('mavenCentralUser')
+					password = project.findProperty('mavenCentralPassword')
 				}
 			}
 		}
+		signing {
+			useInMemoryPgpKeys(
+					findProperty('signingKey') as String,
+					findProperty('signingPassword') as String
+					)
+			sign publications.mavenJava
+		}
 	}
 
-
-	model {
-		tasks.generatePomFileForMavenJavaPublication {
-			destination = file("$rootDir/build/generated-pom.xml")
-		}
+	tasks.named("generatePomFileForMavenJavaPublication") {
+		destination = layout.buildDirectory.file("generated-pom.xml").get().asFile
 	}
 }
 
 def removeTestDependenciesFromPom(pom) {
-
 	pom.withXml {
 		def root = asNode()
 		// eliminate test-scoped dependencies (no need in maven central POMs)
@@ -102,6 +103,5 @@ def removeTestDependenciesFromPom(pom) {
 		}
 	}
 }
-
 
 /* Maven publish - end */
