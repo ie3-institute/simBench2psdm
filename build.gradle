@@ -4,11 +4,13 @@ plugins {
 	id 'java' // java support
 	id 'scala' // scala support
 	id 'pmd' // code check, working on source code
-	id 'com.diffplug.spotless' version '8.6.0'// code format
+	id 'signing'
+	id 'maven-publish' // publish to a maven repo
+	id 'com.diffplug.spotless' version '8.9.0'// code format
 	id "de.undercouch.download" version "5.7.0" // downloads plugin
 	id 'jacoco' // java code coverage plugin
-	id "org.sonarqube" version "7.3.1.8318" // sonarqube
-	id 'org.scoverage' version '8.1' // Code coverage plugin for scala
+	id "org.sonarqube" version "7.4.0.8496" // sonarqube
+	id 'org.scoverage' version '9.1' // Code coverage plugin for scala
 	id 'net.thauvin.erik.gradle.semver' version '1.0.4' // semantic versioning
 	id "com.github.maiflai.scalatest" version "0.33" // run scalatest without specific task
 }
@@ -39,14 +41,17 @@ apply from: scriptsLocation + 'tscfg.gradle' // config tasks
 apply from: scriptsLocation + 'scoverage.gradle'
 apply from: scriptsLocation + 'semVer.gradle'
 apply from: scriptsLocation + 'branchName.gradle'
-apply from: scriptsLocation + 'mavenCentralPublish.gradle'
+apply from: scriptsLocation + 'uploadToMavenCentralPortal.gradle' // upload for deploy
+apply from: scriptsLocation + 'stagingAtMavenCentralPortal.gradle' // stage for deploy
 
 repositories {
 	mavenCentral()
 	maven { url = 'https://www.jitpack.io' } // allows github repos as dependencies
 
 	// sonatype snapshots repo // todo remove
-	maven { url = 'https://oss.sonatype.org/service/local/repositories/snapshots/content' }
+	maven {
+		url = 'https://oss.sonatype.org/service/local/repositories/snapshots/content'
+	}
 }
 
 dependencies {
@@ -59,7 +64,7 @@ dependencies {
 	}
 
 	/* util functions */
-	implementation('com.github.ie3-institute:PowerSystemUtils:3.2.1') {
+	implementation('com.github.ie3-institute:PowerSystemUtils:3.2.2') {
 		exclude group: 'org.apache.logging.log4j'
 		exclude group: 'org.slf4j'
 		/* Exclude our own nested dependencies */
