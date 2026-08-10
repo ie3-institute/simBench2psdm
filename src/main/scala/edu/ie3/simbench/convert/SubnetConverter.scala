@@ -5,16 +5,16 @@ import edu.ie3.simbench.exception.ConversionException
 
 import scala.util.matching.Regex
 
-/** SimBench's concept of "sub net" is a little bit different to ie3 power
-  * system data model's understanding of it. This class does the mapping between
-  * the SimBench and the power system data model understanding. Therefore,
-  * SimBench nodes' subnet and rated voltage information are used and mapped
-  * onto an integer.
+/** SimBench's concept of "subnet" is a little bit different to ie3 power system
+  * data model's understanding of it. This class does the mapping between the
+  * SimBench and the power system data model understanding. Therefore, SimBench
+  * nodes' subnet and rated voltage information are used and mapped onto an
+  * integer.
   *
   * The pair of rated voltage and subnet string is in first order sorted
   * descending with respect to the rated voltage and in second order ascending
-  * in it's id and mapped against an ascending integer counting from 1 onwards.
-  * In general the subnet ids in SimBench look like "EHV1" or "LV5". However,
+  * in its id and mapped against an ascending integer counting from 1 onward. In
+  * general the subnet ids in SimBench look like "EHV1" or "LV5". However,
   * within substations the ids like "EHV1_HV1" are used. For usage in power
   * system data model those ids are not taken into account, but in later
   * identification split up to the distinct part. E.g. if a node with 220 kV
@@ -30,7 +30,7 @@ import scala.util.matching.Regex
   *   Vector of known combinations of rated voltage and subnet id
   */
 final case class SubnetConverter(ratedVoltageIdPairs: Vector[RatedVoltId]) {
-  val mapping: Map[RatedVoltId, Int] = ratedVoltageIdPairs.distinct
+  val parsedPairs: Vector[RatedVoltId] = ratedVoltageIdPairs.distinct
     .map {
       case (
             ratedVoltage,
@@ -78,21 +78,79 @@ final case class SubnetConverter(ratedVoltageIdPairs: Vector[RatedVoltId]) {
             (ratedVoltage, firstSubnetId)
         }
     }
-    .distinct
-    .sortWith {
-      /* Sort the input descending in rated voltage and ascending in id */
-      case ((thisRatedVolt, thisId), (thatRatedVolt, thatId)) =>
-        thisRatedVolt.compareTo(thatRatedVolt) match {
-          case 1  => true
-          case -1 => false
-          case 0  => thisId < thatId
+
+  val sortedPairs = parsedPairs.distinct.sortWith {
+    case ((thisRatedVolt, thisId), (thatRatedVolt, thatId)) =>
+      // first sort by ratedVolt
+      thisRatedVolt.compareTo(thatRatedVolt) match {
+        case 1  => true
+        case -1 => false
+        case 0 => {
+          // second sort by id
+          val thisIdLvl = idToVoltage(thisId) // convert id to decimal
+          val thatIdLvl = idToVoltage(thatId) // convert id to decimal
+          thisIdLvl.compareTo(thatIdLvl) match {
+            case 1  => true
+            case -1 => false
+            case 0  => thisId < thatId // order alphabetical by id
+          }
         }
+      }
+  }
+
+  val mapping: Map[RatedVoltId, Int] = {
+    var currentNo = 1
+    var lastVoltGroup = sortedPairs.head._1
+    var lastLevel = sortedPairs.head._2
+
+    sortedPairs.foldLeft(Map.empty[RatedVoltId, Int]) {
+      case (acc, (volt, id)) =>
+        val voltLevel = levelFromVoltage(volt)
+        val idLevel = levelFromId(id)
+
+        val vltLvlMatchId = voltLevel == idLevel
+        val sameVltLvl = volt.equals(lastVoltGroup)
+        val sameGridId = id.split('.').head.equals(lastLevel.split('.').head)
+
+        // We have a new subnet and increase subNetNumber either if
+        //  voltageLevel (vmR) match to id AND it is NOT the same voltage level as in last step OR
+        //  voltageLevel (vmR) match to id AND it is the same voltage level AND the first part of the gridId differs from last step
+        if (vltLvlMatchId && !sameVltLvl) || (vltLvlMatchId && sameVltLvl && !sameGridId)
+        then {
+          currentNo += 1
+          lastVoltGroup = volt
+        }
+        lastLevel = id
+        acc + ((volt, id) -> currentNo)
     }
-    .zipWithIndex
-    .map { case (ratedVoltIdPair, subGridId) =>
-      ratedVoltIdPair -> (subGridId + 1)
+  }
+
+  private def idToVoltage(id: String): BigDecimal = {
+    val level = id.takeWhile(_.isLetter).toUpperCase
+    level match {
+      case "EHV" => 380
+      case "HV"  => 110
+      case "MV"  => 20
+      case "LV"  => 0.4
+      case _     => 0
     }
-    .toMap
+  }
+
+  private def levelFromVoltage(v: BigDecimal): String =
+    SubnetConverter.permissibleRatedVoltages
+      .collectFirst {
+        case ("ehv", (lb, ub)) if v > lb && v <= ub => "EHV"
+        case ("hv", (lb, ub)) if v > lb && v <= ub  => "HV"
+        case ("mv", (lb, ub)) if v >= lb && v <= ub => "MV"
+        case ("lv", (lb, ub)) if v >= lb && v < ub  => "LV"
+      }
+      .getOrElse("UNKNOWN")
+
+  private def levelFromId(id: String): String =
+    id.takeWhile(_.isLetter).toUpperCase match {
+      case lvl @ ("EHV" | "HV" | "MV" | "LV") => lvl
+      case _                                  => "UNKNOWN"
+    }
 
   /** Get the converted subnet as Int
     *
@@ -101,7 +159,7 @@ final case class SubnetConverter(ratedVoltageIdPairs: Vector[RatedVoltId]) {
     * @param id
     *   Identifier of the subnet
     * @return
-    *   Int representation of the SimBench sub net
+    *   Int representation of the SimBench subnet
     */
   def convert(ratedVoltage: BigDecimal, id: String): Int = {
     id match {
