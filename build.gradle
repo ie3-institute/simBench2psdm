@@ -49,7 +49,9 @@ repositories {
 	maven { url = 'https://www.jitpack.io' } // allows github repos as dependencies
 
 	// sonatype snapshots repo // todo remove
-	maven { url = 'https://oss.sonatype.org/service/local/repositories/snapshots/content' }
+	maven {
+		url = 'https://oss.sonatype.org/service/local/repositories/snapshots/content'
+	}
 }
 
 dependencies {
