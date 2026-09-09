@@ -8,10 +8,24 @@ import edu.ie3.simbench.config.SimbenchConfig.Io.Input
 trait ConfigTestData {
   val validIoInputConfig = new SimbenchConfig.Io.Input(
     new SimbenchConfig.CsvConfig(false, "UTF-8", ".csv", ";"),
-    new Input.Download(
-      "http://141.51.193.167/simbench/gui/usecase/download",
-      false,
-      "testData/download/"
+    "testData/download/",
+    Some(
+      new Input.Download(
+        "http://141.51.193.167/simbench/gui/usecase/download",
+        false
+      )
+    ),
+    None
+  )
+  val validIoInputConfigWithLocalFileSource = new SimbenchConfig.Io.Input(
+    new SimbenchConfig.CsvConfig(false, "UTF-8", ".csv", ";"),
+    "testData/download/",
+    None,
+    Some(
+      new Input.LocalFile(
+        failOnExistingFiles = false,
+        isZipped = true
+      )
     )
   )
   val validIoOutputConfig = new SimbenchConfig.Io.Output(
