@@ -4,5 +4,5 @@ package edu.ie3.simbench.exception
   */
 class SimbenchException(
     private val msg: String,
-    private val cause: Throwable = None.orNull
+    private val cause: Throwable = null
 ) extends Exception(msg, cause)

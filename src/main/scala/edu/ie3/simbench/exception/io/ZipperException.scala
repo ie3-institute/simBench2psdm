@@ -4,5 +4,5 @@ import edu.ie3.simbench.exception.SimbenchException
 
 final case class ZipperException(
     private val msg: String,
-    private val cause: Throwable = None.orNull
+    private val cause: Throwable = null
 ) extends SimbenchException(msg, cause)
