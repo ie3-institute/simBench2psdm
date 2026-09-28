@@ -7,7 +7,7 @@ import scala.io.Source
 import scala.util.matching.Regex
 import com.typesafe.scalalogging.LazyLogging
 
-class Extractor(simbenchConfig: SimbenchConfig) extends LazyLogging {
+class Extractor(simbenchConfig: SimbenchConfig.Io.Input) extends LazyLogging {
 
   def download(): Unit = {
     val url = new URL(
@@ -16,7 +16,7 @@ class Extractor(simbenchConfig: SimbenchConfig) extends LazyLogging {
     val inputStream = url.openStream()
 
     try {
-      val downloadFolder = simbenchConfig.io.input.download.directory
+      val downloadFolder = simbenchConfig.directory
       val outputPath = s"$downloadFolder/simbench_datalinks.csv"
       val path = Paths.get(outputPath)
       Files.createDirectories(path.getParent)
@@ -30,7 +30,7 @@ class Extractor(simbenchConfig: SimbenchConfig) extends LazyLogging {
   /** Extracts a map of simbench-code to UUID from the downloaded file.
     */
   def extractUUIDMap(): Map[String, String] = {
-    val downloadDir = simbenchConfig.io.input.download.directory
+    val downloadDir = simbenchConfig.directory
     val outputPath = s"$downloadDir/simbench_datalinks.csv"
     val uuidPattern: Regex =
       """[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}""".r
