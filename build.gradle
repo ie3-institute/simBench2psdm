@@ -25,11 +25,21 @@ ext {
 	slf4jVersion = '2.0.20'
 
 	scriptsLocation = 'gradle' + File.separator + 'scripts' + File.separator //location of script plugins
+
+	scala3compilerOptions = [
+		"-feature",
+		"-language:implicitConversions",
+		"-language:existentials",
+		"-Wunused:all",
+		"-Xmax-inlines:128",
+		"-Xunchecked-java-output-version:21"
+	]
 }
 
 group = 'com.github.ie3-institute'
 description = 'simbench2psdm'
-java{
+
+java {
 	sourceCompatibility = javaVersion
 	targetCompatibility = javaVersion
 }
@@ -47,11 +57,10 @@ apply from: scriptsLocation + 'stagingAtMavenCentralPortal.gradle' // stage for 
 repositories {
 	mavenCentral()
 	maven { url = 'https://www.jitpack.io' } // allows github repos as dependencies
+}
 
-	// sonatype snapshots repo // todo remove
-	maven {
-		url = 'https://oss.sonatype.org/service/local/repositories/snapshots/content'
-	}
+configurations {
+	scalaCompilerPlugin
 }
 
 dependencies {
@@ -114,4 +123,35 @@ tasks.withType(JavaCompile).configureEach {
 tasks.named('test') {
 	dependsOn tasks.named('compileScoverageGroovy')
 	dependsOn tasks.named('processScoverageResources')
+}
+
+
+tasks.withType(ScalaCompile).configureEach {
+	scalaCompileOptions.additionalParameters = scala3compilerOptions + [
+		"-Xplugin:" + configurations.scalaCompilerPlugin.asPath,
+	]
+	scalaCompileOptions.forkOptions.jvmArgs = [
+		'-Xss2m',
+		'-XX:-UseGCOverheadLimit',
+		'-Xmx4g'
+	]
+}
+
+// separate scapegoat report for test classes
+compileTestScala {
+	scalaCompileOptions.additionalParameters = scalaCompileOptions.additionalParameters + []
+	options.forkOptions.jvmArgs += [
+		'-Xmx4096m',
+		'-Xss4m',
+		'-Xms2048m',
+		'-XX:+UseParallelGC',
+		'-XX:MaxInlineLevel=20'
+	]
+	options.compilerArgs += [
+		'-Xmx4096m',
+		'-Xss4m',
+		'-Xms2048m',
+		'-XX:+UseParallelGC',
+		'-XX:MaxInlineLevel=20'
+	]
 }
