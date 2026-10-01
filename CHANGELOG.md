@@ -20,6 +20,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated to `scala3` [#313](https://github.com/ie3-institute/simBench2psdm/issues/313)
 - Update Authors file [#365](https://github.com/ie3-institute/simBench2psdm/issues/365)
 
+### Fixed
+- Fixed recurring `gradlew.bat` modifications [#416](https://github.com/ie3-institute/simBench2psdm/issues/416)
+
 ## [1.0.0] - 2021-08-03
 ### Added
 - Basic functionality to convert SimBench data sets to [PowerSystemDataModel](https://github.com/ie3-institute/powersystemdatamodel)
