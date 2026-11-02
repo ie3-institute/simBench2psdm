@@ -9,13 +9,16 @@ import edu.ie3.simbench.model.datamodel.types.LineType
 import edu.ie3.simbench.model.datamodel.types.LineType.DCLineType
 import edu.ie3.test.common.{ConverterTestData, UnitSpec}
 import edu.ie3.util.quantities.PowerSystemUnits.KILOVOLT
-import edu.ie3.util.quantities.QuantityMatchers.equalWithTolerance
+import edu.ie3.util.quantities.QuantityMatchers
 
 import javax.measure.quantity.ElectricPotential
 import tech.units.indriya.ComparableQuantity
 import tech.units.indriya.quantity.Quantities
 
-class LineTypeConverterSpec extends UnitSpec with ConverterTestData {
+class LineTypeConverterSpec
+    extends UnitSpec
+    with ConverterTestData
+    with QuantityMatchers {
   val invalidLine: ACLine = ACLine(
     "LV1.101 Line 10",
     getNodePair("LV1.101 Bus 4")._1,
